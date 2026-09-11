@@ -1,0 +1,36 @@
+import { Badge, PageHeader, StatCard } from "@/components/ui";
+import { ExtraLoadManager } from "@/components/extra-load-manager";
+import { getExtraLoadData } from "@/lib/academic-operations";
+
+export const dynamic = "force-dynamic";
+
+export default async function ExtraLoadPage() {
+  const source = await getExtraLoadData();
+  const eligibleCount = source.teacherSummaries.filter((row) => row.assignedCredits > source.policy.extraLoadThresholdCredits).length;
+  const totalClasses = source.classes.length + source.manualSummaries.reduce((sum, row) => sum + row.classCount, 0);
+  const totalAmount = source.classes.length * source.policy.extraClassRate + source.manualSummaries.reduce((sum, row) => sum + row.amount, 0);
+  return <div>
+    <PageHeader
+      kicker="Teacher honorarium"
+      title="Extra class load"
+      description="A term-scoped ledger for teachers whose assigned course credits exceed the configured threshold. Detailed sheets and the department top sheet follow the supplied university templates; signature cells are intentionally left blank for print."
+      actions={<Badge tone="gold">{source.policy.extraClassRate.toLocaleString()} Tk / class</Badge>}
+    />
+    <div className="mb-4 grid gap-3 md:grid-cols-3">
+      <StatCard label="Eligible teachers" value={eligibleCount} sub={`assigned credits > ${source.policy.extraLoadThresholdCredits.toFixed(1)}`} />
+      <StatCard label="Classes in ledger" value={totalClasses} sub="app records + manual top-sheet count" />
+      <StatCard label="Calculated amount" value={`৳${totalAmount.toLocaleString()}`} sub="manual amount overrides included" tone="good" />
+    </div>
+    <ExtraLoadManager
+      teachers={source.data.teachers}
+      groups={source.groups}
+      entries={source.classes}
+      summaries={source.teacherSummaries}
+      manualRows={source.manualSummaries}
+      threshold={source.policy.extraLoadThresholdCredits}
+      rate={source.policy.extraClassRate}
+      termStart={source.data.term.startDate}
+      termEnd={source.data.term.endDate}
+    />
+  </div>;
+}

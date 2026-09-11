@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f5f3ec;
+  --color-parchment: #efece1;
+  --color-ink: #101d16;
+  --color-pine: #134228;
+  --color-pine-2: #1b5a37;
+  --color-moss: #4e7c62;
+  --color-sage: #dfe6da;
+  --color-gold: #b3791f;
+  --color-clay: #b43a1f;
+  --color-line: #d9d3c3;
+  --color-line-soft: #e6e1d2;
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Subtle paper grain for large surfaces */
+.paper-grain {
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(19, 66, 40, 0.04), transparent 45%),
+    radial-gradient(circle at 90% 100%, rgba(179, 121, 31, 0.05), transparent 40%);
+}
+
+/* Hairline ruled card */
+.ruled {
+  border: 1px solid var(--color-line);
+  background: #fffdf7;
+  box-shadow: 0 1px 0 rgba(16, 29, 22, 0.04), 0 12px 28px -22px rgba(16, 29, 22, 0.35);
+}
+
+/* Micro uppercase label */
+.micro-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #75806f;
+}
+
+/* Routine table */
+.routine-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+.routine-table th, .routine-table td {
+  border-bottom: 1px solid var(--color-line-soft);
+  border-right: 1px solid var(--color-line-soft);
+  vertical-align: top;
+}
+.routine-table tr > *:first-child {
+  border-left: 1px solid var(--color-line-soft);
+}
+.routine-table thead th {
+  border-top: 1px solid var(--color-line);
+  background: linear-gradient(180deg, #fbfaf4, #f1eee1);
+}
+
+/* Meeting card inside routine cells */
+.meeting-card {
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-pine);
+  background: #fffef9;
+  border-radius: 4px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.meeting-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -14px rgba(16, 29, 22, 0.5);
+}
+.meeting-shared { border-left-color: var(--color-gold); }
+.meeting-pending { border-left-color: var(--color-clay); }
+
+/* Break column overlay */
+.break-column {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(117, 128, 111, 0.1) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+/* Print: official document surface */
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  main { margin-left: 0 !important; padding: 0 !important; }
+  .print-surface { box-shadow: none !important; border: none !important; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  @page { size: A4 landscape; margin: 10mm; }
+}
+
+.official-grid {
+  border-collapse: collapse;
+}
+.official-grid th,
+.official-grid td {
+  border: 1px solid #000;
+  height: 28px;
+  padding: 3px 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+.official-grid th { font-weight: 700; }
+.teacher-sheet { page: teacher-extra-load; }
+.top-sheet { page: department-top-sheet; }
+@page teacher-extra-load { size: A4 portrait; margin: 0; }
+@page department-top-sheet { size: Letter portrait; margin: 0; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
