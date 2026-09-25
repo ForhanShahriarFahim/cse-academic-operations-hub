@@ -33,12 +33,26 @@ export interface SlotDef {
   breakAfter?: string;
 }
 
-/** HSC normal pattern — confirmed from supplied routine (75-minute slots). */
-export const HSC_SLOTS: SlotDef[] = [
+/** HSC Saturday pattern — confirmed from the supplied routine. */
+export const HSC_SATURDAY_SLOTS: SlotDef[] = [
   { start: 570, end: 645 }, // 09:30–10:45
   { start: 645, end: 720 }, // 10:45–12:00
   { start: 720, end: 795 }, // 12:00–13:15
   { start: 870, end: 945 }, // 14:30–15:45
+];
+
+/** HSC Sunday–Tuesday pattern shown in the supplied routine. */
+export const HSC_WEEKDAY_SLOTS: SlotDef[] = [
+  { start: 540, end: 600 }, // 09:00–10:00
+  { start: 600, end: 660 }, // 10:00–11:00
+  { start: 660, end: 720 }, // 11:00–12:00
+  { start: 720, end: 795 }, // 12:00–13:15
+];
+
+/** Tuesday adds the approved replacement slot for HSC-25B's former Friday class. */
+export const HSC_TUESDAY_SLOTS: SlotDef[] = [
+  ...HSC_WEEKDAY_SLOTS,
+  { start: 810, end: 885 }, // 13:30–14:45
 ];
 
 /**
@@ -82,10 +96,13 @@ export const WORKLOAD_ADVISORY_UNITS = 15;
 
 /** Grid day sets shown per stream. */
 export function daysForStream(stream: Stream): number[] {
-  return stream === "HSC" ? [0, 1, 2, 3, 6] : [6, 0];
+  return stream === "HSC" ? HSC_REGULAR_DAYS : DIPLOMA_DAYS;
 }
 
 export function slotsFor(stream: Stream, day: number): SlotDef[] {
-  if (stream === "HSC") return HSC_SLOTS;
+  if (stream === "HSC") {
+    if (day === 0) return HSC_SATURDAY_SLOTS;
+    return day === 3 ? HSC_TUESDAY_SLOTS : HSC_WEEKDAY_SLOTS;
+  }
   return day === 6 ? DIPLOMA_FRIDAY_SLOTS : DIPLOMA_SATURDAY_SLOTS;
 }

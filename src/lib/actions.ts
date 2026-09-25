@@ -18,7 +18,7 @@ import {
   scheduleVersions,
   auditEvents,
 } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { getPortalData } from "./data";
 import { analyzeSchedule, type Issue } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
@@ -289,15 +289,33 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
   }
 
   const [latest] = await db.select().from(scheduleVersions)
+    .where(eq(scheduleVersions.termId, data.term.id))
     .orderBy(desc(scheduleVersions.versionNumber)).limit(1);
   const nextVersion = (latest?.versionNumber ?? 0) + 1;
-  const snapshot = buildSnapshot(data.meetings, data.term.name, data.term.effectiveFrom, nextVersion);
+  const snapshot = buildSnapshot({
+    meetings: data.meetings,
+    term: {
+      id: data.term.id,
+      name: data.term.name,
+      academicYear: data.term.academicYear,
+      effectiveFrom: data.term.effectiveFrom,
+    },
+    versionNumber: nextVersion,
+    batches: data.batches,
+    breaks: data.breaks,
+      externals: data.externals,
+      issues,
+      metadata: data.publicationMetadata,
+  });
 
   // Atomic state transition: supersede the old published version, insert new.
   await db.transaction(async (tx) => {
     await tx.update(scheduleVersions)
       .set({ state: "superseded", effectiveTo: data.term.effectiveFrom })
-      .where(eq(scheduleVersions.state, "published"));
+      .where(and(
+        eq(scheduleVersions.termId, data.term.id),
+        eq(scheduleVersions.state, "published"),
+      ));
     const [v] = await tx.insert(scheduleVersions).values({
       termId: data.term.id,
       versionNumber: nextVersion,

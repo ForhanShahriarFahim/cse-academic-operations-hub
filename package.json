@@ -12,7 +12,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:domain": "tsx scripts/verify-domain.ts"
+    "test:domain": "tsx scripts/verify-domain.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-source-routine.ts",
+    "test:routine": "tsx scripts/verify-routine-projection.ts && tsx scripts/verify-source-routine.ts",
+    "test:ui": "playwright test"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",
@@ -26,6 +28,7 @@
     "tsx": "^4.23.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.1.17",
     "@types/node": "22.19.15",
     "@types/pg": "8.18.0",

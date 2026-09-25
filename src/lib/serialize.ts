@@ -4,6 +4,8 @@
  * no database access here.
  */
 
+import type { BreakRule, Issue } from "./conflicts";
+
 export interface TeacherRef {
   id: number;
   shortCode: string;
@@ -117,7 +119,7 @@ export function durationMinutes(m: MeetingView): number {
 // Publication snapshot
 // ---------------------------------------------------------------------------
 
-export interface PublicationSnapshot {
+export interface PublicationSnapshotV1 {
   generatedAt: string;
   termName: string;
   effectiveFrom: string | null;
@@ -125,19 +127,167 @@ export interface PublicationSnapshot {
   meetings: MeetingView[];
 }
 
-export function buildSnapshot(
-  meetings: MeetingView[],
-  termName: string,
-  effectiveFrom: string | null,
-  versionNumber: number,
-): PublicationSnapshot {
+export interface PublicationBatch {
+  id: number;
+  stream: "HSC" | "DIPLOMA";
+  label: string;
+  semester: number | null;
+  studentCount: number | null;
+  sortOrder: number;
+}
+
+export interface PublicationTerm {
+  id: number;
+  name: string;
+  academicYear: number;
+  effectiveFrom: string | null;
+}
+
+export interface PublicationSnapshotV2 {
+  schemaVersion: 2;
+  generatedAt: string;
+  term: PublicationTerm;
+  versionNumber: number;
+  meetings: MeetingView[];
+  batches: PublicationBatch[];
+  breaks: BreakRule[];
+  externalCommitments: ExternalCommitmentView[];
+  issues: Issue[];
+}
+
+export interface PublicationRoutineMetadata {
+  teachers: Array<{
+    shortCode: string; fullName: string; designation: string | null;
+    departmentCode: string | null; phone: string | null; email: string | null; status: string;
+  }>;
+  courses: Array<{
+    code: string; title: string; credits: number; courseType: string; semester: number;
+  }>;
+  classRepresentatives: Array<{
+    stream: "HSC" | "DIPLOMA"; batchLabel: string; fullName: string | null; phone: string | null; sortOrder: number;
+  }>;
+  queryContacts: Array<{
+    fullName: string; designation: string; phone: string; email: string | null; sortOrder: number;
+  }>;
+  sourceReconciliations: Array<{ detail: string; status: string; sourceLabel: string }>;
+}
+
+export interface PublicationSnapshotV3 extends Omit<PublicationSnapshotV2, "schemaVersion"> {
+  schemaVersion: 3;
+  metadata: PublicationRoutineMetadata;
+}
+
+export type PublicationSnapshot = PublicationSnapshotV1 | PublicationSnapshotV2 | PublicationSnapshotV3;
+
+export interface PublicationSnapshotFallback {
+  term: PublicationTerm;
+  batches: PublicationBatch[];
+  breaks: BreakRule[];
+  externals: ExternalCommitmentView[];
+  issues: Issue[];
+  metadata: PublicationRoutineMetadata;
+}
+
+export function buildSnapshot(input: {
+  meetings: MeetingView[];
+  term: PublicationTerm;
+  versionNumber: number;
+  batches: PublicationBatch[];
+  breaks: BreakRule[];
+  externals: ExternalCommitmentView[];
+  issues: Issue[];
+  metadata: PublicationRoutineMetadata;
+  generatedAt?: string;
+}): PublicationSnapshotV3 {
   return {
-    generatedAt: new Date().toISOString(),
-    termName,
-    effectiveFrom,
-    versionNumber,
-    meetings,
+    schemaVersion: 3,
+    generatedAt: input.generatedAt ?? new Date().toISOString(),
+    term: { ...input.term },
+    versionNumber: input.versionNumber,
+    meetings: input.meetings,
+    batches: input.batches,
+    breaks: input.breaks,
+    externalCommitments: input.externals.filter((item) => item.verificationStatus === "verified"),
+    issues: input.issues,
+    metadata: input.metadata,
   };
+}
+
+function objectValue(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+
+export function normalizePublicationSnapshot(
+  value: unknown,
+  fallback: PublicationSnapshotFallback,
+): { snapshot: PublicationSnapshotV3; legacyContext: boolean } | null {
+  if (!objectValue(value)) return null;
+
+  if (
+    value.schemaVersion === 3
+    && typeof value.generatedAt === "string"
+    && typeof value.versionNumber === "number"
+    && objectValue(value.term)
+    && Array.isArray(value.meetings)
+    && Array.isArray(value.batches)
+    && Array.isArray(value.breaks)
+    && Array.isArray(value.externalCommitments)
+    && Array.isArray(value.issues)
+    && objectValue(value.metadata)
+  ) {
+    return { snapshot: value as unknown as PublicationSnapshotV3, legacyContext: false };
+  }
+
+  if (
+    value.schemaVersion === 2
+    && typeof value.generatedAt === "string"
+    && typeof value.versionNumber === "number"
+    && objectValue(value.term)
+    && Array.isArray(value.meetings)
+    && Array.isArray(value.batches)
+    && Array.isArray(value.breaks)
+    && Array.isArray(value.externalCommitments)
+    && Array.isArray(value.issues)
+  ) {
+    return {
+      legacyContext: true,
+      snapshot: {
+        ...(value as unknown as PublicationSnapshotV2),
+        schemaVersion: 3,
+        metadata: fallback.metadata,
+      },
+    };
+  }
+
+  if (
+    typeof value.generatedAt === "string"
+    && typeof value.termName === "string"
+    && (typeof value.effectiveFrom === "string" || value.effectiveFrom === null)
+    && typeof value.versionNumber === "number"
+    && Array.isArray(value.meetings)
+  ) {
+    return {
+      legacyContext: true,
+      snapshot: {
+        schemaVersion: 3,
+        generatedAt: value.generatedAt,
+        term: {
+          ...fallback.term,
+          name: value.termName,
+          effectiveFrom: value.effectiveFrom,
+        },
+        versionNumber: value.versionNumber,
+        meetings: value.meetings as MeetingView[],
+        batches: fallback.batches,
+        breaks: fallback.breaks,
+        externalCommitments: fallback.externals.filter((item) => item.verificationStatus === "verified"),
+        issues: fallback.issues,
+        metadata: fallback.metadata,
+      },
+    };
+  }
+
+  return null;
 }
 
 // ---------------------------------------------------------------------------

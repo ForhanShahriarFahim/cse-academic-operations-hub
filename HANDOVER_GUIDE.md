@@ -2,7 +2,7 @@
 
 ## Complete project handover and user guide
 
-Last code and browser verification: 11 September 2026, Asia/Dhaka  
+Last code and browser verification: 23 September 2026, Asia/Dhaka
 Verified application URL: `http://localhost:3000` 
 Verified development term: Summer 2026
 
@@ -196,7 +196,11 @@ This is the main manual scheduling workspace.
 Use it to:
 
 - Switch between HSC and Diploma streams.
-- Select an academic day.
+- Switch between an editable Day view and a read-only Week view.
+- Select an academic day in Day view.
+- Filter either view to one batch or show all batches in the selected stream.
+- Print the selected projection or save it as PDF through the browser.
+- Download a CSV built from the same canonical projection; draft files are marked `DRAFT — NOT OFFICIAL`.
 - View each batch against the routine grid.
 - Search by course code/title, teacher, or room.
 - Show or hide the completeness tracker.
@@ -208,6 +212,8 @@ Use it to:
 When adding a class, choose the teaching group, exact start/end time, one or more teachers, and one or more rooms. An approved out-of-window exception such as an HSC Friday class must be marked as an exception and should include an approval note.
 
 All additions and moves are validated on the server. A blocker rejects the change and leaves the previous routine intact. A warning allows the draft change but is shown to the operator.
+
+The selection is URL-addressable. For example, `/routine?stream=hsc&view=week&batch=...` can be bookmarked and survives reload. Editing remains in Day view; Week mode is a review, print, and export document so one canonical renderer can be shared with the published viewer.
 
 ### `/routine/auto` — Automatic Routine Suggestions
 
@@ -404,7 +410,7 @@ Publication workflow:
 4. Select **Validate & publish new version**.
 5. Confirm publication.
 
-The server validates the entire draft again. If clear, it snapshots the meetings, marks the old published version superseded, and creates the next published version atomically. Old versions remain in history. Rolling back means publishing another validated revision, not editing an old snapshot.
+The server validates the entire draft again. If clear, it snapshots meetings plus their batch, break, verified external-commitment, validation, and term context; marks the old published version for that term superseded; and creates the next term-scoped published version atomically. Old versions remain in history. Rolling back means publishing another validated revision, not editing an old snapshot.
 
 ### `/settings` — Settings & Pending Decisions
 
@@ -434,7 +440,9 @@ The current page lists 12 blocking decisions and 9 operational decisions, or 21 
 
 ### `/public/routine` — Public Routine Viewer
 
-Displays only the current immutable published snapshot. It supports HSC/Diploma, day selection, desktop table view, mobile agenda view, and printing. Verified OD entries appear in the OD row. Draft changes remain invisible until a new version is published.
+Displays only the current immutable published snapshot. It supports HSC/Diploma, Day/Week switching, URL-persisted day and batch filters, desktop table view, mobile agenda view, browser Print/PDF, and CSV export. Verified OD entries appear in the on-screen and printed OD row; CSV contains canonical meetings only. Draft changes remain invisible until a new version is published.
+
+Publication payload schema v2 is self-contained for repeatable screen, print, and CSV output. An older v1 publication is never rewritten: the page identifies it as legacy and discloses that missing supporting context is supplied from current configuration. The next successful publication naturally produces v2.
 
 ### `/api/health` — Health Check
 
@@ -635,6 +643,8 @@ npm run dev
 | `npm run typecheck` | TypeScript validation | None |
 | `npm run lint` | ESLint validation | None |
 | `npm run test:domain` | CSV/attendance/payment rule smoke tests | None |
+| `npm run test:routine` | Focused Day/Week projection and routine CSV regression tests | None |
+| `npm run test:ui` | Playwright routine screen/export/print acceptance tests | None |
 
 Never run `npm run db:reset` against a database containing real institutional data unless a verified backup exists and the replacement is intentional.
 
@@ -683,10 +693,11 @@ The following passed on the current source:
 npm run typecheck
 npm run lint
 npm run test:domain
+npm run test:ui
 npm run build
 ```
 
-Browser verification covered Dashboard, Rooms, Attendance, Extra Class Load, automatic scheduling, Conflicts, and Settings. Tested routes returned HTTP 200 and the browser console showed no errors. The final baseline was 85 meetings, 0 blockers, and 9 advisories.
+Browser verification covered Dashboard, Rooms, Attendance, Extra Class Load, automatic scheduling, Conflicts, Settings, and draft/published routine Day/Week views. Routine acceptance tests cover URL persistence, batch filtering, mobile overflow, print visibility, draft/published CSV semantics, and invalid export requests. Tested routes returned HTTP 200 and the browser console showed no errors. The final baseline was 85 meetings, 0 blockers, and 9 advisories.
 
 ---
 

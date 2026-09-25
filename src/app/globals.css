@@ -100,11 +100,15 @@ body {
 }
 
 /* Print: official document surface */
+.print-only { display: none; }
 @media print {
   body { background: #fff; }
   .no-print { display: none !important; }
+  .print-only { display: block !important; }
   main { margin-left: 0 !important; padding: 0 !important; }
   .print-surface { box-shadow: none !important; border: none !important; }
+  .routine-print-day:not(:last-child) { break-after: page; page-break-after: always; }
+  .routine-print-day { break-inside: avoid; }
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
   @page { size: A4 landscape; margin: 10mm; }
@@ -112,6 +116,82 @@ body {
 
 .official-grid {
   border-collapse: collapse;
+}
+
+/* Compact official routine package: two routine pages plus appendices. */
+.official-package { display: flex; flex-direction: column; gap: 20px; }
+.official-package-page {
+  width: min(100%, 1120px);
+  aspect-ratio: 297 / 210;
+  padding: 12px 18px 10px;
+  color: #111;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+.official-package-header { padding-bottom: 5px; }
+.official-university { font-family: var(--font-display), Georgia, serif; font-size: 17px; font-weight: 800; }
+.official-department { font-family: var(--font-display), Georgia, serif; font-size: 12px; }
+.official-term { font-size: 10px; font-weight: 700; }
+.official-effective { position: absolute; right: 0; top: 14px; font-size: 8px; font-weight: 700; }
+.official-package-header h1 { margin-top: 3px; font-family: var(--font-display), Georgia, serif; font-size: 11px; font-weight: 800; text-decoration: underline; }
+.official-package-body { min-height: 0; overflow: hidden; }
+.official-package-footer { display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 3px; font-size: 6px; font-weight: 600; }
+.official-routine-days { display: grid; height: 100%; gap: 3px; }
+.official-routine-days-hsc { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.official-routine-days-diploma { grid-template-rows: auto auto; align-content: start; }
+.official-routine-days-diploma .official-compact-table td,
+.official-routine-days-diploma .official-compact-table tbody th { height: 18px; }
+.official-routine-days-diploma .official-compact-table thead th { height: 20px; }
+.official-compact-table, .official-appendix-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.official-compact-table th, .official-compact-table td { border: 1px solid #222; padding: 1px 2px; text-align: center; font-size: 6.2px; line-height: 1.08; }
+.official-compact-table thead th { background: #d7d7d7; font-weight: 800; }
+.official-compact-table thead th:first-child { width: 48px; }
+.official-compact-table thead th:nth-child(2) { width: 38px; }
+.official-day-spacer { background: #cfcfcf; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .08em; }
+.official-slot-caption { color: #666; font-size: 5px !important; font-weight: 500 !important; }
+.official-break-heading { width: 18px; background: #d7d7d7; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 5.5px !important; letter-spacing: .08em; }
+.official-break-body { width: 18px; background: #efefef; padding: 0 !important; }
+.official-break-body span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 5.5px; font-weight: 800; letter-spacing: .08em; }
+.official-compact-table td > div + div { border-top: 1px dotted #888; margin-top: 1px; padding-top: 1px; }
+.official-compact-table small, .official-appendix-table small { display: block; font-size: 5px; line-height: 1.05; }
+.official-cell-blocker { background: #fee2e2; }
+.official-od-row th, .official-od-row td { color: #b45309; background: #fff7ed; }
+.official-course-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.official-course-grid h2, .official-directory h2 { margin: 1px 0; background: #9bd3e3; border: 1px solid #222; padding: 1px 3px; text-align: center; font-size: 7px; font-weight: 800; }
+.official-appendix-table th, .official-appendix-table td { border: 1px solid #222; padding: 1px 3px; font-size: 5.7px; line-height: 1.08; }
+.official-appendix-table thead th, .official-appendix-table tfoot th { background: #d9eef4; font-weight: 800; }
+.official-course-grid .official-appendix-table th:first-child { width: 76px; }
+.official-course-grid .official-appendix-table th:last-child { width: 42px; text-align: center; }
+.official-teacher-columns, .official-cr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.official-teacher-columns .official-appendix-table th:first-child { width: 24px; }
+.official-teacher-columns .official-appendix-table th:nth-child(3) { width: 38px; }
+.official-teacher-columns .official-appendix-table th:last-child { width: 110px; }
+.official-cr-grid { margin-top: 4px; }
+.official-query-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.official-query-grid > div { border: 1px solid #222; padding: 3px; text-align: center; font-size: 6px; }
+.official-query-grid span { display: block; }
+.official-source-note { margin-top: 3px; border: 1px solid #c0841a; background: #fff8e7; padding: 2px 4px; font-size: 5.5px; }
+
+@media print {
+  .official-package { display: block; }
+  .official-package-page {
+    box-sizing: border-box;
+    width: 100%;
+    height: 190mm;
+    aspect-ratio: auto;
+    padding: 3mm 4mm 2mm;
+    break-after: page;
+    page-break-after: always;
+  }
+  .official-package-page:last-child { break-after: auto; page-break-after: auto; }
+  .official-package-header { padding-bottom: 1mm; }
+  .official-university { font-size: 13pt; }
+  .official-department { font-size: 9pt; }
+  .official-term, .official-package-header h1 { font-size: 8pt; }
+  .official-effective { font-size: 6.5pt; }
+  .official-compact-table th, .official-compact-table td { font-size: 5.2pt; padding: .25mm .4mm; }
+  .official-appendix-table th, .official-appendix-table td { font-size: 4.8pt; padding: .25mm .5mm; }
+  .official-package-footer { font-size: 5pt; }
 }
 .official-grid th,
 .official-grid td {

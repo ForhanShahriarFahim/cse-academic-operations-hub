@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import {
   AlertTriangle, Asterisk, ChevronDown, CirclePlus, Clock3, Eye,
   Landmark, Pencil, ShieldAlert, Trash2, Users, X,
 } from "lucide-react";
-import { DAY_NAMES, DAY_SHORT, fmtRange, fmtRange24, overlaps, parseTimeToMinutes } from "@/lib/time";
-import { daysForStream, slotsFor, type Stream } from "@/lib/constants";
+import { DAY_NAMES, fmtRange, fmtRange24, overlaps, parseTimeToMinutes } from "@/lib/time";
 import { sharingLabel, type MeetingView, type ExternalCommitmentView } from "@/lib/serialize";
-import type { BatchView, GroupCoverage } from "@/lib/data";
+import type { GroupCoverage } from "@/lib/data";
+import type { RoutineBatch, RoutineProjection } from "@/lib/routine-projection";
 import {
   createMeetingAction, moveMeetingAction, deleteMeetingAction, type ActionResult,
 } from "@/lib/actions";
@@ -40,13 +40,7 @@ interface BreakInfo {
 }
 
 interface Props {
-  termName: string;
-  effectiveFrom: string | null;
-  batches: BatchView[];
-  meetings: MeetingView[];
-  externals: ExternalCommitmentView[];
-  breaks: BreakInfo[];
-  issueCount: { blockers: number; warnings: number };
+  projection: RoutineProjection;
   groups: GroupOption[];
   teachers: TeacherOption[];
   rooms: RoomOption[];
@@ -61,8 +55,6 @@ const HIGHLIGHT_DOT: Record<string, string> = {
 };
 
 export function RoutineBuilder(props: Props) {
-  const [stream, setStream] = useState<Stream>("HSC");
-  const [day, setDay] = useState<number>(0);
   const [dense, setDense] = useState(false);
   const [query, setQuery] = useState("");
   const [showTracker, setShowTracker] = useState(true);
@@ -78,33 +70,15 @@ export function RoutineBuilder(props: Props) {
     setTimeout(() => setToast(null), 4200);
   }
 
-  const days = daysForStream(stream);
-  if (!days.includes(day)) setDay(days[0]);
-  const slots = slotsFor(stream, day);
-  const rows = props.batches.filter((b) => b.stream === stream);
-
-  // Breaks rendered as overlay columns between slots for this stream/day.
-  const breakColumns = useMemo(() => {
-    const applicable = props.breaks.filter(
-      (br) =>
-        (br.dayOfWeek == null || br.dayOfWeek === day) &&
-        (br.scope === "institution" || br.stream === stream || br.stream == null),
-    );
-    return applicable
-      .map((br) => {
-        let after = -1;
-        slots.forEach((s, i) => {
-          if (s.end <= br.startMinutes) after = i;
-        });
-        return { ...br, afterSlot: after };
-      })
-      .filter((b) => b.afterSlot >= 0 && b.afterSlot < slots.length - 1);
-  }, [props.breaks, day, stream, slots]);
-
-  const dayMeetings = props.meetings.filter((m) => m.dayOfWeek === day);
-  const dayExternals = props.externals.filter(
-    (e) => e.dayOfWeek === day && e.startMinutes != null && e.endMinutes != null,
-  );
+  const { projection } = props;
+  const stream = projection.selection.stream;
+  const dayView = projection.days[0];
+  const day = dayView?.dayOfWeek ?? projection.selection.day;
+  const slots = dayView?.slots ?? [];
+  const rows = dayView?.rows.map((row) => row.batch) ?? [];
+  const breakColumns = dayView?.breaks ?? [];
+  const dayMeetings = projection.exportMeetings.map((item) => item.meeting).filter((meeting) => meeting.dayOfWeek === day);
+  const dayExternals = dayView?.externals ?? [];
 
   function meetingsFor(batchId: number, slot: { start: number; end: number }) {
     return dayMeetings.filter(
@@ -141,33 +115,6 @@ export function RoutineBuilder(props: Props) {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="no-print flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md border border-[var(--color-line)] bg-white p-0.5">
-          {(["HSC", "DIPLOMA"] as Stream[]).map((s) => (
-            <button
-              key={s}
-              onClick={() => { setStream(s); setDay(daysForStream(s)[0]); }}
-              className={`rounded px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors ${
-                stream === s ? "bg-[var(--color-pine)] text-white" : "text-[#5c675d] hover:text-[var(--color-pine)]"
-              }`}
-            >
-              {s === "HSC" ? "HSC stream" : "Diploma stream"}
-            </button>
-          ))}
-        </div>
-        <div className="flex rounded-md border border-[var(--color-line)] bg-white p-0.5">
-          {days.map((d) => (
-            <button
-              key={d}
-              onClick={() => setDay(d)}
-              className={`rounded px-3 py-1.5 text-[12.5px] font-semibold transition-colors ${
-                day === d ? "bg-[var(--color-ink)] text-white" : "text-[#5c675d] hover:text-[var(--color-ink)]"
-              } ${stream === "HSC" && d === 6 ? "underline decoration-[var(--color-gold)] decoration-2 underline-offset-4" : ""}`}
-            >
-              {DAY_SHORT[d]}
-              {stream === "HSC" && d === 6 ? "*" : ""}
-            </button>
-          ))}
-        </div>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -182,12 +129,12 @@ export function RoutineBuilder(props: Props) {
         </button>
         <span className="ml-auto flex items-center gap-3 text-[11.5px] text-[#66705f]">
           <span className="flex items-center gap-1">
-            <ShieldAlert size={13} className={props.issueCount.blockers ? "text-[var(--color-clay)]" : "text-[var(--color-pine)]"} />
-            {props.issueCount.blockers} blockers
+            <ShieldAlert size={13} className={projection.issueCount.blockers ? "text-[var(--color-clay)]" : "text-[var(--color-pine)]"} />
+            {projection.issueCount.blockers} blockers
           </span>
           <span className="flex items-center gap-1">
             <AlertTriangle size={13} className="text-[var(--color-gold)]" />
-            {props.issueCount.warnings} advisories
+            {projection.issueCount.warnings} advisories
           </span>
           <a href="/public/routine" target="_blank" className="flex items-center gap-1 font-semibold text-[var(--color-pine)] hover:underline">
             <Eye size={13} /> Public view
@@ -353,7 +300,7 @@ export function RoutineBuilder(props: Props) {
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-500" /> Coloured dots preserve source highlights — meaning is <em>unconfirmed</em>, never conflict status.
         </span>
-        <span className="ml-auto flex items-center gap-1.5"><Landmark size={12} /> {props.termName} · effective from publication v1</span>
+        <span className="ml-auto flex items-center gap-1.5"><Landmark size={12} /> {projection.source.termName} · draft workspace</span>
       </div>
 
       {/* Dialogs */}
@@ -362,7 +309,7 @@ export function RoutineBuilder(props: Props) {
           state={addState}
           day={day}
           groups={props.groups}
-          batches={props.batches}
+          batches={projection.source.batches}
           teachers={props.teachers}
           rooms={props.rooms}
           onClose={() => setAddState(null)}
@@ -551,7 +498,7 @@ function AddMeetingDialog({
   state: { batchId: number; slotStart: number; slotEnd: number; presetGroupId?: number };
   day: number;
   groups: GroupOption[];
-  batches: BatchView[];
+  batches: RoutineBatch[];
   teachers: TeacherOption[];
   rooms: RoomOption[];
   onClose: () => void;

@@ -24,7 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="paper-grain min-h-screen">{children}</body>
+      <body className="paper-grain min-h-screen" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

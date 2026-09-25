@@ -34,7 +34,9 @@ if (databaseUrl) {
   // Next's build workers each get an isolated in-memory instance; dynamic pages
   // do not need application data while the route manifest is being collected.
   const isBuild = process.env.npm_lifecycle_event === "build";
-  const dataDirectory = isBuild ? "memory://" : path.join(process.cwd(), ".data", "pglite");
+  const dataDirectory = isBuild
+    ? "memory://"
+    : process.env.PGLITE_DATA_DIR ?? path.join(process.cwd(), ".data", "pglite-summer-2026");
   if (!isBuild) mkdirSync(path.dirname(dataDirectory), { recursive: true });
   const client = globalForDb.__pundraPglite ?? new PGlite(dataDirectory);
 

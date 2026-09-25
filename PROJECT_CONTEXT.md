@@ -40,7 +40,7 @@ All development seed records are synthetic. Authentication is not yet implemente
 ## Application map
 
 - `/` — operations dashboard.
-- `/routine` — editable exact-time routine builder.
+- `/routine` — editable exact-time Day view plus URL-addressed Day/Week review, batch filtering, Print/PDF, and labeled draft CSV export.
 - `/routine/auto` — automatic safe-placement suggestions and explicit apply.
 - `/conflicts` — blockers and warnings.
 - `/attendance` — roster CRUD, CSV import, daily attendance, phase and semester summaries.
@@ -52,7 +52,7 @@ All development seed records are synthetic. Authentication is not yet implemente
 - `/od` — structured cross-department teaching and room commitments.
 - `/publications` — validation-gated immutable publication.
 - `/settings` — term policy, day/window management, and 21 currently visible pending decisions. Earlier context reported 31; the missing specification prevents safely reconstructing the difference.
-- `/public/routine` — printable published snapshot.
+- `/public/routine` — immutable published Day/Week viewer with batch filtering, Print/PDF, and snapshot CSV export.
 - `/api/health` — database health and mode.
 
 ## Architecture and extension seams

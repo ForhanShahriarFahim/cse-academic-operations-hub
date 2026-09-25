@@ -128,6 +128,48 @@ export const batchTermPlacements = pgTable(
   (t) => [uniqueIndex("btp_uq").on(t.batchId, t.termId)],
 );
 
+export const classRepresentatives = pgTable(
+  "class_representatives",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    batchId: integer("batch_id").notNull().references(() => batches.id),
+    fullName: text("full_name"),
+    phone: text("phone"),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [uniqueIndex("class_representatives_term_batch_uq").on(t.termId, t.batchId)],
+);
+
+export const departmentContacts = pgTable(
+  "department_contacts",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    fullName: text("full_name").notNull(),
+    designation: text("designation").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email"),
+    purpose: text("purpose").notNull().default("routine_query"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("department_contacts_term_idx").on(t.termId)],
+);
+
+export const routineSourceReconciliations = pgTable(
+  "routine_source_reconciliations",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    sourceLabel: text("source_label").notNull(),
+    detail: text("detail").notNull(),
+    status: text("status").notNull().default("open"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("routine_source_reconciliations_term_idx").on(t.termId)],
+);
+
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(), // e.g. CSE-1101, CSE-4000(A) — suffixes preserved

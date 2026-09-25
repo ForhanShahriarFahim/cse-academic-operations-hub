@@ -12,7 +12,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 ## Highlights
 
-- Exact-time routine builder for HSC and Diploma streams.
+- Exact-time Day and Week routine views for HSC and Diploma streams, with optional batch filtering.
 - Batch-specific class days and time windows, including approved Friday exceptions.
 - Deterministic automatic scheduler for safe initial placements.
 - Conflict detection for teachers, rooms, audiences, breaks, capacity, external commitments, and room capabilities.
@@ -21,7 +21,8 @@ The application supports Spring and Summer sessions, preserves historical batch-
 - Teacher extra-load eligibility, daily class ledger, configurable payment rate, and printable university-style sheets.
 - Manual top-sheet entries for teachers who maintain their detailed records offline.
 - Separate catalog credits, approved workload units, and scheduled contact minutes.
-- Immutable routine publication with an independent public/print viewer.
+- Draft and immutable published routine CSV exports generated from the same projection shown on screen.
+- Immutable routine publication with an independent public/print viewer and browser Print/PDF output.
 - PostgreSQL production mode and zero-configuration PGlite development mode.
 
 ## Product tour
@@ -29,6 +30,10 @@ The application supports Spring and Summer sessions, preserves historical batch-
 | Routine planning | Automatic scheduling |
 |---|---|
 | ![Exact-time routine builder](docs/screenshots/routine-builder.png) | ![Automatic scheduling assistant](docs/screenshots/automatic-scheduler.png) |
+
+### Weekly published routine
+
+![Published HSC weekly routine with Print/PDF and CSV export](docs/screenshots/weekly-routine.png)
 
 | Attendance | Extra-class honorarium |
 |---|---|
@@ -47,7 +52,8 @@ The application supports Spring and Summer sessions, preserves historical batch-
 3. Review blockers and advisories in **Validation**.
 4. Resolve every blocker.
 5. Publish a new immutable version from **Publications**.
-6. Share or print the approved snapshot from the **Public routine viewer**.
+6. Open the **Public routine viewer**, choose HSC or Diploma and Day or Week, then optionally narrow to one batch.
+7. Share, print/save as PDF, or download the approved CSV snapshot. The draft export is always labeled `DRAFT — NOT OFFICIAL`.
 
 ### Take attendance
 
@@ -157,6 +163,8 @@ Do not commit database credentials.
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
 | `npm run test:domain` | Verify CSV, attendance, eligibility, payment, and amount-wording rules |
+| `npm run test:routine` | Run focused routine projection and CSV regression checks |
+| `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows) |
 
 ## Project structure
 
@@ -168,7 +176,9 @@ cse-academic-operations-hub/
 │   ├── screenshots/               # README product screenshots
 │   └── templates/                 # Extra-load template analysis
 ├── scripts/
-│   └── verify-domain.ts           # Pure domain smoke checks
+│   ├── verify-domain.ts           # Academic-operations domain smoke checks
+│   └── verify-routine-projection.ts # Routine projection/export regression checks
+├── tests/                         # Playwright browser acceptance tests
 ├── src/
 │   ├── app/
 │   │   ├── (portal)/              # Coordinator-facing pages
@@ -189,6 +199,9 @@ cse-academic-operations-hub/
 │       ├── conflicts.ts            # Pure exact-time validation engine
 │       ├── data.ts                 # Main portal read model
 │       ├── extra-load.ts           # Eligibility and payment calculations
+│       ├── routine-projection.ts   # Shared Day/Week screen, print, and export projection
+│       ├── routine-csv.ts          # Deterministic CSV serialization
+│       ├── routine-sources.ts      # Draft/published source adapters
 │       ├── schedule-automation.ts  # Scheduler database adapter
 │       ├── serialize.ts            # Meeting views and immutable snapshots
 │       └── workload.ts             # Workload calculations
@@ -202,7 +215,8 @@ cse-academic-operations-hub/
 | Route | Purpose |
 |---|---|
 | `/` | Coordinator dashboard |
-| `/routine` | Manual exact-time routine builder |
+| `/routine` | Manual exact-time builder plus Day/Week, batch filter, print, and draft CSV |
+| `/routine/export` | URL-addressed draft routine CSV export |
 | `/routine/auto` | Safe automatic placement suggestions |
 | `/conflicts` | Blockers and advisory warnings |
 | `/attendance` | Roster, CSV import, attendance, and summaries |
@@ -215,7 +229,8 @@ cse-academic-operations-hub/
 | `/od` | External teaching and room commitments |
 | `/publications` | Immutable version publication and history |
 | `/settings` | Term policy, class windows, and pending decisions |
-| `/public/routine` | Public and printable published routine |
+| `/public/routine` | Public Day/Week viewer, batch filter, and printable immutable routine |
+| `/public/routine/export` | URL-addressed published-snapshot CSV export |
 | `/api/health` | Database health and mode |
 
 ## Verified development baseline

@@ -23,13 +23,18 @@ import {
   externalCommitments,
   workloadAllocations,
   scheduleVersions,
+  classRepresentatives,
+  departmentContacts,
+  routineSourceReconciliations,
 } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import {
   assembleMeetingViews,
   type MeetingView,
   type ExternalCommitmentView,
-  type PublicationSnapshot,
+  normalizePublicationSnapshot,
+  type PublicationSnapshotV3,
+  type PublicationRoutineMetadata,
 } from "./serialize";
 
 export interface BatchView {
@@ -52,6 +57,7 @@ export interface TeacherRow {
   homeDepartmentCode: string | null;
   homeDepartmentName: string | null;
   email: string | null;
+  phone: string | null;
   status: string;
   notes: string | null;
 }
@@ -157,7 +163,17 @@ export interface PortalData {
   allocations: AllocationView[];
   coverage: GroupCoverage[];
   versions: VersionView[];
-  publishedSnapshot: PublicationSnapshot | null;
+  publishedSnapshot: PublicationSnapshotV3 | null;
+  publishedSnapshotLegacy: boolean;
+  publicationMetadata: PublicationRoutineMetadata;
+  classRepresentatives: {
+    id: number; batchId: number; stream: "HSC" | "DIPLOMA"; batchLabel: string;
+    fullName: string | null; phone: string | null; sortOrder: number;
+  }[];
+  queryContacts: {
+    id: number; fullName: string; designation: string; phone: string; email: string | null; sortOrder: number;
+  }[];
+  sourceReconciliations: { id: number; detail: string; status: string; sourceLabel: string }[];
 }
 
 function toNum(v: string | number | null): number | null {
@@ -178,6 +194,7 @@ export async function getPortalData(): Promise<PortalData> {
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
     offeringRows, groupRows, linkRows, requirementRows, meetingRows, mtRows,
     mrRows, breakRows, windowRows, ecRows, allocationRows, versionRows,
+    representativeRows, contactRows, reconciliationRows,
   ] = await Promise.all([
     db.select().from(departments),
     db.select().from(teachers),
@@ -198,6 +215,9 @@ export async function getPortalData(): Promise<PortalData> {
     db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
     db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
       .orderBy(desc(scheduleVersions.versionNumber)),
+    db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
+    db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
+    db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
   ]);
 
   const deptById = new Map(deptRows.map((d) => [d.id, d]));
@@ -329,6 +349,81 @@ export async function getPortalData(): Promise<PortalData> {
   });
 
   const published = versionRows.find((v) => v.state === "published");
+  const batchViews: BatchView[] = batchRows
+    .map((b) => ({
+      id: b.id,
+      stream: b.stream as "HSC" | "DIPLOMA",
+      label: b.label,
+      intake: b.intake,
+      studentCount: b.studentCount,
+      semester: semesterByBatch.get(b.id) ?? null,
+      sortOrder: b.sortOrder,
+    }))
+    .sort((a, b) => b.sortOrder - a.sortOrder);
+  const breakViews = breakRows.map((b) => ({
+    id: b.id,
+    name: b.name,
+    scope: b.scope,
+    stream: b.stream,
+    dayOfWeek: b.dayOfWeek,
+    startMinutes: b.startMinutes,
+    endMinutes: b.endMinutes,
+  }));
+  const publicationMetadata: PublicationRoutineMetadata = {
+    teachers: teacherRows.map((teacher) => ({
+      shortCode: teacher.shortCode,
+      fullName: teacher.fullName,
+      designation: teacher.designation,
+      departmentCode: teacher.homeDepartmentId ? deptById.get(teacher.homeDepartmentId)?.code ?? null : null,
+      phone: teacher.phonePrivate,
+      email: teacher.email,
+      status: teacher.status,
+    })),
+    courses: courseRows.map((course) => ({
+      code: course.code,
+      title: course.title,
+      credits: Number(course.credits),
+      courseType: course.courseType,
+      semester: course.semester,
+    })),
+    classRepresentatives: representativeRows.map((representative) => {
+      const batch = batchById.get(representative.batchId);
+      return {
+        stream: (batch?.stream ?? "HSC") as "HSC" | "DIPLOMA",
+        batchLabel: batch?.label ?? "?",
+        fullName: representative.fullName,
+        phone: representative.phone,
+        sortOrder: representative.sortOrder,
+      };
+    }),
+    queryContacts: contactRows.map((contact) => ({
+      fullName: contact.fullName,
+      designation: contact.designation,
+      phone: contact.phone,
+      email: contact.email,
+      sortOrder: contact.sortOrder,
+    })),
+    sourceReconciliations: reconciliationRows.map((item) => ({
+      detail: item.detail,
+      status: item.status,
+      sourceLabel: item.sourceLabel,
+    })),
+  };
+  const normalizedPublished = published?.snapshot
+    ? normalizePublicationSnapshot(published.snapshot, {
+        term: {
+          id: term.id,
+          name: term.name,
+          academicYear: term.academicYear,
+          effectiveFrom: term.effectiveFrom,
+        },
+        batches: batchViews,
+        breaks: breakViews,
+        externals,
+        issues: [],
+        metadata: publicationMetadata,
+      })
+    : null;
 
   return {
     term: {
@@ -351,6 +446,7 @@ export async function getPortalData(): Promise<PortalData> {
       homeDepartmentCode: t.homeDepartmentId ? deptById.get(t.homeDepartmentId)?.code ?? null : null,
       homeDepartmentName: t.homeDepartmentId ? deptById.get(t.homeDepartmentId)?.name ?? null : null,
       email: t.email,
+      phone: t.phonePrivate,
       status: t.status,
       notes: t.notes,
     })),
@@ -376,23 +472,10 @@ export async function getPortalData(): Promise<PortalData> {
       needsLab: c.needsLab,
       requiredRoomCapability: c.requiredRoomCapability,
     })),
-    batches: batchRows
-      .map((b) => ({
-        id: b.id,
-        stream: b.stream as "HSC" | "DIPLOMA",
-        label: b.label,
-        intake: b.intake,
-        studentCount: b.studentCount,
-        semester: semesterByBatch.get(b.id) ?? null,
-        sortOrder: b.sortOrder,
-      }))
-      .sort((a, b) => b.sortOrder - a.sortOrder),
+    batches: batchViews,
     meetings: meetingViews,
     externals,
-    breaks: breakRows.map((b) => ({
-      id: b.id, name: b.name, scope: b.scope, stream: b.stream,
-      dayOfWeek: b.dayOfWeek, startMinutes: b.startMinutes, endMinutes: b.endMinutes,
-    })),
+    breaks: breakViews,
     windows: windowRows.filter((w) => w.termId == null || w.termId === term.id).map((w) => ({
       id: w.id, termId: w.termId, batchId: w.batchId, stream: w.stream, dayOfWeek: w.dayOfWeek,
       startMinutes: w.startMinutes, endMinutes: w.endMinutes,
@@ -413,6 +496,34 @@ export async function getPortalData(): Promise<PortalData> {
         ? ((v.snapshot as { meetings?: unknown[] }).meetings?.length ?? 0)
         : 0,
     })),
-    publishedSnapshot: published?.snapshot ? (published.snapshot as PublicationSnapshot) : null,
+    publishedSnapshot: normalizedPublished?.snapshot ?? null,
+    publishedSnapshotLegacy: normalizedPublished?.legacyContext ?? false,
+    publicationMetadata,
+    classRepresentatives: representativeRows.map((representative) => {
+      const batch = batchById.get(representative.batchId);
+      return {
+        id: representative.id,
+        batchId: representative.batchId,
+        stream: (batch?.stream ?? "HSC") as "HSC" | "DIPLOMA",
+        batchLabel: batch?.label ?? "?",
+        fullName: representative.fullName,
+        phone: representative.phone,
+        sortOrder: representative.sortOrder,
+      };
+    }).sort((a, b) => a.sortOrder - b.sortOrder),
+    queryContacts: contactRows.map((contact) => ({
+      id: contact.id,
+      fullName: contact.fullName,
+      designation: contact.designation,
+      phone: contact.phone,
+      email: contact.email,
+      sortOrder: contact.sortOrder,
+    })).sort((a, b) => a.sortOrder - b.sortOrder),
+    sourceReconciliations: reconciliationRows.map((item) => ({
+      id: item.id,
+      detail: item.detail,
+      status: item.status,
+      sourceLabel: item.sourceLabel,
+    })),
   };
 }
