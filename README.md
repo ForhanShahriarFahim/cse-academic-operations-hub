@@ -25,6 +25,10 @@ The application supports Spring and Summer sessions, preserves historical batch-
 - Immutable routine publication with an independent public/print viewer and browser Print/PDF output.
 - PostgreSQL production mode and zero-configuration PGlite development mode.
 
+## Project status and next work
+
+The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. Start with the [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) to see completed work, labeled issues, dependencies, and the next feature. The detailed plan also lives in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
+
 ## Product tour
 
 | Routine planning | Automatic scheduling |
@@ -74,7 +78,7 @@ Attendance supports Present, Absent, Late, and Excused. Late counts as attended;
 5. Add offline/manual teacher totals when needed.
 6. Print the combined departmental top sheet.
 
-The default policy is 3 credits for theory, 2 credits for sessional, extra load above 15 assigned credits, and Tk 200 per class. All values are term-configurable. Signature cells remain blank for signing after printing.
+The default policy is 3 catalog credits for theory and 1 catalog credit for sessional. A sessional course counts as 2 workload credit-hours; extra load begins above 15 assigned workload credit-hours, at Tk 200 per class. Policy values are term-configurable. Signature cells remain blank for signing after printing.
 
 ## Conflict engine
 
