@@ -28,7 +28,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 ## Project status and next work
 
-The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. Start with the [current execution plan](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) for status, dependencies and the next feature. The longer feature rationale remains in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
+The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. New maintainers should start with the concise [project brief](docs/PROJECT_BRIEF.md), then the [current execution plan](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16). The longer feature rationale remains in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
 
 ## Product tour
 
@@ -142,7 +142,7 @@ Without `DATABASE_URL`, the first development start creates `.data/pglite-summer
 
 1. Copy `.env.example` to `.env.local` and uncomment/set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep secrets out of Git.
 2. Create a Google OAuth **Web application** client and authorize `http://localhost:3000/api/auth/callback/google` as a redirect URI. See [Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
-3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL=dfahim432@gmail.com` (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. This is idempotent for the same first administrator and refuses to silently replace an existing administrator.
+3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. This is idempotent for the same first administrator and refuses to silently replace an existing administrator.
 4. Run `npm run dev` and sign in at `/login` with that Google account. Use **People & Access** to invite staff, assign roles, link a teacher short code, suspend users, or revoke roles.
 
 No public sign-up is enabled. An invited address must be verified by Google before it can access the portal. Without the four auth settings, internal access stays closed and `/login` shows a setup notice.
@@ -203,8 +203,12 @@ cse-academic-operations-hub/
 ├── drizzle/                       # SQL migrations and migration metadata
 ├── docs/
 │   ├── architecture/              # Architecture decision records
+│   ├── plans/                     # Current execution plan
+│   ├── source/                    # Summer 2026 routine transcription
 │   ├── screenshots/               # README product screenshots
-│   └── templates/                 # Extra-load template analysis
+│   ├── templates/                 # Extra-load template analysis
+│   ├── PROJECT_BRIEF.md           # Current-state agent/operator handoff
+│   └── IMPLEMENTATION_SOLUTION_ROADMAP.md # Feature rationale
 ├── scripts/
 │   ├── verify-domain.ts           # Academic-operations domain smoke checks
 │   └── verify-routine-projection.ts # Routine projection/export regression checks
@@ -239,8 +243,8 @@ cse-academic-operations-hub/
 │       ├── schedule-automation.ts  # Scheduler database adapter
 │       ├── serialize.ts            # Meeting views and immutable snapshots
 │       └── workload.ts             # Workload calculations
-├── HANDOVER_GUIDE.md               # Complete operational and technical guide
-├── PROJECT_CONTEXT.md              # Consolidated project context
+├── AGENTS.md                       # Agent entry point and Next.js rule
+├── CONTEXT.md                      # Domain glossary
 └── README.md
 ```
 
@@ -248,6 +252,8 @@ cse-academic-operations-hub/
 
 | Route | Purpose |
 |---|---|
+| `/login` | Invited-account Google sign-in and setup notice |
+| `/access` | Administrator-managed invitations, roles, teacher links, and suspension |
 | `/` | Coordinator dashboard |
 | `/routine` | Manual exact-time builder plus Day/Week, batch filter, print, and draft CSV |
 | `/routine/export` | URL-addressed draft routine CSV export |
@@ -263,7 +269,9 @@ cse-academic-operations-hub/
 | `/od` | External teaching and room commitments |
 | `/publications` | Immutable version publication and history |
 | `/settings` | Term policy, class windows, and pending decisions |
+| `/routine/official` | Internal compact official routine/appendix print package |
 | `/public/routine` | Public Day/Week viewer, batch filter, and printable immutable routine |
+| `/public/routine/official` | Published compact official routine/appendix print package |
 | `/public/routine/export` | URL-addressed published-snapshot CSV export |
 | `/api/health` | Database health and mode |
 
@@ -279,11 +287,13 @@ development data, not as an approved official schedule.
 
 ## Documentation
 
-- [Current execution plan and status](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
-- [Complete handover and user guide](HANDOVER_GUIDE.md) — historical pre-auth baseline; update tracked by `DOC-01`
-- [Consolidated project context](PROJECT_CONTEXT.md) — historical pre-auth baseline; update tracked by `DOC-01`
+- [Project brief — fastest current-state handoff](docs/PROJECT_BRIEF.md)
+- [Execution plan — order, gates and next issue](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
+- [Implementation roadmap — feature rationale and issue codes](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md)
+- [Domain glossary](CONTEXT.md)
 - [Academic-operations architecture decision](docs/architecture/ADR-001-academic-operations-boundaries.md)
 - [Extra-load print-template analysis](docs/templates/extra-load-print-templates.md)
+- [Summer 2026 source transcription](docs/source/CSE_SUMMER_2026_ROUTINE_V1_6.md)
 
 ## Production readiness notes
 

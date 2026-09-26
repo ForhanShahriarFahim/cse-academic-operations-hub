@@ -22,4 +22,4 @@ Routine slots, course credit policy, extra-load claims, attendance, cohorts, and
 - Routine, attendance, and extra-load modules can evolve independently while sharing term, teacher, course-group, and audit identities.
 - Cross-department students and teachers are represented without duplicating or pretending they belong to CSE.
 - Operational exceptions are visible data and participate in validation.
-- Future authentication can enforce coordinator, teacher, and read-only roles at server-action boundaries without redesigning domain tables.
+- Current authentication enforces coordinator, teacher, and read-only roles at server-action boundaries without redesigning domain tables; real-provider and hosted-database verification remain open under AUTH-01.

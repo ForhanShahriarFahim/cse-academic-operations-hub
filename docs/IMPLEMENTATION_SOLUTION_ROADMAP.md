@@ -36,7 +36,7 @@ Every implementation should:
 | Workload | Catalog credits, approved workload units and contact minutes are separated | Depends on trustworthy teacher, offering and external-commitment management |
 | Extra load | Eligibility, daily claims, rate configuration, role-protected print sheets | Claim review and payment approval workflow remains |
 
-The current fresh seed imports 42 teacher records, 78 courses and 183 meetings. The original institutional specification is missing from this checkout. `HANDOVER_GUIDE.md` and `PROJECT_CONTEXT.md` still describe an older no-authentication synthetic baseline; treat them as historical until `DOC-01` reconciles them.
+The current fresh seed imports 42 teacher records, 78 courses and 183 meetings. The original institutional specification is missing from this checkout. Superseded pre-authentication handover/context documents were retired; use the [current project brief](PROJECT_BRIEF.md), README and execution plan for handoff.
 
 ### Important verified attendance facts
 
