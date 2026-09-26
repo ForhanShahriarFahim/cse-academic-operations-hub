@@ -26,7 +26,7 @@ Every implementation should:
 |---|---|---|
 | Routine | Exact-minute draft builder, HSC/Diploma Day/Week views, compact print package, CSV export, conflict validation and source import | 13 source-routine blockers; no approved publication from the imported schedule |
 | Attendance | Roster CRUD, CSV import, daily sessions, Present/Absent/Late/Excused, midterm/final phase totals, semester percentage and marks | One long group selector; feedback is easy to miss; no department/batch navigation or full course-session ledger/export |
-| Authentication | Invite-only Google sign-in, role assignments, server-side guards, redaction and named transactional audit writes are committed locally | Real OAuth callback, hosted PostgreSQL and adversarial session/role tests remain unverified; #1 stays open |
+| Authentication | Invite-only Google sign-in, role assignments, server-side guards, redaction and named transactional audit writes are pushed to `origin/main` | Real OAuth callback, hosted PostgreSQL, adversarial session/role tests and source-bounded public contacts remain unverified; #1 stays open |
 | Teachers | Directory, detail and workload views | No create/edit/deactivate/reactivate workflow |
 | Rooms | Room inventory, capabilities and occupancy reporting | No create/edit/availability/deactivation workflow |
 | Batches | Stable cohort identities and term-scoped semester placements | No management UI, rollover workflow, count verification or lifecycle controls |
@@ -84,9 +84,9 @@ This is the recommended first feature. It is mostly read-only, delivers immediat
 
 Implemented with shared draft/published projection, Day/Week URL state, CSV export, compact HSC and Diploma official pages, course-offer and directory appendices, and the reviewed Summer 2026 source import. The supplied routine's unresolved conflicts remain visible and block a new official publication until reviewed.
 
-### Phase 2 — Authentication and role authorization (`AUTH-01`) — implemented locally, verification pending
+### Phase 2 — Authentication and role authorization (`AUTH-01`) — code pushed, verification pending
 
-The implementation is in local commits `26eb86c` and `c70984f`. Complete real-provider, PostgreSQL, ownership and session verification before closing #1 or exposing substantial new CRUD functionality in production.
+The implementation is in pushed commits `26eb86c` and `c70984f`. Complete real-provider, PostgreSQL, ownership and session verification, plus the owner-approved Summer 2026 teacher/CR/query contact projection, before closing #1 or exposing substantial new CRUD functionality in production. Listed personal mobiles are within the approved source scope; unrelated directory data is not.
 
 ### Phase 3 — Academic master-data management
 
