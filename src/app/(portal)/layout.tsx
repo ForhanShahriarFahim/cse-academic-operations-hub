@@ -3,10 +3,18 @@ import { Landmark } from "lucide-react";
 import { SidebarNav, PublicLink } from "@/components/nav";
 import { getActiveTerm } from "@/lib/data";
 import { TERM } from "@/lib/constants";
+import { redirect } from "next/navigation";
+import { can, getOptionalActor } from "@/lib/auth";
+import { SignOutButton } from "@/components/login-button";
+import { ROLE_CAPABILITIES } from "@/lib/auth/policy";
 
 export const dynamic = "force-dynamic";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
+  const actor = await getOptionalActor();
+  if (!actor) redirect("/login");
+  if (!await can(actor, "view_internal_portal")) redirect("/forbidden");
+  const capabilities = [...new Set(actor.assignments.flatMap((assignment) => ROLE_CAPABILITIES[assignment.role]))];
   let termName: string = TERM.name;
   try {
     const term = await getActiveTerm();
@@ -33,9 +41,13 @@ export default async function PortalLayout({ children }: { children: React.React
             </span>
           </Link>
         </div>
-        <SidebarNav />
+        <SidebarNav capabilities={capabilities} />
         <PublicLink />
         <div className="border-t border-white/10 px-4 py-3 text-[10.5px] leading-relaxed text-white/40">
+          <span className="block truncate font-semibold text-white/75">{actor.displayName}</span>
+          <span className="mb-2 block truncate">{actor.email}</span>
+          <SignOutButton />
+          <br />
           Term: <span className="font-semibold text-white/70">{termName}</span>
           <br />
           Asia/Dhaka · exact-time validation

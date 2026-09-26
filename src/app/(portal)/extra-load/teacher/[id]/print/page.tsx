@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PrintButton } from "@/components/print-button";
 import { INSTITUTION } from "@/lib/constants";
 import { getExtraLoadData } from "@/lib/academic-operations";
+import { can, requireActor } from "@/lib/auth";
 import { fmtTime } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -17,9 +18,13 @@ export default async function TeacherExtraLoadPrintPage({ params, searchParams }
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
   const { id } = await params;
+  const teacherId = Number(id);
+  if (!Number.isInteger(teacherId) || teacherId <= 0) notFound();
+  const actor = await requireActor();
+  const canViewOwn = actor.teacherId === teacherId && await can(actor, "submit_extra_load", { kind: "teacher", teacherId });
+  if (!await can(actor, "view_payment_reports") && !canViewOwn) redirect("/forbidden");
   const query = await searchParams;
   const source = await getExtraLoadData(query.from, query.to);
-  const teacherId = Number(id);
   const teacher = source.data.teachers.find((row) => row.id === teacherId);
   if (!teacher) notFound();
   const entries = source.classes.filter((row) => row.teacherId === teacherId);
@@ -51,4 +56,3 @@ export default async function TeacherExtraLoadPrintPage({ params, searchParams }
     </article>
   </div>;
 }
-

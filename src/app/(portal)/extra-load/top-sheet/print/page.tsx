@@ -2,11 +2,15 @@ import Link from "next/link";
 import { PrintButton } from "@/components/print-button";
 import { INSTITUTION } from "@/lib/constants";
 import { getExtraLoadData } from "@/lib/academic-operations";
+import { can, requireActor } from "@/lib/auth";
 import { amountInWords } from "@/lib/extra-load";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExtraLoadTopSheetPrintPage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
+  const actor = await requireActor();
+  if (!await can(actor, "view_payment_reports")) redirect("/forbidden");
   const query = await searchParams;
   const source = await getExtraLoadData(query.from, query.to);
   const appRows = source.teacherSummaries.filter((row) => row.classCount > 0).map((row) => ({ name: row.teacher.fullName, classes: row.classCount, amount: row.amount }));
@@ -40,4 +44,3 @@ export default async function ExtraLoadTopSheetPrintPage({ searchParams }: { sea
     </article>
   </div>;
 }
-

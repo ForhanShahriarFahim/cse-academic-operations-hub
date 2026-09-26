@@ -1,13 +1,12 @@
-import { getPortalData } from "@/lib/data";
+import { getPublicRoutineData } from "@/lib/public-routine";
 import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection";
 import { serializeRoutineCsv } from "@/lib/routine-csv";
-import { publishedRoutineSource } from "@/lib/routine-sources";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const data = await getPortalData();
-  const source = publishedRoutineSource(data);
+  const data = await getPublicRoutineData();
+  const source = data?.source ?? null;
   if (!source) return Response.json({ error: "No published routine." }, { status: 404 });
   const params = Object.fromEntries(new URL(request.url).searchParams.entries());
   const parsed = parseRoutineSelection(params, source.batches, { strict: true });

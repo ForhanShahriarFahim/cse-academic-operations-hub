@@ -25,14 +25,20 @@ import { isExtraLoadEligible } from "./extra-load";
 import { parseTimeToMinutes } from "./time";
 import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
+import { requireActor } from "./auth";
+import { actionActor, guardAction } from "./auth/action-guard";
 
 function refresh() {
   revalidatePath("/", "layout");
 }
 
 async function audit(action: string, entity: string, entityId: number | null, detail?: unknown) {
+  const actor = await requireActor();
   await db.insert(auditEvents).values({
-    actor: "coordinator",
+    actor: actor.displayName,
+    actorUserId: actor.id,
+    actorDisplayName: actor.displayName,
+    actorKind: "user",
     action,
     entity,
     entityId,
@@ -48,6 +54,8 @@ function numberField(formData: FormData, name: string): number | null {
 }
 
 export async function updateAcademicPolicyAction(formData: FormData): Promise<ActionResult> {
+  const denied = await guardAction("manage_policy");
+  if (denied) return denied;
   const term = await getActiveTerm();
   const values = {
     theoryCreditHours: numberField(formData, "theoryCreditHours"),
@@ -69,6 +77,8 @@ export async function updateAcademicPolicyAction(formData: FormData): Promise<Ac
 }
 
 export async function createPermittedWindowAction(formData: FormData): Promise<ActionResult> {
+  const denied = await guardAction("manage_policy");
+  if (denied) return denied;
   const term = await getActiveTerm();
   const stream = String(formData.get("stream") ?? "");
   const dayOfWeek = Number(formData.get("dayOfWeek"));
@@ -90,6 +100,8 @@ export async function createPermittedWindowAction(formData: FormData): Promise<A
 }
 
 export async function deletePermittedWindowAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("manage_policy");
+  if (denied) return denied;
   if (!Number.isInteger(id) || id <= 0) return { ok: false, message: "Invalid time window." };
   await db.delete(permittedWindows).where(eq(permittedWindows.id, id));
   await audit("window.delete", "permitted_window", id);
@@ -100,6 +112,8 @@ export async function deletePermittedWindowAction(id: number): Promise<ActionRes
 export async function createExtraLoadClassAction(formData: FormData): Promise<ActionResult> {
   const teacherId = Number(formData.get("teacherId"));
   const teachingGroupId = Number(formData.get("teachingGroupId"));
+  const denied = await guardAction("submit_extra_load", { kind: "teacher", teacherId });
+  if (denied) return denied;
   const classDate = String(formData.get("classDate") ?? "");
   const startMinutes = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
   const endMinutes = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
@@ -135,6 +149,8 @@ export async function createExtraLoadClassAction(formData: FormData): Promise<Ac
 }
 
 export async function deleteExtraLoadClassAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
+  if (denied) return denied;
   await db.delete(extraLoadClasses).where(eq(extraLoadClasses.id, id));
   await audit("extra_load.delete", "extra_load_class", id);
   refresh();
@@ -142,6 +158,8 @@ export async function deleteExtraLoadClassAction(id: number): Promise<ActionResu
 }
 
 export async function createManualTopSheetRowAction(formData: FormData): Promise<ActionResult> {
+  const denied = await guardAction("review_extra_load");
+  if (denied) return denied;
   const term = await getActiveTerm();
   const teacherName = String(formData.get("teacherName") ?? "").trim();
   const classCount = numberField(formData, "classCount");
@@ -163,6 +181,8 @@ export async function createManualTopSheetRowAction(formData: FormData): Promise
 }
 
 export async function deleteManualTopSheetRowAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("review_extra_load");
+  if (denied) return denied;
   await db.delete(extraLoadManualSummaries).where(eq(extraLoadManualSummaries.id, id));
   await audit("extra_load.manual.delete", "extra_load_manual_summary", id);
   refresh();
@@ -171,6 +191,8 @@ export async function deleteManualTopSheetRowAction(id: number): Promise<ActionR
 
 export async function upsertStudentAction(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
+  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
+  if (denied) return denied;
   const studentId = numberField(formData, "studentId");
   const studentCode = String(formData.get("studentCode") ?? "").trim();
   const fullName = String(formData.get("fullName") ?? "").trim();
@@ -202,6 +224,8 @@ export async function upsertStudentAction(formData: FormData): Promise<ActionRes
 
 export async function importStudentCsvAction(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
+  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
+  if (denied) return denied;
   const csvText = String(formData.get("csvText") ?? "");
   if (!Number.isInteger(teachingGroupId) || teachingGroupId <= 0) return { ok: false, message: "Choose a course group first." };
   const source = await getAttendanceData(teachingGroupId);
@@ -234,6 +258,8 @@ export async function importStudentCsvAction(formData: FormData): Promise<Action
 }
 
 export async function deactivateStudentAction(studentId: number, teachingGroupId: number): Promise<ActionResult> {
+  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
+  if (denied) return denied;
   const term = await getActiveTerm();
   await db.update(courseEnrollments).set({ status: "inactive" }).where(and(
     eq(courseEnrollments.termId, term.id),
@@ -247,6 +273,8 @@ export async function deactivateStudentAction(studentId: number, teachingGroupId
 
 export async function createAttendanceSessionAction(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
+  const denied = await guardAction("take_attendance", { kind: "teaching_group", teachingGroupId });
+  if (denied) return denied;
   const classDate = String(formData.get("classDate") ?? "");
   const phase = String(formData.get("phase") ?? "midterm");
   const startMinutes = formData.get("startTime") ? parseTimeToMinutes(String(formData.get("startTime"))) : null;
@@ -276,6 +304,8 @@ export async function createAttendanceSessionAction(formData: FormData): Promise
 }
 
 export async function saveAttendanceAction(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
+  const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId });
+  if (denied) return denied;
   if (!Number.isInteger(sessionId) || values.some((value) => !Number.isInteger(value.studentId) || !ATTENDANCE_STATUSES.includes(value.status as never))) {
     return { ok: false, message: "Attendance payload is invalid." };
   }
@@ -299,6 +329,8 @@ export async function saveAttendanceAction(sessionId: number, values: Array<{ st
 }
 
 export async function deleteAttendanceSessionAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId: id });
+  if (denied) return denied;
   await db.delete(attendanceRecords).where(eq(attendanceRecords.sessionId, id));
   await db.delete(attendanceSessions).where(eq(attendanceSessions.id, id));
   await audit("attendance.session.delete", "attendance_session", id);
@@ -307,6 +339,8 @@ export async function deleteAttendanceSessionAction(id: number): Promise<ActionR
 }
 
 export async function applyAutoScheduleAction(): Promise<ActionResult> {
+  const actor = await actionActor("run_auto_schedule");
+  if ("ok" in actor) return actor;
   // Recompute immediately before commit; suggestions from an earlier page
   // render are never trusted after the draft may have changed.
   const source = await buildAutoSchedulePlan();
@@ -322,7 +356,10 @@ export async function applyAutoScheduleAction(): Promise<ActionResult> {
       await tx.insert(meetingTeachers).values(suggestion.teacherIds.map((teacherId) => ({ meetingId: meeting.id, teacherId })));
       await tx.insert(meetingRooms).values({ meetingId: meeting.id, roomId: suggestion.roomId });
       await tx.insert(auditEvents).values({
-        actor: "coordinator",
+        actor: actor.displayName,
+        actorUserId: actor.id,
+        actorDisplayName: actor.displayName,
+        actorKind: "user",
         action: "meeting.auto_create",
         entity: "meeting",
         entityId: meeting.id,

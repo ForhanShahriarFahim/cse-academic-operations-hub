@@ -36,6 +36,13 @@
       "when": 1790143200000,
       "tag": "0004_official-routine-metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790326800000,
+      "tag": "0005_auth",
+      "breakpoints": true
     }
   ]
 }

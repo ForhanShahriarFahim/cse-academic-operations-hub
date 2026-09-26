@@ -71,6 +71,77 @@ export const teachers = pgTable(
   (t) => [index("teachers_dept_idx").on(t.homeDepartmentId)],
 );
 
+// Portal authorization is deliberately separate from academic teacher records.
+// Better Auth owns auth_* identity/session tables; invitation and permissions
+// remain application data so a provider change does not change academic roles.
+export const portalUsers = pgTable("portal_users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  status: text("status").notNull().default("invited"),
+  teacherId: integer("teacher_id").references(() => teachers.id),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [index("portal_users_teacher_idx").on(t.teacherId)]);
+
+export const roleAssignments = pgTable("role_assignments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => portalUsers.id),
+  role: text("role").notNull(),
+  departmentId: integer("department_id").references(() => departments.id),
+  activeFrom: timestamp("active_from").notNull().defaultNow(),
+  activeTo: timestamp("active_to"),
+  grantedByUserId: integer("granted_by_user_id").references(() => portalUsers.id),
+  grantedAt: timestamp("granted_at").notNull().defaultNow(),
+}, (t) => [index("role_assignments_user_idx").on(t.userId)]);
+
+export const authUser = pgTable("auth_user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const authSession = pgTable("auth_session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id").notNull().references(() => authUser.id),
+}, (t) => [index("auth_session_user_idx").on(t.userId)]);
+
+export const authAccount = pgTable("auth_account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id").notNull().references(() => authUser.id),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [uniqueIndex("auth_account_provider_uq").on(t.providerId, t.accountId)]);
+
+export const authVerification = pgTable("auth_verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [index("auth_verification_identifier_idx").on(t.identifier)]);
+
 // ---------------------------------------------------------------------------
 // Academic structure
 // ---------------------------------------------------------------------------
@@ -506,6 +577,12 @@ export const auditEvents = pgTable(
     id: serial("id").primaryKey(),
     at: timestamp("at").notNull().defaultNow(),
     actor: text("actor").notNull().default("coordinator"),
+    actorUserId: integer("actor_user_id").references(() => portalUsers.id),
+    actorDisplayName: text("actor_display_name"),
+    actorKind: text("actor_kind").notNull().default("system"),
+    requestId: text("request_id"),
+    before: jsonb("before"),
+    after: jsonb("after"),
     action: text("action").notNull(),
     entity: text("entity").notNull(),
     entityId: integer("entity_id"),

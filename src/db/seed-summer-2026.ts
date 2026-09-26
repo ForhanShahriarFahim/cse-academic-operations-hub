@@ -7,7 +7,7 @@ import * as schema from "./schema";
 import { parseSummer2026Routine } from "../lib/source-routine";
 import { buildSnapshot } from "../lib/serialize";
 import { analyzeSchedule } from "../lib/conflicts";
-import { getPortalData } from "../lib/data";
+import { getPortalDataForSeed } from "../lib/data";
 
 const SOURCE_LABEL = "CSE Summer-2026 Class Routine v1.6";
 const SOURCE_PATH = path.join(process.cwd(), "docs", "source", "CSE_SUMMER_2026_ROUTINE_V1_6.md");
@@ -225,7 +225,7 @@ export async function seedSummer2026Database() {
     { termId: term.id, stream: "DIPLOMA", dayOfWeek: 0, startMinutes: 720, endMinutes: 1020 },
   ]);
 
-  const data = await getPortalData();
+  const data = await getPortalDataForSeed();
   const issues = analyzeSchedule({ meetings: data.meetings, externals: data.externals, breaks: data.breaks, windows: data.windows });
   const blockers = issues.filter((issue) => issue.severity === "blocker");
   const publish = blockers.length === 0;

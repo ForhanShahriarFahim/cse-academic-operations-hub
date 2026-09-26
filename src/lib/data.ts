@@ -28,6 +28,9 @@ import {
   routineSourceReconciliations,
 } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { can, getOptionalActor } from "./auth";
+import { publicMetadata } from "./public-routine";
 import {
   assembleMeetingViews,
   type MeetingView,
@@ -188,6 +191,23 @@ export async function getActiveTerm() {
 }
 
 export async function getPortalData(): Promise<PortalData> {
+  const actor = await getOptionalActor();
+  if (!actor) redirect("/login");
+  if (!await can(actor, "view_internal_portal")) redirect("/forbidden");
+  const privateContacts = await can(actor, "view_private_contacts");
+  return loadPortalData(privateContacts);
+}
+
+// This entry point exists only for the trusted first-run/seed CLI. It is not
+// used by pages, route handlers, or Server Actions.
+export async function getPortalDataForSeed(): Promise<PortalData> {
+  if (!/(?:^|[\\/])(?:prepare|seed)\.ts$/i.test(process.argv[1] ?? "")) {
+    throw new Error("Seed-only data access is unavailable outside the database CLI.");
+  }
+  return loadPortalData(true);
+}
+
+async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
   const term = await getActiveTerm();
 
   const [
@@ -445,8 +465,8 @@ export async function getPortalData(): Promise<PortalData> {
       homeDepartmentId: t.homeDepartmentId,
       homeDepartmentCode: t.homeDepartmentId ? deptById.get(t.homeDepartmentId)?.code ?? null : null,
       homeDepartmentName: t.homeDepartmentId ? deptById.get(t.homeDepartmentId)?.name ?? null : null,
-      email: t.email,
-      phone: t.phonePrivate,
+      email: privateContacts ? t.email : null,
+      phone: privateContacts ? t.phonePrivate : null,
       status: t.status,
       notes: t.notes,
     })),
@@ -496,9 +516,12 @@ export async function getPortalData(): Promise<PortalData> {
         ? ((v.snapshot as { meetings?: unknown[] }).meetings?.length ?? 0)
         : 0,
     })),
-    publishedSnapshot: normalizedPublished?.snapshot ?? null,
+    publishedSnapshot: normalizedPublished?.snapshot
+      ? { ...normalizedPublished.snapshot, metadata: privateContacts
+        ? normalizedPublished.snapshot.metadata : publicMetadata(normalizedPublished.snapshot.metadata) }
+      : null,
     publishedSnapshotLegacy: normalizedPublished?.legacyContext ?? false,
-    publicationMetadata,
+    publicationMetadata: privateContacts ? publicationMetadata : publicMetadata(publicationMetadata),
     classRepresentatives: representativeRows.map((representative) => {
       const batch = batchById.get(representative.batchId);
       return {
@@ -507,7 +530,7 @@ export async function getPortalData(): Promise<PortalData> {
         stream: (batch?.stream ?? "HSC") as "HSC" | "DIPLOMA",
         batchLabel: batch?.label ?? "?",
         fullName: representative.fullName,
-        phone: representative.phone,
+        phone: privateContacts ? representative.phone : null,
         sortOrder: representative.sortOrder,
       };
     }).sort((a, b) => a.sortOrder - b.sortOrder),
@@ -515,8 +538,8 @@ export async function getPortalData(): Promise<PortalData> {
       id: contact.id,
       fullName: contact.fullName,
       designation: contact.designation,
-      phone: contact.phone,
-      email: contact.email,
+      phone: privateContacts ? contact.phone : "",
+      email: privateContacts ? contact.email : null,
       sortOrder: contact.sortOrder,
     })).sort((a, b) => a.sortOrder - b.sortOrder),
     sourceReconciliations: reconciliationRows.map((item) => ({

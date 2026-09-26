@@ -14,6 +14,9 @@ import {
   students,
 } from "@/db/schema";
 import { getPortalData, type PortalData } from "./data";
+import { can, requireActor } from "./auth";
+import { hasCapability } from "./auth/policy";
+import { redirect } from "next/navigation";
 import { attendanceMark, type AttendanceStatus } from "./attendance";
 import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
 
@@ -42,9 +45,10 @@ export async function getAcademicPolicy(termId: number): Promise<ExtraLoadPolicy
 export function groupOptions(data: PortalData): TeachingGroupOption[] {
   return data.coverage.map((coverage) => {
     const course = data.courses.find((row) => row.code === coverage.courseCode);
-    const teacherIds = [...new Set(data.allocations
-      .filter((allocation) => allocation.teachingGroupId === coverage.teachingGroupId)
-      .map((allocation) => allocation.teacherId))];
+    const teacherIds = [...new Set([
+      ...data.allocations.filter((allocation) => allocation.teachingGroupId === coverage.teachingGroupId).map((allocation) => allocation.teacherId),
+      ...data.meetings.filter((meeting) => meeting.teachingGroupId === coverage.teachingGroupId).flatMap((meeting) => meeting.teachers.map((teacher) => teacher.id)),
+    ])];
     return {
       id: coverage.teachingGroupId,
       courseCode: coverage.courseCode,
@@ -74,8 +78,13 @@ export function teacherCreditLoads(data: PortalData, groups = groupOptions(data)
 
 export async function getExtraLoadData(from?: string, to?: string) {
   const data = await getPortalData();
+  const actor = await requireActor();
   const policy = await getAcademicPolicy(data.term.id);
-  const groups = groupOptions(data);
+  const canReview = await can(actor, "review_extra_load") || await can(actor, "view_payment_reports");
+  if (!canReview && (actor.teacherId == null || !await can(actor, "submit_extra_load", { kind: "teacher", teacherId: actor.teacherId }))) {
+    redirect("/forbidden");
+  }
+  const groups = groupOptions(data).filter((group) => canReview || actor.teacherId != null && group.teacherIds.includes(actor.teacherId));
   const loads = teacherCreditLoads(data, groups);
   const where = from && to
     ? and(eq(extraLoadClasses.termId, data.term.id), gte(extraLoadClasses.classDate, from), lte(extraLoadClasses.classDate, to))
@@ -84,7 +93,7 @@ export async function getExtraLoadData(from?: string, to?: string) {
     db.select().from(extraLoadClasses).where(where).orderBy(asc(extraLoadClasses.classDate), asc(extraLoadClasses.startMinutes)),
     db.select().from(extraLoadManualSummaries).where(eq(extraLoadManualSummaries.termId, data.term.id)).orderBy(asc(extraLoadManualSummaries.teacherName)),
   ]);
-  const classes = classRows.map((row) => {
+  const classes = classRows.filter((row) => canReview || row.teacherId === actor.teacherId).map((row) => {
     const teacher = data.teachers.find((item) => item.id === row.teacherId);
     return {
       ...row,
@@ -93,7 +102,7 @@ export async function getExtraLoadData(from?: string, to?: string) {
       teacherShortCode: teacher?.shortCode ?? "—",
     };
   });
-  const teacherSummaries = data.teachers.map((teacher) => {
+  const teacherSummaries = data.teachers.filter((teacher) => canReview || teacher.id === actor.teacherId).map((teacher) => {
     const entries = classes.filter((row) => row.teacherId === teacher.id);
     return {
       teacher,
@@ -102,7 +111,7 @@ export async function getExtraLoadData(from?: string, to?: string) {
       amount: paymentForClasses(entries.length, policy.extraClassRate),
     };
   }).filter((row) => row.assignedCredits > 0 || row.classCount > 0);
-  const manualSummaries = manualRows.map((row) => ({
+  const manualSummaries = (canReview ? manualRows : []).map((row) => ({
     ...row,
     rateOverride: row.rateOverride == null ? null : Number(row.rateOverride),
     amountOverride: row.amountOverride == null ? null : Number(row.amountOverride),
@@ -113,8 +122,19 @@ export async function getExtraLoadData(from?: string, to?: string) {
 
 export async function getAttendanceData(selectedGroupId?: number) {
   const data = await getPortalData();
+  const actor = await requireActor();
   const policy = await getAcademicPolicy(data.term.id);
-  const groups = groupOptions(data);
+  const candidates = groupOptions(data);
+  const departmentByCode = new Map(data.departments.map((department) => [department.code, department.id]));
+  const cseId = departmentByCode.get("CSE") ?? null;
+  const courseByCode = new Map(data.courses.map((course) => [course.code, course]));
+  const groups = candidates.filter((group) => {
+    const course = courseByCode.get(group.courseCode);
+    const departmentId = course?.owningDepartmentCode ? departmentByCode.get(course.owningDepartmentCode) ?? null : cseId;
+    return hasCapability(actor, "manage_rosters", departmentId)
+      || actor.teacherId != null && group.teacherIds.includes(actor.teacherId) && hasCapability(actor, "take_attendance", departmentId);
+  });
+  if (groups.length === 0 && !await can(actor, "manage_rosters")) redirect("/forbidden");
   const selectedGroup = selectedGroupId == null
     ? groups[0] ?? null
     : groups.find((group) => group.id === selectedGroupId) ?? null;

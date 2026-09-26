@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { getPortalData } from "@/lib/data";
-import { publishedRoutineSource } from "@/lib/routine-sources";
+import { getPublicRoutineData } from "@/lib/public-routine";
 import { buildOfficialRoutinePackage } from "@/lib/official-routine-package";
 import { OfficialRoutinePackage } from "@/components/official-routine-package";
 import { PrintPackageButton } from "@/components/print-package-button";
@@ -8,12 +7,12 @@ import { PrintPackageButton } from "@/components/print-package-button";
 export const dynamic = "force-dynamic";
 
 export default async function PublishedOfficialRoutinePage() {
-  const data = await getPortalData();
-  const source = publishedRoutineSource(data);
-  if (!source || !data.publishedSnapshot) {
+  const data = await getPublicRoutineData();
+  const source = data?.source ?? null;
+  if (!source || !data) {
     return <main className="mx-auto max-w-3xl p-8"><h1 className="font-display text-2xl font-bold">No published routine</h1><p className="mt-2">Publish a validated routine before generating the official package.</p></main>;
   }
-  const document = buildOfficialRoutinePackage({ source, metadata: data.publishedSnapshot.metadata });
+  const document = buildOfficialRoutinePackage({ source, metadata: data.metadata });
   return <div className="paper-grain min-h-screen py-5 print:bg-white print:py-0">
     <div className="no-print mx-auto mb-4 flex max-w-7xl items-center justify-between px-4">
       <div><h1 className="font-display text-xl font-bold">Official routine package</h1><p className="text-xs text-[#66705f]">HSC, Diploma, course offers, teachers, CRs and query contacts</p></div>

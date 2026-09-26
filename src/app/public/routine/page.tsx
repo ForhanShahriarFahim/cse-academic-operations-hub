@@ -1,7 +1,6 @@
 import { AlertTriangle, Landmark } from "lucide-react";
-import { getPortalData } from "@/lib/data";
+import { getPublicRoutineData } from "@/lib/public-routine";
 import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection";
-import { publishedRoutineSource } from "@/lib/routine-sources";
 import { RoutineViewControls } from "@/components/routine-view-controls";
 import { RoutineDocument } from "@/components/routine-document";
 
@@ -12,9 +11,9 @@ export default async function PublicRoutinePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const data = await getPortalData();
-  const source = publishedRoutineSource(data);
-  const selectionSource = source?.batches ?? data.batches;
+  const data = await getPublicRoutineData();
+  const source = data?.source ?? null;
+  const selectionSource = source?.batches ?? [];
   const { selection } = parseRoutineSelection(await searchParams, selectionSource);
 
   return (

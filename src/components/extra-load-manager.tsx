@@ -25,9 +25,8 @@ interface Manual { id: number; teacherName: string; classCount: number; amount: 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[12.5px]";
 
 export function ExtraLoadManager({
-  teachers, groups, entries, summaries, manualRows, threshold, rate, termStart, termEnd,
+  groups, entries, summaries, manualRows, threshold, rate, termStart, termEnd, canReview, canSubmit,
 }: {
-  teachers: Teacher[];
   groups: Group[];
   entries: Entry[];
   summaries: Summary[];
@@ -36,6 +35,8 @@ export function ExtraLoadManager({
   rate: number;
   termStart: string;
   termEnd: string;
+  canReview: boolean;
+  canSubmit: boolean;
 }) {
   const eligible = summaries.filter((row) => row.assignedCredits > threshold);
   const [teacherId, setTeacherId] = useState(eligible[0]?.teacher.id ?? 0);
@@ -59,8 +60,8 @@ export function ExtraLoadManager({
     <div className="space-y-4">
       {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
 
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_1.35fr]">
-        <section className="ruled rounded-lg">
+      <div className={canSubmit ? "grid gap-4 xl:grid-cols-[1.05fr_1.35fr]" : "grid gap-4"}>
+        {canSubmit && <section className="ruled rounded-lg">
           <header className="border-b border-[var(--color-line-soft)] px-4 py-3">
             <h2 className="font-display text-[15px] font-semibold">Record a daily extra class</h2>
             <p className="mt-0.5 text-[11.5px] text-[#6b7564]">Only teachers above {threshold.toFixed(1)} assigned credits are eligible.</p>
@@ -88,12 +89,12 @@ export function ExtraLoadManager({
             <label><span className="micro-label mb-1 block">Notes (optional)</span><input name="notes" placeholder="e.g. replacement class" className={control} /></label>
             <button disabled={pending || eligible.length === 0} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-[var(--color-pine)] px-4 py-2.5 text-[12.5px] font-semibold text-white disabled:opacity-50"><Plus size={14} />{pending ? "Saving…" : "Add extra class"}</button>
           </form>
-        </section>
+        </section>}
 
         <section className="ruled rounded-lg">
           <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--color-line-soft)] px-4 py-3">
-            <div><h2 className="font-display text-[15px] font-semibold">Print center</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">Top sheet combines app records and manually entered teachers.</p></div>
-            <Link href={`/extra-load/top-sheet/print?from=${from}&to=${to}`} target="_blank" className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-ink)] px-3 py-2 text-[12px] font-semibold text-white"><Printer size={13} />Top sheet</Link>
+            <div><h2 className="font-display text-[15px] font-semibold">Print center</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">{canReview ? "Top sheet combines app records and manually entered teachers." : "Print your detailed extra-class sheet."}</p></div>
+            {canReview && <Link href={`/extra-load/top-sheet/print?from=${from}&to=${to}`} target="_blank" className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-ink)] px-3 py-2 text-[12px] font-semibold text-white"><Printer size={13} />Top sheet</Link>}
           </header>
           <div className="p-4">
             <div className="mb-3 grid grid-cols-2 gap-2">
@@ -120,13 +121,13 @@ export function ExtraLoadManager({
           <table className="routine-table text-[12px]"><thead><tr>{["Date", "Teacher", "Course", "Batch / audience", "Time", ""].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead>
             <tbody>{entries.length === 0 ? <tr><td colSpan={6} className="px-3 py-6 text-center text-[#8a8571]">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
               <td className="px-2.5 py-2 font-mono">{entry.classDate}</td><td className="px-2.5 py-2">{entry.teacherShortCode} · {entry.teacherName}</td><td className="px-2.5 py-2 font-mono font-semibold">{entry.courseCodeSnapshot}</td><td className="px-2.5 py-2">{entry.batchLabelSnapshot}</td><td className="px-2.5 py-2 font-mono">{fmtRange(entry.startMinutes, entry.endMinutes)}</td>
-              <td className="px-2.5 py-2 text-right"><button title="Delete" disabled={pending} onClick={() => confirm("Remove this extra class?") && startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id)))} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} /></button></td>
+              <td className="px-2.5 py-2 text-right">{canSubmit && <button title="Delete" disabled={pending} onClick={() => confirm("Remove this extra class?") && startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id)))} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} /></button>}</td>
             </tr>)}</tbody>
           </table>
         </div>
       </section>
 
-      <section className="ruled rounded-lg">
+      {canReview && <section className="ruled rounded-lg">
         <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Manual top-sheet entries</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">For teachers who keep their detailed sheet outside this application.</p></header>
         <div className="grid gap-4 p-4 xl:grid-cols-[1fr_1.2fr]">
           <form ref={manualForm} className="grid grid-cols-2 gap-2" onSubmit={(event) => { event.preventDefault(); submit(manualForm.current!, createManualTopSheetRowAction); }}>
@@ -139,8 +140,7 @@ export function ExtraLoadManager({
           </form>
           <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-[#8a8571]">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
-

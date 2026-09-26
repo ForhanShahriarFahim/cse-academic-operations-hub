@@ -23,6 +23,8 @@ import { getPortalData } from "./data";
 import { analyzeSchedule, type Issue } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
 import { parseTimeToMinutes } from "./time";
+import { requireActor } from "./auth";
+import { actionActor, guardAction } from "./auth/action-guard";
 
 export interface ActionResult {
   ok: boolean;
@@ -31,8 +33,12 @@ export interface ActionResult {
 }
 
 async function audit(action: string, entity: string, entityId: number | null, detail?: unknown) {
+  const actor = await requireActor();
   await db.insert(auditEvents).values({
-    actor: "coordinator", // auth integration pending — actor recorded for audit trail
+    actor: actor.displayName,
+    actorUserId: actor.id,
+    actorDisplayName: actor.displayName,
+    actorKind: "user",
     action,
     entity,
     entityId,
@@ -90,6 +96,8 @@ async function buildCandidateView(groupId: number): Promise<MeetingView | null> 
 
 export async function createMeetingAction(formData: FormData): Promise<ActionResult> {
   const groupId = Number(formData.get("teachingGroupId"));
+  const denied = await guardAction("manage_routine", { kind: "teaching_group", teachingGroupId: groupId });
+  if (denied) return denied;
   const dayOfWeek = Number(formData.get("dayOfWeek"));
   const start = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
   const end = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
@@ -159,6 +167,8 @@ export async function moveMeetingAction(
   startMinutes: number,
   endMinutes: number,
 ): Promise<ActionResult> {
+  const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
+  if (denied) return denied;
   if (!Number.isInteger(meetingId)) return { ok: false, message: "Invalid meeting." };
   if (endMinutes <= startMinutes) return { ok: false, message: "End time must be after start time." };
   const data = await getPortalData();
@@ -186,6 +196,8 @@ export async function moveMeetingAction(
 }
 
 export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
+  const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
+  if (denied) return denied;
   await db.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
   await db.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
   await db.delete(meetings).where(eq(meetings.id, meetingId));
@@ -199,6 +211,8 @@ export async function deleteMeetingAction(meetingId: number): Promise<ActionResu
 // ---------------------------------------------------------------------------
 
 export async function createExternalAction(formData: FormData): Promise<ActionResult> {
+  const denied = await guardAction("manage_external_commitments");
+  if (denied) return denied;
   const kind = String(formData.get("kind") ?? "");
   const counterpartDepartment = String(formData.get("counterpartDepartment") ?? "").trim();
   const teacherId = Number(formData.get("teacherId")) || null;
@@ -252,6 +266,8 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
 }
 
 export async function verifyExternalAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("manage_external_commitments");
+  if (denied) return denied;
   await db.update(externalCommitments)
     .set({ verificationStatus: "verified", lastVerifiedAt: new Date() })
     .where(eq(externalCommitments.id, id));
@@ -261,6 +277,8 @@ export async function verifyExternalAction(id: number): Promise<ActionResult> {
 }
 
 export async function deleteExternalAction(id: number): Promise<ActionResult> {
+  const denied = await guardAction("manage_external_commitments");
+  if (denied) return denied;
   await db.delete(externalCommitments).where(eq(externalCommitments.id, id));
   await audit("external.delete", "external_commitment", id, null);
   revalidatePath("/", "layout");
@@ -272,6 +290,8 @@ export async function deleteExternalAction(id: number): Promise<ActionResult> {
 // ---------------------------------------------------------------------------
 
 export async function publishAction(changeSummary: string): Promise<ActionResult> {
+  const actor = await actionActor("approve_publication");
+  if ("ok" in actor) return actor;
   const data = await getPortalData();
   const issues = analyzeSchedule({
     meetings: data.meetings,
@@ -322,12 +342,15 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
       state: "published",
       effectiveFrom: data.term.effectiveFrom,
       publishedAt: new Date(),
-      publishedBy: "CSE Coordinator",
+      publishedBy: actor.displayName,
       changeSummary: changeSummary || `Version ${nextVersion}`,
       snapshot,
     }).returning();
     await tx.insert(auditEvents).values({
-      actor: "coordinator",
+      actor: actor.displayName,
+      actorUserId: actor.id,
+      actorDisplayName: actor.displayName,
+      actorKind: "user",
       action: "publish",
       entity: "schedule_version",
       entityId: v.id,

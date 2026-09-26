@@ -1,11 +1,16 @@
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { ExtraLoadManager } from "@/components/extra-load-manager";
 import { getExtraLoadData } from "@/lib/academic-operations";
+import { can, requireActor } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExtraLoadPage() {
   const source = await getExtraLoadData();
+  const actor = await requireActor();
+  const canReview = await can(actor, "review_extra_load") || await can(actor, "view_payment_reports");
+  const canSubmit = actor.teacherId != null && await can(actor, "submit_extra_load", { kind: "teacher", teacherId: actor.teacherId })
+    || actor.assignments.some((assignment) => assignment.role === "system_administrator");
   const eligibleCount = source.teacherSummaries.filter((row) => row.assignedCredits > source.policy.extraLoadThresholdCredits).length;
   const totalClasses = source.classes.length + source.manualSummaries.reduce((sum, row) => sum + row.classCount, 0);
   const totalAmount = source.classes.length * source.policy.extraClassRate + source.manualSummaries.reduce((sum, row) => sum + row.amount, 0);
@@ -22,7 +27,8 @@ export default async function ExtraLoadPage() {
       <StatCard label="Calculated amount" value={`৳${totalAmount.toLocaleString()}`} sub="manual amount overrides included" tone="good" />
     </div>
     <ExtraLoadManager
-      teachers={source.data.teachers}
+      canReview={canReview}
+      canSubmit={canSubmit}
       groups={source.groups}
       entries={source.classes}
       summaries={source.teacherSummaries}

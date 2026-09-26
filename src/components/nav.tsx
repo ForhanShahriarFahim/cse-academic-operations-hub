@@ -17,29 +17,31 @@ import {
   ListChecks,
   ClipboardCheck,
   ReceiptText,
+  KeyRound,
 } from "lucide-react";
 
 const items = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/routine", label: "Routine Builder", icon: CalendarDays },
-  { href: "/attendance", label: "Attendance", icon: ClipboardCheck },
-  { href: "/extra-load", label: "Extra Class Load", icon: ReceiptText },
+  { href: "/attendance", label: "Attendance", icon: ClipboardCheck, required: ["take_attendance", "manage_rosters"] },
+  { href: "/extra-load", label: "Extra Class Load", icon: ReceiptText, required: ["submit_extra_load", "review_extra_load", "view_payment_reports"] },
   { href: "/conflicts", label: "Validation", icon: ShieldAlert },
   { href: "/teachers", label: "Teachers", icon: Users },
   { href: "/workload", label: "Workload", icon: Scale },
   { href: "/rooms", label: "Rooms", icon: DoorOpen },
   { href: "/batches", label: "Batches", icon: GraduationCap },
   { href: "/courses", label: "Courses & Offerings", icon: BookOpen },
-  { href: "/od", label: "External / OD", icon: ArrowLeftRight },
-  { href: "/publications", label: "Publications", icon: ScrollText },
-  { href: "/settings", label: "Decisions & Settings", icon: ListChecks },
+  { href: "/od", label: "External / OD", icon: ArrowLeftRight, required: ["manage_external_commitments"] },
+  { href: "/publications", label: "Publications", icon: ScrollText, required: ["approve_publication", "manage_routine"] },
+  { href: "/settings", label: "Decisions & Settings", icon: ListChecks, required: ["manage_policy"] },
+  { href: "/access", label: "People & Access", icon: KeyRound, required: ["manage_users"] },
 ];
 
-export function SidebarNav() {
+export function SidebarNav({ capabilities }: { capabilities: string[] }) {
   const pathname = usePathname();
   return (
     <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-      {items.map((item) => {
+      {items.filter((item) => !("required" in item) || item.required?.some((capability) => capabilities.includes(capability))).map((item) => {
         const active =
           item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         const Icon = item.icon;

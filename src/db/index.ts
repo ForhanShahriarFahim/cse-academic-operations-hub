@@ -5,9 +5,18 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
+import { config as loadDotEnv } from "dotenv";
 import * as schema from "./schema";
 
+// CLI migration/seed commands do not inherit Next.js's .env.local loading.
+// Existing process variables (including Vercel secrets) always take priority.
+loadDotEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
+loadDotEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
+
 const databaseUrl = process.env.DATABASE_URL;
+if (process.env.VERCEL && !databaseUrl) {
+  throw new Error("DATABASE_URL is required on Vercel; embedded PGlite storage is for local development only.");
+}
 
 const globalForDb = globalThis as typeof globalThis & {
   __pundraPostgresqlPool?: Pool;
@@ -21,7 +30,7 @@ let database: NodePgDatabase<typeof schema>;
 if (databaseUrl) {
   const pool =
     globalForDb.__pundraPostgresqlPool ??
-    new Pool({ connectionString: databaseUrl });
+    new Pool({ connectionString: databaseUrl, max: process.env.VERCEL ? 5 : 10 });
 
   if (process.env.NODE_ENV !== "production") {
     globalForDb.__pundraPostgresqlPool = pool;

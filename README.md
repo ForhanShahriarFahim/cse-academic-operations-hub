@@ -24,6 +24,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 - Draft and immutable published routine CSV exports generated from the same projection shown on screen.
 - Immutable routine publication with an independent public/print viewer and browser Print/PDF output.
 - PostgreSQL production mode and zero-configuration PGlite development mode.
+- Invite-only Google sign-in, department-scoped roles, teacher-owned attendance/extra-load actions, and real-user audit attribution.
 
 ## Project status and next work
 
@@ -122,7 +123,7 @@ Advisories include approved exceptions, unknown audience sizes, tight cross-buil
 - npm
 - Optional: PostgreSQL for a shared or deployed environment
 
-### Zero-configuration local setup
+### Local setup
 
 ```bash
 git clone https://github.com/ForhanShahriarFahim/cse-academic-operations-hub.git
@@ -131,9 +132,18 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). The public routine is available without a login. Internal pages require an invited Google account.
 
-Without `DATABASE_URL`, the first development start creates `.data/pglite`, applies the checked-in migrations, and loads the verified synthetic Summer 2026 dataset. Later starts preserve changes.
+Without `DATABASE_URL`, the first development start creates `.data/pglite-summer-2026`, applies the checked-in migrations, and loads the verified Summer 2026 source dataset. Later starts preserve changes.
+
+### Enable Google sign-in
+
+1. Copy `.env.example` to `.env.local` and uncomment/set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep secrets out of Git.
+2. Create a Google OAuth **Web application** client and authorize `http://localhost:3000/api/auth/callback/google` as a redirect URI. See [Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
+3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL=dfahim432@gmail.com` (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. This is idempotent for the same first administrator and refuses to silently replace an existing administrator.
+4. Run `npm run dev` and sign in at `/login` with that Google account. Use **People & Access** to invite staff, assign roles, link a teacher short code, suspend users, or revoke roles.
+
+No public sign-up is enabled. An invited address must be verified by Google before it can access the portal. Without the four auth settings, internal access stays closed and `/login` shows a setup notice.
 
 > Important: run only one database-using project process against `.data/pglite` at a time. Stop the development server before running a separate migration, preparation, or reset command.
 
@@ -154,6 +164,19 @@ npm run dev
 
 Do not commit database credentials.
 
+### Vercel deployment path
+
+The Next.js application can run on Vercel, but **the local PGlite file cannot be the production database**. Set up a persistent PostgreSQL service (for example a [Vercel Marketplace Postgres integration](https://vercel.com/docs/marketplace-storage)), then set `DATABASE_URL` in Vercel. The app intentionally refuses to start on Vercel without it. Use a pooled Postgres connection string and place the database near the Functions region.
+
+Before sending users to the deployment:
+
+1. Set `DATABASE_URL`, `BETTER_AUTH_URL` (the final HTTPS origin), `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` as Vercel environment variables. The Google OAuth Web client must authorize `https://YOUR_DOMAIN/api/auth/callback/google` exactly. A separate fixed preview domain/client is easiest for preview login.
+2. From a trusted local terminal pointing at that hosted database, run `npm run db:prepare` once, then `npm run auth:bootstrap` with the approved administrator email. Vercel's build does not run these database setup commands. Do not use `db:reset` on the hosted database.
+3. Deploy the repository as a Next.js project, then verify `/api/health`, anonymous public routine pages, Google sign-in, staff permissions, and sign-out against the production domain.
+4. Review the remaining institutional decisions and source-routine blockers before treating the public routine as official. No routine is automatically published by this deployment.
+
+This repository is **Vercel-compatible but not deployed or production-verified yet**. In particular, the Google callback cannot be tested without real OAuth credentials, and the local PGlite data is not automatically copied to hosted PostgreSQL.
+
 ## Commands
 
 | Command | Purpose |
@@ -163,10 +186,11 @@ Do not commit database credentials.
 | `npm start` | Prepare and run the production server |
 | `npm run db:migrate` | Apply checked-in migrations |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
+| `npm run auth:bootstrap` | Create the first invited administrator (explicit email required) |
 | `npm run db:reset` | Destructively replace current data with the development seed |
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
-| `npm run test:domain` | Verify CSV, attendance, eligibility, payment, and amount-wording rules |
+| `npm run test:domain` | Verify academic rules, routine projection, source data, and role policy |
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
 | `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows) |
 
@@ -185,7 +209,9 @@ cse-academic-operations-hub/
 ├── tests/                         # Playwright browser acceptance tests
 ├── src/
 │   ├── app/
-│   │   ├── (portal)/              # Coordinator-facing pages
+│   │   ├── (portal)/              # Authenticated staff pages, including Access
+│   │   ├── api/auth/              # Google sign-in/session routes
+│   │   ├── login/                 # Invited-account sign-in
 │   │   ├── api/health/            # Database health endpoint
 │   │   └── public/routine/        # Published routine viewer
 │   ├── components/                # Interactive UI modules
@@ -193,15 +219,17 @@ cse-academic-operations-hub/
 │   │   ├── index.ts               # PostgreSQL/PGlite connection selection
 │   │   ├── schema.ts              # Relational domain schema
 │   │   ├── prepare.ts             # Migrate and seed-if-empty startup
-│   │   └── seed.ts                # Verified synthetic development data
+│   │   └── seed.ts                # Summer 2026 source-routine development import
 │   └── lib/
 │       ├── academic-actions.ts     # Attendance, policy, and extra-load mutations
+│       ├── auth/                  # Session provider, roles, resource checks, admin actions
 │       ├── academic-operations.ts  # Attendance/extra-load read adapters
 │       ├── actions.ts              # Routine, OD, and publication mutations
 │       ├── attendance.ts           # CSV parsing and attendance calculations
 │       ├── auto-schedule.ts        # Pure deterministic scheduling engine
 │       ├── conflicts.ts            # Pure exact-time validation engine
 │       ├── data.ts                 # Main portal read model
+│       ├── public-routine.ts       # Snapshot-only public read model and contact redaction
 │       ├── extra-load.ts           # Eligibility and payment calculations
 │       ├── routine-projection.ts   # Shared Day/Week screen, print, and export projection
 │       ├── routine-csv.ts          # Deterministic CSV serialization
@@ -237,20 +265,15 @@ cse-academic-operations-hub/
 | `/public/routine/export` | URL-addressed published-snapshot CSV export |
 | `/api/health` | Database health and mode |
 
-## Verified development baseline
+## Current development baseline
 
-- 7 departments
-- 16 teachers
-- 14 rooms
-- 16 batches
-- 28 courses
-- 55 teaching groups
-- 85 canonical meetings
-- 0 validation blockers
-- 9 intentional advisories
-- Published routine version 1, effective 14 August 2026
-
-All seed records are synthetic and intended for development/demo use.
+A fresh `db:prepare` imports the Summer 2026 source routine: 42 teacher records,
+78 courses, and 183 meetings. Validation currently reports 13 blockers; no
+routine is published automatically. The public page therefore shows “No
+published routine” until those blockers are resolved and an approver publishes
+a version. The imported routine reflects source material, while inferred or
+incomplete details still require institutional verification. Treat the seed as
+development data, not as an approved official schedule.
 
 ## Documentation
 
