@@ -1,7 +1,9 @@
 # CSE Academic Operations Hub — Solution and Implementation Roadmap
 
-Status: planning baseline  
-Prepared: 23 September 2026  
+Status: feature rationale; current execution status and order are in the [26 September execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
+
+Prepared: 23 September 2026; status reconciled 26 September 2026
+
 Purpose: a feature-by-feature handoff document for planning and implementing the remaining portal work without losing historical academic data.
 
 ## 1. How to use this document
@@ -22,9 +24,9 @@ Every implementation should:
 
 | Area | Present now | Important gap |
 |---|---|---|
-| Routine | Exact-minute draft builder, HSC/Diploma stream selection, day view, conflict validation, public printable snapshot | No weekly view; no structured CSV/Excel export |
+| Routine | Exact-minute draft builder, HSC/Diploma Day/Week views, compact print package, CSV export, conflict validation and source import | 13 source-routine blockers; no approved publication from the imported schedule |
 | Attendance | Roster CRUD, CSV import, daily sessions, Present/Absent/Late/Excused, midterm/final phase totals, semester percentage and marks | One long group selector; feedback is easy to miss; no department/batch navigation or full course-session ledger/export |
-| Authentication | Audit records exist, but actions use a placeholder actor | No sign-in, users, roles, permissions, or ownership enforcement |
+| Authentication | Invite-only Google sign-in, role assignments, server-side guards, redaction and named transactional audit writes are committed locally | Real OAuth callback, hosted PostgreSQL and adversarial session/role tests remain unverified; #1 stays open |
 | Teachers | Directory, detail and workload views | No create/edit/deactivate/reactivate workflow |
 | Rooms | Room inventory, capabilities and occupancy reporting | No create/edit/availability/deactivation workflow |
 | Batches | Stable cohort identities and term-scoped semester placements | No management UI, rollover workflow, count verification or lifecycle controls |
@@ -32,7 +34,9 @@ Every implementation should:
 | External commitments | Create, verify and delete OD commitments with derived completeness | Terminology is difficult; no edit/archive/expiry/session-review workflow |
 | Settings | Term policy editing and permitted-window management | Profile and pending decisions are mostly informational; policy governance and versioning are incomplete |
 | Workload | Catalog credits, approved workload units and contact minutes are separated | Depends on trustworthy teacher, offering and external-commitment management |
-| Extra load | Eligibility, daily claims, rate configuration and print sheets | Role approval workflow should be added after authentication |
+| Extra load | Eligibility, daily claims, rate configuration, role-protected print sheets | Claim review and payment approval workflow remains |
+
+The current fresh seed imports 42 teacher records, 78 courses and 183 meetings. The original institutional specification is missing from this checkout. `HANDOVER_GUIDE.md` and `PROJECT_CONTEXT.md` still describe an older no-authentication synthetic baseline; treat them as historical until `DOC-01` reconciles them.
 
 ### Important verified attendance facts
 
@@ -67,7 +71,7 @@ Do not use “session” ambiguously in new interfaces. Use **academic term** fo
 
 ## 4. Recommended implementation order
 
-### Phase 0 — Safety baseline
+### Phase 0 — Safety baseline (`SAFE-01`) — next proposed implementation
 
 - Add database backup/restore instructions for real PostgreSQL deployment.
 - Add integration fixtures for a second academic term.
@@ -80,9 +84,9 @@ This is the recommended first feature. It is mostly read-only, delivers immediat
 
 Implemented with shared draft/published projection, Day/Week URL state, CSV export, compact HSC and Diploma official pages, course-offer and directory appendices, and the reviewed Summer 2026 source import. The supplied routine's unresolved conflicts remain visible and block a new official publication until reviewed.
 
-### Phase 2 — Authentication and role authorization (`AUTH-01`)
+### Phase 2 — Authentication and role authorization (`AUTH-01`) — implemented locally, verification pending
 
-Complete this before exposing substantial new CRUD functionality in production.
+The implementation is in local commits `26eb86c` and `c70984f`. Complete real-provider, PostgreSQL, ownership and session verification before closing #1 or exposing substantial new CRUD functionality in production.
 
 ### Phase 3 — Academic master-data management
 
@@ -552,7 +556,7 @@ An issue is complete only when:
 - success, error, empty and loading states are visible;
 - audit events contain the real actor;
 - automated tests cover core rules;
-- existing synthetic seed still loads;
+- the current source-routine development seed still loads without overwriting existing data;
 - verification commands pass;
 - README/HANDOVER documentation and relevant screenshots are updated; and
 - the change is delivered as a focused commit or pull request.
@@ -585,4 +589,4 @@ external participants and PostgreSQL/PGlite compatibility.
 
 ## 21. Recommended next action
 
-Start with `RUT-01` and produce its detailed implementation plan. It adds the requested weekly HSC/Diploma experience and export without first exposing new destructive administration controls. Next complete `AUTH-01`, then implement master-data CRUD and attendance improvements behind real authorization.
+`RUT-01` is complete. Review the [current execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and propose `SAFE-01` next: backup/restore, second-term preservation, and mutation/audit baseline. Finish the remaining `AUTH-01` verification when real OAuth and PostgreSQL test resources are available. Do not close either issue on code presence alone.

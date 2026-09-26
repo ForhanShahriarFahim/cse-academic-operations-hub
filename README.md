@@ -28,9 +28,11 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 ## Project status and next work
 
-The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. Start with the [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) to see completed work, labeled issues, dependencies, and the next feature. The detailed plan also lives in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
+The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. Start with the [current execution plan](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) for status, dependencies and the next feature. The longer feature rationale remains in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
 
 ## Product tour
+
+These screenshots illustrate an earlier demo dataset; they do not certify the current imported Summer 2026 draft or a published routine.
 
 | Routine planning | Automatic scheduling |
 |---|---|
@@ -277,19 +279,20 @@ development data, not as an approved official schedule.
 
 ## Documentation
 
-- [Complete handover and user guide](HANDOVER_GUIDE.md)
-- [Consolidated project context](PROJECT_CONTEXT.md)
+- [Current execution plan and status](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
+- [Complete handover and user guide](HANDOVER_GUIDE.md) — historical pre-auth baseline; update tracked by `DOC-01`
+- [Consolidated project context](PROJECT_CONTEXT.md) — historical pre-auth baseline; update tracked by `DOC-01`
 - [Academic-operations architecture decision](docs/architecture/ADR-001-academic-operations-boundaries.md)
 - [Extra-load print-template analysis](docs/templates/extra-load-print-templates.md)
 
 ## Production readiness notes
 
-The application is runnable and functionally verified, but production rollout still requires:
+The application is runnable and its local checks pass, but production rollout still requires:
 
-- Authentication and coordinator/teacher/approver authorization.
-- Authoritative university data import and institutional policy sign-off.
+- Real Google OAuth callback and hosted-PostgreSQL authorization testing; the local authentication implementation is not yet production-verified.
+- Reconciliation of the imported university routine's 13 blockers and institutional policy sign-off before public publication.
 - A managed PostgreSQL database, encrypted backups, and restore testing.
-- HTTPS, secrets management, monitoring, and named audit actors.
+- HTTPS, secrets management, monitoring, and a verified first administrator.
 - A coordinator workflow for creating the next Spring/Summer term.
 
 The referenced full v2.0 specification file is not present in this checkout. Settings currently displays 21 pending institutional decisions; earlier context claimed 31, so the difference must be reconciled from the original specification rather than inferred.
