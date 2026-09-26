@@ -23,27 +23,13 @@ import { getPortalData } from "./data";
 import { analyzeSchedule, type Issue } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
 import { parseTimeToMinutes } from "./time";
-import { requireActor } from "./auth";
+import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
 
 export interface ActionResult {
   ok: boolean;
   message: string;
   issues?: Pick<Issue, "severity" | "title" | "detail">[];
-}
-
-async function audit(action: string, entity: string, entityId: number | null, detail?: unknown) {
-  const actor = await requireActor();
-  await db.insert(auditEvents).values({
-    actor: actor.displayName,
-    actorUserId: actor.id,
-    actorDisplayName: actor.displayName,
-    actorKind: "user",
-    action,
-    entity,
-    entityId,
-    detail: detail === undefined ? null : (detail as object),
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -144,18 +130,15 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     return { ok: false, message: `${blockers.length} blocking conflict(s) — placement rejected.`, issues };
   }
 
-  const [m] = await db.insert(meetings).values({
-    teachingGroupId: groupId,
-    dayOfWeek,
-    startMinutes: start,
-    endMinutes: end,
-    isException,
-    exceptionNote,
-    customTimeLabel,
-  }).returning();
-  await db.insert(meetingTeachers).values(teacherIds.map((tid) => ({ meetingId: m.id, teacherId: tid })));
-  await db.insert(meetingRooms).values(roomIds.map((rid) => ({ meetingId: m.id, roomId: rid })));
-  await audit("meeting.create", "meeting", m.id, { groupId, dayOfWeek, start, end, teacherIds, roomIds });
+  await auditedChange("meeting.create", "meeting", async (tx) => {
+    const [m] = await tx.insert(meetings).values({
+      teachingGroupId: groupId, dayOfWeek, startMinutes: start, endMinutes: end,
+      isException, exceptionNote, customTimeLabel,
+    }).returning();
+    await tx.insert(meetingTeachers).values(teacherIds.map((tid) => ({ meetingId: m.id, teacherId: tid })));
+    await tx.insert(meetingRooms).values(roomIds.map((rid) => ({ meetingId: m.id, roomId: rid })));
+    return { result: null, entityId: m.id, after: { groupId, dayOfWeek, start, end, teacherIds, roomIds } };
+  });
 
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting scheduled.", issues };
@@ -187,10 +170,12 @@ export async function moveMeetingAction(
     return { ok: false, message: `${blockers.length} blocking conflict(s) — move rejected, original placement kept.`, issues };
   }
 
-  await db.update(meetings)
-    .set({ dayOfWeek, startMinutes, endMinutes })
-    .where(eq(meetings.id, meetingId));
-  await audit("meeting.move", "meeting", meetingId, { dayOfWeek, startMinutes, endMinutes });
+  await auditedChange("meeting.move", "meeting", async (tx) => {
+    await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes }).where(eq(meetings.id, meetingId));
+    return { result: null, entityId: meetingId,
+      before: { dayOfWeek: existing.dayOfWeek, startMinutes: existing.startMinutes, endMinutes: existing.endMinutes },
+      after: { dayOfWeek, startMinutes, endMinutes } };
+  });
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting moved.", issues };
 }
@@ -198,10 +183,13 @@ export async function moveMeetingAction(
 export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
-  await db.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
-  await db.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
-  await db.delete(meetings).where(eq(meetings.id, meetingId));
-  await audit("meeting.delete", "meeting", meetingId, null);
+  await auditedChange("meeting.delete", "meeting", async (tx) => {
+    const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
+    await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
+    await tx.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+    await tx.delete(meetings).where(eq(meetings.id, meetingId));
+    return { result: null, entityId: meetingId, before: previous ?? null };
+  });
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting removed from the working draft." };
 }
@@ -243,24 +231,18 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
   else level = "C";
 
   const term = (await getPortalData()).term;
-  const [row] = await db.insert(externalCommitments).values({
-    termId: term.id,
-    kind,
-    completenessLevel: level,
-    counterpartDepartment,
-    teacherId,
-    roomId,
-    courseLabel,
-    audienceLabel,
-    dayOfWeek: kind === "unresolved_note" ? null : dayOfWeek,
-    startMinutes: kind === "unresolved_note" ? null : start,
-    endMinutes: kind === "unresolved_note" ? null : end,
-    credits: creditsRaw || null,
-    verificationStatus: "pending",
-    source: "Manual entry via OD manager",
-    notes,
-  }).returning();
-  await audit("external.create", "external_commitment", row.id, { kind, counterpartDepartment, level });
+  await auditedChange("external.create", "external_commitment", async (tx) => {
+    const [row] = await tx.insert(externalCommitments).values({
+      termId: term.id, kind, completenessLevel: level, counterpartDepartment,
+      teacherId, roomId, courseLabel, audienceLabel,
+      dayOfWeek: kind === "unresolved_note" ? null : dayOfWeek,
+      startMinutes: kind === "unresolved_note" ? null : start,
+      endMinutes: kind === "unresolved_note" ? null : end,
+      credits: creditsRaw || null, verificationStatus: "pending",
+      source: "Manual entry via OD manager", notes,
+    }).returning();
+    return { result: null, entityId: row.id, after: row };
+  });
   revalidatePath("/", "layout");
   return { ok: true, message: `External commitment recorded (completeness level ${level}).` };
 }
@@ -268,10 +250,13 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
 export async function verifyExternalAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
-  await db.update(externalCommitments)
-    .set({ verificationStatus: "verified", lastVerifiedAt: new Date() })
-    .where(eq(externalCommitments.id, id));
-  await audit("external.verify", "external_commitment", id, null);
+  await auditedChange("external.verify", "external_commitment", async (tx) => {
+    const [previous] = await tx.select().from(externalCommitments).where(eq(externalCommitments.id, id)).limit(1);
+    const [updated] = await tx.update(externalCommitments)
+      .set({ verificationStatus: "verified", lastVerifiedAt: new Date() })
+      .where(eq(externalCommitments.id, id)).returning();
+    return { result: null, entityId: id, before: previous ?? null, after: updated ?? null };
+  });
   revalidatePath("/", "layout");
   return { ok: true, message: "Commitment verified." };
 }
@@ -279,8 +264,10 @@ export async function verifyExternalAction(id: number): Promise<ActionResult> {
 export async function deleteExternalAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
-  await db.delete(externalCommitments).where(eq(externalCommitments.id, id));
-  await audit("external.delete", "external_commitment", id, null);
+  await auditedChange("external.delete", "external_commitment", async (tx) => {
+    const [previous] = await tx.delete(externalCommitments).where(eq(externalCommitments.id, id)).returning();
+    return { result: null, entityId: id, before: previous ?? null };
+  });
   revalidatePath("/", "layout");
   return { ok: true, message: "Commitment removed." };
 }
@@ -354,6 +341,8 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
       action: "publish",
       entity: "schedule_version",
       entityId: v.id,
+      before: latest ? { versionNumber: latest.versionNumber, state: latest.state } : null,
+      after: { versionNumber: nextVersion, state: "published", meetingCount: data.meetings.length },
       detail: { version: nextVersion, warnings: issues.length },
     });
   });
