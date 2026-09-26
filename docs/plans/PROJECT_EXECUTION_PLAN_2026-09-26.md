@@ -51,8 +51,8 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 | Done | `RUT-01` | Compact shared routine screen/export and source import; completed tag exists. | — |
 | 1 | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. | None; **next implementation proposal** |
 | 1a | [#1 AUTH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/1) | Finish real Google OAuth, hosted PostgreSQL migration, denied/allowed action matrix, role revocation and session tests before closure. | Credentials/test environment; SAFE-01 before production migration |
-| 2 | `DOC-01` | Reconcile README, handover, project context, source counts and user instructions; clearly mark unresolved institutional facts. | #1 status verified enough to describe accurately |
-| 2 | `UX-01` | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
+| 2 | [#17 DOC-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/17) | Reconcile README, handover, project context, source counts and user instructions; clearly mark unresolved institutional facts. | #1 status verified enough to describe accurately |
+| 2 | [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18) | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
 | 2 | [#9 ATT-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/9) | Local, accessible save/import feedback with truthful CSV counts, partial-error detail and focus handling. Can be an early UX improvement. | #1, UX-01 pattern |
 | 3 | [#3 RUT-03](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/3) | Review all 13 source blockers, four unknown teacher codes and room capability questions; publish only after named approval and screen/CSV/print parity. | #1, #2, institutional source answers |
 | 4 | [#4 TCH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4) | Teacher create/edit/deactivate/reactivate/history; preserve references and distinguish teacher from login. | #1, #2 |
@@ -102,12 +102,12 @@ Independent issues can move when blocked, but do not start a new feature before 
 
 Defaults below are conservative and reversible only where noted. Record answers in the relevant issue and decision register; do not infer them from an old screenshot.
 
-1. **Production administrator:** keep `dfahim432@gmail.com` as first admin, or use a university-managed Google account? Until confirmed, bootstrap is local/test only.
-2. **Public contacts:** keep teacher, class representative and query phone/email hidden (current behavior), or publish a specifically approved subset? A changed policy needs exact fields and consent/authority.
-3. **Next priority:** SAFE-01 first (recommended), or a different issue? If changed, record the dependency risk explicitly.
+1. **Production administrator — decided:** retain the owner's existing personal Google account as first administrator. Configure the exact address privately at bootstrap; do not repeat it in public tracking issues. Live sign-in still needs real-provider verification.
+2. **Public contacts — direction decided, exact list pending:** publish only contact fields and people explicitly approved by the university. Current redaction remains in force until the owner supplies the exact approved list, fields and approving authority; do not infer consent from a directory record.
+3. **Next priority — decided:** SAFE-01 first, before master-data editing.
 4. **Institutional source:** can the missing `pundra-cse-academic-portal-specification.md` be restored, and who signs off the unresolved decision count and Summer 2026 source corrections?
 5. **RUT-03 facts:** who confirms teacher codes `SI`, `AS`, `MNI`, `HUH`, NB-508/NB-608 lab use, and HSC-25B Saturday–Tuesday replacements? No fabricated names or placements.
 6. **Policy authority:** who approves timetable exceptions, attendance rounding/lock corrections and extra-load claims, and must submitter and approver be different people?
 7. **Operations:** who owns encrypted backups, restore drills, PostgreSQL hosting and Google OAuth credentials? Production cannot pass its gate without named owners.
 
-The first three questions are being asked now; the others can be answered when their gated issue is planned. Until then the default is **no public contacts, no invented academic facts, no destructive historical edits, and no live deployment**.
+The remaining questions can be answered when their gated issue is planned. Until the public-contact list is specific and approved, the safe behavior is **no public contacts, no invented academic facts, no destructive historical edits, and no live deployment**.
