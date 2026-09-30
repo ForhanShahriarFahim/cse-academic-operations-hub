@@ -6,7 +6,7 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 
 ## Current work and gates
 
-- WORKFLOW-01 (#20): Steps 2 and 3 delivered; Step 4 review/acceptance remains. [Plan/checkpoint](plans/WORKFLOW-01.md).
+- WORKFLOW-01 (#20): Steps 2 and 3 merged by the owner in [PR #21](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/21) (`de1c78c`). Step 4 review passed; final evidence/status update on `codex/workflow-review` awaits acceptance/merge before closure. [Plan/checkpoint](plans/WORKFLOW-01.md).
 - SAFE-01 (#2): next feature proposal before master-data editing; detailed scope below needs its own approval.
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
@@ -21,7 +21,7 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 
 | Order | Issue | Concrete outcome and acceptance emphasis | Depends on |
 |---|---|---|---|
-| Current | [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) | Shared workflow, document migration and final acceptance before merge. | [Approved plan](plans/WORKFLOW-01.md) |
+| Current | [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) | Shared workflow/migration merged; accept and merge final review evidence before closure. | [Approved plan](plans/WORKFLOW-01.md) |
 | Done | `RUT-01` | Compact shared routine screen/export and source import; completed tag exists. | — |
 | 1 | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. | None; **next implementation proposal** |
 | 1a | [#1 AUTH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/1) | Finish real Google OAuth, hosted PostgreSQL migration, denied/allowed action matrix, role revocation/session tests and source-bounded public-contact projection before closure. | Credentials/test environment; SAFE-01 before production migration |
