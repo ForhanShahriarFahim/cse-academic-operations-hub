@@ -2,15 +2,14 @@
 
 Issue: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2)
 Specification: [spec.md](spec.md)
-Status: Proposed; implementation approval pending.
+Status: Approved as written (30 September 2026); implementation in progress.
 Branch / base: `codex/safe-01` / `78db43d` (merged WORKFLOW-01 review).
 Updated: 30 September 2026 (Asia/Dhaka).
 
 ## Approval record
 
 - Owner instruction: "Approved move forward" after Step 4 accepts merging PR #22/closing WORKFLOW-01 and continuing to SAFE-01 inspection/planning.
-- SAFE-01 implementation: Pending. This newly inspected spec, audit fixes and task breakdown have not yet been approved.
-- Before implementation: record actual approval/date/scope and commit the approved spec/plan. A committed/pushed Proposed draft does not establish approval.
+- SAFE-01 implementation: Approved by the owner on 30 September 2026 (Asia/Dhaka): "Approve SAFE-01 as written, start T-01". Scope is exactly the spec at `85d5986` and tasks T-01–T-07 below, including the stated exclusions and pending PostgreSQL gates.
 - Material amendments: obtain a decision before new schema/policy/UI scope or a different recovery target.
 
 ## Approach and planned changes
@@ -46,9 +45,9 @@ After approval commit the approved plan first, then coherent verified checkpoint
 
 ## Current checkpoint / handoff
 
-- Completed: P-01 and proposed spec/plan. WORKFLOW-01 accepted, PR #22 merged at `78db43d`, #20 closed.
+- Completed: P-01, spec/plan and owner approval (30 September 2026). WORKFLOW-01 accepted, PR #22 merged at `78db43d`, #20 closed.
 - Database state: PGlite configuration/default directory observed only; no connection, migration, seed, dump, restore or reset executed. Institutional counts not reverified.
-- Next: owner approves this concrete SAFE-01 scope; record/commit that approval, then start T-01.
+- Next: T-01 (target isolation, refusal tests and mutation inventory).
 - Pending: PostgreSQL source/destination/client tooling/encrypted storage and operational owners. Live provider tests remain AUTH-01.
 - Process visibility: Node processes exist; command-line inspection denied. No writer ownership/stopped-state claim; institutional live backup is outside scope.
 - Current verification: read-only source/config/tool inspection; 89 local Markdown links/eight heading anchors, eight unique ACs/seven task IDs with AC mappings, Proposed-status checks, whitespace/diff and documentation-only scope passed. No code tests or database/runtime commands were run; all runtime ACs remain pending. Execution evidence goes in verification.md; this checklist remains the task authority.

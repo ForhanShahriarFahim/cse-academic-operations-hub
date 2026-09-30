@@ -1,7 +1,7 @@
 # SAFE-01 — Recovery, history and mutation safety
 
 Issue: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2)
-Status: Proposed; implementation approval pending.
+Status: Approved by the owner on 30 September 2026 as written; implementation in progress.
 Inspected: 30 September 2026 (Asia/Dhaka), base `78db43d`.
 Implementation plan: [plan.md](plan.md).
 
