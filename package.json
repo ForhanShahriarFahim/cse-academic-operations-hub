@@ -14,6 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:domain": "tsx scripts/verify-domain.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-source-routine.ts && tsx scripts/verify-auth-policy.ts",
+    "test:safety": "tsx scripts/verify-safety.ts",
     "test:routine": "tsx scripts/verify-routine-projection.ts && tsx scripts/verify-source-routine.ts",
     "test:ui": "playwright test"
   },
