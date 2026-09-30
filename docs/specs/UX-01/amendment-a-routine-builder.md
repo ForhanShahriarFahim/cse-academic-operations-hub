@@ -1,7 +1,7 @@
 # UX-01 amendment A — Routine builder workbench
 
 Issue: [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18)
-Status: Proposed. Awaiting owner approval; no code has been written for it.
+Status: Approved 30 September 2026. The owner approved R1–R9 including `updateMeetingAction`, pulled L2 (drag and drop) into this amendment, and left L1 and L3–L6 for a separate issue.
 Requested: 30 September 2026. The owner asked for the Routine builder to be redesigned and made easy to manage before the UX-01 PR and merge.
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -70,6 +70,8 @@ Unchanged: the placement rules, the conflict engine's rules, the week document, 
 - R8: the phone agenda.
 - R9: plain notes.
 
+**Owner decision, 30 September 2026:** L2 is included in this amendment (see RB-11 and T-20). L1 and L3–L6 go to a separate follow-up issue, [#33](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/33).
+
 **Recommended as a later, separate issue.** Each is valuable, but together they would double this amendment:
 
 | ID | Feature | Why later |
@@ -94,6 +96,7 @@ Unchanged: the placement rules, the conflict engine's rules, the week document, 
 | RB-07 | Undo reverses the last save, move or delete, and is refused with an explanation if it would now create a blocker. | UI flow on the review data |
 | RB-08 | At 390 px the builder shows the agenda with 0 px page overflow; add and edit work through the full-screen sheet. | `test:ux` + phone screenshots |
 | RB-09 | No axe WCAG 2 A/AA violations on `/routine` at desktop and phone widths. The side panel, sheet and pickers follow the dialog and combobox patterns. | `test:ux` + keyboard review |
+| RB-11 | A class can be dragged to another cell of the same day and batch row (or to another day tab) and is saved through the same validated move. Invalid drops are refused with the reason, and the class stays where it was. A keyboard and screen-reader alternative, "Move to…" in the side panel, does the same. | UI flow with pointer and keyboard |
 | RB-10 | The week document, print and CSV/export output, and the official package match their state before the amendment. | Print and export comparison before and after |
 
 **Change to UX-01 AC-11:** the amendment adds one server action, `updateMeetingAction`. It is guarded by `manage_routine`, checks the active term, validates with `analyzeSchedule` like create and move, and is recorded with `auditedChange`. There are no schema or migration changes.
@@ -108,4 +111,5 @@ Unchanged: the placement rules, the conflict engine's rules, the week document, 
 - [ ] T-16 — Undo for save, move and delete via the existing validated actions (RB-07).
 - [ ] T-17 — Phone agenda and full-screen sheet (RB-08).
 - [ ] T-18 — Plain notes and legend; move source-review notes to Decisions & settings (RB-09).
-- [ ] T-19 — Verification: `test:ux` routes and a builder flow, print/export comparison, typecheck, lint, domain tests, build, safety suite, screenshots, owner review (RB-01–RB-10).
+- [ ] T-20 — Drag and drop: drag a class card onto a cell (or a day tab) to move it through `moveMeetingAction`, with a live drop preview (fits / clash reason) and a "Move to…" keyboard alternative in the panel (RB-11).
+- [ ] T-19 — Verification: `test:ux` routes and a builder flow, print/export comparison, typecheck, lint, domain tests, build, safety suite, screenshots, owner review (RB-01–RB-11).
