@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { DAY_NAMES, DAY_SHORT, fmtRange } from "@/lib/time";
-import { daysForStream, slotsFor, type Stream } from "@/lib/constants";
+import { daysFor, periodsFor, type Stream, type TimeGrid } from "@/lib/time-grid";
 import type { MeetingView } from "@/lib/serialize";
 import type { ActionResult } from "@/lib/action-result";
 import { createMeetingAction, deleteMeetingAction, moveMeetingAction, updateMeetingAction } from "@/lib/actions";
@@ -58,9 +58,10 @@ export function recreate(m: MeetingView): () => Promise<ActionResult> {
   return () => createMeetingAction(form);
 }
 
-export function ClassPanel({ mode, stream, meetings, groups, teachers, rooms, context, onChange, onClose, headingId }: {
+export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, rooms, context, onChange, onClose, headingId }: {
   mode: PanelMode;
   stream: Stream;
+  grid: TimeGrid;
   meetings: MeetingView[];
   groups: WorkbenchGroup[];
   teachers: WorkbenchTeacher[];
@@ -125,7 +126,8 @@ export function ClassPanel({ mode, stream, meetings, groups, teachers, rooms, co
   const moveTargets = (() => {
     if (!existing) return [];
     const duration = existing.endMinutes - existing.startMinutes;
-    return daysForStream(stream).flatMap((d) => slotsFor(stream, d).map((slot) => ({ day: d, start: slot.start, end: slot.start + duration })))
+    // The class's own batches decide the days and periods offered (a batch may have its own).
+    return daysFor(grid, existing.audiences).flatMap((d) => periodsFor(grid, existing.audiences, d).map((slot) => ({ day: d, start: slot.start, end: slot.start + duration })))
       .filter((t) => !(t.day === existing.dayOfWeek && t.start === existing.startMinutes))
       .filter((t) => !precheck(candidateMeeting(existing, { ...placementOf(existing), dayOfWeek: t.day, startMinutes: t.start, endMinutes: t.end }, teachers, rooms), context)
         .some((i) => i.severity === "blocker"));

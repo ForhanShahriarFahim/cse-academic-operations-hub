@@ -9,6 +9,7 @@ import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 import { Pool } from "pg";
 import * as schema from "../../src/db/schema";
+import { backfillTimeGrids, type GridDb } from "../../src/db/time-grid-backfill";
 import { MIGRATIONS_FOLDER, createOwnedRun, migratePgliteDb, openOwnedPglite, removeOwnedRun } from "./pglite";
 import { runAppChild, runPostgresChild, type ChildInputs, type ChildResult } from "./app-env";
 import type { PostgresTarget } from "./targets";
@@ -77,6 +78,7 @@ export function postgresDatabase(target: PostgresTarget, dispose: () => Promise<
     open: async () => openPostgres(target),
     async migrate(handle) {
       await migratePostgres(handle.db as never, { migrationsFolder: MIGRATIONS_FOLDER });
+      await backfillTimeGrids(handle.db as unknown as GridDb); // as migrateDatabase does in production
     },
     runChild: (script, args = [], inputs) => runPostgresChild(target, script, args, { inputs }),
     dispose,

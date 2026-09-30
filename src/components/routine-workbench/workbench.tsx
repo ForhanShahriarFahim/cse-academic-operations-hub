@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { AlertTriangle, ChevronDown, Undo2, XCircle } from "lucide-react";
 import type { RoutineSelection } from "@/lib/routine-projection";
 import { DAY_NAMES, DAY_SHORT } from "@/lib/time";
-import { daysForStream, type Stream } from "@/lib/constants";
+import { teachingDays, type Stream } from "@/lib/time-grid";
+import Link from "next/link";
 import type { MeetingView } from "@/lib/serialize";
 import type { PermittedWindow } from "@/lib/conflicts";
 import type { GroupCoverage } from "@/lib/data";
@@ -78,7 +79,8 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
   const trigger = useRef<HTMLElement | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
 
-  const context: EngineContext = useMemo(() => ({ meetings: source.meetings, externals: source.externals, breaks: source.breaks, windows }), [source, windows]);
+  const context: EngineContext = useMemo(() => ({ meetings: source.meetings, externals: source.externals, breaks: source.breaks, windows, grid: source.timeGrid }), [source, windows]);
+  const days = useMemo(() => teachingDays(source.timeGrid), [source]);
   const dayMeetings = useMemo(() => projection.exportMeetings.map((item) => item.meeting).filter((m) => m.dayOfWeek === day), [projection, day]);
   const statusById = useMemo(() => new Map<number, ClassStatus>(projection.exportMeetings.map((item) => [item.meeting.id, item.validationStatus])), [projection]);
   const streamMeetingIds = useMemo(() => new Set(source.meetings.filter((m) => m.audiences.some((a) => a.stream === stream)).map((m) => m.id)), [source, stream]);
@@ -102,8 +104,11 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
   const fits = useMemo(() => {
     const map = new Map<string, string>();
     if (!fitGroup || !dayView) return map;
-    for (const fit of fitsForGroup(fitGroup.template, fitGroup.teacherIds, day, dayView.slots, rooms, teachers, context)) {
-      map.set(`${fit.batchId}:${fit.slotIndex}`, `Fits ${fitGroup.template.courseCode}`);
+    for (const group of dayView.groups) {
+      const inGroup = new Set(group.rows.filter((row) => !row.unplanned).map((row) => row.batch.id));
+      for (const fit of fitsForGroup(fitGroup.template, fitGroup.teacherIds, day, group.slots, rooms, teachers, context)) {
+        if (inGroup.has(fit.batchId)) map.set(`${fit.batchId}:${group.slots[fit.slotIndex].start}`, `Fits ${fitGroup.template.courseCode}`);
+      }
     }
     return map;
   }, [fitGroup, dayView, day, rooms, teachers, context]);
@@ -177,7 +182,7 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
   }
 
   const panelBody = panel ? (
-    <ClassPanel key={JSON.stringify(panel)} mode={panel} stream={stream} meetings={source.meetings} groups={groups}
+    <ClassPanel key={JSON.stringify(panel)} mode={panel} stream={stream} grid={source.timeGrid} meetings={source.meetings} groups={groups}
       teachers={teachers} rooms={rooms} context={context} onChange={report} onClose={closePanel} headingId={headingId} />
   ) : (
     <AttentionList day={day} issues={dayIssues} meetings={source.meetings} unplaced={unplaced} fitGroupId={fitGroupId} fitCount={fits.size}
@@ -185,19 +190,20 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
       onShow={(meetingId) => { const m = source.meetings.find((x) => x.id === meetingId); if (m) { setPanel({ kind: "edit", meetingId }); setTab("class"); if (m.dayOfWeek !== day) navigate({ day: String(m.dayOfWeek) }); } }} />
   );
 
-  const dayNote = stream === "HSC" && day === 6
-    ? "Friday is not a regular HSC teaching day. A class here needs an approved exception with a note."
-    : stream === "DIPLOMA" && day === 0
-      ? "Diploma Saturday times are provisional until they are confirmed in Decisions & settings."
-      : null;
+  const extraDayBatches = dayView?.exceptionOnly
+    ? dayView.groups.flatMap((group) => group.rows.filter((row) => !row.unplanned).map((row) => `${row.batch.stream === "HSC" ? "HSC" : "DIP"}-${row.batch.label}`))
+    : [];
+  const dayNote = extraDayBatches.length
+    ? `${DAY_NAMES[day]} is an extra teaching day for ${extraDayBatches.join(", ")} only. Other ${stream === "HSC" ? "HSC" : "Diploma"} batches have no classes this day.`
+    : null;
 
   return (
     <div>
       <div role="toolbar" aria-label="Routine view" className="no-print sticky top-0 z-20 -mx-1 mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[var(--color-line)] bg-[var(--color-paper)] px-1 pb-3 pt-2 max-lg:static">
-        <Segmented label="Stream" options={[["HSC", "HSC"], ["DIPLOMA", "Diploma"]]} value={stream} onSelect={(value) => navigate({ stream: value, day: String(daysForStream(value as Stream)[0]), batch: "all" })} />
+        <Segmented label="Stream" options={[["HSC", "HSC"], ["DIPLOMA", "Diploma"]]} value={stream} onSelect={(value) => navigate({ stream: value, day: String(days[value as Stream].all[0] ?? 0), batch: "all" })} />
         {selection.view === "day" ? (
           <div role="group" aria-label="Day" className="flex max-w-full overflow-x-auto rounded-[7px] border border-[var(--color-line)] bg-sheet p-0.5">
-            {daysForStream(stream).map((d) => {
+            {days[stream].all.map((d) => {
               const count = blockersByDay[d] ?? 0;
               return (
                 <button key={d} type="button" aria-pressed={d === day} onClick={() => navigate({ day: String(d) })}
@@ -205,7 +211,7 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
                   onDrop={(event) => { event.preventDefault(); const m = draggingRef.current; if (m && d !== day) move(m, d, m.startMinutes); setDragging(null); }}
                   aria-label={`${DAY_NAMES[d]}${count ? `, ${count} clash${count === 1 ? "" : "es"}` : ""}`}
                   className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-[5px] px-2.5 py-1.5 text-[13px] font-medium ${d === day ? "bg-[var(--color-ink)] text-white" : "text-ink-2 hover:bg-wash"}`}>
-                  {DAY_SHORT[d]}
+                  {DAY_SHORT[d]}{days[stream].exceptionOnly.includes(d) ? <span aria-hidden="true" title="Only some batches teach this day">*</span> : null}
                   {count ? <span className={`min-w-[18px] rounded-full px-1.5 text-center text-[11.5px] font-semibold ${d === day ? "bg-[#f3b9a8] text-[var(--color-ink)]" : "bg-clay-tint text-[var(--color-clay)]"}`}>{count}</span> : null}
                 </button>
               );
@@ -252,41 +258,49 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
           <div className={`no-print ${docked ? "grid grid-cols-[minmax(0,1fr)_350px] items-start gap-4" : ""}`}>
             <div className="min-w-0">
               <div className="hidden lg:block">
-                {dayView ? (
-                  <RoutineGrid day={dayView} meetings={dayMeetings} statusById={statusById} showWarnings={showWarnings} selectedId={selectedId} related={related}
+                {dayView && dayView.groups.length ? dayView.groups.map((group, groupIndex) => (
+                  <RoutineGrid key={group.key} group={group} showLabel={dayView.groups.length > 1} externals={groupIndex === 0 ? dayView.externals : null}
+                    meetings={dayMeetings} statusById={statusById} showWarnings={showWarnings} selectedId={selectedId} related={related}
                     matches={matches} fits={fits} dragging={dragging} dropTarget={dropTarget} dropPreview={dropPreview}
                     onSelect={(m, el) => { trigger.current = el; setPanel({ kind: "edit", meetingId: m.id }); setTab("class"); }}
-                    onAdd={(batchId, slotIndex, el) => {
+                    onAdd={(batchId, slot, el) => {
                       trigger.current = el;
-                      const slot = dayView.slots[slotIndex];
-                      const fitting = fitGroup && fits.has(`${batchId}:${slotIndex}`) ? fitGroup.template.teachingGroupId : undefined;
+                      const fitting = fitGroup && fits.has(`${batchId}:${slot.start}`) ? fitGroup.template.teachingGroupId : undefined;
                       setPanel({ kind: "new", day, batchId, start: slot.start, end: slot.end, groupId: fitting });
                       setTab("class");
                     }}
                     onDragStart={(m) => setDragging(m)}
                     onDragEnd={() => { setDragging(null); setDropTarget(null); setDropPreview(null); }}
-                    onDragOverCell={(batchId, slotIndex) => {
+                    onDragOverCell={(batchId, slot) => {
                       const m = draggingRef.current;
                       if (!m || !m.audiences.some((a) => a.batchId === batchId)) return false;
-                      if (m.dayOfWeek === day && m.startMinutes === dayView.slots[slotIndex].start) { setDropTarget(null); return false; }
-                      const key = `${batchId}:${slotIndex}`;
-                      if (key !== dropTarget) { setDropTarget(key); setDropPreview(previewMove(m, day, dayView.slots[slotIndex].start)); }
+                      if (m.dayOfWeek === day && m.startMinutes === slot.start) { setDropTarget(null); return false; }
+                      const key = `${batchId}:${slot.start}`;
+                      if (key !== dropTarget) { setDropTarget(key); setDropPreview(previewMove(m, day, slot.start)); }
                       return true;
                     }}
-                    onDrop={(batchId, slotIndex) => {
+                    onDrop={(batchId, slot) => {
                       const m = draggingRef.current;
-                      if (m && m.audiences.some((a) => a.batchId === batchId)) move(m, day, dayView.slots[slotIndex].start);
+                      if (m && m.audiences.some((a) => a.batchId === batchId)) move(m, day, slot.start);
                       setDragging(null); setDropTarget(null); setDropPreview(null);
                     }} />
-                ) : <p className="rounded-lg border border-dashed border-[var(--color-line)] p-6 text-[13px] text-ink-2">No class times are defined for this day.</p>}
+                )) : (
+                  <p className="rounded-lg border border-dashed border-[var(--color-line)] p-6 text-[13px] text-ink-2">
+                    No periods are set for this term yet. <Link href="/routine/periods" className="font-semibold text-[var(--color-pine)] underline underline-offset-2">Set up days and periods</Link>
+                  </p>
+                )}
                 <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[12.5px] text-muted">
-                  <span>Green edge: class</span><span>Gold edge: merged with other batches (stored once)</span><span>Clay edge and “Clash”: must be fixed</span><span>Drag a class to another time or day tab to move it</span>
+                  <span>Green edge: class</span><span>Gold edge: merged with other batches (stored once)</span><span>Clay edge and “Clash”: must be fixed</span><span>Drag a class to another time or day tab to move it</span><Link href="/routine/periods" className="font-semibold text-[var(--color-pine)] underline underline-offset-2">Change days and periods</Link>
                 </p>
               </div>
               <div className="lg:hidden">
                 {dayView ? <RoutineAgenda day={dayView} meetings={dayMeetings} statusById={statusById} showWarnings={showWarnings} matches={matches}
                   onSelect={(m, el) => { trigger.current = el; setPanel({ kind: "edit", meetingId: m.id }); setTab("class"); }}
-                  onAdd={(batchId, el) => { trigger.current = el; const slot = dayView.slots[0]; setPanel({ kind: "new", day, batchId, start: slot.start, end: slot.end }); setTab("class"); }} /> : null}
+                  onAdd={(batchId, el) => {
+                    const slot = dayView.groups.find((group) => group.rows.some((row) => row.batch.id === batchId && !row.unplanned))?.slots[0];
+                    if (!slot) return;
+                    trigger.current = el; setPanel({ kind: "new", day, batchId, start: slot.start, end: slot.end }); setTab("class");
+                  }} /> : null}
                 {unplaced.length || dayIssues.some((i) => i.severity === "blocker") ? (
                   <button type="button" onClick={(event) => { trigger.current = event.currentTarget; setPanel(null); setTab("attention"); dialog.current?.showModal(); }}
                     className="mt-3 w-full rounded-md border border-[var(--color-line)] bg-sheet py-2.5 text-[13.5px] font-medium">Needs attention</button>

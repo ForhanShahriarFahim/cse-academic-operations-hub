@@ -5,6 +5,7 @@
  */
 
 import type { BreakRule, Issue } from "./conflicts";
+import { isTimeGrid, type TimeGrid } from "./time-grid";
 
 export interface TeacherRef {
   id: number;
@@ -172,9 +173,15 @@ export interface PublicationRoutineMetadata {
   sourceReconciliations: Array<{ detail: string; status: string; sourceLabel: string }>;
 }
 
+/**
+ * The normalized publication shape. Schema 4 (RUT-04) adds `timeGrid`, the
+ * periods and days the version was published with; older versions have none
+ * and are drawn with the legacy layout.
+ */
 export interface PublicationSnapshotV3 extends Omit<PublicationSnapshotV2, "schemaVersion"> {
-  schemaVersion: 3;
+  schemaVersion: 3 | 4;
   metadata: PublicationRoutineMetadata;
+  timeGrid?: TimeGrid;
 }
 
 export type PublicationSnapshot = PublicationSnapshotV1 | PublicationSnapshotV2 | PublicationSnapshotV3;
@@ -197,10 +204,12 @@ export function buildSnapshot(input: {
   externals: ExternalCommitmentView[];
   issues: Issue[];
   metadata: PublicationRoutineMetadata;
+  timeGrid: TimeGrid;
   generatedAt?: string;
 }): PublicationSnapshotV3 {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
+    timeGrid: input.timeGrid,
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     term: { ...input.term },
     versionNumber: input.versionNumber,
@@ -224,7 +233,7 @@ export function normalizePublicationSnapshot(
   if (!objectValue(value)) return null;
 
   if (
-    value.schemaVersion === 3
+    (value.schemaVersion === 3 || (value.schemaVersion === 4 && isTimeGrid(value.timeGrid)))
     && typeof value.generatedAt === "string"
     && typeof value.versionNumber === "number"
     && objectValue(value.term)

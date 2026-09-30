@@ -1,9 +1,12 @@
-import { daysForStream, slotsFor, type SlotDef, type Stream } from "./constants";
+import { dayGroups, streamDays, isExceptionOnlyDay, type Stream, type TimeGrid } from "./time-grid";
 import type { BreakRule, Issue } from "./conflicts";
 import type { ExternalCommitmentView, MeetingView } from "./serialize";
 import { overlaps } from "./time";
 
 export type RoutineView = "day" | "week";
+
+/** One period column. */
+export interface SlotDef { start: number; end: number }
 
 export interface RoutineBatch {
   id: number;
@@ -32,6 +35,8 @@ export interface RoutineSource {
   meetings: MeetingView[];
   batches: RoutineBatch[];
   breaks: BreakRule[];
+  /** Periods and days this source is drawn with (stored, or legacy for older publications). */
+  timeGrid: TimeGrid;
   externals: ExternalCommitmentView[];
   issues: Issue[];
 }
@@ -55,13 +60,26 @@ export interface ProjectedBatchRow {
   batch: RoutineBatch;
   offGrid: ProjectedMeeting[];
   slots: ProjectedSlot[];
+  /** The batch has classes this day but no periods (no plan, or a "No classes" exception). */
+  unplanned?: boolean;
+}
+
+/** Batches that share one period pattern on a day, drawn under one header row. */
+export interface RoutineDayGroup {
+  key: string;
+  name: string;
+  isStreamDefault: boolean;
+  slots: SlotDef[];
+  breaks: ProjectedBreak[];
+  rows: ProjectedBatchRow[];
 }
 
 export interface RoutineDayProjection {
   dayOfWeek: number;
-  slots: SlotDef[];
-  breaks: ProjectedBreak[];
-  rows: ProjectedBatchRow[];
+  /** The stream's own group first. A day with one group reads exactly like a single table. */
+  groups: RoutineDayGroup[];
+  /** The stream has no plan this day; only batches with an extra-day exception teach. */
+  exceptionOnly: boolean;
   externals: ExternalCommitmentView[];
 }
 
@@ -82,9 +100,10 @@ function one(value: string | string[] | undefined): string | undefined {
 
 export function parseRoutineSelection(
   params: SearchParams,
-  batches: RoutineBatch[],
+  source: Pick<RoutineSource, "batches" | "timeGrid">,
   options: { strict?: boolean } = {},
 ): { selection: RoutineSelection; errors: string[] } {
+  const batches = source.batches;
   const errors: string[] = [];
   const rawStream = one(params.stream);
   const stream: Stream = rawStream === "DIPLOMA" ? "DIPLOMA" : "HSC";
@@ -98,10 +117,10 @@ export function parseRoutineSelection(
     errors.push("view must be day or week");
   }
 
-  const validDays = daysForStream(stream);
+  const validDays = streamDays(source.timeGrid, stream);
   const rawDay = one(params.day);
   const parsedDay = rawDay == null || rawDay === "" ? validDays[0] : Number(rawDay);
-  const day = Number.isInteger(parsedDay) && validDays.includes(parsedDay) ? parsedDay : validDays[0];
+  const day = Number.isInteger(parsedDay) && validDays.includes(parsedDay) ? parsedDay : validDays[0] ?? 0;
   if (options.strict && rawDay != null && (!Number.isInteger(parsedDay) || !validDays.includes(parsedDay))) {
     errors.push("day is not valid for the selected stream");
   }
@@ -148,9 +167,10 @@ export function projectRoutine({
   source: RoutineSource;
   selection: RoutineSelection;
 }): RoutineProjection {
-  const streamDays = daysForStream(selection.stream);
-  const selectedDays = selection.view === "week" ? streamDays : [streamDays.includes(selection.day) ? selection.day : streamDays[0]];
-  const dayOrder = new Map(streamDays.map((day, index) => [day, index]));
+  const grid = source.timeGrid;
+  const days = streamDays(grid, selection.stream);
+  const selectedDays = selection.view === "week" ? days : days.includes(selection.day) ? [selection.day] : days.slice(0, 1);
+  const dayOrder = new Map(days.map((day, index) => [day, index]));
   const availableBatches = source.batches
     .filter((batch) => batch.stream === selection.stream)
     .sort((a, b) => b.sortOrder - a.sortOrder || a.label.localeCompare(b.label));
@@ -167,54 +187,48 @@ export function projectRoutine({
   }
   const exportMeetings = [...projectedById.values()].sort(meetingOrder(dayOrder));
 
-  const days = selectedDays.map<RoutineDayProjection>((dayOfWeek) => {
-    const slots = slotsFor(selection.stream, dayOfWeek);
-    const projectedBreaks = source.breaks
-      .filter((item) =>
-        (item.dayOfWeek == null || item.dayOfWeek === dayOfWeek)
-        && (item.scope === "institution" || item.stream == null || item.stream === selection.stream),
-      )
-      .map<ProjectedBreak>((item) => {
-        let afterSlot = -1;
-        slots.forEach((slot, index) => {
-          if (slot.end <= item.startMinutes) afterSlot = index;
-        });
-        return { ...item, afterSlot };
-      })
-      .filter((item) => item.afterSlot >= 0 && item.afterSlot < slots.length - 1);
-
+  const projectedDays = selectedDays.map<RoutineDayProjection>((dayOfWeek) => {
     const dayMeetings = exportMeetings.filter((item) => item.meeting.dayOfWeek === dayOfWeek);
-    const rows = selectedBatches.map<ProjectedBatchRow>((batch) => {
-      const batchMeetings = dayMeetings.filter((item) =>
-        item.meeting.audiences.some((audience) => audience.batchId === batch.id),
-      );
-      const offGrid = batchMeetings.filter((item) =>
-        !slots.some((slot) => overlaps(item.meeting.startMinutes, item.meeting.endMinutes, slot.start, slot.end)),
-      );
-      const projectedSlots = slots.map<ProjectedSlot>((slot) => {
-        const overlapping = batchMeetings.filter((item) =>
-          overlaps(item.meeting.startMinutes, item.meeting.endMinutes, slot.start, slot.end),
-        );
-        const meetings = overlapping.filter((item) => {
-          const first = slots.find((candidate) =>
-            overlaps(item.meeting.startMinutes, item.meeting.endMinutes, candidate.start, candidate.end),
-          );
-          return first?.start === slot.start;
-        });
-        return {
-          ...slot,
-          meetings,
-          continuations: overlapping.filter((item) => !meetings.includes(item)),
-        };
-      });
-      return { batch, offGrid, slots: projectedSlots };
+    const meetingsOf = (batch: RoutineBatch) => dayMeetings.filter((item) =>
+      item.meeting.audiences.some((audience) => audience.batchId === batch.id));
+
+    const groups = dayGroups(grid, selection.stream, dayOfWeek, selectedBatches).map<RoutineDayGroup>((group) => {
+      const slots: SlotDef[] = group.pattern.periods.map(({ start, end }) => ({ start, end }));
+      const breaks = group.pattern.breaks
+        .map<ProjectedBreak>((item, index) => {
+          let afterSlot = -1;
+          slots.forEach((slot, slotIndex) => { if (slot.end <= item.start) afterSlot = slotIndex; });
+          return {
+            id: index + 1, name: item.name, scope: "stream", stream: selection.stream, dayOfWeek,
+            startMinutes: item.start, endMinutes: item.end, afterSlot,
+          };
+        })
+        .filter((item) => item.afterSlot >= 0 && item.afterSlot < slots.length - 1);
+      return {
+        key: String(group.pattern.id),
+        name: group.pattern.name,
+        isStreamDefault: group.isStreamDefault,
+        slots,
+        breaks,
+        rows: group.batches.map((batch) => batchRow(batch, meetingsOf(batch), slots)),
+      };
     });
+
+    // Classes for batches with no periods this day stay visible, at their exact times.
+    const placed = new Set(groups.flatMap((group) => group.rows.map((row) => row.batch.id)));
+    const unplanned = selectedBatches.filter((batch) => !placed.has(batch.id) && meetingsOf(batch).length > 0);
+    if (unplanned.length) {
+      if (groups.length === 0) groups.push({ key: "none", name: "No periods set", isStreamDefault: false, slots: [], breaks: [], rows: [] });
+      const host = groups[0];
+      for (const batch of unplanned) {
+        host.rows.push({ batch, offGrid: meetingsOf(batch), slots: host.slots.map((slot) => ({ ...slot, meetings: [], continuations: [] })), unplanned: true });
+      }
+    }
 
     return {
       dayOfWeek,
-      slots,
-      breaks: projectedBreaks,
-      rows,
+      groups,
+      exceptionOnly: isExceptionOnlyDay(grid, selection.stream, dayOfWeek),
       externals: source.externals
         .filter((item) => item.dayOfWeek === dayOfWeek && item.startMinutes != null && item.endMinutes != null)
         .sort((a, b) => (a.startMinutes ?? 0) - (b.startMinutes ?? 0) || a.id - b.id),
@@ -225,11 +239,30 @@ export function projectRoutine({
     source,
     selection,
     availableBatches,
-    days,
+    days: projectedDays,
     exportMeetings,
     issueCount: {
       blockers: source.issues.filter((issue) => issue.severity === "blocker").length,
       warnings: source.issues.filter((issue) => issue.severity === "warning").length,
     },
   };
+}
+
+function batchRow(batch: RoutineBatch, batchMeetings: ProjectedMeeting[], slots: SlotDef[]): ProjectedBatchRow {
+  const offGrid = batchMeetings.filter((item) =>
+    !slots.some((slot) => overlaps(item.meeting.startMinutes, item.meeting.endMinutes, slot.start, slot.end)),
+  );
+  const projectedSlots = slots.map<ProjectedSlot>((slot) => {
+    const overlapping = batchMeetings.filter((item) =>
+      overlaps(item.meeting.startMinutes, item.meeting.endMinutes, slot.start, slot.end),
+    );
+    const meetings = overlapping.filter((item) => {
+      const first = slots.find((candidate) =>
+        overlaps(item.meeting.startMinutes, item.meeting.endMinutes, candidate.start, candidate.end),
+      );
+      return first?.start === slot.start;
+    });
+    return { ...slot, meetings, continuations: overlapping.filter((item) => !meetings.includes(item)) };
+  });
+  return { batch, offGrid, slots: projectedSlots };
 }

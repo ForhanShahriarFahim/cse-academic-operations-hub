@@ -8,7 +8,7 @@ import { RoutineExportMenu, RoutineWorkbench, type WorkbenchGroup } from "@/comp
 import { RoutineDocument } from "@/components/routine-document";
 import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection";
 import { draftRoutineSource } from "@/lib/routine-sources";
-import { daysForStream } from "@/lib/constants";
+import { streamDays } from "@/lib/time-grid";
 import type { GroupTemplate } from "@/lib/routine-workbench";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export default async function RoutinePage({
 }) {
   const data = await getPortalData();
   const source = draftRoutineSource(data);
-  const { selection } = parseRoutineSelection(await searchParams, source.batches);
+  const { selection } = parseRoutineSelection(await searchParams, source);
   const projection = projectRoutine({ source, selection });
 
   const [links, groupRows] = await Promise.all([
@@ -62,7 +62,7 @@ export default async function RoutinePage({
 
   // Blocking issues per day for this stream, for the day tabs.
   const streamMeetingIds = new Set(source.meetings.filter((m) => m.audiences.some((a) => a.stream === selection.stream)).map((m) => m.id));
-  const blockersByDay = Object.fromEntries(daysForStream(selection.stream).map((day) => [day,
+  const blockersByDay = Object.fromEntries(streamDays(source.timeGrid, selection.stream).map((day) => [day,
     source.issues.filter((issue) => issue.severity === "blocker" && issue.dayOfWeek === day && issue.meetingIds.some((id) => streamMeetingIds.has(id))).length]));
 
   return (

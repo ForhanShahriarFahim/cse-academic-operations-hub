@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { INSTITUTION } from "@/lib/constants";
 import type { OfficialAppendixPage, OfficialRoutinePackage as Package } from "@/lib/official-routine-package";
-import type { RoutineDayProjection } from "@/lib/routine-projection";
+import type { RoutineDayGroup, RoutineDayProjection } from "@/lib/routine-projection";
 import { DAY_NAMES, fmtDate, fmtRange } from "@/lib/time";
 
 export function OfficialRoutinePackage({ document }: { document: Package }) {
@@ -11,7 +11,9 @@ export function OfficialRoutinePackage({ document }: { document: Package }) {
       {document.routinePages.map((page, index) => (
         <OfficialPage key={page.stream} document={document} title={`Program: B.Sc. in CSE (${page.stream === "HSC" ? "HSC" : "Diploma"})`} page={index + 1} totalPages={totalPages}>
           <div className={`official-routine-days ${page.stream === "HSC" ? "official-routine-days-hsc" : "official-routine-days-diploma"}`}>
-            {page.days.map((day) => <CompactDayTable key={day.dayOfWeek} day={day} />)}
+            {page.days.flatMap((day) => day.groups.map((group, groupIndex) => (
+              <CompactDayTable key={`${day.dayOfWeek}-${group.key}`} day={day} group={group} label={day.groups.length > 1 ? group.name : null} withBookings={groupIndex === 0} />
+            )))}
           </div>
         </OfficialPage>
       ))}
@@ -53,31 +55,40 @@ function OfficialPage({ document, title, page, totalPages, children }: {
   );
 }
 
-function CompactDayTable({ day }: { day: RoutineDayProjection }) {
+function CompactDayTable({ day, group, label, withBookings }: {
+  day: RoutineDayProjection; group: RoutineDayGroup; label: string | null; withBookings: boolean;
+}) {
+  const rowCount = group.rows.length + (withBookings ? 1 : 0);
   return (
     <table className="official-compact-table">
+      {label && <caption className="official-group-caption">{DAY_NAMES[day.dayOfWeek]} · {label}</caption>}
       <thead>
         <tr>
           <th className="official-day-heading" rowSpan={2}>Day</th>
           <th rowSpan={2}>Batch</th>
-          {day.slots.map((slot, index) => (
+          {group.slots.map((slot, index) => (
             <Fragment key={slot.start}>
               <th>{fmtRange(slot.start, slot.end)}</th>
-              {day.breaks.filter((item) => item.afterSlot === index).map((item) => (
+              {group.breaks.filter((item) => item.afterSlot === index).map((item) => (
                 <th key={item.id} className="official-break-heading" rowSpan={2}>{item.name}</th>
               ))}
             </Fragment>
           ))}
         </tr>
         <tr>
-          {day.slots.map((slot) => <th key={slot.start} className="official-slot-caption">{slot.start} - {slot.end}</th>)}
+          {group.slots.map((slot) => <th key={slot.start} className="official-slot-caption">{slot.start} - {slot.end}</th>)}
         </tr>
       </thead>
       <tbody>
-        {day.rows.map((row, rowIndex) => (
+        {group.rows.map((row, rowIndex) => (
           <tr key={row.batch.id}>
-            {rowIndex === 0 && <th className="official-day-spacer" rowSpan={day.rows.length + 1}>{DAY_NAMES[day.dayOfWeek]}</th>}
-            <th>{row.batch.label.replace("B", " B")}</th>
+            {rowIndex === 0 && <th className="official-day-spacer" rowSpan={rowCount}>{DAY_NAMES[day.dayOfWeek]}</th>}
+            <th>
+              {row.batch.label.replace("B", " B")}
+              {row.unplanned && row.offGrid.map((item) => (
+                <small key={item.meeting.id} className="official-unplanned">{item.meeting.courseCode} {fmtRange(item.meeting.startMinutes, item.meeting.endMinutes)} (no classes planned)</small>
+              ))}
+            </th>
             {row.slots.map((slot, slotIndex) => (
               <Fragment key={slot.start}>
                 <td>
@@ -90,23 +101,23 @@ function CompactDayTable({ day }: { day: RoutineDayProjection }) {
                     </div>;
                   })}
                 </td>
-                {rowIndex === 0 && day.breaks.filter((item) => item.afterSlot === slotIndex).map((item) => (
-                  <td key={item.id} className="official-break-body" rowSpan={day.rows.length + 1}><span>{item.name}</span></td>
+                {rowIndex === 0 && group.breaks.filter((item) => item.afterSlot === slotIndex).map((item) => (
+                  <td key={item.id} className="official-break-body" rowSpan={rowCount}><span>{item.name}</span></td>
                 ))}
               </Fragment>
             ))}
           </tr>
         ))}
-        <tr className="official-od-row">
+        {withBookings && <tr className="official-od-row">
           <th>OD</th>
-          {day.slots.map((slot) => (
+          {group.slots.map((slot) => (
             <td key={slot.start}>
               {day.externals
                 .filter((item) => item.startMinutes != null && item.endMinutes != null && item.startMinutes < slot.end && item.endMinutes > slot.start)
                 .map((item) => <div key={item.id}>{item.roomCode ?? item.teacherShortCode ?? "?"} ({item.counterpartDepartment})</div>)}
             </td>
           ))}
-        </tr>
+        </tr>}
       </tbody>
     </table>
   );

@@ -380,6 +380,40 @@ export const breakRules = pgTable("break_rules", {
   endMinutes: integer("end_minutes").notNull(),
 });
 
+// Term time grids (RUT-04). A pattern is a named list of periods and breaks;
+// a day plan says which pattern a stream, or one batch, uses on a day. Class
+// hours stay in permitted_windows. break_rules is kept only as history: terms
+// read breaks from their patterns.
+export const periodPatterns = pgTable(
+  "period_patterns",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    name: text("name").notNull(),
+    periods: jsonb("periods").$type<Array<{ start: number; end: number }>>().notNull().default([]),
+    breaks: jsonb("breaks").$type<Array<{ name: string; start: number; end: number; blocksClasses: boolean }>>().notNull().default([]),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("period_patterns_term_name_uq").on(t.termId, t.name)],
+);
+
+export const dayPlans = pgTable(
+  "day_plans",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    stream: text("stream").notNull(), // HSC | DIPLOMA
+    batchId: integer("batch_id").references(() => batches.id), // null = the stream's own plan
+    dayOfWeek: integer("day_of_week").notNull(),
+    patternId: integer("pattern_id").references(() => periodPatterns.id), // null = no classes (batch only)
+    reason: text("reason"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("day_plans_term_idx").on(t.termId)],
+);
+
 export const permittedWindows = pgTable("permitted_windows", {
   id: serial("id").primaryKey(),
   termId: integer("term_id").references(() => academicTerms.id),

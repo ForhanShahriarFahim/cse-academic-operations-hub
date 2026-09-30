@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const data = await getPortalData();
   const source = draftRoutineSource(data);
   const params = Object.fromEntries(new URL(request.url).searchParams.entries());
-  const parsed = parseRoutineSelection(params, source.batches, { strict: true });
+  const parsed = parseRoutineSelection(params, source, { strict: true });
   if (parsed.errors.length > 0) {
     return Response.json({ errors: parsed.errors }, { status: 400 });
   }

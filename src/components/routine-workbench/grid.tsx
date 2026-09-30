@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { AlertTriangle, XCircle } from "lucide-react";
 import { fmtRange } from "@/lib/time";
 import type { ExternalCommitmentView, MeetingView } from "@/lib/serialize";
-import type { RoutineDayProjection } from "@/lib/routine-projection";
+import type { RoutineDayGroup, SlotDef } from "@/lib/routine-projection";
 import { matchesColumns, rowCells, type GridCell } from "@/lib/routine-workbench";
 
 export type ClassStatus = "blocker" | "warning" | "clear";
@@ -12,7 +12,11 @@ export type ClassStatus = "blocker" | "warning" | "clear";
 export interface DropPreview { ok: boolean; reason: string }
 
 export interface GridProps {
-  day: RoutineDayProjection;
+  group: RoutineDayGroup;
+  /** Show the pattern name above the grid (the day has more than one period group). */
+  showLabel: boolean;
+  /** Other departments' bookings for the day, shown once, under the stream's own group. */
+  externals: ExternalCommitmentView[] | null;
   meetings: MeetingView[];
   statusById: Map<number, ClassStatus>;
   showWarnings: boolean;
@@ -24,11 +28,11 @@ export interface GridProps {
   dropTarget: string | null;
   dropPreview: DropPreview | null;
   onSelect: (meeting: MeetingView, trigger: HTMLElement) => void;
-  onAdd: (batchId: number, slotIndex: number, trigger: HTMLElement) => void;
+  onAdd: (batchId: number, slot: SlotDef, trigger: HTMLElement) => void;
   onDragStart: (meeting: MeetingView) => void;
   onDragEnd: () => void;
-  onDragOverCell: (batchId: number, slotIndex: number) => boolean;
-  onDrop: (batchId: number, slotIndex: number) => void;
+  onDragOverCell: (batchId: number, slot: SlotDef) => boolean;
+  onDrop: (batchId: number, slot: SlotDef) => void;
 }
 
 const batchName = (stream: string, label: string) => `${stream === "HSC" ? "HSC" : "DIP"}-${label}`;
@@ -43,15 +47,23 @@ const visibleStatus = (status: ClassStatus | undefined, showWarnings: boolean): 
   status === "blocker" || (status === "warning" && showWarnings) ? status : "clear";
 
 export function RoutineGrid(props: GridProps) {
-  const { day } = props;
-  const slots = day.slots;
-  const breakAfter = (index: number) => day.breaks.filter((b) => b.afterSlot === index);
-  const breaksInside = (cell: GridCell) => day.breaks.filter((b) => b.afterSlot >= cell.first && b.afterSlot < cell.last).length;
+  const { group } = props;
+  const slots = group.slots;
+  const breakAfter = (index: number) => group.breaks.filter((b) => b.afterSlot === index);
+  const breaksInside = (cell: GridCell) => group.breaks.filter((b) => b.afterSlot >= cell.first && b.afterSlot < cell.last).length;
+  const batchList = group.rows.map(({ batch }) => batchName(batch.stream, batch.label)).join(", ");
 
   return (
-    <div role="region" aria-label="Routine grid for the selected day" tabIndex={0} className="table-region overflow-auto rounded-lg border border-[var(--color-line)] bg-sheet">
+    <div className="mb-3 last:mb-0">
+      {props.showLabel ? (
+        <p className="mb-1.5 flex flex-wrap items-baseline gap-x-2 text-[13px]">
+          <span className="font-semibold">{group.name}</span>
+          <span className="text-muted">{batchList}</span>
+        </p>
+      ) : null}
+    <div role="region" aria-label={props.showLabel ? `Routine grid, ${group.name} periods` : "Routine grid for the selected day"} tabIndex={0} className="table-region overflow-auto rounded-lg border border-[var(--color-line)] bg-sheet">
       <table className="w-full border-separate border-spacing-0 text-[13px]">
-        <caption className="sr-only">Classes by batch and time. Select a class to edit it, or an empty cell to add one.</caption>
+        <caption className="sr-only">Classes by batch and time{props.showLabel ? ` for ${batchList}` : ""}. Select a class to edit it, or an empty cell to add one.</caption>
         <thead>
           <tr>
             <th scope="col" className="sticky left-0 top-0 z-[3] w-[96px] border-b border-r border-[var(--color-line)] bg-wash px-3 py-2 text-left font-semibold">Batch</th>
@@ -70,24 +82,26 @@ export function RoutineGrid(props: GridProps) {
           </tr>
         </thead>
         <tbody>
-          {day.rows.map(({ batch }) => {
+          {group.rows.map(({ batch, unplanned }) => {
             const rowMeetings = props.meetings.filter((m) => m.audiences.some((a) => a.batchId === batch.id));
             const cells = rowCells(rowMeetings, slots);
             return (
               <tr key={batch.id}>
                 <th scope="row" className="sticky left-0 z-[1] border-b border-r border-[var(--color-line-soft)] bg-sheet px-3 py-2 text-left align-top font-normal">
                   <span className="block font-mono text-[13px] font-semibold">{batchName(batch.stream, batch.label)}</span>
-                  {batch.semester ? <span className="text-[12px] text-muted">Semester {batch.semester}</span> : null}
+                  {unplanned ? <span className="text-[12px] font-semibold text-[var(--color-clay)]">No classes planned</span>
+                    : batch.semester ? <span className="text-[12px] text-muted">Semester {batch.semester}</span> : null}
                 </th>
                 {cells.map((cell) => {
-                  const key = `${batch.id}:${cell.first}`;
+                  const slot = slots[cell.first];
+                  const key = `${batch.id}:${slot.start}`;
                   const isTarget = props.dropTarget === key;
                   return (
                     <Fragment key={cell.first}>
                       <td
                         colSpan={cell.last - cell.first + 1 + breaksInside(cell)}
-                        onDragOver={(event) => { if (props.onDragOverCell(batch.id, cell.first)) event.preventDefault(); }}
-                        onDrop={(event) => { event.preventDefault(); props.onDrop(batch.id, cell.first); }}
+                        onDragOver={(event) => { if (props.onDragOverCell(batch.id, slot)) event.preventDefault(); }}
+                        onDrop={(event) => { event.preventDefault(); props.onDrop(batch.id, slot); }}
                         className={`relative border-b border-r border-[var(--color-line-soft)] p-1.5 align-top ${isTarget ? (props.dropPreview?.ok ? "bg-pine-tint outline outline-2 -outline-offset-2 outline-[var(--color-pine)]" : "bg-clay-tint outline outline-2 -outline-offset-2 outline-[var(--color-clay)]") : ""}`}
                       >
                         {cell.meetings.map((m) => (
@@ -96,9 +110,9 @@ export function RoutineGrid(props: GridProps) {
                             related={props.related.meetingIds.has(m.id)} dim={!props.matches(m)}
                             onSelect={props.onSelect} onDragStart={props.onDragStart} onDragEnd={props.onDragEnd} />
                         ))}
-                        {cell.meetings.length === 0 ? (
-                          <AddButton label={props.fits.get(key)} batch={batchName(batch.stream, batch.label)} time={clock(slots[cell.first].start, slots[cell.first].end)}
-                            onClick={(trigger) => props.onAdd(batch.id, cell.first, trigger)} />
+                        {cell.meetings.length === 0 && !unplanned ? (
+                          <AddButton label={props.fits.get(key)} batch={batchName(batch.stream, batch.label)} time={clock(slot.start, slot.end)}
+                            onClick={(trigger) => props.onAdd(batch.id, slot, trigger)} />
                         ) : null}
                         {isTarget && props.dropPreview ? (
                           <p className={`pointer-events-none absolute inset-x-1.5 bottom-1.5 z-10 rounded bg-white/95 px-1.5 py-0.5 text-[12px] font-semibold shadow-sm ${props.dropPreview.ok ? "text-[var(--color-pine)]" : "text-[var(--color-clay)]"}`}>{props.dropPreview.reason}</p>
@@ -111,6 +125,7 @@ export function RoutineGrid(props: GridProps) {
               </tr>
             );
           })}
+          {props.externals ? (
           <tr>
             <th scope="row" className="sticky left-0 z-[1] border-r border-[var(--color-line-soft)] bg-wash px-3 py-2 text-left align-top font-normal">
               <span className="block text-[13px] font-semibold text-[var(--color-clay)]">Other departments</span>
@@ -119,7 +134,7 @@ export function RoutineGrid(props: GridProps) {
             {slots.map((slot, index) => (
               <Fragment key={slot.start}>
                 <td className="border-r border-[var(--color-line-soft)] bg-wash p-1.5 align-top">
-                  {day.externals.filter((e) => e.startMinutes != null && e.endMinutes != null && e.startMinutes < slot.end && e.endMinutes > slot.start
+                  {props.externals!.filter((e) => e.startMinutes != null && e.endMinutes != null && e.startMinutes < slot.end && e.endMinutes > slot.start
                     && (index === 0 || !(e.startMinutes < slots[index - 1].end && e.endMinutes! > slots[index - 1].start)))
                     .map((e) => <Booking key={e.id} booking={e} related={props.related.externalIds.has(e.id)} />)}
                 </td>
@@ -127,8 +142,10 @@ export function RoutineGrid(props: GridProps) {
               </Fragment>
             ))}
           </tr>
+          ) : null}
         </tbody>
       </table>
+    </div>
     </div>
   );
 }
