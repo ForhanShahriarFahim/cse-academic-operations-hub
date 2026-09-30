@@ -2,6 +2,8 @@ import { getPortalData } from "@/lib/data";
 import { fmtRange, DAY_SHORT } from "@/lib/time";
 import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
 import { Building2, FlaskConical, Wrench } from "lucide-react";
+import { PrintHeader } from "@/components/print-header";
+import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
 
@@ -59,10 +61,12 @@ export default async function RoomsPage() {
 
   return (
     <div>
+      <PrintHeader title="Rooms & occupancy" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
       <PageHeader
         context="Planning records"
         title="Rooms & occupancy"
         description={`How much of each room's usable time is booked, out of ${windowMinutes} minutes a week in the permitted class windows (breaks excluded). CSE classes and confirmed bookings by other departments count once per class.`}
+        actions={<PrintButton />}
       />
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -78,7 +82,7 @@ export default async function RoomsPage() {
               </div>
               <div className="flex flex-col items-end gap-1">
                 <Badge tone={r.owningDepartmentCode === "CSE" ? "pine" : "gold"}>
-                  {r.owningDepartmentCode === "CSE" ? "CSE" : `${r.owningDepartmentCode} owned`}
+                  {r.owningDepartmentCode === "CSE" ? "CSE" : r.owningDepartmentCode ? `${r.owningDepartmentCode} room` : "Owner not recorded"}
                 </Badge>
                 {!r.isActive && <Badge tone="clay"><Wrench size={9} /> closed</Badge>}
               </div>

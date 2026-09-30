@@ -15,8 +15,12 @@ const internalRoutes = [
   "/rooms", "/batches", "/courses", "/od", "/publications", "/settings", "/access", "/routine/official",
 ];
 const publicRoutes = ["/public/routine", "/public/routine?view=week"];
-/** Known violations owned by other issues: route → axe rule ids. */
-const deferred: Record<string, string[]> = { "/access": ["select-name"] }; // #31
+/** Known violations with an owner or a recorded reason: route → axe rule ids. */
+const deferred: Record<string, string[]> = {
+  "/access": ["select-name"], // #31
+  // Replica of the institutional A4 routine template (grey 5–6px print captions); UX-01 keeps it unchanged (spec AC-08).
+  "/routine/official": ["color-contrast"],
+};
 
 test.beforeAll(async ({ request }) => {
   const health = await request.get("/api/health").catch(() => null);

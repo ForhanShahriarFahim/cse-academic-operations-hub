@@ -27,10 +27,18 @@ export function PortalShell({ capabilities, termName, publishedVersion, displayN
   const drawer = useRef<HTMLElement>(null);
   const termState = publishedVersion == null ? "Draft — not yet published" : `Version ${publishedVersion} published`;
 
+  const restoreFocus = useRef(false);
   const close = (returnFocus = true) => {
+    restoreFocus.current = returnFocus;
     setOpen(false);
-    if (returnFocus) menuButton.current?.focus();
   };
+
+  // The top bar is inert while the drawer is open, so focus returns only after it re-renders.
+  useEffect(() => {
+    if (open || !restoreFocus.current) return;
+    restoreFocus.current = false;
+    menuButton.current?.focus();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

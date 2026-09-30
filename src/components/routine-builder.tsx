@@ -201,7 +201,7 @@ export function RoutineBuilder(props: Props) {
                 {c.deliveryMode === "teacher_managed" ? <Asterisk size={12} /> : <CirclePlus size={12} />}
                 <span className="font-mono font-semibold">{c.courseCode}</span>
                 <span>{c.audience}</span>
-                <span className="text-[10px] opacity-75">
+                <span className="text-[11px]">
                   {c.status === "vacancy" ? "UT vacancy" :
                     c.deliveryMode === "teacher_managed" ? "teacher-managed" :
                     `${c.scheduledMinutes}/${c.expectedWeeklyMinutes ?? "?"} min`}

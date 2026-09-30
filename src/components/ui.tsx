@@ -43,7 +43,7 @@ const toneClasses: Record<Tone, string> = {
 export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }) {
   return (
     <span
-      className={`inline-block whitespace-nowrap rounded-full border px-2 py-px text-[11.5px] font-medium leading-[18px] first-letter:uppercase ${toneClasses[tone]}`}
+      className={`inline-block max-w-full rounded-[10px] border px-2 py-px text-[11.5px] font-medium leading-[18px] first-letter:uppercase ${toneClasses[tone]}`}
     >
       {children}
     </span>
@@ -64,7 +64,7 @@ const statusStyle: Record<StatusTone, { icon: LucideIcon; className: string }> =
 export function StatusText({ tone, children, className = "" }: { tone: StatusTone; children: ReactNode; className?: string }) {
   const { icon: Icon, className: toneClass } = statusStyle[tone];
   return (
-    <span className={`inline-flex items-center gap-1.5 text-[12.5px] font-semibold ${toneClass} ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold ${toneClass} ${className}`}>
       <Icon size={14} strokeWidth={2} aria-hidden="true" className="shrink-0" />
       <span>{children}</span>
     </span>

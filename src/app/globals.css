@@ -261,8 +261,8 @@ body {
 .load-bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-ink); }
 @media print {
   .ledger { font-size: 8.5pt; }
-  .ledger th, .ledger td { padding: 1.3mm 2mm; background: #fff !important; border-bottom: 0.5pt solid #999; position: static !important; }
-  .ledger thead th { border-bottom: 1pt solid #000; }
+  .ledger th, .ledger td { padding: 1.3mm 2.4mm; background: #fff !important; border-bottom: 0.5pt solid #999; position: static !important; }
+  .ledger thead th { border-bottom: 1pt solid #000; white-space: normal; vertical-align: bottom; }
   .ledger tr { break-inside: avoid; }
   .load-bar { width: 20mm; border: 0.5pt solid #666; background: #fff; }
   .load-bar > i { background: #666 !important; }

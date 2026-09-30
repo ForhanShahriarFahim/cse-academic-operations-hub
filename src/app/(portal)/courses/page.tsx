@@ -4,6 +4,8 @@ import { DAY_SHORT, fmtRange24 } from "@/lib/time";
 import type { MeetingView } from "@/lib/serialize";
 import { PageHeader, Badge, Panel } from "@/components/ui";
 import { AlertTriangle, Asterisk } from "lucide-react";
+import { PrintHeader } from "@/components/print-header";
+import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
 
@@ -33,10 +35,12 @@ export default async function CoursesPage() {
 
   return (
     <div>
+      <PrintHeader title="Courses & offerings" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
       <PageHeader
         context="Planning records"
         title="Courses & offerings"
         description="Courses offered this term, who teaches each group, and whether every required class is scheduled. Merged and teacher-managed groups are marked."
+        actions={<PrintButton />}
       />
 
       <Panel title="Scheduling completeness tracker" sub="Every teaching group vs its approved requirement (spec §10.4)">
