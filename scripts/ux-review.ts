@@ -131,7 +131,10 @@ async function main(args: string[]) {
   const env = reviewEnvironment(target, session);
   console.log(`Review database: ${path.relative(REPO_ROOT, target)} (PGlite, disposable)`);
   const prepared = spawnSync(process.execPath, [TSX_CLI, "src/db/prepare.ts"], { cwd: REPO_ROOT, env, stdio: "inherit" });
-  if (prepared.status !== 0) throw new Error("Preparing the review database failed.");
+  if (prepared.status !== 0) {
+    // Embedded PGlite is not crash-safe: a hard-stopped server can leave the disposable copy unreadable.
+    throw new Error("Preparing the review database failed. It is disposable; rebuild it with `npm run ux:review -- --fresh`.");
+  }
   await seedReviewer(target, session, role);
   console.log(`Reviewer ${REVIEW_EMAIL} signed in as ${role.replaceAll("_", " ")}.`);
 

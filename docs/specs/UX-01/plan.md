@@ -53,23 +53,27 @@ Updated: 30 September 2026, Asia/Dhaka
   - D2: navigation groups Routine / Planning records / Classes / Administration, and "External / OD" is renamed "External commitments".
   - D3: commit the disposable review harness `npm run ux:review` with its synthetic reviewer session and guards.
 - Material amendments: none.
+- Minor implementation notes (within approved scope, no new behavior):
+  - The Validation blocker count was left out of the sidebar. Computing it needs the full term data and the conflict engine on every page, roughly doubling load time. The term block's publication state and the dashboard carry that signal instead.
+  - The Publications figures are corrected under the #30 decision (D1).
+  - The official routine package is a recorded contrast exception because its institutional print template is kept unchanged.
 
 Commit the approved plan before implementation. Unchanged approved scope survives agent handoff; do not infer acceptance or expanded authorization from it.
 
 ## Tasks
 
-- [ ] T-01 — Review harness `npm run ux:review` with guards and a README note; covers AC-10.
-- [ ] T-02 — Tokens and base styles: contrast-safe text tokens, gold-text and clay values, focus-visible ring, skip-link style, reduced-motion kept. Replace hex literals in shared components; covers AC-03, AC-04.
-- [ ] T-03 — Shell: grouped navigation with `aria-current`, truthful term state, Validation blocker count, account block, narrow top bar and drawer, skip link; covers AC-01–AC-03, AC-09.
-- [ ] T-04 — Shared components: `PageHeader` (no kicker, optional context line), `StatusText`, `Tag`, `Notice`, `ConfirmDialog`/`useConfirm`, `TableRegion`, `EmptyState`, `PrintHeader`; covers AC-04–AC-06, AC-08.
-- [ ] T-05 — Portal `loading.tsx`, `error.tsx` and `not-found.tsx`, after reading the installed Next.js docs; covers AC-07.
-- [ ] T-06 — Apply across pages: wrap wide tables in `TableRegion`, replace the seven `confirm()` calls, give icon-only buttons accessible names, and rewrite page-header copy in plain language; covers AC-01, AC-04, AC-06, AC-09.
-- [ ] T-07 — Reference screens:
+- [x] T-01 — Review harness `npm run ux:review` with guards and a README note; covers AC-10.
+- [x] T-02 — Tokens and base styles: contrast-safe text tokens, gold-text and clay values, focus-visible ring, skip-link style, reduced-motion kept. Replace hex literals in shared components; covers AC-03, AC-04.
+- [x] T-03 — Shell: grouped navigation with `aria-current`, truthful term state, Validation blocker count, account block, narrow top bar and drawer, skip link; covers AC-01–AC-03, AC-09.
+- [x] T-04 — Shared components: `PageHeader` (no kicker, optional context line), `StatusText`, `Tag`, `Notice`, `ConfirmDialog`/`useConfirm`, `TableRegion`, `EmptyState`, `PrintHeader`; covers AC-04–AC-06, AC-08.
+- [x] T-05 — Portal `loading.tsx`, `error.tsx` and `not-found.tsx`, after reading the installed Next.js docs; covers AC-07.
+- [x] T-06 — Apply across pages: wrap wide tables in `TableRegion`, replace the seven `confirm()` calls, give icon-only buttons accessible names, and rewrite page-header copy in plain language; covers AC-01, AC-04, AC-06, AC-09.
+- [x] T-07 — Reference screens:
   - Dashboard readiness band and figures row (and #30 if approved).
   - Workload and Teachers ledgers with column order, sticky header and first column, and warn/block tones.
   - Covers AC-05, AC-09.
-- [ ] T-08 — Print: `PrintHeader` on Workload, Teachers, Validation, Rooms and Courses; hide chrome, filters and notices; check A4. Regression screenshots of the official package and extra-load sheets; covers AC-08.
-- [ ] T-09 — UX baseline check (`npm run test:ux`) and a durable UI review checklist in `docs/operations/UI_REVIEW_CHECKLIST.md`; covers AC-01–AC-04.
+- [x] T-08 — Print: `PrintHeader` on Workload, Teachers, Validation, Rooms and Courses; hide chrome, filters and notices; check A4. Regression screenshots of the official package and extra-load sheets; covers AC-08.
+- [x] T-09 — UX baseline check (`npm run test:ux`) and a durable UI review checklist in `docs/operations/UI_REVIEW_CHECKLIST.md`; covers AC-01–AC-04.
 - [ ] T-10 — Final verification:
   - `typecheck`, `lint`, `test:domain`, `build`, `test:ux`.
   - Manual keyboard pass and before/after screenshots at desktop, 390 px and print.
@@ -86,7 +90,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: see Approval record (30 September 2026, decisions D1–D3).
-- Commits and uncommitted changes: approved spec/plan/baseline/mockups committed on `codex/ux-01`.
-- Completed tasks: inspection, baseline measurements, mockups, bug issues #29–#32 filed, approval recorded.
-- Next action: T-01 review harness.
-- Blockers/capabilities: permission-aware states wait for AUTH-01 (#1).
+- Commits: `35ea10d` (plan), `41d94ae` (T-01), `6d14cad` (T-02/T-03), `1954f4e` (T-04–T-07), `d21eab7` (T-08 and fixes), plus the final verification/docs commit on `codex/ux-01`.
+- Completed tasks: T-01–T-09. T-10 automated checks pass; see [verification](verification.md#acceptance-results-30-september-2026).
+- Next action: owner visual review of the running review server and the renders, followed by acceptance; then merge and close #18 and #30.
+- Verification: AC-01–AC-06 and AC-08–AC-11 pass. AC-07 is partial because the error boundary was not exercised live. AC-03 still needs a manual keyboard walk-through during owner review.
+- Blockers/capabilities: permission-aware states wait for AUTH-01 (#1). Follow-up findings are listed in the verification record.

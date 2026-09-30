@@ -11,7 +11,9 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 - **Current issue:** UX-01, the responsive, accessible and plain-spoken portal baseline. The owner approved it on 30 September 2026.
   - Records: [spec](specs/UX-01/spec.md), [plan and checkpoint](specs/UX-01/plan.md), [verification](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/).
   - It also closes #30.
+  - State: implementation and automated verification are complete; owner visual review and acceptance are pending before merge.
   - Resume from the plan's "Current checkpoint / handoff" section.
+  - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
 - **Bugs found during UX-01 inspection:** #29 (database-stamped times are 6 hours ahead; fix before AUTH-01), #31 (People & Access confirmations), #32 (public viewer actions).
 - **Other candidates after UX-01:** AUTH-01 (#1, needs OAuth credentials and hosted PostgreSQL), ATT-02 (#9), SAFE-01 follow-ups #24–#28.
 - **Last completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.

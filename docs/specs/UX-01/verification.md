@@ -2,7 +2,7 @@
 
 Issue: [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Baseline recorded; implementation not started
+Status: Implementation verified; owner visual review and acceptance pending
 Updated: 30 September 2026, Asia/Dhaka
 
 ## Baseline, 30 September 2026
@@ -56,6 +56,37 @@ Static HTML mockups in [mockups/](mockups/) use the proposed tokens. Measured wi
 | Workload ledger, 390 px | [workload-mobile.png](mockups/renders/workload-mobile.png) |
 | Workload ledger, A4 print | [workload-print.png](mockups/renders/workload-print.png) |
 
-## Acceptance results
+## Acceptance results, 30 September 2026
 
-Pending implementation. Results will map to AC-01–AC-11 here, with before/after screenshots for desktop, 390 px and A4 print.
+Environment:
+- Branch `codex/ux-01`.
+- `npm run ux:review` on port 3100: a disposable PGlite database under `.tmp/ux-review`, freshly seeded from the source fixture, with the synthetic `system_administrator` reviewer.
+- Microsoft Edge (Playwright) and axe-core 4.13.0.
+- The configured database under `.data/` was not opened. Its files are unmodified since the plan commit, and `test:safety` reports the default directory "never opened".
+
+| AC | Result | Evidence |
+|---|---|---|
+| AC-01 | **Pass** | `npm run test:ux`: 0 px page overflow at 360/390/768 px on all 16 internal and 2 public routes. |
+| AC-02 | **Pass** | `test:ux` drawer flow: Enter opens it, focus moves inside, Esc closes it and returns focus to the menu button, and following a link closes it. The page behind is `inert` while the drawer is open. |
+| AC-03 | **Pass (automated)**; full manual keyboard walk-through pending owner review | The skip link is the first tab stop and focuses `main`. A global pine `:focus-visible` ring is in place. All scroll regions are focusable, and axe reports no `scrollable-region-focusable`. |
+| AC-04 | **Pass** with two recorded deferrals | axe WCAG 2 A/AA at 1366 and 390 px: 0 violations on 17 of 18 routes (baseline: every internal route failed, up to 310 contrast nodes). Deferrals: People & access `select-name` (#31); the official routine package keeps the institutional template's 5–6 px grey print captions (27 nodes). |
+| AC-05 | **Pass** | `StatusText` (icon + word) on the Dashboard, Workload, Teachers and Validation screens. Badges are sentence case, wrap instead of truncating, and use AA tints. Workload over the advisory limit is a gold warning; blockers are clay. |
+| AC-06 | **Pass** | `test:ux` finds no `confirm(` in `src/`. Manual flow on External commitments: the dialog names the item and consequence; Cancel has initial focus; Esc and Cancel leave the rows unchanged; focus returns to the trigger; confirming removed the commitment. The other six call sites use the same `useConfirm` dialog (code review); they were not exercised one by one. |
+| AC-07 | **Partial** | Loading state renders in the shell. An unknown teacher (`/teachers/999999`) shows the portal not-found page inside the shell. An unknown URL returns 404 with the root not-found page. The error boundary follows the Next 16 `error.js` contract (`retry`), but **no live error was forced**, so it remains unexercised. |
+| AC-08 | **Pass** | A4-width print renders of Workload, Teachers, Validation, Rooms and Courses show the print heading (institution, page, term, draft/published state, print time), with no buttons, navigation or notices and no clipped headings. The official package and department top sheet print with no visible controls; their template CSS is unchanged (only the screen-only toolbar class changed). |
+| AC-09 | **Pass** | All page headers rewritten; no eyebrow kickers and no `spec §` references remain in `src/`. The dashboard and Publications page state "not published" truthfully when no version exists (fixes #30). |
+| AC-10 | **Pass** | `scripts/verify-ux-review.ts` (run first by `test:ux`) verifies that the tool refuses `DATABASE_URL`, `.data`, the configured `PGLITE_DATA_DIR`, paths outside `.tmp/ux-review` and overlapping copy sources, and that it pins the child environment. |
+| AC-11 | **Pass** | `git diff main` changes nothing under `src/db`, `drizzle`, `src/lib/actions.ts`, `src/lib/conflicts.ts`, `src/lib/workload.ts` or `src/lib/auth`. `src/lib/data.ts` gains one read-only helper for the shell. Checks: `typecheck` ✔, `lint` ✔, `test:domain` ✔, `build` ✔, `test:safety` ✔ (including the PostgreSQL group), `test:ux` 39/39 ✔. |
+
+After renders (synthetic reviewer; teacher codes only):
+- [Dashboard, desktop](after/dashboard-desktop.png) and [390 px](after/dashboard-mobile.png)
+- [Workload, desktop](after/workload-desktop.png), [390 px](after/workload-mobile.png) and [A4 print](after/workload-print.png)
+
+Renders of screens with staff names or contacts stay local in `.tmp/ux-01/`.
+
+## Findings recorded for follow-up
+
+These are outside UX-01's approved scope and were not fixed here:
+- Conflict detail sentences from the validation engine still contain developer phrasing, for example "Room-only OD entries block the room, not an invented teacher." That text lives in `src/lib/conflicts.ts`, a domain module.
+- `OdRowActions` (and similar row actions) ignore the returned `ActionResult`, so a refused change would fail silently. Apply the `Notice` pattern in the owning issue, as ATT-02 (#9) does for attendance.
+- The forbidden page keeps its old styling until AUTH-01 (#1) reviews permission-aware states.
