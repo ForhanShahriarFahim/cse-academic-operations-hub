@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-[WORKFLOW-01 / #20](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) establishes the shared Codex/Claude workflow on `codex/workflow-setup`. Steps 2 and 3 are delivered; the owner authorized the document migration. [The approved plan](plans/WORKFLOW-01.md) owns progress/evidence. Step 4 review and owner acceptance precede merge/closure.
+[WORKFLOW-01 / #20](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) establishes the shared Codex/Claude workflow. The owner merged [PR #21](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/21) into `main` (`de1c78c`), delivering Steps 2 and 3. Step 4 review is recorded in [the approved plan and acceptance evidence](plans/WORKFLOW-01.md#step-4-review-and-acceptance-evidence--30-september-2026). `codex/workflow-review`, based on that merge, carries the final evidence/status corrections; acceptance of this final record and its merge remain before #20 closure. The earlier merge is recorded as acceptance of the delivered layout, not approval of later changes or SAFE-01 implementation.
 
 [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) remains the next feature proposal: recovery, second-term preservation, mutation/audit inventory and shared action-result contract. Its retained roadmap proposal requires a separate inspected plan and approval before behavior changes. RUT-01 is completed; DOC-01 (#17) is closed. AUTH-01 (#1) remains open for integration/public-contact work.
 

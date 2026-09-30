@@ -1,8 +1,8 @@
 # WORKFLOW-01 — Shared spec-driven development workflow
 
-Status: Step 3 delivered; Step 4 final review/acceptance remains.
+Status: Steps 2 and 3 merged by the owner; Step 4 review passed, final evidence acceptance/merge remains.
 Prepared: 30 September 2026 (Asia/Dhaka).
-Branch: `codex/workflow-setup`.
+Delivery branch: `codex/workflow-setup` (merged via PR #21). Final review branch: `codex/workflow-review`, base `de1c78c` on `main`.
 GitHub issue: [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20).
 
 ## 1. Outcome and authorization
@@ -130,8 +130,8 @@ Brief and roadmap status summaries identify their reconciliation date. They link
 - [x] S2: Record actual approval and issue reference; check and commit the approved proposal before restructuring. Plan commit `9463fb5` pushed to the issue branch.
 - [x] S2: Add workflow and planning/GitHub templates; refine shared entry instructions. Documentation checks and review completed; delivered in the Step 2 commit containing this checkpoint.
 - [x] S3: Migrate requirements, roadmap and institutional decisions; reconcile outdated descriptions and update active local references. Reviewed/checked in the Step 3 delivery commit containing this checkpoint.
-- [ ] S4: Check both entry paths, link integrity, ownership, handoff format and preservation of source/issue references; present evidence for acceptance. Live tool-loading verification is recorded only if actually exercised.
-- [ ] S4 gate: Obtain acceptance of the documentation issue before merging or closing it.
+- [x] S4: Check both entry paths, link integrity, ownership, handoff format and preservation of source/issue references; present evidence for acceptance. Results are below; live client-loading verification was not exercised.
+- [ ] S4 gate: Accept and merge the final evidence/status record before closing #20. The owner already merged the delivered layout through PR #21 before this final review.
 - [ ] S5: Begin separate read-only investigation and detailed planning for SAFE-01; obtain its own approval before implementation.
 
 GitHub edits and branch pushes occur at their stated milestones. The approved plan is committed before restructuring; partial delivery does not establish completion of the whole issue.
@@ -171,4 +171,33 @@ For this documentation issue, inspect the diff, validate local Markdown links an
 - Existing source material, architecture record, application code, dependency files and database contents were not changed. Baseline counts are explicitly dated; no seed, database or runtime integration checks were run.
 - GitHub index/current workflow issue use the branch documentation until acceptance/merge. Existing feature issue links to main remain valid on main; rebase their live document pointers after the documentation branch is accepted/merged. Leave completed historical issue records intact.
 
-Current checkpoint: Steps 2 and 3 delivered; issue #20 remains open. Commit history identifies each delivery revision. Next action: Step 4 final documentation review and owner acceptance when the owner proceeds. SAFE-01 still requires its own inspected plan/approval. No feature implementation, merge or issue closure has occurred.
+The statements above describe the Step 2/3 checkpoints before the owner's merge. Step 4 reconciles the actual merged state below.
+
+### Step 4 review and acceptance evidence — 30 September 2026
+
+Authorization: the owner instructed "Go for step 4 one thing I want to address on github I have already merged the PR." GitHub confirms [PR #21](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/21) is merged at `de1c78c`; its document tree matches `c15a758` exactly. Local `main` was fast-forwarded to that merge, then `codex/workflow-review` was created for final evidence/status corrections. No application behavior or institutional rules were added.
+
+The owner's merge records acceptance of the delivered layout; it occurred before this final review. Acceptance and merge of this follow-up record remain pending rather than being inferred from the earlier merge.
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| AC-01 | Passed (static) | CLAUDE imports AGENTS; both lead to brief/workflow/selected issue records. Generated Next.js block matches the pre-workflow base. |
+| AC-02 | Passed | Document ownership and historical/current/proposed behavior are explicit; brief/roadmap now distinguish the merged layout from this review follow-up. |
+| AC-03 | Passed | Source-section comparisons retain domain invariants, release gates, issue/dependency rows, SAFE-01 proposal, rationale §§7–17, contact-approval scope and six acceptance journeys. RUT/AUTH reconciliations were separately reviewed. |
+| AC-04 | Passed | Local Markdown links/heading anchors and stale-path checks pass. Open feature issues now link to canonical documents on main; completed historical issues were left intact. |
+| AC-05 | Passed (static) | Spec acceptance IDs map to plan tasks and verification results; actual approval and handoff fields are explicit. Eight unique issue-form fields parse; required inputs and PR review gates are present. Small issues may combine records. |
+| AC-06 | Passed | Workflow uses one branch/writer, coherent commits, verified milestone pushes, focused reading, one checklist and bounded checks. |
+| AC-07 | Passed | Compared revisions contain documentation/templates only; application/dependencies/data/source/architecture remain unchanged. No new credentials, dumps or private student records were introduced. |
+| AC-08 | Pending owner acceptance | Review corrections/checks are complete and the layout was owner-merged. Final evidence/status follow-up still needs acceptance/merge before closure. |
+
+Review findings and corrections:
+
+- Status records still said merge was pending: recorded actual PR/merge and separated delivered layout from the final review record.
+- Open feature issues referenced the two removed paths: updated their live links to canonical main documents and preserved issue IDs, dependencies and acceptance scope. AUTH contact criteria link to the existing decision record instead of repeating publication details. Completed DOC-01 remains historical.
+- No unresolved content, ownership, template or migration finding remains. Only AC-08's final acceptance/merge gate is pending.
+
+Verification: 72 local Markdown links and six heading anchors passed; eight unique YAML fields and required inputs passed. Source comparisons retained 21 original issue-map table rows, rationale §§7–17, domain/release sections, SAFE-01 proposal, the exact owner-approved contact paragraph and six acceptance journeys. Nineteen canonical GitHub document/anchor targets were checked against the merged documents; live pointers on 17 open feature issues were updated without changing their states. Shared entry paths, generated-block preservation, diff/whitespace and documentation-only scope passed. The ad hoc preservation check initially included subsequent decision questions in its contact-paragraph extraction; correcting the extraction to the actual paragraph confirmed exact preservation, with no product-content change.
+
+Static client/import/form checks are not live Claude/Codex loading or GitHub form-rendering certification; those live checks were not exercised and are not required by this issue's agreed static verification scope. No seed, database, build or other runtime commands were run for this documentation issue.
+
+Current checkpoint: review tasks S1–S4 are delivered; issue #20 remains open for the final acceptance gate. This delivery commit records the reviewed follow-up; Git history identifies its revision. GitHub's index uses canonical main document paths and links the pending review record separately. Next action: owner review/acceptance of the final evidence/status update, then merge/close #20. SAFE-01 remains the next separate planning step and still needs its own inspected plan/approval; its implementation has not begun.
