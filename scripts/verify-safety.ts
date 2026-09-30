@@ -9,6 +9,7 @@ import path from "node:path";
 import { DEFAULT_PGLITE_DIR } from "./safety/targets";
 import { checkIsolation } from "./safety/isolation.check";
 import { checkRecovery } from "./safety/recovery.check";
+import { checkHistory } from "./safety/history.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -32,8 +33,11 @@ async function main() {
   const groups: Array<[string, () => Promise<string[]>]> = [
     ["T-01 isolation", checkIsolation],
     ["T-02 PGlite recovery", checkRecovery],
+    ["T-03 two-term history", checkHistory],
   ];
-  for (const [name, check] of groups) {
+  // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
+  const only = process.argv[2];
+  for (const [name, check] of groups.filter(([label]) => !only || label.startsWith(only))) {
     const results = await check();
     console.log(`${name}: passed`);
     for (const line of results) console.log(`  - ${line}`);

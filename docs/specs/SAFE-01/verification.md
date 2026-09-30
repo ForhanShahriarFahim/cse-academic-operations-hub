@@ -1,7 +1,7 @@
 # SAFE-01 — Verification and review
 
 Issue / specification / plan: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) · [spec](spec.md) · [plan](plan.md) (task authority)
-Verified revision: T-02 checkpoint on `codex/safe-01` (T-01 at `af8ec05`).
+Verified revision: T-03 checkpoint on `codex/safe-01` (T-01 `af8ec05`, T-02 `37be079`).
 Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs under ignored `.tmp/safe-01/`; 30 September 2026 (Asia/Dhaka). No PostgreSQL server or clients available.
 
 ## Acceptance evidence
@@ -11,10 +11,10 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 | AC-01 | Passed for PGlite (T-01/T-02); PostgreSQL commands pending T-06 | `npm run test:safety` → `T-01 isolation: passed`. Refuses the default/`.data`/inherited/relative/outside-scratch/junction-escape PGlite targets. Refuses implicit, configured, non-`safe01_`, unconfirmed and redirecting PostgreSQL URLs. Refuses identical/nested locations and non-empty restore targets. Unmarked runs and a second writer are refused. The import-boundary scan passes. Pinned children stay on the owned run under a poisoned parent environment and poisoned `.env`/`.env.local` files. The default PGlite directory's file metadata was unchanged across the run, and the harness never opened it. |
 | AC-02 | Passed (synthetic owned fixture) | `test:safety` → `T-02 PGlite recovery: passed`. A migrated, populated synthetic Summer fixture (35 non-empty tables, 6 journal rows) is backed up cold: 1,192 files, 40.9 MiB. The manifest fingerprint equals the live one, and the source is unchanged by the backup. Later source writes do not leak into the backup. The restore into a separate empty owned run reopens cold with identical schema, constraints, indexes, sequences, journal and rows. The merged group relationship, the published snapshot and 3 role assignments are present. The next serial continues after the restored maximum. Migrations reapply without new journal rows. The app database module opens the restored copy through a pinned child. Rejected: active writer, nested/protected/non-empty backup locations, unmarked/non-empty/overlapping restore targets, a flipped byte, a missing file, an extra file, a missing manifest, an edited manifest, a wrong format, and a fingerprint mismatch after reopen (partial restore removed). The institutional backup procedure is documented but not exercised: [runbook](../../operations/DATABASE_RECOVERY.md). |
 | AC-03 | Pending (external prerequisites) | T-06. Needs an approved PostgreSQL target, client tools and encrypted storage. |
-| AC-04 | Pending | T-03. |
+| AC-04 | Passed on PGlite; PostgreSQL pending T-06 | `test:safety` → `T-03 two-term history: passed`. The synthetic Summer 2026 term is published through the real `publishAction`; Spring 2027 is then added, with HSC 22B progressing, DIPLOMA 22B repeating, HSC 21B graduating (no placement) and a cross-department student in a new merged group. The real loaders run in pinned children under the controlled runtime: `getPortalData`, `getAttendanceData` for each group, `getExtraLoadData`, `computeWorkloads`, `getPublicRoutineData`, and the internal and public CSV route handlers. With Spring active they show only Spring; the extra-load rate is Spring's; the public routine and CSV return nothing rather than falling back to Summer until Spring is published. Summer history is unchanged after Spring data entry and publication. It covers term rows and their dependants, the snapshot, enrollments, attendance, extra load, teachers, roles and earlier audits. Switching the active term back and forth reproduces each term's projections exactly. Repeated migrations on the populated two-term database change nothing. **Correction:** with Spring active, 10 ID-based actions against Summer rows are now refused (before the fix, 6 succeeded and 2 threw), and a control run confirms Spring rows are not blocked. |
 | AC-05 | Partial: inventory complete, tests pending | [Mutation inventory](../../operations/SAFE-01-mutation-inventory.md): 25 server actions plus 7 other paths, classified, with the bootstrap and activation gaps listed. The success, rollback and denial tests are T-04. |
 | AC-06 | Pending | T-05. |
-| AC-07 | Passed at T-02 checkpoint; final run pending T-07 | `typecheck`, `lint`, `test:domain` (4 suites), `build` and `test:safety` passed after the final T-02 edits. |
+| AC-07 | Passed at T-03 checkpoint; final run pending T-07 | `typecheck`, `lint`, `test:domain` (4 suites), `build` and `test:safety` (T-01 to T-03) passed; lint and T-03 were rerun after the final lint fix. |
 | AC-08 | Pending | Final review and owner acceptance. |
 
 ## Checks
@@ -25,6 +25,7 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
   - The harness avoids both: child environments set `DATABASE_URL` and the auth variables to empty strings (dotenv never overrides an existing key), set `PGLITE_DATA_DIR` to the owned run, and drop `PG*`/`npm_*` variables.
 - **Build target review.** `next build` sets `npm_lifecycle_event=build`, so `src/db` uses `memory://`. No `.env`/`.env.local` files exist in the checkout. The build's regeneration of `next-env.d.ts` was restored rather than committed.
 - **T-02 environment fact.** The installed PGlite writes no lock or PID file, so no file-level check can prove another process is not writing. The runbook therefore requires the operator to confirm that all writers have stopped.
+- **T-03 controlled runtime.** [children/controlled-runtime.ts](../../../scripts/safety/children/controlled-runtime.ts) replaces only the identity-provider session and the request-scoped Next modules (`next/headers`, `next/cache`, `next/navigation`), and refuses to load outside a pinned child. The real `getOptionalActor`, portal-user and role lookups, `can()` and transactions all run. It does not certify real OAuth or hosted sessions (AUTH-01).
 - **Not run:** `dev`, `start`, `db:prepare`, `db:migrate`, `db:reset` or `auth:bootstrap` against any non-owned target, and any connection to the institutional database.
 
 ## Review findings
@@ -32,11 +33,14 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 | Finding | Correction / disposition | Reverification |
 |---|---|---|
 | Next's `ProcessEnv` augmentation made plain env maps fail typecheck | Safety code uses an `EnvironmentView` string map | typecheck passed |
-| F-01 to F-07 in the [inventory](../../operations/SAFE-01-mutation-inventory.md#findings-for-follow-up-not-safe-01-fixes-unless-stated) | Recorded as follow-ups; the bootstrap/activation gaps are fixed in T-04; F-07 goes in the T-02 runbook | — |
+| T-03: 9 ID-based actions could change or delete rows of a term that is not active | Narrow correction: `src/lib/term-scope.ts` plus one guard line in each action, matching `moveMeetingAction` | Regression was red before the fix (6 accepted, 2 threw) and green after; control run passes |
+| Synthetic fixture lacked permitted windows, so the real publication was blocked | Fixture windows added for each scheduled batch and day | Summer and Spring publish |
+| Lint: `module` variable, unused disable comment in the controlled runtime | Renamed and removed | lint passed |
+| F-01 to F-09 in the [inventory](../../operations/SAFE-01-mutation-inventory.md#findings-for-follow-up-not-safe-01-fixes-unless-stated) | Recorded as follow-ups; the bootstrap/activation gaps are fixed in T-04; F-07 goes in the T-02 runbook | — |
 
 ## Delivery and acceptance
 
-- Commits / PR: `a0d7fe8` (approval), `af8ec05` (T-01), T-02 checkpoint on `codex/safe-01`.
-- Remaining gates: T-03 to T-07; PostgreSQL prerequisites; operational owners (D-07); an owner decision on whether tooling may verify an institutional backup copy.
+- Commits / PR: `a0d7fe8` (approval), `af8ec05` (T-01), `37be079` (T-02), T-03 checkpoint on `codex/safe-01`.
+- Remaining gates: T-04 to T-07; PostgreSQL prerequisites; operational owners (D-07); an owner decision on whether tooling may verify an institutional backup copy.
 - Owner acceptance: Pending.
 - Merge / closure: Pending.

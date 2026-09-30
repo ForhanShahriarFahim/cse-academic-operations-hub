@@ -40,11 +40,15 @@ async function rowsOf<T>(client: PGlite, query: string, params: unknown[] = []):
   return (await client.query<T>(query, params)).rows;
 }
 
-export async function tableFingerprint(client: PGlite, schemaName: string, table: string, where = ""): Promise<TableFingerprint> {
-  const rows = await rowsOf<Record<string, unknown>>(client, `select * from "${schemaName}"."${table}" ${where}`);
+/** Order-independent digest of any query's rows. */
+export async function selectFingerprint(client: PGlite, query: string): Promise<TableFingerprint> {
+  const rows = await rowsOf<Record<string, unknown>>(client, query);
   const lines = rows.map(canonicalJson).sort();
   return { rows: rows.length, digest: sha(lines.join("\n")) };
 }
+
+export const tableFingerprint = (client: PGlite, schemaName: string, table: string) =>
+  selectFingerprint(client, `select * from "${schemaName}"."${table}"`);
 
 export async function fingerprintDatabase(client: PGlite): Promise<DatabaseFingerprint> {
   const tables = await rowsOf<{ table_schema: string; table_name: string }>(client, `
