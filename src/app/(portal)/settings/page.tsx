@@ -47,8 +47,8 @@ export default async function SettingsPage() {
         <Panel title="Blocking decisions before official import" sub="These gate accurate production scheduling and publication validation">
           <ul className="space-y-1.5">
             {BLOCKING_DECISIONS.map((d, i) => (
-              <li key={i} className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/25 bg-[var(--color-gold)]/[0.05] px-2.5 py-1.5 text-[12px] text-[#6b5312]">
-                <CircleAlert size={13} className="mt-0.5 shrink-0 text-[var(--color-gold)]" />
+              <li key={i} className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/25 bg-[var(--color-gold)]/[0.05] px-2.5 py-1.5 text-[12px] text-gold-text">
+                <CircleAlert size={13} className="mt-0.5 shrink-0 text-gold-text" />
                 <span><span className="mr-1.5 font-mono text-[10px] font-bold">{i + 1}.</span>{d}</span>
               </li>
             ))}
@@ -97,8 +97,8 @@ export default async function SettingsPage() {
           <Panel title="Operational decisions" sub="Before production rollout">
             <ul className="space-y-1">
               {OPERATIONAL.map((d, i) => (
-                <li key={i} className="flex items-start gap-2 text-[12px] text-[#5c675d]">
-                  <CircleCheck size={13} className="mt-0.5 shrink-0 text-[#b3ac93]" /> {d}
+                <li key={i} className="flex items-start gap-2 text-[12px] text-muted">
+                  <CircleCheck size={13} className="mt-0.5 shrink-0 text-muted" /> {d}
                 </li>
               ))}
             </ul>

@@ -49,10 +49,10 @@ export default async function WorkloadPage() {
             </thead>
             <tbody>
               {rows.map(({ t, w }, i) => (
-                <tr key={t.id} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                <tr key={t.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                   <td className="px-3 py-2">
                     <Link href={`/teachers/${t.id}`} className="font-mono font-bold text-[var(--color-pine)] hover:underline">{t.shortCode}</Link>
-                    <span className="ml-1.5 text-[10.5px] text-[#8a8571]">{t.homeDepartmentCode}</span>
+                    <span className="ml-1.5 text-[10.5px] text-muted">{t.homeDepartmentCode}</span>
                   </td>
                   <td className="px-3 py-2 font-mono">{w!.catalogCredits.toFixed(1)}</td>
                   <td className="w-[220px] px-3 py-2">
@@ -71,7 +71,7 @@ export default async function WorkloadPage() {
                   <td className="px-3 py-2 font-mono">{w!.weeklyMeetings}</td>
                   <td className="px-3 py-2 font-mono">{w!.distinctCourses}</td>
                   <td className="px-3 py-2">
-                    {w!.alerts.length === 0 ? <span className="text-[10.5px] text-[#8a8571]">—</span> : (
+                    {w!.alerts.length === 0 ? <span className="text-[10.5px] text-muted">—</span> : (
                       <span className="flex flex-wrap items-center gap-1">
                         {w!.alerts.map((a, k) => (
                           <Badge key={k} tone={a.startsWith("External") ? "gold" : "clay"}>

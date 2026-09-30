@@ -56,7 +56,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
       {w && w.alerts.length > 0 && (
         <div className="mt-4 space-y-1.5">
           {w.alerts.map((a, i) => (
-            <p key={i} className="rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/10 px-3 py-2 text-[12px] text-[#7a5a17]">{a}</p>
+            <p key={i} className="rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/10 px-3 py-2 text-[12px] text-gold-text">{a}</p>
           ))}
         </div>
       )}
@@ -71,13 +71,13 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
                 const size = knownAudienceSize(m);
                 return (
                   <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-[12.5px]">
-                    <span className="w-[86px] font-semibold text-[#3f4a41]">{DAY_NAMES[m.dayOfWeek].slice(0, 3)}</span>
+                    <span className="w-[86px] font-semibold text-ink-2">{DAY_NAMES[m.dayOfWeek].slice(0, 3)}</span>
                     <span className="font-mono w-[150px] text-[12px] text-[var(--color-pine)]">
                       <Clock3 size={11} className="mr-1 inline -translate-y-px" />{fmtRange(m.startMinutes, m.endMinutes)}
                     </span>
                     <span className="font-mono font-semibold">{m.courseCode}</span>
-                    <span className="text-[#5c675d]">{m.audiences.map((a) => `${a.stream === "HSC" ? "HSC" : "DIP"}-${a.batchLabel}`).join(" + ")}</span>
-                    <span className="font-mono text-[11px] text-[var(--color-moss)]">{m.rooms.map((r) => r.code).join("/")}</span>
+                    <span className="text-muted">{m.audiences.map((a) => `${a.stream === "HSC" ? "HSC" : "DIP"}-${a.batchLabel}`).join(" + ")}</span>
+                    <span className="font-mono text-[11px] text-muted">{m.rooms.map((r) => r.code).join("/")}</span>
                     <span className="ml-auto flex gap-1">
                       {sharingLabel(m) && <Badge tone="gold">{sharingLabel(m)}</Badge>}
                       {size == null && <Badge tone="clay">size unverified</Badge>}
@@ -104,11 +104,11 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
                   <td className="py-1.5 pr-2">
                     <span className="font-mono font-semibold">{a.courseCode ?? "External"}</span>
                     {a.externalDepartment && (
-                      <span className="ml-1.5 text-[11px] text-[#7a5a17]">
+                      <span className="ml-1.5 text-[11px] text-gold-text">
                         <ArrowLeftRight size={10} className="mr-0.5 inline" />{a.externalDepartment}
                       </span>
                     )}
-                    {a.policyNote && <p className="mt-0.5 text-[10.5px] leading-snug text-[#8a8571]">{a.policyNote}</p>}
+                    {a.policyNote && <p className="mt-0.5 text-[10.5px] leading-snug text-muted">{a.policyNote}</p>}
                   </td>
                   <td className="py-1.5 pr-2"><Badge tone={a.allocationMethod === "sole" ? "neutral" : a.allocationMethod === "external" ? "gold" : "sage"}>{a.allocationMethod.replace("_", " ")}</Badge></td>
                   <td className="py-1.5 text-right font-mono font-semibold">{a.units.toFixed(1)}</td>
@@ -124,8 +124,8 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
             <div className="mt-3 border-t border-[var(--color-line-soft)] pt-2.5">
               <p className="micro-label mb-1.5">External commitments (OD)</p>
               {myExternals.map((e) => (
-                <p key={e.id} className="mb-1 text-[11.5px] text-[#5c675d]">
-                  <GraduationCap size={11} className="mr-1 inline text-[var(--color-gold)]" />
+                <p key={e.id} className="mb-1 text-[11.5px] text-muted">
+                  <GraduationCap size={11} className="mr-1 inline text-gold-text" />
                   <strong>{e.counterpartDepartment}</strong>
                   {e.courseLabel ? ` — ${e.courseLabel}` : ""}
                   {e.dayOfWeek != null ? ` · ${DAY_NAMES[e.dayOfWeek]} ${fmtRange(e.startMinutes!, e.endMinutes!)}` : ""} ·{" "}

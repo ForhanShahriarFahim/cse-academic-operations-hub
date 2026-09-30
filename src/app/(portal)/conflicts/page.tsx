@@ -77,7 +77,7 @@ export default async function ConflictsPage() {
 
       <div className="mt-4">
         <Panel title="Detected & enforced by this engine" sub="Mirrors spec §15 acceptance tests">
-          <div className="grid gap-x-6 gap-y-1.5 text-[12px] text-[#4a544c] md:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-1.5 text-[12px] text-ink-2 md:grid-cols-2">
             {[
               "Teacher / room / student-audience double-booking across streams and departments",
               "Outgoing teaching (OD level A/B) blocks the correct CSE teacher — room-only OD blocks only the room",
@@ -109,15 +109,15 @@ function IssueRow({ issue: i }: { issue: Issue }) {
       <div className="flex flex-wrap items-center gap-2">
         {i.severity === "blocker"
           ? <ShieldAlert size={14} className="text-[var(--color-clay)]" />
-          : <AlertTriangle size={14} className="text-[var(--color-gold)]" />}
+          : <AlertTriangle size={14} className="text-gold-text" />}
         <span className="text-[12.5px] font-semibold">{i.title}</span>
         <Badge tone={i.severity === "blocker" ? "clay" : "gold"}>{i.severity}</Badge>
         <Badge tone="neutral">{TYPE_LABEL[i.type]}</Badge>
-        <span className="ml-auto flex items-center gap-1 text-[10.5px] text-[#8a8571]">
+        <span className="ml-auto flex items-center gap-1 text-[10.5px] text-muted">
           <Info size={11} /> {DAY_NAMES[i.dayOfWeek]}
         </span>
       </div>
-      <p className="mt-1 pl-6 text-[11.5px] leading-relaxed text-[#5c675d]">{i.detail}</p>
+      <p className="mt-1 pl-6 text-[11.5px] leading-relaxed text-muted">{i.detail}</p>
     </li>
   );
 }

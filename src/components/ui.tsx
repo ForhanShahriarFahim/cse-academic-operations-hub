@@ -19,7 +19,7 @@ export function PageHeader({
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-[#5c675d]">{description}</p>
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
@@ -31,9 +31,9 @@ export type Tone = "pine" | "gold" | "clay" | "neutral" | "sage";
 
 const toneClasses: Record<Tone, string> = {
   pine: "bg-[var(--color-pine)]/10 text-[var(--color-pine)] border-[var(--color-pine)]/25",
-  gold: "bg-[var(--color-gold)]/10 text-[#8a5d16] border-[var(--color-gold)]/30",
+  gold: "bg-[var(--color-gold)]/10 text-gold-text border-[var(--color-gold)]/30",
   clay: "bg-[var(--color-clay)]/10 text-[var(--color-clay)] border-[var(--color-clay)]/25",
-  neutral: "bg-black/5 text-[#4a544c] border-black/10",
+  neutral: "bg-black/5 text-ink-2 border-black/10",
   sage: "bg-[var(--color-sage)] text-[var(--color-pine)] border-[var(--color-moss)]/30",
 };
 
@@ -69,7 +69,7 @@ export function StatCard({
       <p className="font-display pl-2 mt-1.5 text-[30px] font-semibold leading-none tracking-tight">
         {value}
       </p>
-      {sub ? <p className="pl-2 mt-1.5 text-[11.5px] leading-snug text-[#66705f]">{sub}</p> : null}
+      {sub ? <p className="pl-2 mt-1.5 text-[11.5px] leading-snug text-muted">{sub}</p> : null}
     </div>
   );
 }
@@ -93,7 +93,7 @@ export function Panel({
         <header className="flex items-center justify-between gap-3 border-b border-[var(--color-line-soft)] px-4 py-3">
           <div>
             <h2 className="font-display text-[15px] font-semibold tracking-tight">{title}</h2>
-            {sub ? <p className="mt-0.5 text-[11.5px] text-[#6b7564]">{sub}</p> : null}
+            {sub ? <p className="mt-0.5 text-[11.5px] text-muted">{sub}</p> : null}
           </div>
           {actions}
         </header>
@@ -105,7 +105,7 @@ export function Panel({
 
 export function EmptyNote({ children }: { children: ReactNode }) {
   return (
-    <p className="rounded-md border border-dashed border-[var(--color-line)] bg-[#faf8f1] px-3 py-2 text-[12px] leading-relaxed text-[#6b7564]">
+    <p className="rounded-md border border-dashed border-[var(--color-line)] bg-wash px-3 py-2 text-[12px] leading-relaxed text-muted">
       {children}
     </p>
   );

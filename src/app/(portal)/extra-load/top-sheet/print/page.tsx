@@ -19,7 +19,7 @@ export default async function ExtraLoadTopSheetPrintPage({ searchParams }: { sea
   const total = rows.reduce((sum, row) => sum + row.amount, 0);
   const blankCount = Math.max(0, 10 - rows.length);
   return <div className="top-sheet mx-auto max-w-[216mm] bg-white text-black">
-    <div className="no-print mb-4 flex items-center justify-between rounded-md border border-[var(--color-line)] bg-[#fffdf7] p-3 font-sans"><Link href="/extra-load" className="text-[12px] font-semibold text-[var(--color-pine)]">← Extra class load</Link><PrintButton /></div>
+    <div className="no-print mb-4 flex items-center justify-between rounded-md border border-[var(--color-line)] bg-sheet p-3 font-sans"><Link href="/extra-load" className="text-[12px] font-semibold text-[var(--color-pine)]">← Extra class load</Link><PrintButton /></div>
     <article className="extra-load-document min-h-[279mm] px-[25mm] py-[20mm] font-['Times_New_Roman',serif] text-[12pt]">
       <header className="text-center leading-tight">
         <h1 className="text-[18pt] font-bold">Extra Class Load</h1>

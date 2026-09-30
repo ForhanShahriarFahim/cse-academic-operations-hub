@@ -50,7 +50,7 @@ export default async function RoutinePage({
         description="Drag-free, click-to-edit builder. One physical class is stored once and appears in every relevant stream, teacher and room view. Blocking conflicts are rejected by the server; advised placements are recorded with their warnings."
         actions={<Link href="/routine/auto" className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-pine)] px-3.5 py-2 text-[12.5px] font-semibold text-white"><Sparkles size={14} />Auto-schedule gaps</Link>}
       />
-      <div className="mb-4 rounded-lg border border-[var(--color-line)] bg-[#f7f4ea] p-3">
+      <div className="mb-4 rounded-lg border border-[var(--color-line)] bg-wash p-3">
         <RoutineViewControls selection={selection} batches={projection.availableBatches} exportPath="/routine/export" officialPath="/routine/official" />
       </div>
       {selection.view === "week" ? (

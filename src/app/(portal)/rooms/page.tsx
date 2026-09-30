@@ -71,7 +71,7 @@ export default async function RoomsPage() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-mono text-[15px] font-bold text-[var(--color-pine)]">{r.code}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#66705f]">
+                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
                   {r.roomType === "lab" ? <FlaskConical size={11} /> : <Building2 size={11} />}
                   {r.building} · {r.roomType} · seats {r.capacity ?? "unknown"}
                 </p>
@@ -89,7 +89,7 @@ export default async function RoomsPage() {
               </div>
             )}
             <div className="mt-3">
-              <div className="flex justify-between text-[10.5px] text-[#8a8571]">
+              <div className="flex justify-between text-[10.5px] text-muted">
                 <span>{meetingCount} meetings · {Math.round(total)} min/wk{extReserved > 0 ? ` (OD ${extReserved})` : ""}</span>
                 <span className="font-mono font-semibold">{windowMinutes ? Math.round((total / windowMinutes) * 100) : 0}%</span>
               </div>
@@ -97,7 +97,7 @@ export default async function RoomsPage() {
                 <div className="h-full bg-[var(--color-pine)]" style={{ width: `${Math.min(100, (reserved / maxTotal) * 100)}%` }} />
                 <div className="h-full bg-[var(--color-gold)]" style={{ width: `${Math.min(100, (extReserved / maxTotal) * 100)}%` }} />
               </div>
-              {r.notes && <p className="mt-2 text-[10.5px] leading-snug text-[#8a8571]">{r.notes}</p>}
+              {r.notes && <p className="mt-2 text-[10.5px] leading-snug text-muted">{r.notes}</p>}
             </div>
           </div>
         ))}

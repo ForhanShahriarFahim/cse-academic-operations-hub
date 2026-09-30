@@ -20,7 +20,7 @@ export function LoginButton({ callbackURL }: { callbackURL: string }) {
     }} className="w-full rounded-md bg-[var(--color-ink)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">
       {busy ? "Opening Google…" : "Continue with Google"}
     </button>
-    {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
+    {error && <p role="alert" className="mt-3 text-sm text-[var(--color-clay)]">{error}</p>}
   </div>;
 }
 
@@ -32,7 +32,7 @@ export function SignOutButton() {
     await authClient.signOut();
     router.replace("/login");
     router.refresh();
-  }} className="text-left text-[11px] text-white/60 hover:text-white disabled:opacity-50">
+  }} className="mt-2 rounded-md border border-white/25 px-2.5 py-1 text-[12.5px] text-[#e9ece8] hover:bg-white/10 disabled:opacity-60">
     {busy ? "Signing out…" : "Sign out"}
   </button>;
 }

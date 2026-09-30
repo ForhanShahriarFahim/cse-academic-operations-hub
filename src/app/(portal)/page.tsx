@@ -102,9 +102,9 @@ export default async function DashboardPage() {
                   </span>
                   <span className="min-w-[180px]">
                     <span className="font-mono text-[13px] font-semibold">{m.courseCode}</span>
-                    <span className="ml-2 text-[12.5px] text-[#55604f]">{m.courseTitle}</span>
+                    <span className="ml-2 text-[12.5px] text-ink-2">{m.courseTitle}</span>
                   </span>
-                  <span className="font-mono text-[11.5px] text-[#3f5a49]">
+                  <span className="font-mono text-[11.5px] text-ink-2">
                     {m.teachers.map((t) => t.shortCode).join(", ") || "UT"} · {m.rooms.map((r) => r.code).join("/") || "—"}
                   </span>
                   <span className="ml-auto flex items-center gap-1.5">
@@ -128,7 +128,7 @@ export default async function DashboardPage() {
                 <p className="font-display text-[17px] font-semibold">
                   Version {publishedVersion?.versionNumber ?? "—"} published
                 </p>
-                <p className="text-[11.5px] text-[#66705f]">
+                <p className="text-[11.5px] text-muted">
                   Effective {fmtDate(data.term.effectiveFrom)} · working draft open for editing
                 </p>
               </div>
@@ -151,12 +151,12 @@ export default async function DashboardPage() {
                     {c.status === "vacancy" ? (
                       <UserX size={14} className="mt-0.5 shrink-0 text-[var(--color-clay)]" />
                     ) : (
-                      <CalendarClock size={14} className="mt-0.5 shrink-0 text-[var(--color-gold)]" />
+                      <CalendarClock size={14} className="mt-0.5 shrink-0 text-gold-text" />
                     )}
                     <span>
                       <span className="font-mono font-semibold">{c.courseCode}</span>{" "}
-                      <span className="text-[#55604f]">{c.audience}</span>
-                      <span className="ml-1.5 text-[11px] text-[#8a8571]">
+                      <span className="text-ink-2">{c.audience}</span>
+                      <span className="ml-1.5 text-[11px] text-muted">
                         {c.status === "vacancy"
                           ? "vacancy — UT (Upcoming Teacher)"
                           : `${c.scheduledMinutes}/${c.expectedWeeklyMinutes} min scheduled`}
@@ -191,11 +191,11 @@ export default async function DashboardPage() {
           ) : (
             <ul className="max-h-56 space-y-1.5 overflow-y-auto pr-1">
               {issues.slice(0, 12).map((i) => (
-                <li key={i.id} className="flex items-start gap-2 rounded-md border border-[var(--color-line-soft)] bg-[#fffdf7] px-2.5 py-1.5 text-[12px]">
-                  <AlertTriangle size={13} className={`mt-0.5 shrink-0 ${i.severity === "blocker" ? "text-[var(--color-clay)]" : "text-[var(--color-gold)]"}`} />
+                <li key={i.id} className="flex items-start gap-2 rounded-md border border-[var(--color-line-soft)] bg-sheet px-2.5 py-1.5 text-[12px]">
+                  <AlertTriangle size={13} className={`mt-0.5 shrink-0 ${i.severity === "blocker" ? "text-[var(--color-clay)]" : "text-gold-text"}`} />
                   <span>
                     <span className="font-semibold">{i.title}.</span>{" "}
-                    <span className="text-[#66705f]">{i.detail}</span>
+                    <span className="text-muted">{i.detail}</span>
                   </span>
                 </li>
               ))}
@@ -216,21 +216,21 @@ export default async function DashboardPage() {
             {(["A", "B", "C", "D"] as const).map((lvl) => {
               const n = data.externals.filter((e) => e.completenessLevel === lvl).length;
               return (
-                <div key={lvl} className="rounded-md border border-[var(--color-line-soft)] bg-[#faf8f1] px-2 py-2.5">
+                <div key={lvl} className="rounded-md border border-[var(--color-line-soft)] bg-wash px-2 py-2.5">
                   <p className="font-display text-[22px] font-semibold">{n}</p>
                   <p className="micro-label mt-0.5">Level {lvl}</p>
                 </div>
               );
             })}
           </div>
-          <div className="mt-3 space-y-1.5 text-[12px] text-[#55604f]">
+          <div className="mt-3 space-y-1.5 text-[12px] text-ink-2">
             <p className="flex items-center gap-1.5">
-              <Unplug size={13} className="text-[var(--color-gold)]" />
+              <Unplug size={13} className="text-gold-text" />
               The app never claims “no university-wide conflicts” while level B/C/D records remain unverified.
             </p>
             {pendingExternal.slice(0, 3).map((e) => (
               <p key={e.id} className="flex items-start gap-1.5">
-                <AlertTriangle size={13} className="mt-0.5 shrink-0 text-[var(--color-gold)]" />
+                <AlertTriangle size={13} className="mt-0.5 shrink-0 text-gold-text" />
                 <span>
                   <strong>{e.counterpartDepartment}</strong> — {e.kind.replace("_", " ")} ({e.courseLabel ?? e.notes?.slice(0, 60) ?? "details pending"})
                 </span>
@@ -240,7 +240,7 @@ export default async function DashboardPage() {
         </Panel>
       </div>
 
-      <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--color-line)] bg-[#f7f4ea] px-4 py-3 text-[12px] text-[#5c675d]">
+      <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--color-line)] bg-wash px-4 py-3 text-[12px] text-muted">
         <GraduationCap size={15} className="shrink-0 text-[var(--color-pine)]" />
         <span>
           <strong>Batch identity note:</strong> HSC-22B and Diploma-22B are distinct cohorts.

@@ -25,7 +25,7 @@ export function PolicyManager({ policy, windows, batches }: {
   return <div className="space-y-4">
     {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
     <section className="ruled rounded-lg">
-      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Academic, attendance & payment policy</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">Saved per Spring/Summer term so historical calculations do not change.</p></header>
+      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Academic, attendance & payment policy</h2><p className="mt-0.5 text-[11.5px] text-muted">Saved per Spring/Summer term so historical calculations do not change.</p></header>
       <form ref={policyForm} onSubmit={(event) => { event.preventDefault(); submit(policyForm.current!, updateAcademicPolicyAction); }} className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
         {[
           ["theoryCreditHours", "Theory course credits", policy.theoryCreditHours],
@@ -40,7 +40,7 @@ export function PolicyManager({ policy, windows, batches }: {
     </section>
 
     <section className="ruled rounded-lg">
-      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Editable class days & time windows</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">Leave batch blank for a stream default. A batch-specific window replaces that stream default on the selected day.</p></header>
+      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Editable class days & time windows</h2><p className="mt-0.5 text-[11.5px] text-muted">Leave batch blank for a stream default. A batch-specific window replaces that stream default on the selected day.</p></header>
       <div className="grid gap-4 p-4 xl:grid-cols-[0.9fr_1.1fr]">
         <form ref={windowForm} onSubmit={(event) => { event.preventDefault(); submit(windowForm.current!, createPermittedWindowAction); }} className="grid grid-cols-2 gap-2">
           <label><span className="micro-label mb-1 block">Stream</span><select name="stream" value={stream} onChange={(event) => setStream(event.target.value)} className={control}><option value="HSC">HSC</option><option value="DIPLOMA">Diploma</option></select></label>
@@ -53,7 +53,7 @@ export function PolicyManager({ policy, windows, batches }: {
           <button disabled={pending} className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-md border border-[var(--color-pine)] px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)]"><Plus size={13} />Add permitted window</button>
         </form>
         <div className="max-h-80 overflow-y-auto rounded-md border border-[var(--color-line-soft)] bg-white px-3">
-          {windows.map((window) => { const batch = batches.find((row) => row.id === window.batchId); return <div key={window.id} className="flex items-center gap-2 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><strong>{batch ? `${window.stream}-${batch.label}` : `${window.stream} (all batches)`}</strong><span>{DAY_NAMES[window.dayOfWeek]}</span><span className="font-mono text-[11px]">{fmtRange(window.startMinutes, window.endMinutes)}</span>{window.note && <span className="min-w-0 flex-1 truncate text-[10.5px] text-[#8a6a25]" title={window.note}>{window.note}</span>}<button title="Remove" disabled={pending} onClick={() => confirm("Remove this permitted class window?") && startTransition(async () => setResult(await deletePermittedWindowAction(window.id)))} className="ml-auto rounded p-1 text-[var(--color-clay)]"><Trash2 size={13} /></button></div>; })}
+          {windows.map((window) => { const batch = batches.find((row) => row.id === window.batchId); return <div key={window.id} className="flex items-center gap-2 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><strong>{batch ? `${window.stream}-${batch.label}` : `${window.stream} (all batches)`}</strong><span>{DAY_NAMES[window.dayOfWeek]}</span><span className="font-mono text-[11px]">{fmtRange(window.startMinutes, window.endMinutes)}</span>{window.note && <span className="min-w-0 flex-1 truncate text-[10.5px] text-gold-text" title={window.note}>{window.note}</span>}<button title="Remove" disabled={pending} onClick={() => confirm("Remove this permitted class window?") && startTransition(async () => setResult(await deletePermittedWindowAction(window.id)))} className="ml-auto rounded p-1 text-[var(--color-clay)]"><Trash2 size={13} /></button></div>; })}
         </div>
       </div>
     </section>

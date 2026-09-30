@@ -50,7 +50,7 @@ export function RoutineViewControls({
     batch: selection.batchId ? String(selection.batchId) : "all",
   });
   const base = dark ? "border-white/15 bg-white/5" : "border-[var(--color-line)] bg-white";
-  const inactive = dark ? "text-white/60 hover:text-white" : "text-[#5c675d] hover:text-[var(--color-pine)]";
+  const inactive = dark ? "text-white/60 hover:text-white" : "text-muted hover:text-[var(--color-pine)]";
 
   return (
     <div className={`no-print flex flex-wrap items-center gap-2 ${dark ? "text-white" : ""}`} aria-label="Routine view controls">
@@ -81,7 +81,7 @@ export function RoutineViewControls({
         </div>
       )}
       <label className="flex items-center gap-1.5 text-[11px] font-semibold">
-        <span className={dark ? "text-white/60" : "text-[#66705f]"}>Batch</span>
+        <span className={dark ? "text-white/60" : "text-muted"}>Batch</span>
         <select value={selection.batchId ?? "all"} onChange={(event) => navigate({ batch: event.target.value })}
           className={`rounded-md border px-2.5 py-1.5 text-[11.5px] outline-none ${dark ? "border-white/15 bg-[var(--color-ink)] text-white" : "border-[var(--color-line)] bg-white text-[var(--color-ink)]"}`}>
           <option value="all">All batches</option>

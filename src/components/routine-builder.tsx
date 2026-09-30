@@ -119,21 +119,21 @@ export function RoutineBuilder(props: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Filter course, teacher, room…"
-          className="w-56 rounded-md border border-[var(--color-line)] bg-white px-3 py-1.5 text-[12.5px] outline-none placeholder:text-[#a3a08d] focus:border-[var(--color-pine)]"
+          className="w-56 rounded-md border border-[var(--color-line)] bg-white px-3 py-1.5 text-[12.5px] outline-none placeholder:text-muted focus:border-[var(--color-pine)]"
         />
         <button
           onClick={() => setDense((v) => !v)}
-          className="rounded-md border border-[var(--color-line)] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#5c675d] hover:text-[var(--color-pine)]"
+          className="rounded-md border border-[var(--color-line)] bg-white px-3 py-1.5 text-[12px] font-semibold text-muted hover:text-[var(--color-pine)]"
         >
           {dense ? "Comfortable" : "Compact"} density
         </button>
-        <span className="ml-auto flex items-center gap-3 text-[11.5px] text-[#66705f]">
+        <span className="ml-auto flex items-center gap-3 text-[11.5px] text-muted">
           <span className="flex items-center gap-1">
             <ShieldAlert size={13} className={projection.issueCount.blockers ? "text-[var(--color-clay)]" : "text-[var(--color-pine)]"} />
             {projection.issueCount.blockers} blockers
           </span>
           <span className="flex items-center gap-1">
-            <AlertTriangle size={13} className="text-[var(--color-gold)]" />
+            <AlertTriangle size={13} className="text-gold-text" />
             {projection.issueCount.warnings} advisories
           </span>
           <a href="/public/routine" target="_blank" className="flex items-center gap-1 font-semibold text-[var(--color-pine)] hover:underline">
@@ -144,7 +144,7 @@ export function RoutineBuilder(props: Props) {
 
       {/* Banners */}
       {isHscExceptionDay && (
-        <div className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/10 px-3 py-2 text-[12px] text-[#7a5a17]">
+        <div className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/10 px-3 py-2 text-[12px] text-gold-text">
           <Asterisk size={14} className="mt-0.5 shrink-0" />
           <span>
             <strong>Exception day.</strong> Regular HSC teaching is Saturday–Tuesday. Friday entries exist only
@@ -168,7 +168,7 @@ export function RoutineBuilder(props: Props) {
       <div className="no-print ruled rounded-lg">
         <button
           onClick={() => setShowTracker((v) => !v)}
-          className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[12.5px] font-semibold text-[#3f4a41]"
+          className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[12.5px] font-semibold text-ink-2"
         >
           <ChevronDown size={14} className={`transition-transform ${showTracker ? "" : "-rotate-90"}`} />
           Requirements needing attention
@@ -192,8 +192,8 @@ export function RoutineBuilder(props: Props) {
                   c.status === "vacancy"
                     ? "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"
                     : c.status === "teacher_managed"
-                      ? "cursor-default border-black/10 bg-black/5 text-[#66705f]"
-                      : "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 text-[#7a5a17] hover:bg-[var(--color-gold)]/15"
+                      ? "cursor-default border-black/10 bg-black/5 text-muted"
+                      : "border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 text-gold-text hover:bg-[var(--color-gold)]/15"
                 }`}
                 title={c.notes ?? ""}
               >
@@ -208,7 +208,7 @@ export function RoutineBuilder(props: Props) {
               </button>
             ))}
             {props.coverage.length === 0 && (
-              <p className="text-[12px] text-[#66705f]">All approved requirements are fully scheduled.</p>
+              <p className="text-[12px] text-muted">All approved requirements are fully scheduled.</p>
             )}
           </div>
         )}
@@ -232,17 +232,17 @@ export function RoutineBuilder(props: Props) {
           </thead>
           <tbody>
             {rows.map((b, rowIdx) => (
-              <tr key={b.id} className={rowIdx % 2 === 0 ? "bg-[#fffdf7]" : "bg-[#faf7ec]"}>
+              <tr key={b.id} className={rowIdx % 2 === 0 ? "bg-sheet" : "bg-wash"}>
                 <td className="px-2 py-1.5">
                   <p className="font-mono text-[12.5px] font-semibold">{stream === "HSC" ? "HSC" : "DIP"}-{b.label}</p>
-                  <p className="text-[10px] text-[#8a8571]">Sem {b.semester ?? "?"} · {b.studentCount ?? "?"} st.</p>
+                  <p className="text-[10px] text-muted">Sem {b.semester ?? "?"} · {b.studentCount ?? "?"} st.</p>
                 </td>
                 <td className="px-1.5 py-1.5">
                   {offGridMeetings(b.id).map((m) => (
                     <MeetingCard key={m.id} meeting={m} offGrid dense={dense} dim={!matches(m)}
                       onClick={() => setEditMeeting(m)} />
                   ))}
-                  {offGridMeetings(b.id).length === 0 && <span className="text-[10px] text-[#c5bfa9]">—</span>}
+                  {offGridMeetings(b.id).length === 0 && <span className="text-[10px] text-muted">—</span>}
                 </td>
                 {slots.map((s, i) => {
                   const cell = meetingsFor(b.id, s);
@@ -257,7 +257,7 @@ export function RoutineBuilder(props: Props) {
                       ))}
                       {cont.map((m) => (
                         <button key={m.id} onClick={() => setEditMeeting(m)}
-                          className="mt-1 block w-full rounded border border-dashed border-[var(--color-line)] bg-[#f2efe4] px-1.5 py-1 text-left text-[10px] italic text-[#8a8571] hover:border-[var(--color-pine)]">
+                          className="mt-1 block w-full rounded border border-dashed border-[var(--color-line)] bg-wash px-1.5 py-1 text-left text-[10px] italic text-muted hover:border-[var(--color-pine)]">
                           ◂ {m.courseCode} continues ({fmtRange(m.startMinutes, m.endMinutes)})
                         </button>
                       ))}
@@ -268,10 +268,10 @@ export function RoutineBuilder(props: Props) {
             ))}
 
             {/* OD summary row — generated from structured external commitments */}
-            <tr className="bg-[#f0ede0]">
+            <tr className="bg-wash">
               <td className="px-2 py-1.5">
                 <p className="font-mono text-[12px] font-bold text-[var(--color-clay)]">OD</p>
-                <p className="text-[9.5px] leading-tight text-[#8a8571]">Other Departments</p>
+                <p className="text-[9.5px] leading-tight text-muted">Other Departments</p>
               </td>
               <td className="px-1.5 py-1.5">
                 {dayExternals
@@ -291,12 +291,12 @@ export function RoutineBuilder(props: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-[var(--color-line)] bg-[#f7f4ea] px-4 py-3 text-[11.5px] text-[#5c675d]">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-[var(--color-line)] bg-wash px-4 py-3 text-[11.5px] text-muted">
         <span className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-sm border-l-[3px] border-[var(--color-pine)] bg-white" /> Standard class</span>
         <span className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-sm border-l-[3px] border-[var(--color-gold)] bg-white" /> Merged / shared (stored once)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-sm border-l-[3px] border-[var(--color-clay)] bg-white" /> Reconciliation pending</span>
-        <span className="flex items-center gap-1.5"><Clock3 size={12} className="text-[var(--color-gold)]" /> Custom timing differs from column</span>
-        <span className="flex items-center gap-1.5"><Asterisk size={12} className="text-[var(--color-gold)]" /> Approved window exception / teacher-managed</span>
+        <span className="flex items-center gap-1.5"><Clock3 size={12} className="text-gold-text" /> Custom timing differs from column</span>
+        <span className="flex items-center gap-1.5"><Asterisk size={12} className="text-gold-text" /> Approved window exception / teacher-managed</span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-500" /> Coloured dots preserve source highlights — meaning is <em>unconfirmed</em>, never conflict status.
         </span>
@@ -342,11 +342,11 @@ function SlotHeader({ start, end, breaksAfter }: { start: number; end: number; b
     <>
       <th className="min-w-[128px] px-2 py-2 text-left">
         <span className="font-mono text-[12px] font-semibold text-[var(--color-pine)]">{fmtRange24(start, end)}</span>
-        <span className="block text-[10px] font-normal text-[#8a8571]">{fmtRange(start, end)}</span>
+        <span className="block text-[10px] font-normal text-muted">{fmtRange(start, end)}</span>
       </th>
       {breaksAfter.map((b) => (
         <th key={b.id} className="break-column w-[34px] px-0 py-2 text-center">
-          <span className="inline-block rotate-180 text-[9px] font-bold uppercase tracking-[0.18em] text-[#75806f] [writing-mode:vertical-rl]">
+          <span className="inline-block rotate-180 text-[9px] font-bold uppercase tracking-[0.18em] text-muted [writing-mode:vertical-rl]">
             {b.name}
           </span>
         </th>
@@ -415,14 +415,14 @@ function MeetingCard({
             title="Source highlight preserved — meaning unconfirmed" />
         )}
         <span className={`font-mono font-semibold ${dense ? "text-[11px]" : "text-[12px]"}`}>{m.courseCode}</span>
-        {m.isException && <Asterisk size={12} className="shrink-0 text-[var(--color-gold)]" />}
+        {m.isException && <Asterisk size={12} className="shrink-0 text-gold-text" />}
         {m.pendingReconciliation && <AlertTriangle size={11} className="shrink-0 text-[var(--color-clay)]" />}
       </span>
-      <span className={`mt-0.5 flex flex-wrap items-center gap-x-2 text-[#4a544c] ${dense ? "text-[10px]" : "text-[10.5px]"}`}>
+      <span className={`mt-0.5 flex flex-wrap items-center gap-x-2 text-ink-2 ${dense ? "text-[10px]" : "text-[10.5px]"}`}>
         <span className="font-mono">{m.teachers.map((t) => t.shortCode).join("+") || "UT"}</span>
-        <span className="font-mono text-[var(--color-moss)]">{m.rooms.map((r) => r.code).join("/")}</span>
+        <span className="font-mono text-muted">{m.rooms.map((r) => r.code).join("/")}</span>
         {m.audiences.length > 1 && (
-          <span className="text-[#8a8571]">
+          <span className="text-muted">
             <Users size={10} className="mr-0.5 inline" />
             {m.audiences.map((a) => `${a.stream === "HSC" ? "H" : "D"}-${a.batchLabel}`).join("+")}
           </span>
@@ -431,7 +431,7 @@ function MeetingCard({
       {(shared || custom) && (
         <span className="mt-1 flex flex-wrap gap-1">
           {shared && (
-            <span className="rounded-full bg-[var(--color-gold)]/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-[#8a5d16]">
+            <span className="rounded-full bg-[var(--color-gold)]/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-gold-text">
               {shared}
             </span>
           )}
@@ -455,13 +455,13 @@ function OdChip({ e }: { e: ExternalCommitmentView }) {
     >
       <span className="font-mono font-bold text-[var(--color-clay)]">{e.counterpartDepartment}</span>
       {e.kind === "room_reservation" ? (
-        <span className="block text-[#5c675d]">room {e.roomCode ?? "?"} only</span>
+        <span className="block text-muted">room {e.roomCode ?? "?"} only</span>
       ) : (
-        <span className="block text-[#5c675d]">
+        <span className="block text-muted">
           {e.teacherShortCode ?? "teacher ?"}{e.courseLabel ? ` · ${e.courseLabel.split(" ")[0]}` : ""}
         </span>
       )}
-      <span className="block font-mono text-[9px] text-[#8a8571]">
+      <span className="block font-mono text-[9px] text-muted">
         {fmtRange(e.startMinutes!, e.endMinutes!)} · L{e.completenessLevel}
         {e.verificationStatus !== "verified" ? " · unverified" : ""}
       </span>
@@ -477,12 +477,12 @@ function Modal({ title, onClose, children, wide }: { title: string; onClose: () 
   return (
     <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
-        className={`max-h-[90vh] overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[#fffdf7] shadow-2xl ${wide ? "w-[720px]" : "w-[520px]"}`}
+        className={`max-h-[90vh] overflow-y-auto rounded-lg border border-[var(--color-line)] bg-sheet shadow-2xl ${wide ? "w-[720px]" : "w-[520px]"}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[var(--color-line-soft)] px-4 py-3">
           <h3 className="font-display text-[16px] font-semibold">{title}</h3>
-          <button onClick={onClose} className="rounded p-1 text-[#8a8571] hover:bg-black/5 hover:text-black">
+          <button onClick={onClose} className="rounded p-1 text-muted hover:bg-black/5 hover:text-black">
             <X size={16} />
           </button>
         </div>
@@ -570,7 +570,7 @@ function AddMeetingDialog({
               className="w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 font-mono text-[12.5px]" />
           </div>
         </div>
-        <p className="-mt-2 text-[10.5px] text-[#8a8571]">Exact times are authoritative — a 75-minute class may overlap two 60-minute slots by design.</p>
+        <p className="-mt-2 text-[10.5px] text-muted">Exact times are authoritative — a 75-minute class may overlap two 60-minute slots by design.</p>
 
         <div>
           <label className="micro-label mb-1 block">Teachers (exact short codes — IM ≠ IMN)</label>
@@ -579,7 +579,7 @@ function AddMeetingDialog({
               <label key={t.id} className="flex cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-[12px] hover:bg-black/[0.03]">
                 <input type="checkbox" name="teacherIds" value={t.id} className="accent-[var(--color-pine)]" />
                 <span className="font-mono font-semibold">{t.shortCode}</span>
-                <span className="truncate text-[#66705f]">{t.fullName}{t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}</span>
+                <span className="truncate text-muted">{t.fullName}{t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}</span>
               </label>
             ))}
           </div>
@@ -592,7 +592,7 @@ function AddMeetingDialog({
               <label key={r.id} className="flex cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-[12px] hover:bg-black/[0.03]">
                 <input type="checkbox" name="roomIds" value={r.id} className="accent-[var(--color-pine)]" />
                 <span className="font-mono font-semibold">{r.code}</span>
-                <span className="text-[#8a8571]">{r.roomType}{r.capacity ? ` · ${r.capacity}` : ""}{r.owningDepartmentCode !== "CSE" ? " (ext)" : ""}</span>
+                <span className="text-muted">{r.roomType}{r.capacity ? ` · ${r.capacity}` : ""}{r.owningDepartmentCode !== "CSE" ? " (ext)" : ""}</span>
               </label>
             ))}
           </div>
@@ -600,7 +600,7 @@ function AddMeetingDialog({
 
         <div className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 p-2.5">
           <input id="isException" type="checkbox" name="isException" className="mt-0.5 accent-[var(--color-gold)]" />
-          <label htmlFor="isException" className="text-[12px] text-[#7a5a17]">
+          <label htmlFor="isException" className="text-[12px] text-gold-text">
             <strong>Approved window exception</strong> (e.g. HSC Friday). Requires a note explaining approval.
             <input name="exceptionNote" placeholder="Exception note / approval reference…"
               className="mt-1.5 w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-1.5 text-[12px]" />
@@ -626,7 +626,7 @@ function AddMeetingDialog({
         {result?.ok && result.issues && result.issues.length > 0 && (
           <ul className="space-y-1 rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 p-2.5">
             {result.issues.filter(i => i.severity === "warning").map((i, k) => (
-              <li key={k} className="flex items-start gap-1.5 text-[11.5px] text-[#7a5a17]">
+              <li key={k} className="flex items-start gap-1.5 text-[11.5px] text-gold-text">
                 <AlertTriangle size={12} className="mt-0.5 shrink-0" />
                 <span><strong>{i.title}.</strong> {i.detail}</span>
               </li>
@@ -635,7 +635,7 @@ function AddMeetingDialog({
         )}
 
         <div className="flex justify-end gap-2 border-t border-[var(--color-line-soft)] pt-3">
-          <button type="button" onClick={onClose} className="rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[12.5px] font-semibold text-[#5c675d]">
+          <button type="button" onClick={onClose} className="rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[12.5px] font-semibold text-muted">
             Cancel
           </button>
           <button disabled={pending}
@@ -676,12 +676,12 @@ function EditMeetingDialog({
   return (
     <Modal title={`${m.courseCode} — ${m.courseTitle}`} onClose={onClose}>
       <div className="space-y-3 text-[12.5px]">
-        <div className="rounded-md border border-[var(--color-line-soft)] bg-[#faf8f1] p-3">
+        <div className="rounded-md border border-[var(--color-line-soft)] bg-wash p-3">
           <p><span className="micro-label mr-2">Audience</span>{m.audiences.map((a) => `${a.stream}-${a.batchLabel}`).join(" + ")}{m.externalAudienceLabel ? ` + ${m.externalAudienceLabel}` : ""}</p>
           <p className="mt-1"><span className="micro-label mr-2">Teachers</span>{m.teachers.map((t) => `${t.shortCode} (${t.fullName})`).join(", ") || "UT — vacancy"}</p>
           <p className="mt-1"><span className="micro-label mr-2">Rooms</span>{m.rooms.map((r) => `${r.code} (${r.roomType}, cap ${r.capacity ?? "?"})`).join(", ")}</p>
           <p className="mt-1"><span className="micro-label mr-2">Schedule</span>{DAY_NAMES[m.dayOfWeek]} · {fmtRange(m.startMinutes, m.endMinutes)}</p>
-          {m.exceptionNote && <p className="mt-1 text-[#7a5a17]"><Asterisk size={11} className="mr-1 inline" />{m.exceptionNote}</p>}
+          {m.exceptionNote && <p className="mt-1 text-gold-text"><Asterisk size={11} className="mr-1 inline" />{m.exceptionNote}</p>}
           {m.pendingReconciliation && (
             <p className="mt-1 flex items-start gap-1 text-[var(--color-clay)]">
               <AlertTriangle size={12} className="mt-0.5 shrink-0" />

@@ -65,11 +65,11 @@ export default async function PublicationsPage() {
                     </td>
                     <td className="py-2 text-[11.5px]">{fmtDate(v.effectiveFrom)}{v.effectiveTo ? ` → ${fmtDate(v.effectiveTo)}` : " →"}</td>
                     <td className="py-2 font-mono">{v.meetingCount || "—"}</td>
-                    <td className="py-2 text-[11px] text-[#5c675d]">
+                    <td className="py-2 text-[11px] text-muted">
                       {v.publishedBy ?? "—"}
-                      {v.publishedAt && <span className="block text-[10px] text-[#8a8571]">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>}
+                      {v.publishedAt && <span className="block text-[10px] text-muted">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>}
                     </td>
-                    <td className="max-w-[220px] py-2 text-[11px] leading-snug text-[#5c675d]">{v.changeSummary}</td>
+                    <td className="max-w-[220px] py-2 text-[11px] leading-snug text-muted">{v.changeSummary}</td>
                   </tr>
                 ))}
               </tbody>
@@ -86,7 +86,7 @@ export default async function PublicationsPage() {
             <PublishPanel disabled={blockers > 0} blockerCount={blockers} />
           </Panel>
           <Panel title="Publication guarantees">
-            <ul className="space-y-1.5 text-[12px] leading-relaxed text-[#4a544c]">
+            <ul className="space-y-1.5 text-[12px] leading-relaxed text-ink-2">
               <li>• Snapshots are immutable JSON of the canonical meetings — exports always match the selected version.</li>
               <li>• Validation re-runs against the latest teacher, room, break and OD data at commit time.</li>
               <li>• A failed publish leaves no half-published state; past versions stay superseded, not deleted.</li>

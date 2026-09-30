@@ -64,7 +64,7 @@ export function ExtraLoadManager({
         {canSubmit && <section className="ruled rounded-lg">
           <header className="border-b border-[var(--color-line-soft)] px-4 py-3">
             <h2 className="font-display text-[15px] font-semibold">Record a daily extra class</h2>
-            <p className="mt-0.5 text-[11.5px] text-[#6b7564]">Only teachers above {threshold.toFixed(1)} assigned credits are eligible.</p>
+            <p className="mt-0.5 text-[11.5px] text-muted">Only teachers above {threshold.toFixed(1)} assigned credits are eligible.</p>
           </header>
           <form ref={classForm} className="grid gap-3 p-4" onSubmit={(event) => { event.preventDefault(); submit(classForm.current!, createExtraLoadClassAction); }}>
             <label>
@@ -93,7 +93,7 @@ export function ExtraLoadManager({
 
         <section className="ruled rounded-lg">
           <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--color-line-soft)] px-4 py-3">
-            <div><h2 className="font-display text-[15px] font-semibold">Print center</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">{canReview ? "Top sheet combines app records and manually entered teachers." : "Print your detailed extra-class sheet."}</p></div>
+            <div><h2 className="font-display text-[15px] font-semibold">Print center</h2><p className="mt-0.5 text-[11.5px] text-muted">{canReview ? "Top sheet combines app records and manually entered teachers." : "Print your detailed extra-class sheet."}</p></div>
             {canReview && <Link href={`/extra-load/top-sheet/print?from=${from}&to=${to}`} target="_blank" className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-ink)] px-3 py-2 text-[12px] font-semibold text-white"><Printer size={13} />Top sheet</Link>}
           </header>
           <div className="p-4">
@@ -110,7 +110,7 @@ export function ExtraLoadManager({
                 </tr>)}</tbody>
               </table>
             </div>
-            <p className="mt-2 text-[10.5px] text-[#8a8571]">Default payment: ৳{rate.toLocaleString()} per recorded class. Signatures remain blank on print.</p>
+            <p className="mt-2 text-[10.5px] text-muted">Default payment: ৳{rate.toLocaleString()} per recorded class. Signatures remain blank on print.</p>
           </div>
         </section>
       </div>
@@ -119,7 +119,7 @@ export function ExtraLoadManager({
         <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Recorded extra classes</h2></header>
         <div className="overflow-x-auto p-4">
           <table className="routine-table text-[12px]"><thead><tr>{["Date", "Teacher", "Course", "Batch / audience", "Time", ""].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead>
-            <tbody>{entries.length === 0 ? <tr><td colSpan={6} className="px-3 py-6 text-center text-[#8a8571]">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
+            <tbody>{entries.length === 0 ? <tr><td colSpan={6} className="px-3 py-6 text-center text-muted">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
               <td className="px-2.5 py-2 font-mono">{entry.classDate}</td><td className="px-2.5 py-2">{entry.teacherShortCode} · {entry.teacherName}</td><td className="px-2.5 py-2 font-mono font-semibold">{entry.courseCodeSnapshot}</td><td className="px-2.5 py-2">{entry.batchLabelSnapshot}</td><td className="px-2.5 py-2 font-mono">{fmtRange(entry.startMinutes, entry.endMinutes)}</td>
               <td className="px-2.5 py-2 text-right">{canSubmit && <button title="Delete" disabled={pending} onClick={() => confirm("Remove this extra class?") && startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id)))} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} /></button>}</td>
             </tr>)}</tbody>
@@ -128,7 +128,7 @@ export function ExtraLoadManager({
       </section>
 
       {canReview && <section className="ruled rounded-lg">
-        <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Manual top-sheet entries</h2><p className="mt-0.5 text-[11.5px] text-[#6b7564]">For teachers who keep their detailed sheet outside this application.</p></header>
+        <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Manual top-sheet entries</h2><p className="mt-0.5 text-[11.5px] text-muted">For teachers who keep their detailed sheet outside this application.</p></header>
         <div className="grid gap-4 p-4 xl:grid-cols-[1fr_1.2fr]">
           <form ref={manualForm} className="grid grid-cols-2 gap-2" onSubmit={(event) => { event.preventDefault(); submit(manualForm.current!, createManualTopSheetRowAction); }}>
             <label className="col-span-2"><span className="micro-label mb-1 block">Teacher name</span><input name="teacherName" placeholder="e.g. Md. Forhan Shahriar Fahim" className={control} required /></label>
@@ -138,7 +138,7 @@ export function ExtraLoadManager({
             <label><span className="micro-label mb-1 block">Note</span><input name="notes" placeholder="optional" className={control} /></label>
             <button disabled={pending} className="col-span-2 rounded-md border border-[var(--color-pine)] px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)]">Add manual row</button>
           </form>
-          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-[#8a8571]">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
+          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-muted">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
         </div>
       </section>}
     </div>

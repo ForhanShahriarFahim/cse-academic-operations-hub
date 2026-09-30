@@ -40,7 +40,7 @@ export default async function TeachersPage() {
               const w = workloads.get(t.id);
               const isExt = t.homeDepartmentCode !== "CSE";
               return (
-                <tr key={t.id} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                <tr key={t.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                   <td className="px-3 py-2">
                     <span className="font-mono text-[13px] font-bold text-[var(--color-pine)]">{t.shortCode}</span>
                     {t.shortCode === "IM" && (
@@ -50,9 +50,9 @@ export default async function TeachersPage() {
                   <td className="px-3 py-2 font-medium">{t.fullName}</td>
                   <td className="px-3 py-2">
                     <Badge tone={isExt ? "gold" : "pine"}>{t.homeDepartmentCode ?? "?"}</Badge>
-                    {isExt && <span className="ml-1 text-[10px] text-[#8a8571]">incoming</span>}
+                    {isExt && <span className="ml-1 text-[10px] text-muted">incoming</span>}
                   </td>
-                  <td className="px-3 py-2 text-[#5c675d]">{t.designation ?? "—"}</td>
+                  <td className="px-3 py-2 text-muted">{t.designation ?? "—"}</td>
                   <td className="px-3 py-2 font-mono font-semibold text-[var(--color-pine)]">{w ? w.catalogCredits.toFixed(1) : "0.0"}</td>
                   <td className="px-3 py-2 font-mono font-semibold">{w ? w.workloadUnits.toFixed(1) : "0.0"}</td>
                   <td className="px-3 py-2 font-mono">
@@ -78,7 +78,7 @@ export default async function TeachersPage() {
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-[11.5px] text-[#8a8571]">
+      <p className="mt-3 text-[11.5px] text-muted">
         Vacancies are never shown as people — “UT / Upcoming Teacher” appears in the scheduling tracker, not in this directory.
       </p>
     </div>

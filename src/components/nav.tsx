@@ -18,68 +18,114 @@ import {
   ClipboardCheck,
   ReceiptText,
   KeyRound,
+  type LucideIcon,
 } from "lucide-react";
 
-const items = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/routine", label: "Routine Builder", icon: CalendarDays },
-  { href: "/attendance", label: "Attendance", icon: ClipboardCheck, required: ["take_attendance", "manage_rosters"] },
-  { href: "/extra-load", label: "Extra Class Load", icon: ReceiptText, required: ["submit_extra_load", "review_extra_load", "view_payment_reports"] },
-  { href: "/conflicts", label: "Validation", icon: ShieldAlert },
-  { href: "/teachers", label: "Teachers", icon: Users },
-  { href: "/workload", label: "Workload", icon: Scale },
-  { href: "/rooms", label: "Rooms", icon: DoorOpen },
-  { href: "/batches", label: "Batches", icon: GraduationCap },
-  { href: "/courses", label: "Courses & Offerings", icon: BookOpen },
-  { href: "/od", label: "External / OD", icon: ArrowLeftRight, required: ["manage_external_commitments"] },
-  { href: "/publications", label: "Publications", icon: ScrollText, required: ["approve_publication", "manage_routine"] },
-  { href: "/settings", label: "Decisions & Settings", icon: ListChecks, required: ["manage_policy"] },
-  { href: "/access", label: "People & Access", icon: KeyRound, required: ["manage_users"] },
-];
-
-export function SidebarNav({ capabilities }: { capabilities: string[] }) {
-  const pathname = usePathname();
-  return (
-    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-      {items.filter((item) => !("required" in item) || item.required?.some((capability) => capabilities.includes(capability))).map((item) => {
-        const active =
-          item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`group flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] transition-colors ${
-              active
-                ? "bg-white/10 text-white shadow-[inset_2px_0_0_var(--color-gold)]"
-                : "text-white/60 hover:bg-white/5 hover:text-white"
-            }`}
-          >
-            <Icon
-              size={15}
-              strokeWidth={1.8}
-              className={active ? "text-[var(--color-gold)]" : "text-white/40 group-hover:text-white/70"}
-            />
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  required?: string[];
 }
 
-export function PublicLink() {
+export const navGroups: { label: string | null; items: NavItem[] }[] = [
+  { label: null, items: [{ href: "/", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    label: "Routine",
+    items: [
+      { href: "/routine", label: "Routine builder", icon: CalendarDays },
+      { href: "/conflicts", label: "Validation", icon: ShieldAlert },
+      { href: "/publications", label: "Publications", icon: ScrollText, required: ["approve_publication", "manage_routine"] },
+    ],
+  },
+  {
+    label: "Planning records",
+    items: [
+      { href: "/teachers", label: "Teachers", icon: Users },
+      { href: "/workload", label: "Workload", icon: Scale },
+      { href: "/courses", label: "Courses & offerings", icon: BookOpen },
+      { href: "/batches", label: "Batches", icon: GraduationCap },
+      { href: "/rooms", label: "Rooms", icon: DoorOpen },
+      { href: "/od", label: "External commitments", icon: ArrowLeftRight, required: ["manage_external_commitments"] },
+    ],
+  },
+  {
+    label: "Classes",
+    items: [
+      { href: "/attendance", label: "Attendance", icon: ClipboardCheck, required: ["take_attendance", "manage_rosters"] },
+      { href: "/extra-load", label: "Extra class load", icon: ReceiptText, required: ["submit_extra_load", "review_extra_load", "view_payment_reports"] },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      { href: "/settings", label: "Decisions & settings", icon: ListChecks, required: ["manage_policy"] },
+      { href: "/access", label: "People & access", icon: KeyRound, required: ["manage_users"] },
+    ],
+  },
+];
+
+export const isActive = (href: string, pathname: string) =>
+  href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+
+/** Label of the navigation entry for the current path, for the narrow top bar. */
+export function currentNavLabel(pathname: string): string {
+  for (const group of navGroups) {
+    for (const item of group.items) if (isActive(item.href, pathname)) return item.label;
+  }
+  return "Academic Operations";
+}
+
+export function SidebarNav({ capabilities, onNavigate }: { capabilities: string[]; onNavigate?: () => void }) {
+  const pathname = usePathname();
+  const allowed = (item: NavItem) => !item.required || item.required.some((capability) => capabilities.includes(capability));
   return (
-    <Link
-      href="/public/routine"
-      target="_blank"
-      className="mx-3 mb-3 flex items-center gap-2.5 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-    >
-      <Globe size={15} strokeWidth={1.8} className="text-[var(--color-gold)]" />
-      Public routine viewer
-      <span className="ml-auto rounded bg-[var(--color-gold)]/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-gold)]">
-        Live
-      </span>
-    </Link>
+    <nav aria-label="Main" className="flex-1 px-3 pb-3">
+      {navGroups.map((group) => {
+        const items = group.items.filter(allowed);
+        if (items.length === 0) return null;
+        return (
+          <div key={group.label ?? "home"}>
+            {group.label ? (
+              <p className="mx-2 mb-1.5 mt-4 text-[12px] font-semibold text-[#aeb7b1]">{group.label}</p>
+            ) : null}
+            <ul className="space-y-0.5">
+              {items.map((item) => {
+                const active = isActive(item.href, pathname);
+                const Icon = item.icon;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={onNavigate}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13.5px] transition-colors ${
+                        active
+                          ? "bg-white/10 text-white shadow-[inset_3px_0_0_var(--color-gold)]"
+                          : "text-[#d5dbd7] hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      <Icon size={16} strokeWidth={1.8} aria-hidden="true" className={active ? "text-[var(--color-gold)]" : "text-[#aeb7b1]"} />
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
+      <p className="mx-2 mb-1.5 mt-4 text-[12px] font-semibold text-[#aeb7b1]">Public</p>
+      <Link
+        href="/public/routine"
+        target="_blank"
+        className="flex items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13.5px] text-[#d5dbd7] hover:bg-white/5 hover:text-white"
+      >
+        <Globe size={16} strokeWidth={1.8} aria-hidden="true" className="text-[#aeb7b1]" />
+        Public routine
+        <span className="sr-only">(opens in a new tab)</span>
+        <span aria-hidden="true" className="ml-auto text-[12px] text-[#aeb7b1]">↗</span>
+      </Link>
+    </nav>
   );
 }

@@ -51,22 +51,22 @@ export default async function CoursesPage() {
             </thead>
             <tbody>
               {data.coverage.map((c, i) => (
-                <tr key={c.teachingGroupId} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                <tr key={c.teachingGroupId} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                   <td className="px-2.5 py-1.5">
                     <span className="font-mono font-bold text-[var(--color-pine)]">{c.courseCode}</span>
-                    <span className="block max-w-[220px] truncate text-[10.5px] text-[#8a8571]" title={c.courseTitle}>{c.courseTitle}</span>
+                    <span className="block max-w-[220px] truncate text-[10.5px] text-muted" title={c.courseTitle}>{c.courseTitle}</span>
                   </td>
                   <td className="px-2.5 py-1.5 font-medium">{c.audience}</td>
                   <td className="px-2.5 py-1.5 font-mono">{c.teacherCodes.join("+") || <span className="text-[var(--color-clay)]">UT</span>}</td>
                   <td className="max-w-[280px] px-2.5 py-1.5">
                     {(meetingsByGroup.get(c.teachingGroupId) ?? []).length === 0 ? (
-                      <span className="text-[10.5px] italic text-[#b3ac93]">
+                      <span className="text-[10.5px] italic text-muted">
                         {c.deliveryMode === "teacher_managed" ? "teacher-managed — no weekly slots" : "no meetings yet"}
                       </span>
                     ) : (
                       <span className="flex flex-wrap gap-1">
                         {(meetingsByGroup.get(c.teachingGroupId) ?? []).map((m) => (
-                          <span key={m.id} className="rounded border border-[var(--color-line-soft)] bg-white px-1.5 py-px font-mono text-[10px] text-[#4a544c]">
+                          <span key={m.id} className="rounded border border-[var(--color-line-soft)] bg-white px-1.5 py-px font-mono text-[10px] text-ink-2">
                             {DAY_SHORT[m.dayOfWeek]} {fmtRange24(m.startMinutes, m.endMinutes)} · {m.rooms.map((r) => r.code).join("/") || "?"}
                           </span>
                         ))}
@@ -82,7 +82,7 @@ export default async function CoursesPage() {
                       {statusTone[c.status].label}
                     </Badge>
                   </td>
-                  <td className="max-w-[240px] px-2.5 py-1.5 text-[10.5px] leading-snug text-[#8a8571]">
+                  <td className="max-w-[240px] px-2.5 py-1.5 text-[10.5px] leading-snug text-muted">
                     {c.pendingReconciliation && (
                       <span className="mb-0.5 flex items-start gap-1 text-[var(--color-clay)]">
                         <AlertTriangle size={10} className="mt-0.5 shrink-0" /> timing reconciliation pending
@@ -110,7 +110,7 @@ export default async function CoursesPage() {
               </thead>
               <tbody>
                 {data.courses.map((c, i) => (
-                  <tr key={c.id} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                  <tr key={c.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                     <td className="px-2.5 py-1.5 font-mono font-bold text-[var(--color-pine)]">{c.code}</td>
                     <td className="px-2.5 py-1.5">{c.title}</td>
                     <td className="px-2.5 py-1.5 font-mono">{c.credits.toFixed(1)}</td>
