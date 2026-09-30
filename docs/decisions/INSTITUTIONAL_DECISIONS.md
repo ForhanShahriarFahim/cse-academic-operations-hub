@@ -16,7 +16,7 @@ the owner selected the checked-in Summer 2026 routine transcription as the publi
 
 ## D-03 — Next feature priority
 
-Status: decided. The owner selected SAFE-01 (#2) before master-data editing. WORKFLOW-01 is currently authorized documentation preparation; SAFE-01 still needs its own plan approval. Evidence: prior execution plan and current workflow approval.
+Status: decided. The owner selected SAFE-01 (#2) before master-data editing. WORKFLOW-01 is accepted/closed; SAFE-01 inspection produced a [proposed plan](../specs/SAFE-01/plan.md) that still needs its own implementation approval. Evidence: prior execution plan and subsequent workflow acceptance.
 
 ## D-04 — Missing specification and source sign-off
 
@@ -32,7 +32,7 @@ Status: unresolved. Identify approvers for timetable exceptions, attendance roun
 
 ## D-07 — Operational ownership
 
-Status: unresolved. Name owners for encrypted backups, restore drills, PostgreSQL hosting and Google OAuth credentials. Effective scope: staging/production operations. Affects SAFE-01 (#2), AUTH-01 (#1), DEP-01 (#19). Production requires named owners and recovery/provider evidence.
+Status: unresolved; **deferred to DEP-01 (#19)** by the owner on 30 September 2026 when accepting SAFE-01 (#2). SAFE-01 closed without it because its recovery tooling only touches disposable targets. Name owners for encrypted backups (including backup keys), restore drills, PostgreSQL hosting and Google OAuth credentials. Effective scope: staging/production operations. Affects SAFE-01 (#2), AUTH-01 (#1), DEP-01 (#19). Production requires named owners and recovery/provider evidence.
 
 ## Gate handling
 

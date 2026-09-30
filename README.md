@@ -142,7 +142,7 @@ Without `DATABASE_URL`, the first development start creates `.data/pglite-summer
 
 1. Copy `.env.example` to `.env.local` and uncomment/set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep secrets out of Git.
 2. Create a Google OAuth **Web application** client and authorize `http://localhost:3000/api/auth/callback/google` as a redirect URI. See [Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
-3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. This is idempotent for the same first administrator and refuses to silently replace an existing administrator.
+3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. It writes the invitation, role and a system-attributed audit event in one transaction, is idempotent for the same first administrator, and refuses to silently replace an existing administrator.
 4. Run `npm run dev` and sign in at `/login` with that Google account. Use **People & Access** to invite staff, assign roles, link a teacher short code, suspend users, or revoke roles.
 
 No public sign-up is enabled. An invited address must be verified by Google before it can access the portal. Without the four auth settings, internal access stays closed and `/login` shows a setup notice.
@@ -189,12 +189,13 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run db:migrate` | Apply checked-in migrations |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
 | `npm run auth:bootstrap` | Create the first invited administrator (explicit email required) |
-| `npm run db:reset` | Destructively replace current data with the development seed |
+| `npm run db:reset` | Destructively replace current data with the development seed; this also erases portal users and roles. Never run it on institutional data. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
-| `npm run test:domain` | Verify academic rules, routine projection, source data, and role policy |
+| `npm run test:domain` | Verify academic rules, routine projection, source data, role policy, and the action result contract |
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
-| `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows) |
+| `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows). It starts `npm run dev`, which prepares the configured database. |
+| `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. The PostgreSQL group (T-06) runs only when `SAFE01_PG_BIN` points at a PostgreSQL bin directory; otherwise it reports PENDING. |
 
 ## Project structure
 
@@ -204,6 +205,7 @@ cse-academic-operations-hub/
 ├── docs/
 │   ├── architecture/              # Architecture decision records
 │   ├── plans/                     # Workflow setup plan and delivery evidence
+│   ├── specs/                     # Selected issue specifications and task plans
 │   ├── source/                    # Summer 2026 routine transcription
 │   ├── screenshots/               # README product screenshots
 │   ├── templates/                 # Issue planning and extra-load print references
@@ -293,6 +295,7 @@ development data, not as an approved official schedule.
 - [Project brief — fastest current-state handoff](docs/PROJECT_BRIEF.md)
 - [Shared development workflow — approval, branches and verification](docs/WORKFLOW.md)
 - [Workflow setup — approved plan and delivery checkpoint](docs/plans/WORKFLOW-01.md)
+- [SAFE-01 — proposed safety specification and implementation plan](docs/specs/SAFE-01/plan.md)
 - [Roadmap — order, gates and next issue](docs/ROADMAP.md)
 - [Product requirements — behavior and feature rationale](docs/PRODUCT_REQUIREMENTS.md)
 - [Institutional decisions — approved scope and unanswered questions](docs/decisions/INSTITUTIONAL_DECISIONS.md)

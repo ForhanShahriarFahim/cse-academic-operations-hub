@@ -27,6 +27,7 @@ import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
 import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
+import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -94,6 +95,7 @@ export async function deletePermittedWindowAction(id: number): Promise<ActionRes
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
   if (!Number.isInteger(id) || id <= 0) return { ok: false, message: "Invalid time window." };
+  if (!await isInActiveTerm("permitted_window", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("window.delete", "permitted_window", async (tx) => {
     const [previous] = await tx.delete(permittedWindows).where(eq(permittedWindows.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };
@@ -139,6 +141,7 @@ export async function createExtraLoadClassAction(formData: FormData): Promise<Ac
 export async function deleteExtraLoadClassAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
   if (denied) return denied;
+  if (!await isInActiveTerm("extra_load_class", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("extra_load.delete", "extra_load_class", async (tx) => {
     const [previous] = await tx.delete(extraLoadClasses).where(eq(extraLoadClasses.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };
@@ -172,6 +175,7 @@ export async function createManualTopSheetRowAction(formData: FormData): Promise
 export async function deleteManualTopSheetRowAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
+  if (!await isInActiveTerm("extra_load_manual_summary", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("extra_load.manual.delete", "extra_load_manual_summary", async (tx) => {
     const [previous] = await tx.delete(extraLoadManualSummaries).where(eq(extraLoadManualSummaries.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };
@@ -300,6 +304,7 @@ export async function saveAttendanceAction(sessionId: number, values: Array<{ st
   if (!Number.isInteger(sessionId) || values.some((value) => !Number.isInteger(value.studentId) || !ATTENDANCE_STATUSES.includes(value.status as never))) {
     return { ok: false, message: "Attendance payload is invalid." };
   }
+  if (!await isInActiveTerm("attendance_session", sessionId)) return { ...OUTSIDE_ACTIVE_TERM };
   const [session] = await db.select({ id: attendanceSessions.id }).from(attendanceSessions).where(eq(attendanceSessions.id, sessionId)).limit(1);
   if (!session) return { ok: false, message: "The attendance session no longer exists." };
   const existingRecords = await db.select({ studentId: attendanceRecords.studentId, status: attendanceRecords.status }).from(attendanceRecords).where(eq(attendanceRecords.sessionId, sessionId));
@@ -324,6 +329,7 @@ export async function saveAttendanceAction(sessionId: number, values: Array<{ st
 export async function deleteAttendanceSessionAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId: id });
   if (denied) return denied;
+  if (!await isInActiveTerm("attendance_session", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("attendance.session.delete", "attendance_session", async (tx) => {
     const [session] = await tx.select().from(attendanceSessions).where(eq(attendanceSessions.id, id)).limit(1);
     const records = await tx.select().from(attendanceRecords).where(eq(attendanceRecords.sessionId, id));

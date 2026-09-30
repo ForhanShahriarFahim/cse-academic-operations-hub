@@ -20,17 +20,17 @@ import {
 } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { getPortalData } from "./data";
-import { analyzeSchedule, type Issue } from "./conflicts";
+import { analyzeSchedule } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
 import { parseTimeToMinutes } from "./time";
 import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
+import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
+import type { ActionResult } from "./action-result";
 
-export interface ActionResult {
-  ok: boolean;
-  message: string;
-  issues?: Pick<Issue, "severity" | "title" | "detail">[];
-}
+// The shared contract lives in ./action-result; this type-only re-export keeps
+// existing `import type { ActionResult } from "@/lib/actions"` consumers working.
+export type { ActionResult } from "./action-result";
 
 // ---------------------------------------------------------------------------
 // Meeting creation / move / delete
@@ -94,6 +94,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
   const customTimeLabel = String(formData.get("customTimeLabel") ?? "").trim() || null;
 
   if (!Number.isInteger(groupId) || groupId <= 0) return { ok: false, message: "Select a teaching group." };
+  if (!await isInActiveTerm("teaching_group", groupId)) return { ...OUTSIDE_ACTIVE_TERM };
   if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return { ok: false, message: "Invalid day." };
   if (start == null || end == null) return { ok: false, message: "Enter valid times, e.g. 9:30 AM and 10:45 AM." };
   if (end <= start) return { ok: false, message: "End time must be after start time." };
@@ -183,6 +184,7 @@ export async function moveMeetingAction(
 export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
+  if (!await isInActiveTerm("meeting", meetingId)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("meeting.delete", "meeting", async (tx) => {
     const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
     await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
@@ -250,6 +252,7 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
 export async function verifyExternalAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
+  if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("external.verify", "external_commitment", async (tx) => {
     const [previous] = await tx.select().from(externalCommitments).where(eq(externalCommitments.id, id)).limit(1);
     const [updated] = await tx.update(externalCommitments)
@@ -264,6 +267,7 @@ export async function verifyExternalAction(id: number): Promise<ActionResult> {
 export async function deleteExternalAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
+  if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("external.delete", "external_commitment", async (tx) => {
     const [previous] = await tx.delete(externalCommitments).where(eq(externalCommitments.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };

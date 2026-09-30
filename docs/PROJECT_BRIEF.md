@@ -1,14 +1,28 @@
 # Project brief — start here
 
-Updated: 30 September 2026 (Asia/Dhaka). Implementation/data baseline below was documented on 26 September; this documentation migration did not rerun the seed or certify production. GitHub #1, #2, #16, #17 and #20 were inspected on 30 September.
+Updated: 30 September 2026 (Asia/Dhaka). Implementation/data baseline below was documented on 26 September; this documentation migration did not rerun the seed or certify production. GitHub #1, #2, #16, #17 and #20 were inspected on 30 September; SAFE-01 (#2) was accepted, merged (PR #23) and closed the same day.
 
 Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md) for issue order, [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for behavior, [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates, [CONTEXT.md](../CONTEXT.md) for terms and [README](../README.md) for setup/operators. [Issue #16](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) is the GitHub index.
 
 ## Current work
 
-[WORKFLOW-01 / #20](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) establishes the shared Codex/Claude workflow. The owner merged [PR #21](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/21) into `main` (`de1c78c`), delivering Steps 2 and 3. Step 4 review is recorded in [the approved plan and acceptance evidence](plans/WORKFLOW-01.md#step-4-review-and-acceptance-evidence--30-september-2026). `codex/workflow-review`, based on that merge, carries the final evidence/status corrections; acceptance of this final record and its merge remain before #20 closure. The earlier merge is recorded as acceptance of the delivered layout, not approval of later changes or SAFE-01 implementation.
+**State on 30 September 2026: between issues. No issue is in progress, and no feature branch is active.**
 
-[SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) remains the next feature proposal: recovery, second-term preservation, mutation/audit inventory and shared action-result contract. Its retained roadmap proposal requires a separate inspected plan and approval before behavior changes. RUT-01 is completed; DOC-01 (#17) is closed. AUTH-01 (#1) remains open for integration/public-contact work.
+- **Next step:** the owner selects and approves the next issue. Per [WORKFLOW.md](WORKFLOW.md), then inspect, specify and plan it, and get the owner's approval before any implementation. Do not start a feature without that approval. Candidates:
+  - AUTH-01 (#1) is next in the [roadmap](ROADMAP.md), but it needs real Google OAuth credentials and a hosted PostgreSQL target from the owner.
+  - UX-01 (#18) or ATT-02 (#9).
+  - The SAFE-01 follow-up bugs #24–#28.
+  - Ask the owner which one.
+- **Last completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.
+  - Records: [spec](specs/SAFE-01/spec.md), [plan](specs/SAFE-01/plan.md), [verification/acceptance](specs/SAFE-01/verification.md), [mutation inventory](operations/SAFE-01-mutation-inventory.md), [recovery runbook](operations/DATABASE_RECOVERY.md).
+  - Operational ownership (D-07) was deferred to DEP-01 (#19) by the owner.
+  - Follow-up bugs are #24–#28.
+- **Earlier completed:** WORKFLOW-01 (#20, PRs #21/#22), RUT-01 (e6c8fae), DOC-01 (#17). AUTH-01 (#1) remains open for real OAuth, hosted PostgreSQL, the adversarial session/permission matrix and the public-contact projection.
+
+**Verification tooling added by SAFE-01:**
+- `npm run test:safety` runs only against synthetic data in the ignored `.tmp/safe-01`. It never opens `.data/pglite-summer-2026`.
+- PostgreSQL 17.11 client tools are installed outside the repository at `F:\AI\tools\pgsql-17.11`, with no service and no PATH change. Set `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin` to include the PostgreSQL group; without it that group reports PENDING.
+- Never run `npm run test:ui`, `dev`, `start` or `db:*` casually. They prepare or migrate the configured (institutional) database.
 
 ## Application and preserved baseline
 

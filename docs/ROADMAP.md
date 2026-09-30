@@ -6,8 +6,9 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 
 ## Current work and gates
 
-- WORKFLOW-01 (#20): Steps 2 and 3 merged by the owner in [PR #21](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/21) (`de1c78c`). Step 4 review passed; final evidence/status update on `codex/workflow-review` awaits acceptance/merge before closure. [Plan/checkpoint](plans/WORKFLOW-01.md).
-- SAFE-01 (#2): next feature proposal before master-data editing; detailed scope below needs its own approval.
+- WORKFLOW-01 (#20): accepted/closed; PRs #21/#22 merged, final main baseline `78db43d`. [Review/acceptance record](plans/WORKFLOW-01.md).
+- SAFE-01 (#2): **accepted and closed** 30 September 2026; merged via PR #23. Evidence: [verification](specs/SAFE-01/verification.md). D-07 operational ownership deferred to DEP-01 (#19). Follow-up bugs #24–#28.
+- **Next:** no issue is in progress. The owner selects the next issue (AUTH-01 #1 needs OAuth credentials and a hosted PostgreSQL target; UX-01 #18, ATT-02 #9 and follow-ups #24–#28 are alternatives). Then specify and plan it, and get owner approval before implementation.
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
@@ -21,9 +22,9 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 
 | Order | Issue | Concrete outcome and acceptance emphasis | Depends on |
 |---|---|---|---|
-| Current | [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) | Shared workflow/migration merged; accept and merge final review evidence before closure. | [Approved plan](plans/WORKFLOW-01.md) |
+| Done | [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) | Shared workflow/migration and final review accepted/merged; issue closed. | [Accepted plan/evidence](plans/WORKFLOW-01.md) |
 | Done | `RUT-01` | Compact shared routine screen/export and source import; completed tag exists. | — |
-| 1 | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. | None; **next implementation proposal** |
+| Done | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. Accepted and merged (PR #23). | [Verification](specs/SAFE-01/verification.md) |
 | 1a | [#1 AUTH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/1) | Finish real Google OAuth, hosted PostgreSQL migration, denied/allowed action matrix, role revocation/session tests and source-bounded public-contact projection before closure. | Credentials/test environment; SAFE-01 before production migration |
 | Done | [#17 DOC-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/17) | Retire contradictory pre-authentication handover/context; provide a current short brief, README guide, source counts and agent entry point. | Documentation-only; real OAuth remains #1 |
 | 2 | [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18) | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
@@ -45,6 +46,8 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 Independent issues can move when blocked, but do not start a new feature before its plan is reviewed. `#16` remains the open GitHub index and should always point to the next unblocked issue.
 
 ## SAFE-01 — retained proposal, not an approved implementation plan
+
+Detailed inspection now lives in the [proposed specification](specs/SAFE-01/spec.md) and [plan/checklist](specs/SAFE-01/plan.md). They are pending owner approval; the retained proposal below is context, not a second task checklist or authorization. Replace this detailed context with those issue links once the inspected plan is approved.
 
 **Outcome:** prove that normal change, migration and term rollover cannot silently destroy Summer 2026 history. This is a safety baseline, not a new master-data screen.
 
