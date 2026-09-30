@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routine builder — UX-01 mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<link rel="stylesheet" href="routine-builder.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="M12 8v5M12 16h.01"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3V5"/><path d="M8 8h7M8 12h7M8 16h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3.5 3 3.5 6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0zM8 21h8"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 21h16M6 21V4h9l3 2v15M13 12h.01"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 12h6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell" id="shell">
+  <header class="topbar">
+    <button type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="rail" onclick="toggleNav()"><svg><use href="#i-menu"/></svg></button>
+    <b>Routine builder</b>
+    <span class="state">Summer 2026 · Draft</span>
+  </header>
+  <aside class="rail" id="rail" aria-label="Portal">
+    <a class="brand" href="#"><b>Pundra Academic Operations</b><span>Department of CSE</span></a>
+    <div class="term"><strong>Summer 2026</strong><span class="state">Draft — not yet published</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="dashboard.html"><svg><use href="#i-home"/></svg>Dashboard</a>
+      <h2>Routine</h2>
+      <a href="routine-builder.html" aria-current="page"><svg><use href="#i-cal"/></svg>Routine builder</a>
+      <a href="#"><svg><use href="#i-shield"/></svg>Validation<span class="count" aria-label="13 blockers">13</span></a>
+      <a href="#"><svg><use href="#i-scroll"/></svg>Publications</a>
+      <h2>Planning records</h2>
+      <a href="#"><svg><use href="#i-users"/></svg>Teachers</a>
+      <a href="workload.html"><svg><use href="#i-scale"/></svg>Workload</a>
+      <a href="#"><svg><use href="#i-book"/></svg>Courses &amp; offerings</a>
+      <a href="#"><svg><use href="#i-cap"/></svg>Batches</a>
+      <a href="#"><svg><use href="#i-door"/></svg>Rooms</a>
+      <a href="#"><svg><use href="#i-swap"/></svg>External commitments</a>
+      <h2>Classes</h2>
+      <a href="#"><svg><use href="#i-check"/></svg>Attendance</a>
+      <a href="#"><svg><use href="#i-receipt"/></svg>Extra class load</a>
+      <h2>Administration</h2>
+      <a href="#"><svg><use href="#i-list"/></svg>Decisions &amp; settings</a>
+      <a href="#"><svg><use href="#i-key"/></svg>People &amp; access</a>
+      <a href="#"><svg><use href="#i-globe"/></svg>Public routine ↗</a>
+    </nav>
+    <div class="account"><strong>UX Reviewer</strong>System administrator<br><button type="button">Sign out</button></div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="page" style="max-width:none">
+      <div class="page-head">
+        <div>
+          <p class="crumb">Routine · Working draft</p>
+          <h1>Routine builder</h1>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#">Suggest placements</a>
+          <a class="btn" href="#">Print &amp; export ▾</a>
+          <a class="btn" href="#"><svg><use href="#i-globe"/></svg>Public view</a>
+        </div>
+      </div>
+
+      <div class="rb-toolbar" role="toolbar" aria-label="Routine view">
+        <div class="seg" role="group" aria-label="Stream"><button aria-pressed="true">HSC</button><button aria-pressed="false">Diploma</button></div>
+        <div class="seg days" role="tablist" aria-label="Day">
+          <button role="tab" aria-selected="true">Sat <span class="n" aria-label="7 clashes">7</span></button>
+          <button role="tab" aria-selected="false">Sun <span class="n" aria-label="2 clashes">2</span></button>
+          <button role="tab" aria-selected="false">Mon</button>
+          <button role="tab" aria-selected="false">Tue <span class="n" aria-label="4 clashes">4</span></button>
+          <button role="tab" aria-selected="false">Fri*</button>
+        </div>
+        <div class="seg" role="group" aria-label="Rows"><button aria-pressed="true">Batches</button><button aria-pressed="false">Teachers</button><button aria-pressed="false">Rooms</button></div>
+        <input class="rb-find" type="search" placeholder="Find course, teacher or room" aria-label="Find course, teacher or room">
+        <span class="rb-spacer"></span>
+        <span class="rb-sum"><span class="status block"><svg><use href="#i-x"/></svg>13 clashes this week</span><span class="status warn"><svg><use href="#i-warn"/></svg>184 warnings</span></span>
+      </div>
+
+      <div class="workbench">
+        <div>
+          <div class="grid-wrap" role="region" aria-label="Saturday routine grid" tabindex="0">
+            <table class="rb">
+              <caption style="position:absolute;left:-9999px">HSC Saturday, working draft</caption>
+              <thead><tr>
+                <th scope="col">Batch</th>
+                <th scope="col"><span class="t">9:30–10:45</span><small>AM</small></th>
+                <th scope="col"><span class="t">10:45–12:00</span><small>AM – noon</small></th>
+                <th scope="col"><span class="t">12:00–1:15</span><small>PM</small></th>
+                <th class="brk" scope="col">Break</th>
+                <th scope="col"><span class="t">2:30–3:45</span><small>PM</small></th>
+              </tr></thead>
+              <tbody>
+                <tr><th scope="row"><b>HSC-29B</b><span>Semester 1</span></th>
+                  <td><button class="cls merged"><span class="c">MTH-1101</span><span class="m">MJ · NB-508</span><span class="w">With CSE, EEE, CE</span></button></td>
+                  <td><button class="cls"><span class="c">EEE-1101</span><span class="m">RIC · NB-508</span></button></td>
+                  <td><button class="cls merged"><span class="c">CSE-1101</span><span class="m">HEH · NB-408</span><span class="w">With CSE+EEE</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="add show">+ Add class</button></td></tr>
+                <tr><th scope="row"><b>HSC-28B</b><span>Semester 2</span></th>
+                  <td><button class="cls"><span class="c">CSE-1203</span><span class="m">NH · NB-408</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-1204</span><span class="m">NH · NB-408</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-1103</span><span class="m">AKS · NB-501</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="add fit">+ Fits BUS-3101</button></td></tr>
+                <tr><th scope="row"><b>HSC-27B</b><span>Semester 3</span></th>
+                  <td colspan="2"><button class="cls"><span class="c">CSE-2105</span><span class="m">AMAR · NB-504</span><span class="time">9:30 AM – 12:00 PM</span></button></td>
+                  <td><button class="cls merged"><span class="c">BUS-2201</span><span class="m">BNR · NB-703</span><span class="w">With CSE+EEE+CE</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="add">+ Add class</button></td></tr>
+                <tr><th scope="row"><b>HSC-26B</b><span>Semester 4</span></th>
+                  <td><button class="cls"><span class="c">CSE-2103</span><span class="m">AKS · NB-407</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-2207</span><span class="m">MJ · NB-503</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-2203</span><span class="m">AMAR · NB-504</span><span class="time">12:00 – 2:30 PM</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="add">+ Add class</button></td></tr>
+                <tr><th scope="row"><b>HSC-24B</b><span>Semester 6</span></th>
+                  <td><button class="cls clash"><span class="c">CSE-4201 <span class="flag"><svg><use href="#i-x"/></svg>Clash</span></span><span class="m">RRP · NB-501</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-3107</span><span class="m">MM · NB-501</span></button></td>
+                  <td><button class="cls clash sel" aria-pressed="true"><span class="c">CSE-3200 <span class="flag"><svg><use href="#i-x"/></svg>Clash</span></span><span class="m">SR · NB-407</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="cls warn"><span class="c">CSE-3203 <span class="flag"><svg><use href="#i-warn"/></svg>Check</span></span><span class="m">MM · NB-502</span><span class="time">2:00 – 3:15 PM</span></button></td></tr>
+                <tr><th scope="row"><b>HSC-23B</b><span>Semester 7</span></th>
+                  <td colspan="2"><button class="cls"><span class="c">CSE-4105</span><span class="m">DD · NB-502</span><span class="time">9:30 AM – 12:00 PM</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-4103</span><span class="m">APS · NB-508</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="cls"><span class="c">CSE-4123</span><span class="m">APS · NB-701</span></button></td></tr>
+                <tr><th scope="row"><b>HSC-22B</b><span>Semester 8</span></th>
+                  <td><button class="cls"><span class="c">CSE-4101</span><span class="m">NR · NB-406</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-4203</span><span class="m">FSF · NB-505</span></button></td>
+                  <td><button class="cls"><span class="c">CSE-4237</span><span class="m">NR · NB-503</span></button></td>
+                  <td class="brk"></td>
+                  <td><button class="add">+ Add class</button></td></tr>
+                <tr class="od-row"><th scope="row"><b>Other depts</b><span>Bookings</span></th>
+                  <td></td>
+                  <td><div class="od"><b>EEE</b> NB-407<span>10:45 AM – 12:00 PM</span></div></td>
+                  <td><div class="od" style="outline:2px solid var(--gold);outline-offset:1px"><b>CE</b> NB-407<span>1:00 – 2:00 PM · same room</span></div></td>
+                  <td class="brk"></td>
+                  <td><div class="od"><b>EEE</b> NB-407<span>2:00 – 3:00 PM</span></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="legend"><span><i></i>Class</span><span><i class="m"></i>Merged with other batches (stored once)</span><span><i class="x"></i>Clash — must be fixed</span><span>Highlighted: shares a teacher or room with the selected class</span><span>Green cell: where the selected unplaced class fits</span></div>
+        </div>
+
+        <aside class="inspector desktop" aria-label="Selected class">
+          <div class="tabs" role="tablist"><button role="tab" aria-selected="true">Selected class</button><button role="tab" aria-selected="false">Needs attention · 16</button></div>
+          <div class="insp">
+            <h2>CSE-3200 · Project / Thesis Seminar</h2>
+            <p class="sub">HSC-24B · Saturday · 12:00 – 1:15 PM</p>
+            <div class="issue" role="alert"><b>Clash with another department's booking</b><p>CE has NB-407 on Saturday from 1:00 to 2:00 PM. Choose another room, or move the class so it ends by 1:00 PM.</p></div>
+            <div class="field row3">
+              <div><label for="d">Day</label><select id="d" class="inp"><option>Saturday</option></select></div>
+              <div><label for="s">Starts</label><input id="s" class="inp mono" value="12:00"></div>
+              <div><label for="e">Ends</label><input id="e" class="inp mono" value="13:15"></div>
+            </div>
+            <div class="field"><span class="lbl">Teachers</span>
+              <div class="chips"><span class="chip">SR <button aria-label="Remove SR">×</button></span><input aria-label="Add a teacher" placeholder="Add teacher…"></div>
+            </div>
+            <div class="field"><span class="lbl" id="rooms-l">Room</span>
+              <div class="chips"><input role="combobox" aria-labelledby="rooms-l" value="NB-5" aria-expanded="true" aria-controls="room-options" aria-autocomplete="list"></div>
+              <div class="menu"><ul id="room-options" role="listbox" aria-label="Rooms at Saturday 12:00 – 1:15 PM">
+                <li role="option" aria-selected="true"><span class="code">NB-506</span><span class="meta">Classroom</span><span class="st free">✓ Free</span></li>
+                <li role="option"><span class="code">NB-505</span><span class="meta">Computer lab</span><span class="st free">✓ Free</span></li>
+                <li role="option"><span class="code">NB-503</span><span class="meta">CSE-4237 · HSC-22B</span><span class="st busy">✕ In use</span></li>
+                <li role="option"><span class="code">NB-502</span><span class="meta">CSE-3103 · HSC-25B</span><span class="st busy">✕ In use</span></li>
+                <li role="option"><span class="code">NB-508</span><span class="meta">Capacity not recorded</span><span class="st maybe">! Check size</span></li>
+              </ul></div>
+            </div>
+            <div class="check" role="status"><svg><use href="#i-ok"/></svg><span>With NB-506 this class has no clashes. Saving checks again on the server.</span></div>
+            <div class="acts"><button class="btn primary">Save changes</button><button class="btn">Cancel</button><button class="del">Delete class</button></div>
+          </div>
+        </aside>
+      </div>
+
+      <section class="agenda" aria-label="Saturday by batch">
+        <details><summary><b>HSC-29B</b> Semester 1<span class="n">3 classes</span></summary><ol>
+          <li><span class="t">9:30–10:45</span><span><span class="c">MTH-1101</span><br><span class="m">MJ · NB-508 · with CSE, EEE, CE</span></span></li>
+          <li><span class="t">10:45–12:00</span><span><span class="c">EEE-1101</span><br><span class="m">RIC · NB-508</span></span></li>
+          <li><span class="t">12:00–1:15</span><span><span class="c">CSE-1101</span><br><span class="m">HEH · NB-408</span></span></li>
+        </ol></details>
+        <details open><summary><b>HSC-24B</b> Semester 6<span class="x">2 clashes</span><span class="n">4 classes</span></summary><ol>
+          <li class="clash"><span class="t">9:30–10:45</span><span><span class="c">✕ CSE-4201</span><br><span class="m">RRP · NB-501 · clash</span></span></li>
+          <li><span class="t">10:45–12:00</span><span><span class="c">CSE-3107</span><br><span class="m">MM · NB-501</span></span></li>
+          <li class="clash"><span class="t">12:00–1:15</span><span><span class="c">✕ CSE-3200</span><br><span class="m">SR · NB-407 · clash with CE booking</span></span></li>
+          <li><span class="t">2:00–3:15</span><span><span class="c">CSE-3203</span><br><span class="m">MM · NB-502</span></span></li>
+          <li style="display:block"><button class="addrow">+ Add a class to HSC-24B</button></li>
+        </ol></details>
+        <details><summary><b>HSC-22B</b> Semester 8<span class="n">3 classes</span></summary></details>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+function toggleNav(force) {
+  const shell = document.getElementById("shell");
+  const btn = document.querySelector(".topbar button");
+  const open = force ?? !shell.classList.contains("open");
+  shell.classList.toggle("open", open);
+  btn.setAttribute("aria-expanded", String(open));
+  if (open) document.querySelector(".nav a").focus();
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleNav(false); });
+if (location.hash === "#nav") toggleNav(true);
+</script>
+</body>
+</html>

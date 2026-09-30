@@ -52,7 +52,7 @@ Updated: 30 September 2026, Asia/Dhaka
   - D1: #30 is folded into UX-01; the dashboard redesign fixes it and it closes with UX-01.
   - D2: navigation groups Routine / Planning records / Classes / Administration, and "External / OD" is renamed "External commitments".
   - D3: commit the disposable review harness `npm run ux:review` with its synthetic reviewer session and guards.
-- Material amendments: none.
+- Material amendments: [amendment A — Routine builder workbench](amendment-a-routine-builder.md), requested by the owner on 30 September 2026 and **proposed; not yet approved**.
 - Minor implementation notes (within approved scope, no new behavior):
   - The Validation blocker count was left out of the sidebar. Computing it needs the full term data and the conflict engine on every page, roughly doubling load time. The term block's publication state and the dashboard carry that signal instead.
   - The Publications figures are corrected under the #30 decision (D1).
@@ -92,6 +92,6 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - Approved scope: see Approval record (30 September 2026, decisions D1–D3).
 - Commits: `35ea10d` (plan), `41d94ae` (T-01), `6d14cad` (T-02/T-03), `1954f4e` (T-04–T-07), `d21eab7` (T-08 and fixes), plus the final verification/docs commit on `codex/ux-01`.
 - Completed tasks: T-01–T-09. T-10 automated checks pass; see [verification](verification.md#acceptance-results-30-september-2026).
-- Next action: owner visual review of the running review server and the renders, followed by acceptance; then merge and close #18 and #30.
+- Next action: owner decision on [amendment A](amendment-a-routine-builder.md) (Routine builder), then implementation of T-11–T-19 if approved; owner review; then PR, merge, and close #18 and #30.
 - Verification: AC-01–AC-06 and AC-08–AC-11 pass. AC-07 is partial because the error boundary was not exercised live. AC-03 still needs a manual keyboard walk-through during owner review.
 - Blockers/capabilities: permission-aware states wait for AUTH-01 (#1). Follow-up findings are listed in the verification record.

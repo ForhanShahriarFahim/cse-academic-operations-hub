@@ -11,7 +11,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 - **Current issue:** UX-01, the responsive, accessible and plain-spoken portal baseline. The owner approved it on 30 September 2026.
   - Records: [spec](specs/UX-01/spec.md), [plan and checkpoint](specs/UX-01/plan.md), [verification](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/).
   - It also closes #30.
-  - State: implementation and automated verification are complete; owner visual review and acceptance are pending before merge.
+  - State: the base scope is implemented and verified. The owner requested a Routine builder redesign before merge; [amendment A](specs/UX-01/amendment-a-routine-builder.md) is proposed and awaiting approval.
   - Resume from the plan's "Current checkpoint / handoff" section.
   - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
 - **Bugs found during UX-01 inspection:** #29 (database-stamped times are 6 hours ahead; fix before AUTH-01), #31 (People & Access confirmations), #32 (public viewer actions).
