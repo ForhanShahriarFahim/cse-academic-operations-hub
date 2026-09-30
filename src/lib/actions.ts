@@ -181,6 +181,94 @@ export async function moveMeetingAction(
   return { ok: true, message: "Meeting moved.", issues };
 }
 
+export interface MeetingUpdate {
+  dayOfWeek: number;
+  startMinutes: number;
+  endMinutes: number;
+  teacherIds: number[];
+  roomIds: number[];
+  isException: boolean;
+  exceptionNote: string | null;
+}
+
+/**
+ * Change a class's day, times, teachers, rooms and exception note as one
+ * validated, audited change (UX-01 amendment A). Teachers kept on the class
+ * keep their role; newly added teachers are instructors.
+ */
+export async function updateMeetingAction(meetingId: number, update: MeetingUpdate): Promise<ActionResult> {
+  const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
+  if (denied) return denied;
+  if (!Number.isInteger(meetingId)) return { ok: false, message: "Invalid meeting." };
+  if (!await isInActiveTerm("meeting", meetingId)) return { ...OUTSIDE_ACTIVE_TERM };
+  const { dayOfWeek, startMinutes, endMinutes } = update;
+  const teacherIds = [...new Set(update.teacherIds)].filter((id) => Number.isInteger(id) && id > 0);
+  const roomIds = [...new Set(update.roomIds)].filter((id) => Number.isInteger(id) && id > 0);
+  const exceptionNote = update.exceptionNote?.trim() || null;
+  if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return { ok: false, message: "Invalid day." };
+  if (!Number.isInteger(startMinutes) || !Number.isInteger(endMinutes) || startMinutes < 0 || endMinutes > 24 * 60) {
+    return { ok: false, message: "Enter valid times, e.g. 9:30 AM and 10:45 AM." };
+  }
+  if (endMinutes <= startMinutes) return { ok: false, message: "End time must be after start time." };
+  if (teacherIds.length === 0) return { ok: false, message: "Assign at least one teacher." };
+  if (roomIds.length === 0) return { ok: false, message: "Reserve at least one room." };
+  if (update.isException && !exceptionNote) return { ok: false, message: "Add a note explaining the approved exception." };
+
+  const data = await getPortalData();
+  const existing = data.meetings.find((m) => m.id === meetingId);
+  if (!existing) return { ok: false, message: "Meeting not found — it may have been changed by another user. Reload and try again." };
+  const teachers = data.teachers.filter((t) => teacherIds.includes(t.id));
+  const rooms = data.rooms.filter((r) => roomIds.includes(r.id) && r.isActive);
+  if (teachers.length !== teacherIds.length) return { ok: false, message: "One of the selected teachers no longer exists. Reload and try again." };
+  if (rooms.length !== roomIds.length) return { ok: false, message: "One of the selected rooms is not available. Reload and try again." };
+
+  const roleOf = new Map(existing.teachers.map((t) => [t.id, t.role]));
+  const updated: MeetingView = {
+    ...existing,
+    dayOfWeek, startMinutes, endMinutes,
+    isException: update.isException,
+    exceptionNote,
+    teachers: teachers.map((t) => ({
+      id: t.id, shortCode: t.shortCode, fullName: t.fullName,
+      homeDepartmentCode: t.homeDepartmentCode, designation: t.designation,
+      isExternalCse: t.homeDepartmentCode !== "CSE", role: roleOf.get(t.id) ?? "instructor",
+    })),
+    rooms: rooms.map((r) => ({ id: r.id, code: r.code, building: r.building, roomType: r.roomType, capabilities: r.capabilities, capacity: r.capacity })),
+  };
+  const issues = analyzeSchedule({
+    meetings: [...data.meetings.filter((m) => m.id !== meetingId), updated],
+    externals: data.externals,
+    breaks: data.breaks,
+    windows: data.windows,
+  }).filter((i) => i.meetingIds.includes(meetingId));
+  const blockers = issues.filter((i) => i.severity === "blocker");
+  if (blockers.length > 0) {
+    return { ok: false, message: `${blockers.length} blocking conflict(s) — change rejected, the class is unchanged.`, issues };
+  }
+
+  const before = {
+    dayOfWeek: existing.dayOfWeek, startMinutes: existing.startMinutes, endMinutes: existing.endMinutes,
+    teacherIds: existing.teachers.map((t) => t.id), roomIds: existing.rooms.map((r) => r.id),
+    isException: existing.isException, exceptionNote: existing.exceptionNote ?? null,
+  };
+  await auditedChange("meeting.update", "meeting", async (tx) => {
+    await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes, isException: update.isException, exceptionNote })
+      .where(eq(meetings.id, meetingId));
+    await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
+    await tx.insert(meetingTeachers).values(updated.teachers.map((t) => ({ meetingId, teacherId: t.id, role: t.role })));
+    // Rooms kept on the class keep their role (primary / alternative / segment).
+    const previousRooms = await tx.select({ roomId: meetingRooms.roomId, roomRole: meetingRooms.roomRole })
+      .from(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+    const roomRoleOf = new Map(previousRooms.map((row) => [row.roomId, row.roomRole]));
+    await tx.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+    await tx.insert(meetingRooms).values(roomIds.map((roomId) => ({ meetingId, roomId, roomRole: roomRoleOf.get(roomId) ?? "primary" })));
+    return { result: null, entityId: meetingId, before,
+      after: { dayOfWeek, startMinutes, endMinutes, teacherIds, roomIds, isException: update.isException, exceptionNote } };
+  });
+  revalidatePath("/", "layout");
+  return { ok: true, message: `${existing.courseCode} updated.`, issues };
+}
+
 export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;

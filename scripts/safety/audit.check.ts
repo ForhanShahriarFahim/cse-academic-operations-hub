@@ -139,6 +139,37 @@ async function checkApplicationPaths(factory: DatabaseFactory, lines: string[]):
     const autoAudits = await auditRows(run, "meeting.auto_create");
     assert.ok(autoAudits.length >= 1 && autoAudits.every((row) => row.actorUserId === summer.adminUserId), placed.result?.message);
 
+    // UX-01 amendment A: full class edit (day, time, teachers, rooms) as one validated, audited change.
+    const lab = await withHandle(run, async (handle) => {
+      const [meeting] = await handle.db.select().from(schema.meetings).where(eq(schema.meetings.teachingGroupId, summer.sessionalGroupId));
+      const staff = await handle.db.select().from(schema.meetingTeachers).where(eq(schema.meetingTeachers.meetingId, meeting.id));
+      const rooms = await handle.db.select().from(schema.meetingRooms).where(eq(schema.meetingRooms.meetingId, meeting.id));
+      return { meeting, staff, rooms };
+    });
+    const labUpdate = {
+      meetingId: lab.meeting.id,
+      update: {
+        dayOfWeek: lab.meeting.dayOfWeek, startMinutes: 510, endMinutes: 660,
+        teacherIds: lab.staff.map((row) => row.teacherId), roomIds: lab.rooms.map((row) => row.roomId),
+        isException: false, exceptionNote: null,
+      },
+    };
+    await category(run, "updateMeeting", [[null, signIn], [VIEWER, forbidden], [TEACHER, forbidden]],
+      (email) => probe(run, email, "updateMeeting", labUpdate), ["meetings", "meeting_teachers", "meeting_rooms", "audit_events"]);
+    const edited = await withHandle(run, async (handle) => ({
+      meeting: (await handle.db.select().from(schema.meetings).where(eq(schema.meetings.id, lab.meeting.id)))[0],
+      staff: await handle.db.select().from(schema.meetingTeachers).where(eq(schema.meetingTeachers.meetingId, lab.meeting.id)),
+    }));
+    assert.deepEqual([edited.meeting.startMinutes, edited.meeting.endMinutes], [510, 660]);
+    assert.deepEqual(edited.staff.map((row) => `${row.teacherId}:${row.role}`).sort(), lab.staff.map((row) => `${row.teacherId}:${row.role}`).sort(), "teacher roles were not preserved");
+    const [updateAudit] = await auditRows(run, "meeting.update");
+    assert.equal(updateAudit.actorUserId, summer.adminUserId);
+    // Moving the co-teacher's class onto the other department's booking of that teacher is refused and writes nothing.
+    const external = await withHandle(run, async (handle) => (await handle.db.select().from(schema.externalCommitments))[0]);
+    const clash = { ...labUpdate, update: { ...labUpdate.update, dayOfWeek: external.dayOfWeek!, startMinutes: external.startMinutes!, endMinutes: external.endMinutes! } };
+    const refused = await expectNoWrites(run, "updateMeeting onto an external booking", () => probe(run, ADMIN, "updateMeeting", clash));
+    assert.ok(refused.result?.ok === false && /blocking conflict/.test(refused.result.message ?? ""), JSON.stringify(refused));
+
     // Manual transaction: access management (throws on denial).
     const invitation = { email: "new-viewer@example.invalid", displayName: "Synthetic Invitee", role: "read_only_viewer", teacherCode: "" };
     await category(run, "invite", [[null, /AuthenticationError/], [VIEWER, /AuthorizationError/], [TEACHER, /AuthorizationError/]],
@@ -146,7 +177,7 @@ async function checkApplicationPaths(factory: DatabaseFactory, lines: string[]):
     const invited = await withHandle(run, (handle) => handle.db.select().from(schema.portalUsers).where(eq(schema.portalUsers.email, invitation.email)));
     assert.equal(invited.length, 1);
     assert.equal((await auditRows(run, "user.invite"))[0].entityId, invited[0].id);
-    lines.push("Shared auditedChange (student), publication, auto-placement and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits");
+    lines.push("Shared auditedChange (student), publication, auto-placement, class edit and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits; a class edit keeps teacher roles and a clashing edit is refused with no writes");
   } finally {
     await run.dispose();
   }
