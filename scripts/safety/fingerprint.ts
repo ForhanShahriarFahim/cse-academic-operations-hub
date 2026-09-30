@@ -5,7 +5,7 @@
  * Fingerprints hold only counts and hashes, so they are safe to record.
  */
 import { createHash } from "node:crypto";
-import type { PGlite } from "@electric-sql/pglite";
+import type { Queryable } from "./database";
 
 const SCHEMAS = ["public", "drizzle"];
 
@@ -36,21 +36,21 @@ export function canonical(value: unknown): unknown {
 
 export const canonicalJson = (value: unknown) => JSON.stringify(canonical(value));
 
-async function rowsOf<T>(client: PGlite, query: string, params: unknown[] = []): Promise<T[]> {
+async function rowsOf<T>(client: Queryable, query: string, params: unknown[] = []): Promise<T[]> {
   return (await client.query<T>(query, params)).rows;
 }
 
 /** Order-independent digest of any query's rows. */
-export async function selectFingerprint(client: PGlite, query: string): Promise<TableFingerprint> {
+export async function selectFingerprint(client: Queryable, query: string): Promise<TableFingerprint> {
   const rows = await rowsOf<Record<string, unknown>>(client, query);
   const lines = rows.map(canonicalJson).sort();
   return { rows: rows.length, digest: sha(lines.join("\n")) };
 }
 
-export const tableFingerprint = (client: PGlite, schemaName: string, table: string) =>
+export const tableFingerprint = (client: Queryable, schemaName: string, table: string) =>
   selectFingerprint(client, `select * from "${schemaName}"."${table}"`);
 
-export async function fingerprintDatabase(client: PGlite): Promise<DatabaseFingerprint> {
+export async function fingerprintDatabase(client: Queryable): Promise<DatabaseFingerprint> {
   const tables = await rowsOf<{ table_schema: string; table_name: string }>(client, `
     select table_schema, table_name from information_schema.tables
     where table_schema = any($1) and table_type = 'BASE TABLE' order by 1, 2`, [SCHEMAS]);

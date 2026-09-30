@@ -10,10 +10,11 @@ Updated: 30 September 2026 (Asia/Dhaka).
 | Cold backup and restore of a **disposable, synthetic** PGlite database | **Exercised** by `npm run test:safety` (T-02). Covers fingerprints, restore into a separate empty directory, cold reopen and rejection of bad backups. |
 | Backup of the **institutional** PGlite directory (`.data/pglite-summer-2026`) | **Manual procedure below; not exercised.** The tooling refuses that directory by design. |
 | Verifying an institutional backup copy with the tooling | **Not authorized under SAFE-01.** It would open private student data. It needs a separate owner decision. |
-| PostgreSQL dump/restore | **Pending (T-06).** Needs an approved disposable source and destination, compatible `pg_dump`/`pg_restore`/`psql`, and encrypted storage. None of these are available yet. |
+| Encrypted PostgreSQL dump/restore of a **disposable, synthetic** database | **Exercised** by `npm run test:safety` with `SAFE01_PG_BIN` set (T-06), on PostgreSQL 17.11 in a harness-owned local cluster. Covers AES-256-GCM encryption, restore into a separate empty database, full fingerprint and loader/export parity, and rejection of bad keys, altered backups and unsafe destinations. |
+| Backup and restore of the **hosted** production or staging PostgreSQL | **Not exercised.** No hosted database exists yet. The procedure below applies, and DEP-01 must run it against staging with the provider's own backups. |
 | Hot (online) backup of a running database | **Not supported.** Never copy a data directory while anything may be writing to it. |
 
-PGlite is local development storage. Production and staging need hosted PostgreSQL with its own tested recovery (T-06, DEP-01).
+PGlite is local development storage. Production and staging need hosted PostgreSQL. The dump/restore procedure is proven on a local disposable cluster (T-06); hosted recovery evidence belongs to DEP-01.
 
 ## Rules that apply to every backup
 
@@ -69,6 +70,40 @@ Run these from the repository folder in PowerShell, after following the rules ab
 
 The tooling copies closed databases only. It cannot establish that some other process was not writing. That is why the manual rules above apply to real data.
 
-## PostgreSQL (pending T-06)
+## PostgreSQL: encrypted backup and restore
 
-The procedure will use `pg_dump` custom format, encrypted at rest, restored with `pg_restore` into a **separate, empty, disposable** `safe01_*` database. It will be verified with the same fingerprint approach, plus sequences and constraints. It will never drop or reset a production database. The target rules already exist and are tested. The exercise stays pending until the prerequisites in the status table are approved and available.
+**Tested setup (T-06).**
+- PostgreSQL 17.11 portable binaries from EDB (`postgresql-17.11-1-windows-x64-binaries.zip`, SHA-256 `6eabdf00d2893713b75db4336a23c3fdf505f056e217ec6e2e95d901750cfea3`), extracted to `F:\AI\tools\pgsql-17.11` outside the repository.
+- No Windows service and no PATH change. The core executables are unsigned in EDB's zip distribution; the bundled `stackbuilder.exe` carries a valid EnterpriseDB signature, and a Defender scan was clean.
+- Run the checks with:
+
+  ```powershell
+  $env:SAFE01_PG_BIN = 'F:\AI\tools\pgsql-17.11\pgsql\bin'; npm run test:safety -- T-06
+  ```
+
+- The harness creates its own cluster under `.tmp/safe-01`. It listens on 127.0.0.1 only, with a random SCRAM password, creates only `safe01_*` databases, and stops and deletes the cluster afterwards.
+- `pg_dump` and `pg_restore` must match the server's major version (checked).
+
+**Backup format `safe-01-pg-dump-aes256gcm-v1`** ([pg-backup.ts](../../scripts/safety/pg-backup.ts)):
+- `pg_dump --format=custom` is streamed straight through AES-256-GCM into `dump.enc`, so no plaintext dump touches the disk.
+- `manifest.json` records the IV, the authentication tag, plaintext and ciphertext SHA-256, the tool and server versions, and the source fingerprint. `manifest.sha256` protects the manifest itself.
+- The key is a separate file of 32 random bytes (64 hex characters). The tooling refuses a key stored in the repository (only the ignored scratch area is allowed, for tests).
+- Keep real keys in protected storage **apart from** the backups. Losing the key makes the backup unrecoverable.
+- The password reaches client tools through `PGPASSWORD`, never on the command line.
+
+**Restore:**
+1. Verify the manifest digest and the ciphertext digest.
+2. Decrypt to a temporary file. The GCM tag rejects a wrong key or any altered byte *before* anything is restored.
+3. Verify the plaintext digest.
+4. Refuse the destination unless it is an **empty**, separate database.
+5. Run `pg_restore --single-transaction --exit-on-error`, so a failure leaves the destination empty.
+6. Compare the full fingerprint: schema, constraints, indexes, sequence positions, the migration journal and every row.
+
+The temporary plaintext file is deleted in all cases. For real data, keep that temporary location on protected storage too.
+
+**For hosted databases (DEP-01, not yet exercised):**
+- Never restore over a live database, and never `DROP` or `db:reset` production.
+- Restore into a new, empty database or branch, verify it, then switch the application's `DATABASE_URL` deliberately.
+- `pg_dump` takes a consistent snapshot, so unlike PGlite it does not need writers stopped. Record the dump time, because later writes are not included.
+- Provider snapshots and point-in-time recovery complement this procedure; they do not replace a tested restore.
+- The tooling's target rules (`safe01_*`, confirmation by name, scratch-only locations) deliberately stop it from touching production. An approved production procedure needs its own owner decision and operational owner (D-07).

@@ -6,10 +6,10 @@
  * provider state and an immutable published snapshot.
  */
 import { eq } from "drizzle-orm";
-import type { PgliteDatabase } from "drizzle-orm/pglite";
 import * as schema from "../../src/db/schema";
+import type { SafetyDb } from "./database";
 
-type Db = PgliteDatabase<typeof schema>;
+type Db = SafetyDb;
 const at = (iso: string) => new Date(iso);
 
 export interface SummerFixture {

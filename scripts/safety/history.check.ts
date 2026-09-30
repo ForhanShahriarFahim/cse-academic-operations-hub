@@ -5,12 +5,11 @@
  */
 import assert from "node:assert/strict";
 import path from "node:path";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
-import { createOwnedRun, migrateOwned, openOwnedPglite, removeOwnedRun, type OwnedPglite, type OwnedRun } from "./pglite";
+import { pgliteFactory, withHandle, type DatabaseFactory, type SafetyDatabase, type SafetyHandle } from "./database";
 import { fingerprintDatabase, fingerprintDifferences, selectFingerprint, type TableFingerprint } from "./fingerprint";
 import { activateTerm, populateSpringFixture, populateSummerFixture, type SummerFixture } from "./fixture";
-import { runAppChild } from "./app-env";
 
 const SCENARIO = path.join(__dirname, "children", "term-scenario.ts");
 const ADMIN = "admin@example.invalid";
@@ -36,8 +35,8 @@ type View = {
   csv: Record<string, { status: number; rows: number; terms: string[]; courses: string[]; digest: string }>;
 };
 
-async function child<T>(run: OwnedRun, args: string[]): Promise<T> {
-  const result = await runAppChild(run, SCENARIO, args);
+async function child<T>(run: SafetyDatabase, args: string[]): Promise<T> {
+  const result = await run.runChild(SCENARIO, args);
   assert.equal(result.status, 0, `${args[0]} child failed:\n${result.stderr.slice(-2000)}`);
   assert.ok(result.report, `${args[0]} child produced no report`);
   return result.report as T;
@@ -71,19 +70,14 @@ function historyQueries(termId: number, auditMaxId: number): Record<string, stri
   };
 }
 
-async function history(handle: OwnedPglite, termId: number, auditMaxId: number): Promise<Record<string, TableFingerprint>> {
+async function history(handle: SafetyHandle, termId: number, auditMaxId: number): Promise<Record<string, TableFingerprint>> {
   const out: Record<string, TableFingerprint> = {};
   for (const [name, query] of Object.entries(historyQueries(termId, auditMaxId))) out[name] = await selectFingerprint(handle.client, query);
   return out;
 }
 
-async function withDb<T>(run: OwnedRun, work: (handle: OwnedPglite) => Promise<T>): Promise<T> {
-  const handle = await openOwnedPglite(run);
-  try { return await work(handle); } finally { await handle.close(); }
-}
-
 /** Ids of one record of each kind in a term (0 when the term has none). */
-async function termRecordIds(handle: OwnedPglite, termId: number, groupId: number, summer: SummerFixture) {
+async function termRecordIds(handle: SafetyHandle, termId: number, groupId: number, summer: SummerFixture) {
   const id = async (rows: Promise<Array<{ id: number }>>) => (await rows)[0]?.id ?? 0;
   const session = (await handle.db.select().from(schema.attendanceSessions).where(eq(schema.attendanceSessions.termId, termId)))[0];
   const record = session && (await handle.db.select().from(schema.attendanceRecords).where(eq(schema.attendanceRecords.sessionId, session.id)))[0];
@@ -101,12 +95,12 @@ async function termRecordIds(handle: OwnedPglite, termId: number, groupId: numbe
   };
 }
 
-export async function checkHistory(): Promise<string[]> {
-  const run = createOwnedRun("t03 two-term");
+export async function checkHistory(factory: DatabaseFactory = pgliteFactory): Promise<string[]> {
+  const run = await factory("t03 two-term");
   const lines: string[] = [];
   try {
-    const summer = await withDb(run, async (handle) => {
-      await migrateOwned(handle);
+    const summer = await withHandle(run, async (handle) => {
+      await run.migrate(handle);
       return populateSummerFixture(handle.db);
     });
 
@@ -117,12 +111,12 @@ export async function checkHistory(): Promise<string[]> {
     assert.equal(summerView.term.name, "Summer 2026");
     assert.deepEqual(summerView.publicRoutine, { term: "Summer 2026", version: 2 });
     assert.ok(summerView.csv.internalHsc.rows > 0 && summerView.csv.publicHsc.rows > 0);
-    const auditMaxId = await withDb(run, async (handle) =>
-      (await handle.db.execute<{ max: number }>(sql`select max(id)::int as max from audit_events`)).rows[0].max);
-    const summerHistory = await withDb(run, (handle) => history(handle, summer.termId, auditMaxId));
+    const auditMaxId = await withHandle(run, async (handle) =>
+      (await handle.client.query<{ max: number }>("select max(id)::int as max from audit_events")).rows[0].max);
+    const summerHistory = await withHandle(run, (handle) => history(handle, summer.termId, auditMaxId));
 
     // Add Spring and make it active.
-    const spring = await withDb(run, (handle) => populateSpringFixture(handle.db, summer));
+    const spring = await withHandle(run, (handle) => populateSpringFixture(handle.db, summer));
     const springDraft = await child<View>(run, ["view", ADMIN]);
     assert.equal(springDraft.term.name, "Spring 2027");
     assert.deepEqual(springDraft.groups, [spring.mergedGroupId, spring.repeatGroupId].sort((a, b) => a - b));
@@ -162,22 +156,22 @@ export async function checkHistory(): Promise<string[]> {
     assert.deepEqual(springView.csv.publicHsc.terms, ["Spring 2027"]);
 
     // Summer history is byte-for-byte unchanged by Spring data entry and publication.
-    const afterSpring = await withDb(run, (handle) => history(handle, summer.termId, auditMaxId));
+    const afterSpring = await withHandle(run, (handle) => history(handle, summer.termId, auditMaxId));
     assert.deepEqual(afterSpring, summerHistory);
 
     // Switching the active term back reproduces the Summer projections exactly.
-    await withDb(run, (handle) => activateTerm(handle.db, summer.termId));
+    await withHandle(run, (handle) => activateTerm(handle.db, summer.termId));
     const summerAgain = await child<View>(run, ["view", ADMIN]);
     assert.deepEqual(summerAgain, summerView);
-    await withDb(run, (handle) => activateTerm(handle.db, spring.termId));
+    await withHandle(run, (handle) => activateTerm(handle.db, spring.termId));
     assert.deepEqual(await child<View>(run, ["view", ADMIN]), springView);
     lines.push("Summer history (term rows, dependants, snapshot, enrollments, attendance, extra load, roles, prior audits) unchanged after Spring entry and publication; switching terms reproduces each term's loaders and CSV exactly");
 
     // Repeated migrations on populated two-term data change nothing.
-    await withDb(run, async (handle) => {
+    await withHandle(run, async (handle) => {
       const before = await fingerprintDatabase(handle.client);
-      await migrateOwned(handle);
-      await migrateOwned(handle);
+      await run.migrate(handle);
+      await run.migrate(handle);
       assert.deepEqual(fingerprintDifferences(before, await fingerprintDatabase(handle.client)), []);
     });
     lines.push("Repeated migrations on the populated two-term database leave schema, journal and every row unchanged");
@@ -186,17 +180,17 @@ export async function checkHistory(): Promise<string[]> {
     // Before the term-scope correction six of these succeeded and two threw foreign-key errors.
     type Results = Record<string, { ok: boolean; message: string; outcome?: unknown; threw?: boolean }>;
     const outside = /belongs to a term that is not active/;
-    const summerRows = await withDb(run, (handle) => termRecordIds(handle, summer.termId, summer.mergedGroupId, summer));
+    const summerRows = await withHandle(run, (handle) => termRecordIds(handle, summer.termId, summer.mergedGroupId, summer));
     const crossTerm = await child<Results>(run, ["cross-term", ADMIN, JSON.stringify(summerRows)]);
     for (const [name, result] of Object.entries(crossTerm)) {
       const expected = name === "moveMeeting" ? /Meeting not found/ : outside;
       assert.ok(!result.ok && !result.threw && expected.test(result.message), `${name} was not refused for a Summer row: ${JSON.stringify(result)}`);
       if (name !== "moveMeeting") assert.deepEqual(result.outcome, { kind: "stale", reason: "not_active_term" });
     }
-    assert.deepEqual(await withDb(run, (handle) => history(handle, summer.termId, auditMaxId)), summerHistory);
+    assert.deepEqual(await withHandle(run, (handle) => history(handle, summer.termId, auditMaxId)), summerHistory);
 
     // Control: the same actions on Spring's own rows are not refused by the term check.
-    const springRows = await withDb(run, (handle) => termRecordIds(handle, spring.termId, spring.repeatGroupId, summer));
+    const springRows = await withHandle(run, (handle) => termRecordIds(handle, spring.termId, spring.repeatGroupId, summer));
     const sameTerm = await child<Results>(run, ["cross-term", ADMIN, JSON.stringify(springRows)]);
     const wronglyRefused = Object.entries(sameTerm).filter(([, result]) => outside.test(result.message)).map(([name]) => name);
     assert.deepEqual(wronglyRefused, []);
@@ -204,6 +198,6 @@ export async function checkHistory(): Promise<string[]> {
     lines.push(`Cross-term writes refused: ${Object.keys(crossTerm).length} id-based actions against Summer rows while Spring is active (Summer history unchanged); the same actions on Spring rows are not blocked`);
     return lines;
   } finally {
-    removeOwnedRun(run);
+    await run.dispose();
   }
 }

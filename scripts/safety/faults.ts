@@ -3,12 +3,12 @@
  * `audit_events` insert fail while the fault is enabled, so production
  * transactions are exercised unchanged. Never installed outside owned runs.
  */
-import type { OwnedPglite } from "./pglite";
+import type { SafetyHandle } from "./database";
 
 export const INJECTED_AUDIT_FAILURE = "SAFE-01 injected audit failure";
 
-export async function setAuditInsertFault(handle: OwnedPglite, enabled: boolean): Promise<void> {
-  await handle.client.exec(`
+export async function setAuditInsertFault(handle: Pick<SafetyHandle, "exec">, enabled: boolean): Promise<void> {
+  await handle.exec(`
     create table if not exists safe01_fault (active boolean not null);
     create or replace function safe01_fail_audit() returns trigger language plpgsql as $$
     begin

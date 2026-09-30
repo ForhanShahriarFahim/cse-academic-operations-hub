@@ -6,7 +6,7 @@
  */
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { REPO_ROOT, resolvePgliteTarget, type EnvironmentView } from "./targets";
+import { REPO_ROOT, resolvePgliteTarget, resolvePostgresTarget, type EnvironmentView, type PostgresTarget } from "./targets";
 import { assertOwnedRun, withWriterLock, type OwnedRun } from "./pglite";
 
 const TSX_CLI = path.join(REPO_ROOT, "node_modules", "tsx", "dist", "cli.mjs");
@@ -18,18 +18,39 @@ const PINNED_EMPTY = [
   "PORTAL_BOOTSTRAP_ADMIN_EMAIL", "PORTAL_BOOTSTRAP_ADMIN_NAME",
 ];
 
-export function appChildEnv(run: OwnedRun, base: EnvironmentView = process.env): EnvironmentView {
-  assertOwnedRun(run);
+function scrubbed(base: EnvironmentView): EnvironmentView {
   const env: EnvironmentView = {};
   for (const [key, value] of Object.entries(base)) {
     // libpq-style PG* variables are dropped rather than trusted.
     if (!/^PG/i.test(key) && !/^(npm_|SAFE01_)/i.test(key)) env[key] = value;
   }
   for (const key of PINNED_EMPTY) env[key] = "";
-  env.PGLITE_DATA_DIR = resolvePgliteTarget(run.dataDir, base);
   env.NODE_ENV = "test";
   env.SAFE01_CHILD = "1";
   return env;
+}
+
+export function appChildEnv(run: OwnedRun, base: EnvironmentView = process.env): EnvironmentView {
+  assertOwnedRun(run);
+  return { ...scrubbed(base), PGLITE_DATA_DIR: resolvePgliteTarget(run.dataDir, base) };
+}
+
+/**
+ * Pin a child to a validated disposable PostgreSQL target. The target is
+ * re-validated here, so only a confirmed `safe01_*` database can be selected.
+ */
+export function postgresChildEnv(target: PostgresTarget, base: EnvironmentView = process.env): EnvironmentView {
+  const checked = resolvePostgresTarget(target.url, target.database, base);
+  return { ...scrubbed(base), DATABASE_URL: checked.url, PGLITE_DATA_DIR: "", SAFE01_PG_TARGET: checked.database };
+}
+
+export async function runPostgresChild(
+  target: PostgresTarget,
+  script: string,
+  args: string[] = [],
+  options: { cwd?: string; inputs?: ChildInputs } = {},
+): Promise<ChildResult> {
+  return spawnTsx(script, args, { ...postgresChildEnv(target), ...options.inputs }, options.cwd ?? REPO_ROOT);
 }
 
 export interface ChildResult {

@@ -195,7 +195,7 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run test:domain` | Verify academic rules, routine projection, source data, role policy, and the action result contract |
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
 | `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows). It starts `npm run dev`, which prepares the configured database. |
-| `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. |
+| `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. The PostgreSQL group (T-06) runs only when `SAFE01_PG_BIN` points at a PostgreSQL bin directory; otherwise it reports PENDING. |
 
 ## Project structure
 

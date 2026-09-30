@@ -11,6 +11,7 @@ import { checkIsolation } from "./safety/isolation.check";
 import { checkRecovery } from "./safety/recovery.check";
 import { checkHistory } from "./safety/history.check";
 import { checkAudit } from "./safety/audit.check";
+import { checkPostgres } from "./safety/postgres.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -34,12 +35,18 @@ async function main() {
   const groups: Array<[string, () => Promise<string[]>]> = [
     ["T-01 isolation", checkIsolation],
     ["T-02 PGlite recovery", checkRecovery],
-    ["T-03 two-term history", checkHistory],
-    ["T-04 audit atomicity", checkAudit],
+    ["T-03 two-term history", () => checkHistory()],
+    ["T-04 audit atomicity", () => checkAudit()],
+    ["T-06 PostgreSQL", () => checkPostgres(process.env.SAFE01_PG_BIN)],
   ];
   // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
   const only = process.argv[2];
   for (const [name, check] of groups.filter(([label]) => !only || label.startsWith(only))) {
+    // PostgreSQL needs explicitly configured client tools; without them it is pending, never "passed".
+    if (name.startsWith("T-06") && !process.env.SAFE01_PG_BIN) {
+      console.log(`${name}: PENDING — set SAFE01_PG_BIN to a PostgreSQL bin directory (see docs/operations/DATABASE_RECOVERY.md)`);
+      continue;
+    }
     const results = await check();
     console.log(`${name}: passed`);
     for (const line of results) console.log(`  - ${line}`);

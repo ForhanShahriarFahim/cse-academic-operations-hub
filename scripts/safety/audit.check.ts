@@ -10,11 +10,11 @@ import path from "node:path";
 import { and, eq } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
 import { REPO_ROOT } from "./targets";
-import { createOwnedRun, migrateOwned, openOwnedPglite, removeOwnedRun, type OwnedPglite, type OwnedRun } from "./pglite";
+import { pgliteFactory, withHandle, type DatabaseFactory, type SafetyDatabase } from "./database";
 import { fingerprintDatabase, fingerprintDifferences, type DatabaseFingerprint } from "./fingerprint";
 import { populateSummerFixture } from "./fixture";
 import { INJECTED_AUDIT_FAILURE, setAuditInsertFault } from "./faults";
-import { runAppChild, type ChildInputs } from "./app-env";
+import type { ChildInputs } from "./app-env";
 
 const PROBE = path.join(__dirname, "children", "action-probe.ts");
 const BOOTSTRAP = path.join(REPO_ROOT, "scripts", "bootstrap-admin.ts");
@@ -27,20 +27,15 @@ type Outcome = {
   error?: { name: string; message: string };
 };
 
-async function withDb<T>(run: OwnedRun, work: (handle: OwnedPglite) => Promise<T>): Promise<T> {
-  const handle = await openOwnedPglite(run);
-  try { return await work(handle); } finally { await handle.close(); }
-}
-
-async function probe(run: OwnedRun, email: string | null, operation: string, argument?: unknown): Promise<Outcome> {
+async function probe(run: SafetyDatabase, email: string | null, operation: string, argument?: unknown): Promise<Outcome> {
   const args = [email ?? "-", operation, ...(argument === undefined ? [] : [JSON.stringify(argument)])];
-  const result = await runAppChild(run, PROBE, args);
+  const result = await run.runChild(PROBE, args);
   assert.equal(result.status, 0, result.stderr.slice(-2000));
   return result.report as Outcome;
 }
 
-const fingerprint = (run: OwnedRun) => withDb(run, (handle) => fingerprintDatabase(handle.client));
-const fault = (run: OwnedRun, enabled: boolean) => withDb(run, (handle) => setAuditInsertFault(handle, enabled));
+const fingerprint = (run: SafetyDatabase) => withHandle(run, (handle) => fingerprintDatabase(handle.client));
+const fault = (run: SafetyDatabase, enabled: boolean) => withHandle(run, (handle) => setAuditInsertFault(handle, enabled));
 
 /** Row changes only: a rolled-back insert may still advance a sequence, which is not a domain write. */
 function rowChanges(before: DatabaseFingerprint, after: DatabaseFingerprint): string[] {
@@ -48,7 +43,7 @@ function rowChanges(before: DatabaseFingerprint, after: DatabaseFingerprint): st
 }
 
 /** Run `work` and require that no table row changed. */
-async function expectNoWrites<T>(run: OwnedRun, label: string, work: () => Promise<T>): Promise<T> {
+async function expectNoWrites<T>(run: SafetyDatabase, label: string, work: () => Promise<T>): Promise<T> {
   const before = await fingerprint(run);
   const result = await work();
   assert.deepEqual(rowChanges(before, await fingerprint(run)), [], `${label} changed rows`);
@@ -56,7 +51,7 @@ async function expectNoWrites<T>(run: OwnedRun, label: string, work: () => Promi
 }
 
 /** Run `work` and require exactly the listed tables to change. */
-async function expectChanges<T>(run: OwnedRun, label: string, tables: string[], work: () => Promise<T>): Promise<T> {
+async function expectChanges<T>(run: SafetyDatabase, label: string, tables: string[], work: () => Promise<T>): Promise<T> {
   const before = await fingerprint(run);
   const result = await work();
   assert.deepEqual(rowChanges(before, await fingerprint(run)).sort(), tables.map((table) => `table public.${table}`).sort(), label);
@@ -70,13 +65,13 @@ const denied = (outcome: Outcome, pattern: RegExp, email: string | null) => {
 };
 const injected = (outcome: Outcome) => assert.equal(outcome.error?.message, INJECTED_AUDIT_FAILURE, JSON.stringify(outcome));
 
-async function auditRows(run: OwnedRun, action: string) {
-  return withDb(run, (handle) => handle.db.select().from(schema.auditEvents).where(eq(schema.auditEvents.action, action)));
+async function auditRows(run: SafetyDatabase, action: string) {
+  return withHandle(run, (handle) => handle.db.select().from(schema.auditEvents).where(eq(schema.auditEvents.action, action)));
 }
 
 /** Deny, fail the audit, then succeed — the order every category follows. */
 async function category(
-  run: OwnedRun,
+  run: SafetyDatabase,
   name: string,
   deniedCases: Array<[string | null, RegExp]>,
   call: (email: string | null) => Promise<Outcome>,
@@ -95,11 +90,11 @@ async function category(
   return success;
 }
 
-async function checkApplicationPaths(lines: string[]): Promise<void> {
-  const run = createOwnedRun("t04 application paths");
+async function checkApplicationPaths(factory: DatabaseFactory, lines: string[]): Promise<void> {
+  const run = await factory("t04 application paths");
   try {
-    const summer = await withDb(run, async (handle) => {
-      await migrateOwned(handle);
+    const summer = await withHandle(run, async (handle) => {
+      await run.migrate(handle);
       const fixture = await populateSummerFixture(handle.db);
       const [viewer] = await handle.db.insert(schema.portalUsers).values({ email: VIEWER, displayName: "Synthetic Viewer", status: "active" }).returning();
       await handle.db.insert(schema.roleAssignments).values({ userId: viewer.id, role: "read_only_viewer", grantedByUserId: fixture.adminUserId });
@@ -135,7 +130,7 @@ async function checkApplicationPaths(lines: string[]): Promise<void> {
     // Manual transaction: publication (supersede + insert + audit).
     await category(run, "publish", [[null, signIn], [VIEWER, forbidden], [TEACHER, forbidden]],
       (email) => probe(run, email, "publish", "Synthetic T-04 publication"), ["schedule_versions", "audit_events"]);
-    const versions = await withDb(run, (handle) => handle.db.select().from(schema.scheduleVersions).where(eq(schema.scheduleVersions.termId, summer.termId)));
+    const versions = await withHandle(run, (handle) => handle.db.select().from(schema.scheduleVersions).where(eq(schema.scheduleVersions.termId, summer.termId)));
     assert.deepEqual(versions.map((version) => `${version.versionNumber}:${version.state}`).sort(), ["1:superseded", "2:published"]);
 
     // Manual transaction: auto-placement (meetings, teachers, rooms, one audit per meeting).
@@ -148,24 +143,24 @@ async function checkApplicationPaths(lines: string[]): Promise<void> {
     const invitation = { email: "new-viewer@example.invalid", displayName: "Synthetic Invitee", role: "read_only_viewer", teacherCode: "" };
     await category(run, "invite", [[null, /AuthenticationError/], [VIEWER, /AuthorizationError/], [TEACHER, /AuthorizationError/]],
       (email) => probe(run, email, "invite", invitation), ["portal_users", "role_assignments", "audit_events"]);
-    const invited = await withDb(run, (handle) => handle.db.select().from(schema.portalUsers).where(eq(schema.portalUsers.email, invitation.email)));
+    const invited = await withHandle(run, (handle) => handle.db.select().from(schema.portalUsers).where(eq(schema.portalUsers.email, invitation.email)));
     assert.equal(invited.length, 1);
     assert.equal((await auditRows(run, "user.invite"))[0].entityId, invited[0].id);
     lines.push("Shared auditedChange (student), publication, auto-placement and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits");
   } finally {
-    removeOwnedRun(run);
+    await run.dispose();
   }
 }
 
-async function bootstrap(run: OwnedRun, inputs: ChildInputs) {
-  return runAppChild(run, BOOTSTRAP, [], { inputs });
+async function bootstrap(run: SafetyDatabase, inputs: ChildInputs) {
+  return run.runChild(BOOTSTRAP, [], inputs);
 }
 
-async function checkBootstrap(lines: string[]): Promise<void> {
-  const run = createOwnedRun("t04 bootstrap");
+async function checkBootstrap(factory: DatabaseFactory, lines: string[]): Promise<void> {
+  const run = await factory("t04 bootstrap");
   try {
-    await withDb(run, async (handle) => {
-      await migrateOwned(handle);
+    await withHandle(run, async (handle) => {
+      await run.migrate(handle);
       await setAuditInsertFault(handle, true);
     });
     const first = { PORTAL_BOOTSTRAP_ADMIN_EMAIL: "first-admin@example.invalid", PORTAL_BOOTSTRAP_ADMIN_NAME: "Synthetic First Admin" };
@@ -179,7 +174,7 @@ async function checkBootstrap(lines: string[]): Promise<void> {
     const [event] = await auditRows(run, "user.bootstrap_admin");
     assert.equal(event.actorKind, "system");
     assert.equal(event.actorUserId, null);
-    const admin = await withDb(run, (handle) => handle.db.select().from(schema.roleAssignments)
+    const admin = await withHandle(run, (handle) => handle.db.select().from(schema.roleAssignments)
       .where(and(eq(schema.roleAssignments.role, "system_administrator"), eq(schema.roleAssignments.userId, event.entityId!))));
     assert.equal(admin.length, 1);
 
@@ -191,13 +186,13 @@ async function checkBootstrap(lines: string[]): Promise<void> {
     assert.match(other.stderr, /An administrator already exists/);
     lines.push("Bootstrap command: failing audit leaves no user/role; success writes user, role and one system-attributed audit atomically; rerun writes nothing; a second administrator is refused");
   } finally {
-    removeOwnedRun(run);
+    await run.dispose();
   }
 }
 
-export async function checkAudit(): Promise<string[]> {
+export async function checkAudit(factory: DatabaseFactory = pgliteFactory): Promise<string[]> {
   const lines: string[] = [];
-  await checkApplicationPaths(lines);
-  await checkBootstrap(lines);
+  await checkApplicationPaths(factory, lines);
+  await checkBootstrap(factory, lines);
   return lines;
 }

@@ -97,7 +97,11 @@ export async function openOwnedPglite(run: OwnedRun): Promise<OwnedPglite> {
 }
 
 export async function migrateOwned(handle: OwnedPglite): Promise<void> {
-  await migrate(handle.db, { migrationsFolder: MIGRATIONS_FOLDER });
+  await migratePgliteDb(handle.db);
+}
+
+export async function migratePgliteDb(db: PgliteDatabase<typeof schema>): Promise<void> {
+  await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
 }
 
 export function removeOwnedRun(run: OwnedRun): void {
