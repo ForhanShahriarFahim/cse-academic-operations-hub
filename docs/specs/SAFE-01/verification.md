@@ -1,20 +1,20 @@
 # SAFE-01 — Verification and review
 
 Issue / specification / plan: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) · [spec](spec.md) · [plan](plan.md) (task authority)
-Verified revision: T-01 checkpoint — the commit that adds this file (on `a0d7fe8`).
+Verified revision: T-02 checkpoint on `codex/safe-01` (T-01 at `af8ec05`).
 Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs under ignored `.tmp/safe-01/`; 30 September 2026 (Asia/Dhaka). No PostgreSQL server or clients available.
 
 ## Acceptance evidence
 
 | Criterion | Result | Method and evidence |
 |---|---|---|
-| AC-01 | Passed for T-01 scope; recovery commands pending T-02/T-06 | `npm run test:safety` → `T-01 isolation: passed`. Refuses the default/`.data`/inherited/relative/outside-scratch/junction-escape PGlite targets. Refuses implicit, configured, non-`safe01_`, unconfirmed and redirecting PostgreSQL URLs. Refuses identical/nested locations and non-empty restore targets. Unmarked runs and a second writer are refused. The import-boundary scan passes. Pinned children stay on the owned run under a poisoned parent environment and poisoned `.env`/`.env.local` files. The default PGlite directory's file metadata was unchanged across the run, and the harness never opened it. |
-| AC-02 | Pending | T-02. |
+| AC-01 | Passed for PGlite (T-01/T-02); PostgreSQL commands pending T-06 | `npm run test:safety` → `T-01 isolation: passed`. Refuses the default/`.data`/inherited/relative/outside-scratch/junction-escape PGlite targets. Refuses implicit, configured, non-`safe01_`, unconfirmed and redirecting PostgreSQL URLs. Refuses identical/nested locations and non-empty restore targets. Unmarked runs and a second writer are refused. The import-boundary scan passes. Pinned children stay on the owned run under a poisoned parent environment and poisoned `.env`/`.env.local` files. The default PGlite directory's file metadata was unchanged across the run, and the harness never opened it. |
+| AC-02 | Passed (synthetic owned fixture) | `test:safety` → `T-02 PGlite recovery: passed`. A migrated, populated synthetic Summer fixture (35 non-empty tables, 6 journal rows) is backed up cold: 1,192 files, 40.9 MiB. The manifest fingerprint equals the live one, and the source is unchanged by the backup. Later source writes do not leak into the backup. The restore into a separate empty owned run reopens cold with identical schema, constraints, indexes, sequences, journal and rows. The merged group relationship, the published snapshot and 3 role assignments are present. The next serial continues after the restored maximum. Migrations reapply without new journal rows. The app database module opens the restored copy through a pinned child. Rejected: active writer, nested/protected/non-empty backup locations, unmarked/non-empty/overlapping restore targets, a flipped byte, a missing file, an extra file, a missing manifest, an edited manifest, a wrong format, and a fingerprint mismatch after reopen (partial restore removed). The institutional backup procedure is documented but not exercised: [runbook](../../operations/DATABASE_RECOVERY.md). |
 | AC-03 | Pending (external prerequisites) | T-06. Needs an approved PostgreSQL target, client tools and encrypted storage. |
 | AC-04 | Pending | T-03. |
 | AC-05 | Partial: inventory complete, tests pending | [Mutation inventory](../../operations/SAFE-01-mutation-inventory.md): 25 server actions plus 7 other paths, classified, with the bootstrap and activation gaps listed. The success, rollback and denial tests are T-04. |
 | AC-06 | Pending | T-05. |
-| AC-07 | Passed at T-01 checkpoint | `typecheck`, `lint`, `test:domain` (4 suites), `build` and `test:safety` all passed after the final T-01 edits. |
+| AC-07 | Passed at T-02 checkpoint; final run pending T-07 | `typecheck`, `lint`, `test:domain` (4 suites), `build` and `test:safety` passed after the final T-02 edits. |
 | AC-08 | Pending | Final review and owner acceptance. |
 
 ## Checks
@@ -24,6 +24,7 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
   - CLI scripts that import `dotenv/config` before `src/db` give `.env` precedence over `.env.local`, which is the reverse of Next.js (inventory finding F-01).
   - The harness avoids both: child environments set `DATABASE_URL` and the auth variables to empty strings (dotenv never overrides an existing key), set `PGLITE_DATA_DIR` to the owned run, and drop `PG*`/`npm_*` variables.
 - **Build target review.** `next build` sets `npm_lifecycle_event=build`, so `src/db` uses `memory://`. No `.env`/`.env.local` files exist in the checkout. The build's regeneration of `next-env.d.ts` was restored rather than committed.
+- **T-02 environment fact.** The installed PGlite writes no lock or PID file, so no file-level check can prove another process is not writing. The runbook therefore requires the operator to confirm that all writers have stopped.
 - **Not run:** `dev`, `start`, `db:prepare`, `db:migrate`, `db:reset` or `auth:bootstrap` against any non-owned target, and any connection to the institutional database.
 
 ## Review findings
@@ -35,7 +36,7 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 
 ## Delivery and acceptance
 
-- Commits / PR: `a0d7fe8` (approval); T-01 checkpoint commit on `codex/safe-01`.
-- Remaining gates: T-02 to T-07; PostgreSQL prerequisites; operational owners (D-07).
+- Commits / PR: `a0d7fe8` (approval), `af8ec05` (T-01), T-02 checkpoint on `codex/safe-01`.
+- Remaining gates: T-03 to T-07; PostgreSQL prerequisites; operational owners (D-07); an owner decision on whether tooling may verify an institutional backup copy.
 - Owner acceptance: Pending.
 - Merge / closure: Pending.

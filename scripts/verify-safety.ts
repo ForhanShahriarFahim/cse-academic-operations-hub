@@ -8,6 +8,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { DEFAULT_PGLITE_DIR } from "./safety/targets";
 import { checkIsolation } from "./safety/isolation.check";
+import { checkRecovery } from "./safety/recovery.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -28,7 +29,10 @@ function metadataFingerprint(directory: string): string {
 
 async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
-  const groups: Array<[string, () => Promise<string[]>]> = [["T-01 isolation", checkIsolation]];
+  const groups: Array<[string, () => Promise<string[]>]> = [
+    ["T-01 isolation", checkIsolation],
+    ["T-02 PGlite recovery", checkRecovery],
+  ];
   for (const [name, check] of groups) {
     const results = await check();
     console.log(`${name}: passed`);

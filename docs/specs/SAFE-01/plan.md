@@ -26,7 +26,7 @@ Define a shared compatible result type at `src/lib/action-result.ts`, retaining 
 
 - [x] P-01 — Inspect issue/config metadata, migrations, write seams and available tools; no database connection/preparation/reset.
 - [x] T-01 — Build explicit target selection/connection lifecycle and refusal tests; inventory all writes in `docs/operations/SAFE-01-mutation-inventory.md`. Check environment-loader precedence and inherited variables. Covers AC-01/05; first implementation checkpoint. Done 30 September: `scripts/safety/`, `npm run test:safety`, [inventory](../../operations/SAFE-01-mutation-inventory.md), [verification](verification.md).
-- [ ] T-02 — Exercise owned on-disk PGlite cold backup/restore, manifest/integrity fingerprints, active-writer/corrupt-backup/overlap/non-empty-target rejection. Write `docs/operations/DATABASE_RECOVERY.md`. Covers AC-01/02; depends T-01.
+- [x] T-02 — Exercise owned on-disk PGlite cold backup/restore, manifest/integrity fingerprints, active-writer/corrupt-backup/overlap/non-empty-target rejection. Write `docs/operations/DATABASE_RECOVERY.md`. Covers AC-01/02; depends T-01. Done 30 September: `fixture.ts`, `fingerprint.ts`, `pglite-backup.ts`, `recovery.check.ts`, [runbook](../../operations/DATABASE_RECOVERY.md).
 - [ ] T-03 — Add populated two-term/repeated-migration tests for placements, attendance/enrollment, extra-load, roles/audits, snapshots and real term loaders/exports. Fix only reproduced narrow leakage. Covers AC-04; depends T-01; PostgreSQL execution waits for T-06 prerequisites.
 - [ ] T-04 — Fix bootstrap/activation audit gaps and test production success, failed-audit rollback and denied requests without domain writes. Cover shared helper, manual publication/auto-placement/access transaction categories and bootstrap/activation; link exceptions/tests to inventory. Full OAuth/session/direct-action matrix remains AUTH-01. Covers AC-05; depends T-01/03.
 - [ ] T-05 — Extract compatible result contract and test/document six outcome categories without converting unrelated UI/actions. Covers AC-06.
@@ -45,9 +45,9 @@ After approval commit the approved plan first, then coherent verified checkpoint
 
 ## Current checkpoint / handoff
 
-- Completed: P-01, spec/plan, owner approval (30 September 2026) and T-01 (target isolation harness, refusal/child-environment tests, mutation inventory with findings F-01–F-07). WORKFLOW-01 accepted, PR #22 merged at `78db43d`, #20 closed.
+- Completed: P-01, spec/plan, owner approval (30 September 2026) T-01 (target isolation harness, refusal/child-environment tests, mutation inventory with findings F-01–F-07) and T-02 (cold PGlite backup/restore with fingerprints, negative cases and recovery runbook). WORKFLOW-01 accepted, PR #22 merged at `78db43d`, #20 closed.
 - Database state: institutional PGlite directory never opened (metadata unchanged across safety runs); all migrations/queries ran only on owned `.tmp/safe-01` runs. Institutional counts not reverified.
-- Next: T-02 — owned PGlite cold backup/restore with fingerprints, negative cases and `docs/operations/DATABASE_RECOVERY.md` (include F-07: `db:reset` also erases access tables).
+- Next: T-03 — extend `scripts/safety/fixture.ts` with a synthetic Spring 2027 term; populated two-term and repeated-migration tests through the real term loaders/exports in pinned children.
 - Pending: PostgreSQL source/destination/client tooling/encrypted storage and operational owners. Live provider tests remain AUTH-01.
 - Process visibility: Node processes exist; command-line inspection denied. No writer ownership/stopped-state claim; institutional live backup is outside scope.
-- Current verification: T-01 checkpoint passed typecheck, lint, test:domain, build and test:safety; details and pending ACs in [verification.md](verification.md). This checklist remains the task authority.
+- Current verification: T-02 checkpoint passed typecheck, lint, test:domain, build and test:safety; details and pending ACs in [verification.md](verification.md). This checklist remains the task authority.
