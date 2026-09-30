@@ -32,7 +32,7 @@ Status: unresolved. Identify approvers for timetable exceptions, attendance roun
 
 ## D-07 — Operational ownership
 
-Status: unresolved. Name owners for encrypted backups, restore drills, PostgreSQL hosting and Google OAuth credentials. Effective scope: staging/production operations. Affects SAFE-01 (#2), AUTH-01 (#1), DEP-01 (#19). Production requires named owners and recovery/provider evidence.
+Status: unresolved; **deferred to DEP-01 (#19)** by the owner on 30 September 2026 when accepting SAFE-01 (#2). SAFE-01 closed without it because its recovery tooling only touches disposable targets. Name owners for encrypted backups (including backup keys), restore drills, PostgreSQL hosting and Google OAuth credentials. Effective scope: staging/production operations. Affects SAFE-01 (#2), AUTH-01 (#1), DEP-01 (#19). Production requires named owners and recovery/provider evidence.
 
 ## Gate handling
 

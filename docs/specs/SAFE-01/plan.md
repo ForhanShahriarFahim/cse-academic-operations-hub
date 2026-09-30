@@ -2,7 +2,7 @@
 
 Issue: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2)
 Specification: [spec.md](spec.md)
-Status: Approved as written (30 September 2026); implementation in progress.
+Status: Complete. Accepted and merged on 30 September 2026 (PR #23); #2 closed.
 Branch / base: `codex/safe-01` / `78db43d` (merged WORKFLOW-01 review).
 Updated: 30 September 2026 (Asia/Dhaka).
 
@@ -53,7 +53,7 @@ After approval commit the approved plan first, then coherent verified checkpoint
 
 - Completed: P-01, spec/plan, owner approval (30 September 2026) T-01 (target isolation harness, refusal/child-environment tests, mutation inventory with findings F-01–F-07), T-02 (cold PGlite backup/restore with fingerprints, negative cases and recovery runbook), T-03 (two-term history and term isolation through real loaders/exports; cross-term write correction), T-04 (atomic audited bootstrap/activation; success/rollback/denial tests across transaction categories), T-05 (compatible six-outcome result contract), T-07 (final checks/review; acceptance presented) and T-06 (PostgreSQL 17.11 disposable cluster: encrypted dump/restore; T-03/T-04 on PostgreSQL). WORKFLOW-01 accepted, PR #22 merged at `78db43d`, #20 closed.
 - Database state: institutional PGlite directory never opened (metadata unchanged across safety runs); all migrations/queries ran only on owned `.tmp/safe-01` runs. Institutional counts not reverified.
-- Next: owner review/acceptance of PR #23 (AC-08), including a decision or explicit deferral on operational owners (D-07). All tasks T-01–T-07 are complete; hosted recovery evidence belongs to DEP-01.
+- Next: none within SAFE-01. The owner accepted PR #23 on 30 September 2026 and deferred D-07 to DEP-01; the project brief holds the next-issue pointer.
 - Pending: PostgreSQL source/destination/client tooling/encrypted storage and operational owners. Live provider tests remain AUTH-01.
 - Process visibility: Node processes exist; command-line inspection denied. No writer ownership/stopped-state claim; institutional live backup is outside scope.
 - Current verification: final run after T-06 passed typecheck, lint, test:domain, build and test:safety; details and pending ACs in [verification.md](verification.md). This checklist remains the task authority.

@@ -7,7 +7,8 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 ## Current work and gates
 
 - WORKFLOW-01 (#20): accepted/closed; PRs #21/#22 merged, final main baseline `78db43d`. [Review/acceptance record](plans/WORKFLOW-01.md).
-- SAFE-01 (#2): current detailed planning before master-data editing. [Spec](specs/SAFE-01/spec.md) and [plan](specs/SAFE-01/plan.md) were approved as written on 30 September 2026. All tasks are verified on PGlite and a local disposable PostgreSQL 17.11 cluster (PR #23), awaiting owner acceptance; follow-ups #24–#28. PostgreSQL verification prerequisites remain pending.
+- SAFE-01 (#2): **accepted and closed** 30 September 2026; merged via PR #23. Evidence: [verification](specs/SAFE-01/verification.md). D-07 operational ownership deferred to DEP-01 (#19). Follow-up bugs #24–#28.
+- **Next:** no issue is in progress. The owner selects the next issue (AUTH-01 #1 needs OAuth credentials and a hosted PostgreSQL target; UX-01 #18, ATT-02 #9 and follow-ups #24–#28 are alternatives). Then specify and plan it, and get owner approval before implementation.
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
@@ -23,7 +24,7 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 |---|---|---|---|
 | Done | [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) | Shared workflow/migration and final review accepted/merged; issue closed. | [Accepted plan/evidence](plans/WORKFLOW-01.md) |
 | Done | `RUT-01` | Compact shared routine screen/export and source import; completed tag exists. | — |
-| 1 | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. | None; **next implementation proposal** |
+| Done | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. Accepted and merged (PR #23). | [Verification](specs/SAFE-01/verification.md) |
 | 1a | [#1 AUTH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/1) | Finish real Google OAuth, hosted PostgreSQL migration, denied/allowed action matrix, role revocation/session tests and source-bounded public-contact projection before closure. | Credentials/test environment; SAFE-01 before production migration |
 | Done | [#17 DOC-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/17) | Retire contradictory pre-authentication handover/context; provide a current short brief, README guide, source counts and agent entry point. | Documentation-only; real OAuth remains #1 |
 | 2 | [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18) | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
