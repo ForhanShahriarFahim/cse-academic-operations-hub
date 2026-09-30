@@ -1,7 +1,7 @@
 # RUT-04 — Term time grids, teaching days and batch day exceptions
 
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
-Status: Proposed, awaiting owner approval
+Status: Approved 30 September 2026 (see [plan approval record](plan.md#approval-record))
 Updated: 30 September 2026, Asia/Dhaka
 
 ## Problem and inspected baseline

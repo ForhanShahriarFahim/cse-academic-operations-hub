@@ -3,7 +3,7 @@
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md)
 Verification: `verification.md` (created during implementation)
-Status: Proposed, awaiting owner approval
+Status: Approved 30 September 2026; implementation in progress
 Branch / base: `codex/rut-04` from main `39a39b3`
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -61,10 +61,10 @@ Existing UX-01 patterns are reused: `ActionResult` feedback, confirmation dialog
 
 ## Approval record
 
-- Owner authorization: Pending
-- Date and evidence: —
-- Approved scope: —
-- Material amendments: —
+- Owner authorization: Approved.
+- Date and evidence: 30 September 2026, in the Claude Code session. After reviewing the spec, plan and mockup renders, the owner replied "Approve RUT-04 with the recommendations".
+- Approved scope: [spec.md](spec.md) as committed in `8e675df`, with the recommended decisions: D-1 editing by `manage_routine` or `manage_policy`; D-2 include the opt-in same-position move; D-3 no lunch break added by the migration; D-4 a class on a batch's no-classes day is a blocker.
+- Material amendments: none.
 
 Commit the approved plan before implementation. Unchanged approved scope survives agent handoff; do not infer acceptance or expanded authorization from it.
 
@@ -87,9 +87,9 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
 
 ## Current checkpoint / handoff
 
-- Approved scope: pending owner approval of this plan and decisions D-1–D-4 in the spec.
-- Commits and uncommitted changes: spec, plan and mockups on `codex/rut-04` (this commit).
+- Approved scope: see Approval record (30 September 2026, recommended D-1–D-4).
+- Commits and uncommitted changes: `8e675df` (proposal), plus the approval commit.
 - Completed tasks: none.
-- Next action: owner reviews the spec, plan and mockup, and answers D-1–D-4; then record approval and start T-01.
+- Next action: T-01.
 - Verification: mockup renders at 1440 px and 390 px with 0 px page overflow.
 - Blockers/capabilities: none known. PostgreSQL client tools at `F:\AI\tools\pgsql-17.11` for AC-01/AC-12.
