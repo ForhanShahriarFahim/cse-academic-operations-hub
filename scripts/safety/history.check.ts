@@ -184,13 +184,14 @@ export async function checkHistory(): Promise<string[]> {
 
     // With Spring active, id-based actions must not reach Summer rows.
     // Before the term-scope correction six of these succeeded and two threw foreign-key errors.
-    type Results = Record<string, { ok: boolean; message: string; threw?: boolean }>;
+    type Results = Record<string, { ok: boolean; message: string; outcome?: unknown; threw?: boolean }>;
     const outside = /belongs to a term that is not active/;
     const summerRows = await withDb(run, (handle) => termRecordIds(handle, summer.termId, summer.mergedGroupId, summer));
     const crossTerm = await child<Results>(run, ["cross-term", ADMIN, JSON.stringify(summerRows)]);
     for (const [name, result] of Object.entries(crossTerm)) {
       const expected = name === "moveMeeting" ? /Meeting not found/ : outside;
       assert.ok(!result.ok && !result.threw && expected.test(result.message), `${name} was not refused for a Summer row: ${JSON.stringify(result)}`);
+      if (name !== "moveMeeting") assert.deepEqual(result.outcome, { kind: "stale", reason: "not_active_term" });
     }
     assert.deepEqual(await withDb(run, (handle) => history(handle, summer.termId, auditMaxId)), summerHistory);
 

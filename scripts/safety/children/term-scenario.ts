@@ -117,11 +117,11 @@ async function crossTerm(ids: Record<string, number>) {
     ["saveAttendance", () => academic.saveAttendanceAction(ids.attendanceSessionId, [{ studentId: ids.studentId, status: "excused" }])],
     ["deleteAttendanceSession", () => academic.deleteAttendanceSessionAction(ids.attendanceSessionId)],
   ];
-  const results: Record<string, { ok: boolean; message: string; threw?: boolean }> = {};
+  const results: Record<string, { ok: boolean; message: string; outcome?: unknown; threw?: boolean }> = {};
   for (const [name, attempt] of attempts) {
     try {
       const result = await attempt();
-      results[name] = { ok: result.ok, message: result.message };
+      results[name] = { ok: result.ok, message: result.message, ...("outcome" in result ? { outcome: result.outcome } : {}) };
     } catch (error) {
       const cause = (error as { cause?: { message?: string } }).cause?.message;
       results[name] = { ok: false, threw: true, message: cause ?? (error instanceof Error ? error.message : String(error)) };

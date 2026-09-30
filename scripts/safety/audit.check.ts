@@ -22,7 +22,10 @@ const ADMIN = "admin@example.invalid";
 const TEACHER = "teacher-a@example.invalid";
 const VIEWER = "viewer@example.invalid";
 
-type Outcome = { result?: { ok?: boolean; message?: string; actorId?: number | null }; error?: { name: string; message: string } };
+type Outcome = {
+  result?: { ok?: boolean; message?: string; actorId?: number | null; outcome?: { kind: string; reason?: string } };
+  error?: { name: string; message: string };
+};
 
 async function withDb<T>(run: OwnedRun, work: (handle: OwnedPglite) => Promise<T>): Promise<T> {
   const handle = await openOwnedPglite(run);
@@ -60,8 +63,11 @@ async function expectChanges<T>(run: OwnedRun, label: string, tables: string[], 
   return result;
 }
 
-const denied = (outcome: Outcome, pattern: RegExp) =>
+/** Denied results keep the legacy message and carry the structured permission outcome (T-05 contract). */
+const denied = (outcome: Outcome, pattern: RegExp, email: string | null) => {
   assert.ok(outcome.result?.ok === false && pattern.test(outcome.result.message ?? ""), JSON.stringify(outcome));
+  assert.deepEqual(outcome.result.outcome, { kind: "permission", reason: email ? "forbidden" : "unauthenticated" });
+};
 const injected = (outcome: Outcome) => assert.equal(outcome.error?.message, INJECTED_AUDIT_FAILURE, JSON.stringify(outcome));
 
 async function auditRows(run: OwnedRun, action: string) {
@@ -79,7 +85,7 @@ async function category(
   for (const [email, pattern] of deniedCases) {
     const outcome = await expectNoWrites(run, `${name} denied for ${email ?? "anonymous"}`, () => call(email));
     if (outcome.error) assert.ok(pattern.test(`${outcome.error.name}: ${outcome.error.message}`), JSON.stringify(outcome));
-    else denied(outcome, pattern);
+    else denied(outcome, pattern, email);
   }
   await fault(run, true);
   injected(await expectNoWrites(run, `${name} with failing audit`, () => call(ADMIN)));

@@ -20,18 +20,17 @@ import {
 } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { getPortalData } from "./data";
-import { analyzeSchedule, type Issue } from "./conflicts";
+import { analyzeSchedule } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
 import { parseTimeToMinutes } from "./time";
 import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
+import type { ActionResult } from "./action-result";
 
-export interface ActionResult {
-  ok: boolean;
-  message: string;
-  issues?: Pick<Issue, "severity" | "title" | "detail">[];
-}
+// The shared contract lives in ./action-result; this type-only re-export keeps
+// existing `import type { ActionResult } from "@/lib/actions"` consumers working.
+export type { ActionResult } from "./action-result";
 
 // ---------------------------------------------------------------------------
 // Meeting creation / move / delete

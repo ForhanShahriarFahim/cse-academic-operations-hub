@@ -9,6 +9,7 @@ import {
   academicTerms, attendanceSessions, externalCommitments, extraLoadClasses, extraLoadManualSummaries,
   meetings, permittedWindows, teachingGroups,
 } from "@/db/schema";
+import { stale } from "./action-result";
 
 export type TermScopedRecord =
   | "teaching_group"
@@ -19,10 +20,10 @@ export type TermScopedRecord =
   | "extra_load_manual_summary"
   | "attendance_session";
 
-export const OUTSIDE_ACTIVE_TERM = {
-  ok: false,
-  message: "This record belongs to a term that is not active, so it cannot be changed here. Reload the page.",
-} as const;
+export const OUTSIDE_ACTIVE_TERM = stale(
+  "This record belongs to a term that is not active, so it cannot be changed here. Reload the page.",
+  "not_active_term",
+);
 
 /** The owning term; `null` for term-independent rows, `undefined` when the record does not exist. */
 async function owningTermId(kind: TermScopedRecord, id: number): Promise<number | null | undefined> {
