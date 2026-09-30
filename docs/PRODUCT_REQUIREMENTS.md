@@ -1,26 +1,13 @@
-# CSE Academic Operations Hub — Solution and Implementation Roadmap
+# Academic operations — product requirements
 
-Status: feature rationale; current execution status and order are in the [26 September execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
+Status: requirements and rationale; issue-specific inspection and approval are required before implementation.
+Reconciled: 30 September 2026 (Asia/Dhaka). The baseline was recorded on 26 September; targeted source inspection confirms role identifiers and routine projection/print boundaries, not live integration readiness.
 
-Prepared: 23 September 2026; status reconciled 26 September 2026
+Read the [brief](PROJECT_BRIEF.md), [roadmap](ROADMAP.md), [workflow](WORKFLOW.md) and [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for their respective responsibilities. [CONTEXT.md](../CONTEXT.md) owns vocabulary. Archive/deactivate preserves references; deletion is restricted to unused draft mistakes.
 
-Purpose: a feature-by-feature handoff document for planning and implementing the remaining portal work without losing historical academic data.
+This consolidates the former solution roadmap and execution-plan invariants/release gates. Completed contracts, implemented-but-unverified work and future proposals are distinct. Migration is documentation work, not feature implementation.
 
-## 1. How to use this document
-
-Choose one issue ID, inspect its listed code seams, refine its acceptance criteria, and implement only that slice. Do not attempt the entire roadmap in one change.
-
-Every implementation should:
-
-1. preserve existing Summer 2026 data;
-2. add a forward-only Drizzle migration when the schema changes;
-3. support PostgreSQL and the local PGlite development database;
-4. enforce authorization in server actions, not only by hiding buttons;
-5. retain historical records through archive/deactivate/versioning instead of unsafe deletion;
-6. add focused domain tests before updating screenshots or documentation; and
-7. pass `npm run typecheck`, `npm run lint`, `npm run test:domain`, and `npm run build`.
-
-## 2. Verified current baseline
+## Documented baseline (26 September 2026)
 
 | Area | Present now | Important gap |
 |---|---|---|
@@ -36,9 +23,9 @@ Every implementation should:
 | Workload | Catalog credits, approved workload units and contact minutes are separated | Depends on trustworthy teacher, offering and external-commitment management |
 | Extra load | Eligibility, daily claims, rate configuration, role-protected print sheets | Claim review and payment approval workflow remains |
 
-The current fresh seed imports 42 teacher records, 78 courses and 183 meetings. The original institutional specification is missing from this checkout. Superseded pre-authentication handover/context documents were retired; use the [current project brief](PROJECT_BRIEF.md), README and execution plan for handoff.
+The documented fresh seed imports 42 teacher records, 78 courses and 183 meetings. The original institutional specification is missing from this checkout. Superseded pre-authentication handover/context documents were retired; use the [current project brief](PROJECT_BRIEF.md), README and roadmap for handoff.
 
-### Important verified attendance facts
+### Documented attendance facts
 
 - `attendance_sessions.phase` already records `midterm` or `final`.
 - Semester summaries and theory/session attendance marks already exist.
@@ -46,66 +33,26 @@ The current fresh seed imports 42 teacher records, 78 courses and 183 meetings. 
 - CSV import and Save actions already return an `ActionResult`; the component renders it near the top of the page. The practical defect is visibility and persistence, not the total absence of a server response.
 - Enrollment is already independent of a student's home department, which supports cross-department and merged groups.
 
-### Important verified routine facts
+### Documented routine facts
 
 - Exact start and end minutes are authoritative.
 - A merged class is one canonical meeting related to multiple offerings/audiences.
-- The published routine is an immutable snapshot and currently provides day-by-day HSC/Diploma views plus browser print.
+- The published routine is an immutable snapshot and provides HSC/Diploma Day/Week views, CSV and compact official print packages.
 - Automatic scheduling edits only the working draft and does not publish.
 
-## 3. Domain vocabulary that must remain stable
+## Domain invariants and hard corner cases
 
-- **Academic term**: one Spring or Summer operational period.
-- **Semester**: a cohort's curriculum position, such as Semester 3, within a term.
-- **Batch/cohort**: a stable `(programme, stream, label)` identity that survives semester progression.
-- **Course**: permanent catalog definition.
-- **Course offering**: a course made available to one batch in one term.
-- **Teaching group**: one delivery group containing one or more offerings; this is the seam for merged/shared delivery.
-- **Meeting**: one recurring physical class event with exact day/time, teachers and rooms.
-- **Attendance session**: one dated occurrence where attendance was recorded; it may link to a recurring meeting.
-- **External commitment**: a known cross-department teacher or room constraint outside the normal CSE-owned routine.
-- **Archive/deactivate**: stop future use while preserving history.
-- **Delete**: permanent removal, allowed only for unused draft data.
-
-Do not use “session” ambiguously in new interfaces. Use **academic term** for Spring/Summer and **attendance session** for one dated class occurrence.
-
-## 4. Recommended implementation order
-
-### Phase 0 — Safety baseline (`SAFE-01`) — next proposed implementation
-
-- Add database backup/restore instructions for real PostgreSQL deployment.
-- Add integration fixtures for a second academic term.
-- Confirm all mutations write audit events.
-- Establish a shared action-result and notification pattern.
-
-### Phase 1 — Weekly routine view and export (`RUT-01`) — completed 23 September 2026
-
-This is the recommended first feature. It is mostly read-only, delivers immediate value, and has low migration risk.
-
-Implemented with shared draft/published projection, Day/Week URL state, CSV export, compact HSC and Diploma official pages, course-offer and directory appendices, and the reviewed Summer 2026 source import. The supplied routine's unresolved conflicts remain visible and block a new official publication until reviewed.
-
-### Phase 2 — Authentication and role authorization (`AUTH-01`) — code pushed, verification pending
-
-The implementation is in pushed commits `26eb86c` and `c70984f`. Complete real-provider, PostgreSQL, ownership and session verification, plus the owner-approved Summer 2026 teacher/CR/query contact projection, before closing #1 or exposing substantial new CRUD functionality in production. Listed personal mobiles are within the approved source scope; unrelated directory data is not.
-
-### Phase 3 — Academic master-data management
-
-1. Teachers (`TCH-01`)
-2. Rooms and availability (`ROM-01`)
-3. Batches and term placements (`BAT-01`)
-4. Course catalog and offerings (`CRS-01`)
-
-The course-offering workflow depends on manageable teachers, rooms, batches and terms.
-
-### Phase 4 — Attendance navigation, feedback and reporting (`ATT-01` to `ATT-05`)
-
-Build on stable departments, batches, offerings and authorization.
-
-### Phase 5 — Governance and cross-department completeness
-
-1. External commitments (`OD-01`)
-2. Settings and decision register (`SET-01`)
-3. Publication approvals and extra-load approval gates (`GOV-01`)
+| Area | Invariant and cases to test |
+|---|---|
+| Calendar | Spring and Summer are separate academic terms. A cohort identity survives semester changes, repeats, holds and graduation; old placements are immutable. Changing an active term cannot rewrite attendance or a published routine. |
+| Credits | Catalog credit is distinct from workload credit-hours: theory defaults to 3; a one-credit sessional currently counts as 2 workload credit-hours. The extra-load threshold is strictly **more than** 15 workload credit-hours; the class rate defaults to Tk 200 and can change by approved effective policy. |
+| Routine | One merged/shared physical class is one meeting linked to all relevant offerings. Use exact minutes, including custom times, cross-building travel, breaks and overlapping OD commitments. A batch-specific Friday exception must not enable Friday for the whole HSC stream; HSC-25B's imported Friday entries need approved Saturday–Tuesday replacements. |
+| Rooms | 406/407/408 are computer labs; 505 supports computer, microprocessor, networking and theory when free. Theory may use a capable lab; sessional delivery requires the correct lab capability. Capacity unknown is not capacity zero. Maintenance and deactivation must respect future meetings. |
+| Identity | A teacher record is not a portal user. External-department teachers can be assigned to CSE or other groups without a fake CSE identity. A suspended user or revoked role must lose access on the next request, including direct action/export calls. |
+| Students | A student identity is independent of enrollment and home department. A merged group can contain students from other departments. Repeated CSV import must not duplicate students/enrollments; roster changes must preserve captured historical attendance. |
+| Attendance | An attendance session is one dated occurrence, not an academic term or recurring meeting. Late counts attended; Excused leaves the denominator. Duplicate group/date/time submissions, stale rosters, double saves and corrections after lock need explicit behavior and audit history. |
+| Publication and privacy | Only a validated, approved immutable snapshot is public. The owner has designated the Summer 2026 routine source's teacher, HSC/Diploma CR, and departmental query contact tables as the public contact scope, including listed personal mobiles. Expose only those source-derived fields in that published version; private directory fields and drafts stay hidden. Missing/placeholder contacts remain blank. Parallel publication attempts must not create conflicting active versions. |
+| Data loss | A failed audit write must roll back its mutation. Backup/restore must prove that Summer 2026 records, auth roles, attendance, extra load, publications and audit history survive. |
 
 ## 5. Routine weekly view and export
 
@@ -113,11 +60,13 @@ Build on stable departments, batches, offerings and authorization.
 
 #### Problem
 
-The draft and public routine are navigated by stream and individual day. Users also need a weekly view for both HSC and Diploma and must be able to export it.
+RUT-01 completed the weekly-view/export gap on 23 September 2026. Preserve the contracts below and compact official package. Source correction and publication approval remain RUT-03 gates. Optional design ideas below are not authorization to reopen this completed feature.
 
-#### Proposed interface
+Completed delivery includes shared draft/published projection, Day/Week URL state, CSV export, compact HSC/Diploma official pages, course-offer and directory appendices, and the reviewed Summer 2026 source import. Unresolved imported conflicts still block an official publication.
 
-Add a view switch to both the draft routine and public published routine:
+#### Preserved view contract
+
+Both draft and published routine views retain this selection contract:
 
 ```text
 Stream: HSC | Diploma
@@ -137,9 +86,9 @@ For on-screen Week mode, use stacked day sections for the selected stream. A sin
 - A draft export must be visibly labeled `DRAFT — NOT OFFICIAL` and include current blockers/advisories.
 - Suggested filenames: `routine-summer-2026-hsc-week-v1.pdf` and `routine-summer-2026-hsc-week-v1.csv`.
 
-#### Proposed deep module
+#### Projection boundary
 
-Create one routine-projection module with a small interface such as:
+The existing routine-projection boundary keeps screen/print/export behavior aligned. This original interface sketch is illustrative rather than an exact claim about current exports:
 
 ```ts
 projectRoutine({ source, termId, stream, view, day?, batchId? })
@@ -163,7 +112,7 @@ The implementation should hide meeting deduplication, shared-audience labels, OD
 - `src/components/routine-builder.tsx`
 - `src/app/public/routine/page.tsx`
 - `src/components/print-button.tsx`
-- new projection/export modules under `src/lib/`
+- existing projection/export modules under `src/lib/`
 
 ## 6. Authentication and role-based authorization
 
@@ -171,9 +120,11 @@ The implementation should hide meeting deduplication, shared-audience labels, OD
 
 #### Problem
 
-The portal has mutating administrative screens but no sign-in. Audit events currently record a placeholder coordinator actor. Adding CRUD without authorization would make the deployment unsafe.
+Invite-only Google sign-in, server guards and named transactional audit writes are implemented in commits `26eb86c` and `c70984f`. AUTH-01 remains open for real OAuth, hosted PostgreSQL, adversarial permission/session tests, approved source-bounded public contacts and browser verification. Master-data workflows must preserve these controls.
 
-#### Recommended roles
+Complete these integration/public-contact gates before declaring AUTH-01 complete or exposing substantial new CRUD functionality in production.
+
+#### Role model and desired administrative scope
 
 | Role | Primary permissions |
 |---|---|
@@ -185,20 +136,22 @@ The portal has mutating administrative screens but no sign-in. Audit events curr
 | Accounts officer | Review honorarium summaries and payment status without editing academic schedules |
 | Read-only viewer | View internal reports without mutation |
 
-One person may have multiple roles. Access must also be scoped by department and, for teachers, by assigned teaching groups.
+All seven role identifiers already exist in [ROLE_CAPABILITIES](../src/lib/auth/policy.ts). The table describes desired scope, including future management/recovery/payment workflows; a role identifier does not prove every workflow is implemented. One person may have multiple roles. Access is scoped by department and, for teachers, assigned teaching groups.
 
 #### Required behavior
 
 - Authentication choice should support the university's actual identity source; keep domain authorization independent of the provider.
-- Add users, role assignments and optional department scope.
-- Add a single server-side authorization interface, for example `authorize(actor, capability, resource)`.
+- Maintain invited users, role assignments and applicable department scope.
+- Keep one server-side authorization boundary for capability, department and ownership checks; inspect the implemented policy/action guards before planning extensions.
 - Guard every server action. Hiding a button is convenience, not security.
-- Replace the hard-coded audit actor with the authenticated user ID and display name.
-- Protect private phone numbers and draft academic records.
+- Preserve authenticated actor identity and before/after summaries in transactional audit writes.
+- Protect private directory fields and drafts; the approved published contact allowlist is governed by [D-02](decisions/INSTITUTIONAL_DECISIONS.md#d-02--public-contact-scope).
 - Keep `/public/routine` public only for effective published snapshots.
 - Return a clear forbidden result instead of silently failing.
 
-#### Capability examples
+#### Capability examples (target vocabulary)
+
+These are proposed vocabulary, not a claim that every named capability exists; inspect the implemented policy above.
 
 ```text
 manage_teachers
@@ -526,18 +479,7 @@ Tests and callers should cross the same module interfaces. Database and PGlite a
 - Backfill new non-null fields safely before adding constraints.
 - Test every migration against both an existing populated PGlite database and PostgreSQL.
 
-## 18. Test strategy
-
-Each feature plan should include:
-
-- pure domain tests for calculations and lifecycle decisions;
-- server-action authorization tests;
-- database integration tests for constraints and history preservation;
-- UI tests for main successful workflow and one failure path;
-- export parity tests ensuring the report matches the screen projection;
-- regression tests for merged classes, cross-department students, unknown counts and exact-minute overlaps.
-
-High-value end-to-end scenarios:
+## Acceptance journeys across features
 
 1. Create a Spring term from Summer, repeat one cohort and graduate another.
 2. Create a merged offering, allocate co-teachers, schedule it once and see it in both streams.
@@ -546,47 +488,8 @@ High-value end-to-end scenarios:
 5. Restrict a teacher to their own groups and reject unauthorized edits.
 6. Export a published weekly HSC routine and reconcile it with canonical snapshot meetings.
 
-## 19. Definition of done for one roadmap item
+## Release requirements (DEP-01)
 
-An issue is complete only when:
+**Preview:** Vercel build, separate hosted PostgreSQL database, preview Google OAuth origin, secrets, migrations, first-admin bootstrap, health and anonymous/internal access smoke tests. Never point an unreviewed preview at the production database.
 
-- the domain rule and user workflow are documented;
-- migration and backward compatibility are handled;
-- server-side authorization is enforced where applicable;
-- success, error, empty and loading states are visible;
-- audit events contain the real actor;
-- automated tests cover core rules;
-- the current source-routine development seed still loads without overwriting existing data;
-- verification commands pass;
-- README/HANDOVER documentation and relevant screenshots are updated; and
-- the change is delivered as a focused commit or pull request.
-
-## 20. Feature-planning prompt template
-
-Use the following when handing one item to another model or a new task:
-
-```text
-Plan issue <ISSUE-ID> from docs/IMPLEMENTATION_SOLUTION_ROADMAP.md.
-
-First inspect the current implementation, database schema, migrations, relevant
-Next.js 16 documentation under node_modules/next/dist/docs, existing tests and
-ADR-001. Do not implement yet. Produce:
-
-1. verified current behavior;
-2. user journeys and permissions;
-3. domain invariants and edge cases;
-4. schema/migration plan;
-5. module interfaces and file-level change map;
-6. UI states and accessibility behavior;
-7. test plan;
-8. rollout/backfill risks;
-9. acceptance criteria;
-10. unresolved decisions requiring user confirmation.
-
-Preserve historical data, canonical meetings, term scoping, merged audiences,
-external participants and PostgreSQL/PGlite compatibility.
-```
-
-## 21. Recommended next action
-
-`RUT-01` is complete. Review the [current execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and propose `SAFE-01` next: backup/restore, second-term preservation, and mutation/audit baseline. Finish the remaining `AUTH-01` verification when real OAuth and PostgreSQL test resources are available. Do not close either issue on code presence alone.
+**Production:** tested backup/restore, final HTTPS origin and OAuth callback, least-privilege database access/pooling, session and role tests, migration runbook, monitoring, error handling and rollback procedure. The app may be deployed internally before an official routine exists; **public routine publication** additionally requires all source blockers resolved and the institution's approver decision. Local PGlite files are not deployment storage.

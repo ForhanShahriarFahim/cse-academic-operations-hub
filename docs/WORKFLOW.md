@@ -6,9 +6,7 @@ Approved design: 30 September 2026. Established in [WORKFLOW-01 / #20](https://g
 
 Read the [project brief](PROJECT_BRIEF.md), this workflow, the selected issue records and relevant code/source sections. [AGENTS.md](../AGENTS.md) provides shared entry instructions; [CLAUDE.md](../CLAUDE.md) imports them. Use the [glossary](../CONTEXT.md) for domain language and [architecture records](architecture/ADR-001-academic-operations-boundaries.md) for accepted boundaries.
 
-During Step 2, the [existing execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) retains feature order, domain requirements and institutional decisions; the [solution roadmap](IMPLEMENTATION_SOLUTION_ROADMAP.md) retains feature rationale. Their migration is Step 3. Existing feature proposals still need issue-specific approval.
-
-After migration, requirements belong in the product requirements document, priorities/dependencies in the roadmap and institutional answers in the decision register. Link to primary records instead of duplicating them. GitHub owns issue discussion and open/closed state; the repository owns versioned specifications, task plans and evidence. Date status summaries when reconciled.
+Read [product requirements](PRODUCT_REQUIREMENTS.md) for behavior/rationale, the [roadmap](ROADMAP.md) for priorities/dependencies and [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates. Existing feature proposals still need issue-specific approval. Link to primary records instead of duplicating them. GitHub owns issue discussion and open/closed state; the repository owns versioned specifications, task plans and evidence. Date status summaries when reconciled.
 
 ## Issue lifecycle
 
@@ -44,7 +42,11 @@ Preserve populated data with forward-only migrations and exercised recovery on d
 
 For UI work, review desktop/mobile and applicable print states, keyboard access, labels/focus and readable contrast. Cover loading, empty, pending, success, validation/conflict, stale and denied states as applicable. Screen/export/print projections must agree. Consult installed Next.js documentation before relevant code changes.
 
-Production requires separate staging/production infrastructure, OAuth/permissions verification, hosted PostgreSQL migration/recovery evidence, monitoring and rollback. The existing execution plan and DEP-01 retain the detailed release gates until migration. Documentation or local checks do not certify production readiness.
+Reuse the paper/ink/pine/gold design language. Sketch changed desktop, narrow/mobile and applicable print workflows before coding; obtain review for material workflow changes. Keep consistent hierarchy/action placement and preserve context after saves. Dense routines/ledgers need compact readable rows, stable time headings, useful sticky headers and no page-wide mobile overflow. Check A4 print headings/date/version and clipping; associate errors with labels, announce feedback and use more than color for status. Capture relevant desktop/mobile/print screenshots and correct regressions before final delivery.
+
+Choose meaningful checks for changed rules: pure calculations/lifecycle, server-action permissions, database constraints/history, successful and failed user flows, export parity, merged classes, cross-department students, unknown counts and exact-minute overlaps. For schema changes verify a populated PGlite copy and PostgreSQL; backfill safely before non-null constraints, exercise recovery before irreversible changes and keep unavailable adapter verification pending. Check clean source-fixture preparation on disposable data when appropriate; update relevant README/brief/screenshots after domain checks.
+
+Production requires separate staging/production infrastructure, OAuth/permissions verification, hosted PostgreSQL migration/recovery evidence, monitoring and rollback. [Release requirements](PRODUCT_REQUIREMENTS.md#release-requirements-dep-01) and DEP-01 retain the detailed gates. Documentation or local checks do not certify production readiness.
 
 ## Token-efficient execution
 

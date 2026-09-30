@@ -1,6 +1,6 @@
 # WORKFLOW-01 — Shared spec-driven development workflow
 
-Status: Step 2 delivered; Step 3 document migration remains pending.
+Status: Step 3 delivered; Step 4 final review/acceptance remains.
 Prepared: 30 September 2026 (Asia/Dhaka).
 Branch: `codex/workflow-setup`.
 GitHub issue: [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20).
@@ -9,9 +9,9 @@ GitHub issue: [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-acade
 
 Give Codex and Claude the same repository-owned requirements, approval gates, task records and verification evidence. Keep the workflow independent of tool-specific memory, commands and plugins.
 
-Approval recorded: on 30 September 2026 (Asia/Dhaka), the owner replied in the current project chat, "Approved proceed to Step 2", to the Step 1 proposal and request to approve its file layout and documentation-only scope. The owner also chose branches instead of additional worktrees. This approval covers the proposed documentation design and Step 2 execution. Steps 3 and 4 remain the following delivery slices; feature implementation and final merge/closure need their stated gates.
+Approval recorded: on 30 September 2026 (Asia/Dhaka), the owner replied in the current project chat, "Approved proceed to Step 2", to the Step 1 proposal and request to approve its file layout and documentation-only scope. The owner also chose branches instead of additional worktrees. This approval covers the proposed documentation design and Step 2 execution. The owner subsequently instructed "Go for the next step", authorizing Step 3 execution on 30 September 2026. Step 4 final review/acceptance and feature implementation retain their separate gates.
 
-The [agent instructions](../../AGENTS.md) and [project brief](../PROJECT_BRIEF.md) remain the entry points. Step 2 adds the shared workflow; the [execution plan](PROJECT_EXECUTION_PLAN_2026-09-26.md) retains feature order and institutional decisions until Step 3 migrates them.
+The [agent instructions](../../AGENTS.md) and [project brief](../PROJECT_BRIEF.md) remain the entry points. The [shared workflow](../WORKFLOW.md), [roadmap](../ROADMAP.md), [requirements](../PRODUCT_REQUIREMENTS.md) and [decision register](../decisions/INSTITUTIONAL_DECISIONS.md) now separate delivery rules, work order, behavior and institutional answers.
 
 ## 2. Scope
 
@@ -59,7 +59,7 @@ Create `docs/specs/<ISSUE-ID>/` when an issue reaches detailed planning. Substan
 
 ## 4. File-by-file migration
 
-| Current file or source | Action and destination |
+| Migration source (historical paths) | Action and destination |
 |---|---|
 | `AGENTS.md` | Refine the shared reading order and essential rules; preserve the generated Next.js block verbatim. |
 | `CLAUDE.md` | Retain `@AGENTS.md`; avoid duplicating shared instructions. |
@@ -74,7 +74,7 @@ Create `docs/specs/<ISSUE-ID>/` when an issue reaches detailed planning. Substan
 | Existing architecture, source, screenshots and print-template material | Preserve; update internal links only where migration requires it. |
 | New workflow, decision register, three planning templates and two GitHub templates | Add at the paths shown above. |
 
-Update all tracked references before removing the two superseded source paths. Retain every unique requirement, decision and useful reference in an identified destination. Git retains prior versions; no extra archive copy is needed unless unique content cannot be reconciled.
+The original paths in this migration table are intentionally retained as historical provenance, not live reading instructions. Update all active tracked references before removing the two superseded source paths. Retain every unique requirement, decision and useful reference in an identified destination. Git retains prior versions; no extra archive copy is needed unless unique content cannot be reconciled.
 
 Historical problem descriptions must be labeled as historical or rewritten to describe the current gap. For example, an older authentication section says sign-in is absent even though the current baseline describes implemented code with integration verification pending. Do not turn this reconciliation into new feature authorization.
 
@@ -129,7 +129,7 @@ Brief and roadmap status summaries identify their reconciliation date. They link
 - [x] S2: Inspect existing GitHub issues; register or reuse the bounded workflow documentation issue and record its actual URL/number. Registered #20 after inspecting existing issues and index #16; DOC-01 remains its separate completed issue.
 - [x] S2: Record actual approval and issue reference; check and commit the approved proposal before restructuring. Plan commit `9463fb5` pushed to the issue branch.
 - [x] S2: Add workflow and planning/GitHub templates; refine shared entry instructions. Documentation checks and review completed; delivered in the Step 2 commit containing this checkpoint.
-- [ ] S3: Migrate requirements, roadmap and institutional decisions; reconcile outdated descriptions and update all references. Review, check and commit this documentation slice.
+- [x] S3: Migrate requirements, roadmap and institutional decisions; reconcile outdated descriptions and update active local references. Reviewed/checked in the Step 3 delivery commit containing this checkpoint.
 - [ ] S4: Check both entry paths, link integrity, ownership, handoff format and preservation of source/issue references; present evidence for acceptance. Live tool-loading verification is recorded only if actually exercised.
 - [ ] S4 gate: Obtain acceptance of the documentation issue before merging or closing it.
 - [ ] S5: Begin separate read-only investigation and detailed planning for SAFE-01; obtain its own approval before implementation.
@@ -160,4 +160,15 @@ For this documentation issue, inspect the diff, validate local Markdown links an
 - Review corrections: rendered template placeholders as code so Markdown does not hide them as HTML; removed the active issue number from AGENTS so the brief/plan own that changing state.
 - Code checks and database commands were not run because the slice changes documentation/templates only.
 
-Current checkpoint: Step 2 established on `codex/workflow-setup`; issue #20 remains open. Commit history identifies the Step 2 delivery revision. Next action: Step 3 requirements/roadmap/decision migration when the owner proceeds to that delivery step. Existing source/architecture documents and feature plans retain their current paths. No feature implementation, merge or closure has occurred.
+### Step 3 evidence — 30 September 2026
+
+- Owner authorization: "Go for the next step" after Step 2 delivery. The branch remains `codex/workflow-setup`; GitHub #1/#2/#16/#20 are open and #17 is closed as inspected.
+- Consolidated product requirements/rationale, a stable issue roadmap and seven institutional decision entries. The brief/README/workflow point to them; the glossary gained the existing curriculum-semester and archive/delete meanings.
+- Preserved all original issue/dependency rows, the SAFE-01 proposal, execution-plan domain invariants and release gates, rationale sections 7–17, public-contact approval text and six acceptance journeys. Reviewed RUT/AUTH reconciliations separately: RUT-01 completed contracts remain; AUTH-01 implementation and pending live gates are distinct; all seven role identifiers exist but broader administrative workflows remain incomplete.
+- Migrated execution-plan development/UI gates and rationale testing/completion rules into the shared workflow. Planning prompts now use the existing shared templates, rather than a duplicated provider-specific task script.
+- Removed the two superseded paths only after preservation checks. Their names in the historical migration table above are intentional provenance; Git retains original versions.
+- Checked 72 local Markdown links and five heading anchors, changed-file whitespace, active stale-path removal, generated Next.js block/Claude import preservation and documentation-only scope. Legacy source-file whitespace was left untouched.
+- Existing source material, architecture record, application code, dependency files and database contents were not changed. Baseline counts are explicitly dated; no seed, database or runtime integration checks were run.
+- GitHub index/current workflow issue use the branch documentation until acceptance/merge. Existing feature issue links to main remain valid on main; rebase their live document pointers after the documentation branch is accepted/merged. Leave completed historical issue records intact.
+
+Current checkpoint: Steps 2 and 3 delivered; issue #20 remains open. Commit history identifies each delivery revision. Next action: Step 4 final documentation review and owner acceptance when the owner proceeds. SAFE-01 still requires its own inspected plan/approval. No feature implementation, merge or issue closure has occurred.
