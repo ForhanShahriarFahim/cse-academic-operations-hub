@@ -25,6 +25,10 @@ async function run(operation: string, argument: unknown): Promise<unknown> {
       return loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts").upsertStudentAction(form(argument as Record<string, string>));
     case "publish":
       return loadApp<typeof ActionsModule>("src/lib/actions.ts").publishAction(String(argument));
+    case "updateMeeting": {
+      const { meetingId, update } = argument as { meetingId: number; update: Parameters<typeof ActionsModule.updateMeetingAction>[1] };
+      return loadApp<typeof ActionsModule>("src/lib/actions.ts").updateMeetingAction(meetingId, update);
+    }
     case "autoSchedule":
       return loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts").applyAutoScheduleAction();
     case "invite":

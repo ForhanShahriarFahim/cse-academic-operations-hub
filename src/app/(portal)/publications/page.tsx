@@ -25,24 +25,24 @@ export default async function PublicationsPage() {
   return (
     <div>
       <PageHeader
-        kicker="Governance — immutable, date-aware versions"
-        title="Publications & archives"
-        description="Publication is atomic: validate → snapshot → activate effective period → audit. A published version is never mutated; rollback means publishing a new validated revision."
+        context="Routine"
+        title="Publications"
+        description="Publish the working draft as a new version once it has no blockers. Published versions never change; to correct one, publish a new version."
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Current published" value={published ? `v${published.versionNumber}` : "—"}
-          sub={published ? `Effective ${fmtDate(published.effectiveFrom)} · ${published.meetingCount} meetings` : "Nothing published yet"} tone="good" />
+        <StatCard label="Published version" value={published ? `v${published.versionNumber}` : "None yet"}
+          sub={published ? `In effect from ${fmtDate(published.effectiveFrom)} · ${published.meetingCount} meetings` : "No routine has been published for this term"} tone={published ? "good" : "default"} />
         <StatCard label="Working draft" value={`${draftMeetingCount} meetings`}
-          sub={deltas === 0 ? "In sync with published snapshot" : `${deltas > 0 ? "+" : ""}${deltas} meetings vs published`} />
-        <StatCard label="Blockers" value={blockers} tone={blockers ? "bad" : "good"} sub={blockers ? "Publication gated" : "Draft passes validation"} />
-        <StatCard label="Advisories" value={warnings} sub="Disclosed with the published version" />
+          sub={!published ? "Not yet published" : deltas === 0 ? "Same number of meetings as the published version" : `${deltas > 0 ? "+" : ""}${deltas} meetings compared with the published version`} />
+        <StatCard label="Blocking conflicts" value={blockers} tone={blockers ? "bad" : "good"} sub={blockers ? "Must be fixed before publishing" : "Nothing blocks publication"} />
+        <StatCard label="Warnings" value={warnings} sub="Published with the routine" />
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-5">
         <div className="xl:col-span-3">
           <Panel title="Version history" sub="Superseded versions remain in the archive — history is never deleted">
-            <table className="w-full text-[12.5px]">
+            <div role="region" aria-label="Version history" tabIndex={0} className="table-region overflow-x-auto"><table className="w-full text-[12.5px]">
               <thead>
                 <tr className="border-b border-[var(--color-line-soft)] text-left">
                   <th className="pb-1.5"><span className="micro-label">Version</span></th>
@@ -65,15 +65,15 @@ export default async function PublicationsPage() {
                     </td>
                     <td className="py-2 text-[11.5px]">{fmtDate(v.effectiveFrom)}{v.effectiveTo ? ` → ${fmtDate(v.effectiveTo)}` : " →"}</td>
                     <td className="py-2 font-mono">{v.meetingCount || "—"}</td>
-                    <td className="py-2 text-[11px] text-[#5c675d]">
+                    <td className="py-2 text-[11px] text-muted">
                       {v.publishedBy ?? "—"}
-                      {v.publishedAt && <span className="block text-[10px] text-[#8a8571]">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>}
+                      {v.publishedAt && <span className="block text-[10px] text-muted">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>}
                     </td>
-                    <td className="max-w-[220px] py-2 text-[11px] leading-snug text-[#5c675d]">{v.changeSummary}</td>
+                    <td className="max-w-[220px] py-2 text-[11px] leading-snug text-muted">{v.changeSummary}</td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             <Link href="/public/routine" target="_blank"
               className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)] hover:bg-[var(--color-pine)]/10">
               <Eye size={13} /> Open public viewer (published data only)
@@ -86,7 +86,7 @@ export default async function PublicationsPage() {
             <PublishPanel disabled={blockers > 0} blockerCount={blockers} />
           </Panel>
           <Panel title="Publication guarantees">
-            <ul className="space-y-1.5 text-[12px] leading-relaxed text-[#4a544c]">
+            <ul className="space-y-1.5 text-[12px] leading-relaxed text-ink-2">
               <li>• Snapshots are immutable JSON of the canonical meetings — exports always match the selected version.</li>
               <li>• Validation re-runs against the latest teacher, room, break and OD data at commit time.</li>
               <li>• A failed publish leaves no half-published state; past versions stay superseded, not deleted.</li>
@@ -94,8 +94,7 @@ export default async function PublicationsPage() {
             </ul>
           </Panel>
           <EmptyNote>
-            Approvals & role gates: coordinator prepares, head approves, publisher activates (spec §17).
-            Role enforcement ships with the auth phase; every publish is already audit-logged with actor and summary.
+            Only people allowed to approve publication can publish. Every publication is recorded in the audit log with who published it and the change summary.
           </EmptyNote>
         </div>
       </div>

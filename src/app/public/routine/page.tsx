@@ -36,7 +36,7 @@ export default async function PublicRoutinePage({
           <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-white/60 p-10 text-center">
             <AlertTriangle size={22} className="mx-auto text-[var(--color-gold)]" />
             <h2 className="font-display mt-2 text-[19px] font-semibold">No published routine</h2>
-            <p className="mt-1 text-[12.5px] text-[#66705f]">The public viewer only displays approved, published versions. Draft data is never exposed here.</p>
+            <p className="mt-1 text-[12.5px] text-muted">The public viewer only displays approved, published versions. Draft data is never exposed here.</p>
           </div>
         ) : (
           <RoutineDocument projection={projectRoutine({ source, selection })} />

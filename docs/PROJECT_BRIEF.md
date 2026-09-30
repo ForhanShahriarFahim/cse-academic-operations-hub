@@ -6,14 +6,15 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 30 September 2026: between issues. No issue is in progress, and no feature branch is active.**
+**State on 30 September 2026: UX-01 (#18) is accepted and merged. Next issue: RUT-04 ([#34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)), term time grids, selected by the owner and being specified on `codex/rut-04`. It is not yet approved for implementation.**
 
-- **Next step:** the owner selects and approves the next issue. Per [WORKFLOW.md](WORKFLOW.md), then inspect, specify and plan it, and get the owner's approval before any implementation. Do not start a feature without that approval. Candidates:
-  - AUTH-01 (#1) is next in the [roadmap](ROADMAP.md), but it needs real Google OAuth credentials and a hosted PostgreSQL target from the owner.
-  - UX-01 (#18) or ATT-02 (#9).
-  - The SAFE-01 follow-up bugs #24–#28.
-  - Ask the owner which one.
-- **Last completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.
+- **Last completed:** [UX-01 / #18](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18), the responsive, accessible and plain-spoken portal baseline with the Routine builder workbench ([amendment A](specs/UX-01/amendment-a-routine-builder.md)). The owner accepted it on 30 September 2026; it also closed #30.
+  - Records: [spec](specs/UX-01/spec.md), [plan](specs/UX-01/plan.md), [verification/acceptance](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/). Deferred builder features are in #33.
+  - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
+- **Bugs found during UX-01 inspection:** #29 (database-stamped times are 6 hours ahead; fix before AUTH-01), #31 (People & Access confirmations), #32 (public viewer actions).
+- **Other candidates:** AUTH-01 (#1, needs OAuth credentials and hosted PostgreSQL), ATT-02 (#9), SAFE-01 follow-ups #24–#28.
+- **Owner brainstorm, 30 September 2026:** new proposals #34–#42 (term time grids, individual teacher routine print, email/password sign-in, student import/export, calendar, dated class changes, leave, teacher agenda, certificates). The owner selected RUT-04 (#34) next; TCH-02 (#35) is recommended after it. See the [triage record](plans/owner-brainstorm-2026-09-30.md); each still needs spec and approval.
+- **Earlier completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.
   - Records: [spec](specs/SAFE-01/spec.md), [plan](specs/SAFE-01/plan.md), [verification/acceptance](specs/SAFE-01/verification.md), [mutation inventory](operations/SAFE-01-mutation-inventory.md), [recovery runbook](operations/DATABASE_RECOVERY.md).
   - Operational ownership (D-07) was deferred to DEP-01 (#19) by the owner.
   - Follow-up bugs are #24–#28.

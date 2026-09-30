@@ -8,10 +8,12 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 
 - WORKFLOW-01 (#20): accepted/closed; PRs #21/#22 merged, final main baseline `78db43d`. [Review/acceptance record](plans/WORKFLOW-01.md).
 - SAFE-01 (#2): **accepted and closed** 30 September 2026; merged via PR #23. Evidence: [verification](specs/SAFE-01/verification.md). D-07 operational ownership deferred to DEP-01 (#19). Follow-up bugs #24–#28.
-- **Next:** no issue is in progress. The owner selects the next issue (AUTH-01 #1 needs OAuth credentials and a hosted PostgreSQL target; UX-01 #18, ATT-02 #9 and follow-ups #24–#28 are alternatives). Then specify and plan it, and get owner approval before implementation.
+- UX-01 (#18): **accepted and merged** 30 September 2026 ([verification](specs/UX-01/verification.md)); closed #30. Remaining inspection bugs: #29, #31, #32; builder follow-ups #33.
+- **Next:** RUT-04 (#34), selected by the owner 30 September 2026; specification in progress on `codex/rut-04`.
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
+- Owner brainstorm (30 September 2026) registered #34–#42 and added owner input to #4–#8, #12 and #14; [triage and recommended order](plans/owner-brainstorm-2026-09-30.md). None is approved for implementation.
 - Missing original specification and institutional source/policy gates are recorded in the [decision register](decisions/INSTITUTIONAL_DECISIONS.md).
 
 Use [product requirements](PRODUCT_REQUIREMENTS.md) for behavior, [workflow](WORKFLOW.md) for delivery and the [brief](PROJECT_BRIEF.md) for fast resumption.
@@ -27,7 +29,7 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 | Done | [#2 SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) | Tested PGlite/PostgreSQL backup and restore, second-term fixture, mutation/audit inventory, common action-result contract. Accepted and merged (PR #23). | [Verification](specs/SAFE-01/verification.md) |
 | 1a | [#1 AUTH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/1) | Finish real Google OAuth, hosted PostgreSQL migration, denied/allowed action matrix, role revocation/session tests and source-bounded public-contact projection before closure. | Credentials/test environment; SAFE-01 before production migration |
 | Done | [#17 DOC-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/17) | Retire contradictory pre-authentication handover/context; provide a current short brief, README guide, source counts and agent entry point. | Documentation-only; real OAuth remains #1 |
-| 2 | [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18) | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
+| Done | [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18) | Review shell/navigation and reusable form/table/feedback patterns on desktop, mobile and print; establish visual/accessibility baseline. | #1; coordinate with ATT-02 |
 | 2 | [#9 ATT-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/9) | Local, accessible save/import feedback with truthful CSV counts, partial-error detail and focus handling. Can be an early UX improvement. | #1, UX-01 pattern |
 | 3 | [#3 RUT-03](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/3) | Review all 13 source blockers, four unknown teacher codes and room capability questions; publish only after named approval and screen/CSV/print parity. | #1, #2, institutional source answers |
 | 4 | [#4 TCH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4) | Teacher create/edit/deactivate/reactivate/history; preserve references and distinguish teacher from login. | #1, #2 |
@@ -41,6 +43,15 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 | 10 | [#12 ATT-05](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/12) | Course-by-date ledger, student matrix and filterable CSV/print from one projection. | #11 |
 | 10 | [#13 OD-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) | Term-aware external commitments with known-fact conflict impact, edit/archive/verify and no duplicate formal offering. | #4, #5, #7 |
 | 11 | [#15 GOV-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/15) | Two-person routine approval and teacher claim → reviewer → payment states with reasoned audit transitions. | #3, #13, #14 |
+| 2b | [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34) | Term-scoped time grids, teaching days and batch day exceptions replace hard-coded periods; clone from previous term; impact preview; screen/print/CSV parity. | UX-01; delivers part of #14 |
+| 2b | [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35) | Individual teacher routine on screen, A4 print and .docx from the owner's template; bulk print. | #34 preferred; #1 for "my" view |
+| 3a | [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36) | Email/password sign-in with administrator setup/reset links, lockout, session revocation and role management. | #29, #31; overlaps #1 |
+| 6a | [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) | Student directory, CSV/.xlsx import with preview, one-step enrolment and roster export. | #6, #9 pattern |
+| 7a | [#38 CAL-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) | Term calendar: holidays, exam periods, teaching dates. | #6/#14 terms |
+| 7b | [#40 LEAVE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/40) | Leave apply/approve with balances and private reasons; teacher availability lookup by date. | #38; #39 for affected classes |
+| 7c | [#39 RUT-05](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/39) | Dated cancel/make-up/substitute classes and the effective schedule for any date. | #38 |
+| Later | [#41 TASK-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/41) | Teacher day agenda: classes, portal-generated tasks, personal and assigned duties. | #39, #10 |
+| Later | [#42 CERT-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/42) | Template certificates with a field designer, single/bulk PDF and an issue register. | #37; template format decision |
 | Release | [#19 DEP-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/19) | Vercel staging then production with hosted PostgreSQL, OAuth, backup, telemetry, smoke tests and rollback drill. | #1, #2, DOC-01; public launch also #3 and #15 |
 
 Independent issues can move when blocked, but do not start a new feature before its plan is reviewed. `#16` remains the open GitHub index and should always point to the next unblocked issue.

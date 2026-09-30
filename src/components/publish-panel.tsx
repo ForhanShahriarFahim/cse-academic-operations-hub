@@ -3,15 +3,17 @@
 import { useState, useTransition } from "react";
 import { FileCheck2, ShieldAlert } from "lucide-react";
 import { publishAction, type ActionResult } from "@/lib/actions";
+import { useConfirm } from "@/components/confirm-dialog";
 
 export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; blockerCount: number }) {
+  const [ask, confirmDialog] = useConfirm();
   const [summary, setSummary] = useState("");
   const [result, setResult] = useState<ActionResult | null>(null);
   const [pending, startTransition] = useTransition();
 
   return (
     <div className="space-y-3">
-      <textarea
+{confirmDialog}      <textarea
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
         rows={2}
@@ -20,8 +22,8 @@ export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; bl
       />
       <button
         disabled={pending || disabled}
-        onClick={() => {
-          if (!confirm("Publish this working draft as a new immutable version? The previous version will be superseded, not deleted.")) return;
+        onClick={async () => {
+          if (!await ask({ title: "Publish the working draft as a new version?", body: "Students and teachers will see this version on the public routine from its effective date. The current version is kept in the archive, not deleted, and a published version cannot be edited.", confirmLabel: "Publish version", tone: "primary" })) return;
           startTransition(async () => {
             const r = await publishAction(summary.trim());
             setResult(r);

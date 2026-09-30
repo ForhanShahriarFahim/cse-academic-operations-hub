@@ -2,6 +2,8 @@ import { getPortalData } from "@/lib/data";
 import { fmtRange, DAY_SHORT } from "@/lib/time";
 import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
 import { Building2, FlaskConical, Wrench } from "lucide-react";
+import { PrintHeader } from "@/components/print-header";
+import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
 
@@ -59,10 +61,12 @@ export default async function RoomsPage() {
 
   return (
     <div>
+      <PrintHeader title="Rooms & occupancy" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
       <PageHeader
-        kicker="Resources"
+        context="Planning records"
         title="Rooms & occupancy"
-        description={`Utilization = union of reserved minutes (CSE delivery + verified OD bookings, counted once per physical event) ÷ usable window minutes (${windowMinutes} min/week across permitted windows, breaks excluded).`}
+        description={`How much of each room's usable time is booked, out of ${windowMinutes} minutes a week in the permitted class windows (breaks excluded). CSE classes and confirmed bookings by other departments count once per class.`}
+        actions={<PrintButton />}
       />
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -71,14 +75,14 @@ export default async function RoomsPage() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-mono text-[15px] font-bold text-[var(--color-pine)]">{r.code}</p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#66705f]">
+                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
                   {r.roomType === "lab" ? <FlaskConical size={11} /> : <Building2 size={11} />}
                   {r.building} · {r.roomType} · seats {r.capacity ?? "unknown"}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <Badge tone={r.owningDepartmentCode === "CSE" ? "pine" : "gold"}>
-                  {r.owningDepartmentCode === "CSE" ? "CSE" : `${r.owningDepartmentCode} owned`}
+                  {r.owningDepartmentCode === "CSE" ? "CSE" : r.owningDepartmentCode ? `${r.owningDepartmentCode} room` : "Owner not recorded"}
                 </Badge>
                 {!r.isActive && <Badge tone="clay"><Wrench size={9} /> closed</Badge>}
               </div>
@@ -89,7 +93,7 @@ export default async function RoomsPage() {
               </div>
             )}
             <div className="mt-3">
-              <div className="flex justify-between text-[10.5px] text-[#8a8571]">
+              <div className="flex justify-between text-[10.5px] text-muted">
                 <span>{meetingCount} meetings · {Math.round(total)} min/wk{extReserved > 0 ? ` (OD ${extReserved})` : ""}</span>
                 <span className="font-mono font-semibold">{windowMinutes ? Math.round((total / windowMinutes) * 100) : 0}%</span>
               </div>
@@ -97,7 +101,7 @@ export default async function RoomsPage() {
                 <div className="h-full bg-[var(--color-pine)]" style={{ width: `${Math.min(100, (reserved / maxTotal) * 100)}%` }} />
                 <div className="h-full bg-[var(--color-gold)]" style={{ width: `${Math.min(100, (extReserved / maxTotal) * 100)}%` }} />
               </div>
-              {r.notes && <p className="mt-2 text-[10.5px] leading-snug text-[#8a8571]">{r.notes}</p>}
+              {r.notes && <p className="mt-2 text-[10.5px] leading-snug text-muted">{r.notes}</p>}
             </div>
           </div>
         ))}

@@ -16,9 +16,9 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
     ? await can(actor, "take_attendance", { kind: "teaching_group", teachingGroupId: source.selectedGroup.id }) : false;
   return <div>
     <PageHeader
-      kicker="Classroom operations"
+      context="Classes"
       title="Attendance"
-      description="Import or edit a loosely coupled roster, take attendance with one smooth grid, and see midterm, final-term and full-semester totals. Other-department students can enroll in any local or merged teaching group."
+      description="Keep each teaching group's roster, record attendance for Midterm and Final sessions, and see each student's totals. Students from other departments can join any group."
     />
     {source.selectedGroup ? <AttendanceManager
       groups={source.groups}

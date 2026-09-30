@@ -19,7 +19,7 @@ export default async function AccessPage() {
   ]);
   const teacherCode = new Map(teacherRows.map((row) => [row.id, row.code]));
   return <div className="mx-auto max-w-6xl space-y-7">
-    <div><p className="text-xs font-semibold uppercase tracking-widest text-[#8d6e2d]">Administration</p><h1 className="font-display mt-1 text-3xl font-semibold">People &amp; access</h1><p className="mt-2 text-sm text-[#66705f]">Only invited Google addresses can sign in. Roles take effect immediately; suspending an account removes portal access even if its Google session remains open.</p></div>
+    <div><p className="text-xs font-semibold uppercase tracking-widest text-gold-text">Administration</p><h1 className="font-display mt-1 text-3xl font-semibold">People &amp; access</h1><p className="mt-2 text-sm text-muted">Only invited Google addresses can sign in. Roles take effect immediately; suspending an account removes portal access even if its Google session remains open.</p></div>
     <section className="rounded-xl border border-[var(--color-line)] bg-white p-5">
       <h2 className="font-display text-xl font-semibold">Invite a person</h2>
       <form action={inviteUserAction} className="mt-4 grid gap-3 md:grid-cols-2">
@@ -36,11 +36,11 @@ export default async function AccessPage() {
         const current = assignments.filter((assignment) => assignment.userId === user.id && !assignment.activeTo);
         return <article key={user.id} className="rounded-xl border border-[var(--color-line)] bg-white p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div><h3 className="font-semibold">{user.displayName} {user.id === actor.id && <span className="text-xs text-[#66705f]">(you)</span>}</h3><p className="text-sm text-[#66705f]">{user.email}{user.teacherId && ` · ${teacherCode.get(user.teacherId) ?? "Teacher"}`}</p><p className="mt-1 text-xs uppercase tracking-wide">{user.status}</p></div>
+            <div><h3 className="font-semibold">{user.displayName} {user.id === actor.id && <span className="text-xs text-muted">(you)</span>}</h3><p className="text-sm text-muted">{user.email}{user.teacherId && ` · ${teacherCode.get(user.teacherId) ?? "Teacher"}`}</p><p className="mt-1 text-xs uppercase tracking-wide">{user.status}</p></div>
             {user.id !== actor.id && <form action={setUserStatusAction}><input type="hidden" name="userId" value={user.id} /><input type="hidden" name="status" value={user.status === "suspended" ? "active" : "suspended"} /><button className="rounded-md border px-3 py-1.5 text-xs font-semibold">{user.status === "suspended" ? "Reactivate" : "Suspend"}</button></form>}
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            {current.map((assignment) => <span key={assignment.id} className="inline-flex items-center gap-2 rounded-full bg-[#f1f3ec] px-3 py-1 text-xs">{assignment.role.replaceAll("_", " ")}{user.id !== actor.id && <form action={revokeRoleAction}><input type="hidden" name="assignmentId" value={assignment.id} /><button aria-label={`Remove ${assignment.role} from ${user.displayName}`} className="font-bold text-red-700">×</button></form>}</span>)}
+            {current.map((assignment) => <span key={assignment.id} className="inline-flex items-center gap-2 rounded-full bg-wash px-3 py-1 text-xs">{assignment.role.replaceAll("_", " ")}{user.id !== actor.id && <form action={revokeRoleAction}><input type="hidden" name="assignmentId" value={assignment.id} /><button aria-label={`Remove ${assignment.role} from ${user.displayName}`} className="font-bold text-red-700">×</button></form>}</span>)}
           </div>
           <form action={grantRoleAction} className="mt-3 flex flex-wrap gap-2"><input type="hidden" name="userId" value={user.id} /><select name="role" className="rounded-md border px-2 py-1 text-xs">{ROLES.map((role) => <option key={role} value={role}>{role.replaceAll("_", " ")}</option>)}</select><button className="rounded-md border px-3 py-1 text-xs font-semibold">Add role</button></form>
         </article>;

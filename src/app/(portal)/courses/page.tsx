@@ -4,6 +4,8 @@ import { DAY_SHORT, fmtRange24 } from "@/lib/time";
 import type { MeetingView } from "@/lib/serialize";
 import { PageHeader, Badge, Panel } from "@/components/ui";
 import { AlertTriangle, Asterisk } from "lucide-react";
+import { PrintHeader } from "@/components/print-header";
+import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
 
@@ -33,14 +35,16 @@ export default async function CoursesPage() {
 
   return (
     <div>
+      <PrintHeader title="Courses & offerings" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
       <PageHeader
-        kicker="Catalog & delivery"
-        title="Courses, offerings & completeness"
-        description="Course identity is the catalog code — CSE-4000(A) and CSE-4000(B) stay distinct, and semester placement comes from the curriculum, never from code digits. Merged and teacher-managed are delivery states, not offering statuses."
+        context="Planning records"
+        title="Courses & offerings"
+        description="Courses offered this term, who teaches each group, and whether every required class is scheduled. Merged and teacher-managed groups are marked."
+        actions={<PrintButton />}
       />
 
-      <Panel title="Scheduling completeness tracker" sub="Every teaching group vs its approved requirement (spec §10.4)">
-        <div className="overflow-x-auto">
+      <Panel title="Scheduling completeness tracker" sub="Each teaching group compared with its required weekly classes">
+        <div role="region" aria-label="Scheduling completeness by teaching group" tabIndex={0} className="table-region overflow-x-auto">
           <table className="routine-table text-[12px]">
             <thead>
               <tr>
@@ -51,22 +55,22 @@ export default async function CoursesPage() {
             </thead>
             <tbody>
               {data.coverage.map((c, i) => (
-                <tr key={c.teachingGroupId} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                <tr key={c.teachingGroupId} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                   <td className="px-2.5 py-1.5">
                     <span className="font-mono font-bold text-[var(--color-pine)]">{c.courseCode}</span>
-                    <span className="block max-w-[220px] truncate text-[10.5px] text-[#8a8571]" title={c.courseTitle}>{c.courseTitle}</span>
+                    <span className="block max-w-[220px] truncate text-[10.5px] text-muted" title={c.courseTitle}>{c.courseTitle}</span>
                   </td>
                   <td className="px-2.5 py-1.5 font-medium">{c.audience}</td>
                   <td className="px-2.5 py-1.5 font-mono">{c.teacherCodes.join("+") || <span className="text-[var(--color-clay)]">UT</span>}</td>
                   <td className="max-w-[280px] px-2.5 py-1.5">
                     {(meetingsByGroup.get(c.teachingGroupId) ?? []).length === 0 ? (
-                      <span className="text-[10.5px] italic text-[#b3ac93]">
+                      <span className="text-[10.5px] italic text-muted">
                         {c.deliveryMode === "teacher_managed" ? "teacher-managed — no weekly slots" : "no meetings yet"}
                       </span>
                     ) : (
                       <span className="flex flex-wrap gap-1">
                         {(meetingsByGroup.get(c.teachingGroupId) ?? []).map((m) => (
-                          <span key={m.id} className="rounded border border-[var(--color-line-soft)] bg-white px-1.5 py-px font-mono text-[10px] text-[#4a544c]">
+                          <span key={m.id} className="rounded border border-[var(--color-line-soft)] bg-white px-1.5 py-px font-mono text-[10px] text-ink-2">
                             {DAY_SHORT[m.dayOfWeek]} {fmtRange24(m.startMinutes, m.endMinutes)} · {m.rooms.map((r) => r.code).join("/") || "?"}
                           </span>
                         ))}
@@ -82,7 +86,7 @@ export default async function CoursesPage() {
                       {statusTone[c.status].label}
                     </Badge>
                   </td>
-                  <td className="max-w-[240px] px-2.5 py-1.5 text-[10.5px] leading-snug text-[#8a8571]">
+                  <td className="max-w-[240px] px-2.5 py-1.5 text-[10.5px] leading-snug text-muted">
                     {c.pendingReconciliation && (
                       <span className="mb-0.5 flex items-start gap-1 text-[var(--color-clay)]">
                         <AlertTriangle size={10} className="mt-0.5 shrink-0" /> timing reconciliation pending
@@ -99,7 +103,7 @@ export default async function CoursesPage() {
 
       <div className="mt-4">
         <Panel title={`Catalog (${data.term.name} active courses)`} sub={`${data.courses.length} courses across 8 curriculum semesters`}>
-          <div className="overflow-x-auto">
+          <div role="region" aria-label="Course catalog" tabIndex={0} className="table-region overflow-x-auto">
             <table className="routine-table text-[12px]">
               <thead>
                 <tr>
@@ -110,7 +114,7 @@ export default async function CoursesPage() {
               </thead>
               <tbody>
                 {data.courses.map((c, i) => (
-                  <tr key={c.id} className={i % 2 ? "bg-[#faf7ec]" : "bg-[#fffdf7]"}>
+                  <tr key={c.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                     <td className="px-2.5 py-1.5 font-mono font-bold text-[var(--color-pine)]">{c.code}</td>
                     <td className="px-2.5 py-1.5">{c.title}</td>
                     <td className="px-2.5 py-1.5 font-mono">{c.credits.toFixed(1)}</td>

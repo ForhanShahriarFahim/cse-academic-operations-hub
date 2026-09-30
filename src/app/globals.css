@@ -13,6 +13,16 @@
   --color-line: #d9d3c3;
   --color-line-soft: #e6e1d2;
 
+  /* UX-01 text and surface roles; each text colour meets WCAG AA on paper, sheet and wash. */
+  --color-ink-2: #33423a;     /* secondary text, 9.5:1 on paper */
+  --color-muted: #56615a;     /* tertiary text and captions, 5.8:1 on paper */
+  --color-gold-text: #7a5212; /* gold as text on light surfaces, 6.2:1; plain gold is for fills and rules */
+  --color-sheet: #fffdf8;     /* raised surfaces: panels, tables, dialogs */
+  --color-wash: #f7f4ea;      /* quiet fills: table headers, empty states, hovers */
+  --color-pine-tint: #e3ebe2;
+  --color-gold-tint: #f6ecd6;
+  --color-clay-tint: #f7e4dc;
+
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -21,6 +31,29 @@
 html {
   scroll-behavior: smooth;
 }
+
+:focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 2px;
+}
+.on-ink :focus-visible { outline-color: var(--color-gold); }
+
+/* Skip link: first tab stop, visible only when focused. */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  border-radius: 6px;
+  background: var(--color-ink);
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.skip-link:focus { top: 12px; }
+
+.tabular { font-variant-numeric: tabular-nums; }
 
 body {
   background: var(--color-paper);
@@ -43,17 +76,15 @@ body {
 /* Hairline ruled card */
 .ruled {
   border: 1px solid var(--color-line);
-  background: #fffdf7;
-  box-shadow: 0 1px 0 rgba(16, 29, 22, 0.04), 0 12px 28px -22px rgba(16, 29, 22, 0.35);
+  background: var(--color-sheet);
+  box-shadow: 0 1px 0 rgba(16, 29, 22, 0.04);
 }
 
-/* Micro uppercase label */
+/* Small field/column label (sentence case; replaces the old uppercase eyebrow) */
 .micro-label {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: #75806f;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
 }
 
 /* Routine table */
@@ -210,4 +241,30 @@ body {
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+}
+
+/* UX-01: grid children may shrink, so wide content scrolls inside its own region. */
+.grid > * { min-width: 0; }
+.table-region:focus-visible { outline-offset: -2px; }
+
+/* UX-01 ledger table: compact rows, sticky header and first column, tabular figures. */
+.ledger { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+.ledger th, .ledger td { padding: 7px 12px; border-bottom: 1px solid var(--color-line-soft); text-align: left; white-space: nowrap; vertical-align: middle; }
+.ledger thead th { position: sticky; top: 0; z-index: 2; background: var(--color-wash); font-size: 12.5px; font-weight: 600; color: var(--color-ink-2); border-bottom-color: var(--color-line); }
+.ledger tbody th, .ledger tbody td:first-child { position: sticky; left: 0; z-index: 1; background: var(--color-sheet); text-align: left; font-weight: 400; }
+.ledger thead th:first-child { left: 0; z-index: 3; }
+.ledger .num { text-align: right; font-variant-numeric: tabular-nums; }
+.ledger tbody tr:hover > * { background: #faf7ee; }
+.load-bar { position: relative; display: inline-block; width: 96px; height: 6px; border-radius: 3px; background: var(--color-line-soft); vertical-align: middle; overflow: visible; }
+.load-bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--color-pine); }
+.load-bar.over > i { background: var(--color-gold); }
+.load-bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-ink); }
+@media print {
+  .ledger { font-size: 8.5pt; }
+  .ledger th, .ledger td { padding: 1.3mm 2.4mm; background: #fff !important; border-bottom: 0.5pt solid #999; position: static !important; }
+  .ledger thead th { border-bottom: 1pt solid #000; white-space: normal; vertical-align: bottom; }
+  .ledger tr { break-inside: avoid; }
+  .load-bar { width: 20mm; border: 0.5pt solid #666; background: #fff; }
+  .load-bar > i { background: #666 !important; }
+  .load-bar.over > i { background: #000 !important; }
 }

@@ -3,6 +3,8 @@ import { analyzeSchedule, type Issue } from "@/lib/conflicts";
 import { PageHeader, Badge, Panel, StatCard, EmptyNote } from "@/components/ui";
 import { AlertTriangle, CheckCircle2, ShieldAlert, Info } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
+import { PrintHeader } from "@/components/print-header";
+import { PrintButton } from "@/components/print-button";
 
 export const dynamic = "force-dynamic";
 
@@ -36,22 +38,23 @@ export default async function ConflictsPage() {
 
   return (
     <div>
+      <PrintHeader title="Validation" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
       <PageHeader
-        kicker="Validation engine — exact minute intervals, half-open [start, end)"
-        title="Conflicts & validation"
-        description="Every issue carries its type, severity, conflicting entities and the exact overlap — never just “conflict found”. Blockers gate publication; advisories are disclosed with the published version."
+        context="Routine"
+        title="Validation"
+        description="Every clash and warning in the working draft, with the classes and exact times involved. Blockers must be fixed before the routine can be published; warnings are published alongside it."
+        actions={<PrintButton />}
       />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Blocking issues" value={blockers.length} tone={blockers.length ? "bad" : "good"}
-          sub={blockers.length ? "Publication blocked until resolved" : "Draft is publishable"} />
-        <StatCard label="Advisory warnings" value={warnings.length} sub="Disclosed, never silently ignored" tone={warnings.length ? "warn" : "default"} />
-        <StatCard label="Scheduling gaps" value={gaps.length} sub="Vacancies + partial requirements" tone={gaps.length ? "warn" : "good"} />
-        <StatCard label="Interval rule" value="[s, e)" sub="10:45–12:00 vs 11:00–12:00 overlap; 10–11 vs 11–12 do not" />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <StatCard label="Blocking conflicts" value={blockers.length} tone={blockers.length ? "bad" : "good"}
+          sub={blockers.length ? "Must be fixed before publishing" : "Nothing blocks publication"} />
+        <StatCard label="Warnings" value={warnings.length} sub="Published with the routine" tone={warnings.length ? "warn" : "default"} />
+        <StatCard label="Scheduling gaps" value={gaps.length} sub="Groups without a teacher or not fully placed" tone={gaps.length ? "warn" : "good"} />
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-2">
-        <Panel title="Blocking violations" sub="Cannot be published or “ignored” — the data must be corrected">
+        <Panel title="Blocking conflicts" sub="Fix these in the Routine builder; they cannot be overridden">
           {blockers.length === 0 ? (
             <EmptyNote>
               <CheckCircle2 size={14} className="mr-1 inline text-[var(--color-pine)]" />
@@ -64,32 +67,33 @@ export default async function ConflictsPage() {
           )}
         </Panel>
 
-        <Panel title="Advisory warnings" sub="Policy may elevate specific advisories to blockers">
+        <Panel title="Warnings" sub="Review these; department policy can raise some of them to blockers">
           {warnings.length === 0 ? (
             <EmptyNote>No advisories currently.</EmptyNote>
           ) : (
-            <ul className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
+            <div role="region" aria-label="Warnings" tabIndex={0} className="table-region max-h-[520px] overflow-y-auto pr-1"><ul className="space-y-2">
               {warnings.map((i) => <IssueRow key={i.id} issue={i} />)}
-            </ul>
+            </ul></div>
           )}
         </Panel>
       </div>
 
       <div className="mt-4">
-        <Panel title="Detected & enforced by this engine" sub="Mirrors spec §15 acceptance tests">
-          <div className="grid gap-x-6 gap-y-1.5 text-[12px] text-[#4a544c] md:grid-cols-2">
+        <Panel title="What Validation checks">
+          <div className="grid gap-x-6 gap-y-1.5 text-[12px] text-ink-2 md:grid-cols-2">
             {[
-              "Teacher / room / student-audience double-booking across streams and departments",
-              "Outgoing teaching (OD level A/B) blocks the correct CSE teacher — room-only OD blocks only the room",
-              "Breaks applied by scope — Diploma Friday Jumu'ah 13:00–14:00, never 12:00–13:00",
-              "HSC Friday requires an approved exception; Diploma Saturday window stays provisional",
-              "Merged events occupy resources once; overlapping duplicate rows are a data error",
-              "Unknown audience sizes produce unverified advisories, never silent approval",
-              "Sessional deliveries constrained to lab rooms; capacity excess is a blocker",
-              "Back-to-back classes across buildings raise travel advisories",
+              "A teacher, room or batch booked twice at the same time, across streams and departments",
+              "Commitments to other departments: a named teacher is blocked; a room-only booking blocks just the room",
+              "Breaks for each stream, including the Diploma Friday prayer break from 1:00 to 2:00 PM",
+              "HSC classes on Friday need an approved exception; the Diploma Saturday window is still provisional",
+              "A merged class uses its teacher and room once; overlapping duplicate rows are flagged",
+              "Classes with unknown student numbers are flagged instead of assumed to fit",
+              "Sessional classes need a lab, and more students than seats is a blocker",
+              "Back-to-back classes in different buildings get a travel warning"
+              , "Times are exact to the minute: 10:00–11:00 and 11:00–12:00 do not clash, but 10:45–12:00 and 11:00–12:00 do",
             ].map((t, i) => (
               <p key={i} className="flex items-start gap-1.5">
-                <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-[var(--color-pine)]" /> {t}
+                <CheckCircle2 size={13} aria-hidden="true" className="mt-0.5 shrink-0 text-[var(--color-pine)]" /> {t}
               </p>
             ))}
           </div>
@@ -109,15 +113,15 @@ function IssueRow({ issue: i }: { issue: Issue }) {
       <div className="flex flex-wrap items-center gap-2">
         {i.severity === "blocker"
           ? <ShieldAlert size={14} className="text-[var(--color-clay)]" />
-          : <AlertTriangle size={14} className="text-[var(--color-gold)]" />}
+          : <AlertTriangle size={14} className="text-gold-text" />}
         <span className="text-[12.5px] font-semibold">{i.title}</span>
         <Badge tone={i.severity === "blocker" ? "clay" : "gold"}>{i.severity}</Badge>
         <Badge tone="neutral">{TYPE_LABEL[i.type]}</Badge>
-        <span className="ml-auto flex items-center gap-1 text-[10.5px] text-[#8a8571]">
+        <span className="ml-auto flex items-center gap-1 text-[10.5px] text-muted">
           <Info size={11} /> {DAY_NAMES[i.dayOfWeek]}
         </span>
       </div>
-      <p className="mt-1 pl-6 text-[11.5px] leading-relaxed text-[#5c675d]">{i.detail}</p>
+      <p className="mt-1 pl-6 text-[11.5px] leading-relaxed text-muted">{i.detail}</p>
     </li>
   );
 }

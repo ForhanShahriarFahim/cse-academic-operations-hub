@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { BadgeCheck, CirclePlus, Trash2, X } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
 import type { ExternalCommitmentView } from "@/lib/serialize";
+import { useConfirm } from "@/components/confirm-dialog";
 import {
   createExternalAction, verifyExternalAction, deleteExternalAction, type ActionResult,
 } from "@/lib/actions";
@@ -33,10 +34,10 @@ export function OdManager({
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setOpen(false)}>
-          <div className="w-[640px] max-h-[90vh] overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[#fffdf7] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-[640px] max-h-[90vh] overflow-y-auto rounded-lg border border-[var(--color-line)] bg-sheet shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-[var(--color-line-soft)] px-4 py-3">
               <h3 className="font-display text-[16px] font-semibold">Record external commitment (OD)</h3>
-              <button onClick={() => setOpen(false)} className="rounded p-1 text-[#8a8571] hover:bg-black/5"><X size={16} /></button>
+              <button onClick={() => setOpen(false)} className="rounded p-1 text-muted hover:bg-black/5"><X size={16} /></button>
             </div>
             <form
               ref={formRef}
@@ -121,7 +122,7 @@ export function OdManager({
                 <textarea name="notes" rows={2} placeholder="How was this learned? What is unconfirmed?"
                   className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
               </div>
-              <p className="text-[10.5px] leading-snug text-[#8a8571]">
+              <p className="text-[10.5px] leading-snug text-muted">
                 Completeness level (A–D) is derived from what you actually supply. A room-only entry blocks the
                 room and invents no teacher conflict; unresolved notes never become fabricated reservations.
               </p>
@@ -129,7 +130,7 @@ export function OdManager({
                 <p className="rounded-md border border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 px-3 py-2 text-[12px] text-[var(--color-clay)]">{result.message}</p>
               )}
               <div className="flex justify-end gap-2 border-t border-[var(--color-line-soft)] pt-3">
-                <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[12.5px] font-semibold text-[#5c675d]">Cancel</button>
+                <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[12.5px] font-semibold text-muted">Cancel</button>
                 <button disabled={pending} className="rounded-md bg-[var(--color-pine)] px-4 py-2 text-[12.5px] font-semibold text-white hover:bg-[var(--color-pine-2)] disabled:opacity-50">
                   {pending ? "Saving…" : "Record (starts unverified)"}
                 </button>
@@ -143,9 +144,10 @@ export function OdManager({
 }
 
 export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
+  const [ask, confirmDialog] = useConfirm();
   const [pending, startTransition] = useTransition();
   return (
-    <span className="flex items-center justify-end gap-1">
+    <span className="flex items-center justify-end gap-1">{confirmDialog}
       {e.verificationStatus !== "verified" && (
         <button
           disabled={pending}
@@ -158,9 +160,10 @@ export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
       )}
       <button
         disabled={pending}
-        title="Delete"
-        onClick={() => {
-          if (!confirm("Remove this external commitment?")) return;
+        title="Remove"
+        aria-label="Remove this external commitment"
+        onClick={async () => {
+          if (!await ask({ title: "Remove this external commitment?", body: "The booking will disappear from the OD row and will no longer block the room or teacher at that time.", confirmLabel: "Remove commitment" })) return;
           startTransition(async () => { await deleteExternalAction(e.id); });
         }}
         className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10 disabled:opacity-50"

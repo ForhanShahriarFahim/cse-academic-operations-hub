@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workload — UX-01 mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="M12 8v5M12 16h.01"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3V5"/><path d="M8 8h7M8 12h7M8 16h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3.5 3 3.5 6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0zM8 21h8"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 21h16M6 21V4h9l3 2v15M13 12h.01"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 12h6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell" id="shell">
+  <header class="topbar">
+    <button type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="rail" onclick="toggleNav()"><svg><use href="#i-menu"/></svg></button>
+    <b>Teacher workload</b>
+    <span class="state">Summer 2026 · Draft</span>
+  </header>
+  <aside class="rail" id="rail" aria-label="Portal">
+    <a class="brand" href="#"><b>Pundra Academic Operations</b><span>Department of CSE</span></a>
+    <div class="term"><strong>Summer 2026</strong><span class="state">Draft — not yet published</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="dashboard.html"><svg><use href="#i-home"/></svg>Dashboard</a>
+      <h2>Routine</h2>
+      <a href="#"><svg><use href="#i-cal"/></svg>Routine builder</a>
+      <a href="#"><svg><use href="#i-shield"/></svg>Validation<span class="count" aria-label="13 blockers">13</span></a>
+      <a href="#"><svg><use href="#i-scroll"/></svg>Publications</a>
+      <h2>Planning records</h2>
+      <a href="#"><svg><use href="#i-users"/></svg>Teachers</a>
+      <a href="workload.html" aria-current="page"><svg><use href="#i-scale"/></svg>Workload</a>
+      <a href="#"><svg><use href="#i-book"/></svg>Courses &amp; offerings</a>
+      <a href="#"><svg><use href="#i-cap"/></svg>Batches</a>
+      <a href="#"><svg><use href="#i-door"/></svg>Rooms</a>
+      <a href="#"><svg><use href="#i-swap"/></svg>External commitments</a>
+      <h2>Classes</h2>
+      <a href="#"><svg><use href="#i-check"/></svg>Attendance</a>
+      <a href="#"><svg><use href="#i-receipt"/></svg>Extra class load</a>
+      <h2>Administration</h2>
+      <a href="#"><svg><use href="#i-list"/></svg>Decisions &amp; settings</a>
+      <a href="#"><svg><use href="#i-key"/></svg>People &amp; access</a>
+      <a href="#"><svg><use href="#i-globe"/></svg>Public routine ↗</a>
+    </nav>
+    <div class="account"><strong>UX Reviewer</strong>System administrator<br><button type="button">Sign out</button></div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="page">
+      <div class="print-head" aria-hidden="true"><div><b>Pundra University of Science &amp; Technology</b><span>Department of Computer Science &amp; Engineering</span></div><div class="meta">Teacher workload · Summer 2026<br>Working draft — not an official record<br>Printed 30 Sep 2026, 6:40 PM (Asia/Dhaka)</div></div>
+      <div class="page-head">
+        <div>
+          <p class="crumb">Summer 2026 · Planning records</p>
+          <h1>Teacher workload</h1>
+          <p>Workload units from assigned offerings, compared with the 15-unit advisory limit. A one-credit sessional counts as two units.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" type="button" onclick="window.print()"><svg><use href="#i-scroll"/></svg>Print</button>
+          <a class="btn" href="#">Export CSV</a>
+        </div>
+      </div>
+      <div class="notice ok" role="status"><svg><use href="#i-ok"/></svg><span>Advisory limit changed to 15 units. Figures below are updated.</span></div>
+      <section class="section" aria-labelledby="wl-h">
+        <h2 id="wl-h" class="sr" style="position:absolute;left:-9999px">Department summary</h2>
+        <div class="toolbar">
+          <label>Find teacher <input type="search" placeholder="Code or name"></label>
+          <label>Department <select><option>All departments</option><option>CSE</option></select></label>
+          <span class="legend">Showing 16 of 42 teachers · sorted by units</span>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-labelledby="wl-cap">
+          <table class="ledger">
+            <caption id="wl-cap" style="position:absolute;left:-9999px">Teacher workload, Summer 2026 working draft</caption>
+            <thead><tr><th scope="col">Teacher</th><th scope="col" class="r">Catalog credits</th><th scope="col" class="r">Workload units</th><th scope="col" class="r">Contact / week</th><th scope="col" class="r">Meetings</th><th scope="col" class="r">Courses</th><th scope="col">Against limit</th></tr></thead>
+            <tbody>
+              <tr><td class="who"><b>NR</b><span>CSE</span></td><td class="r">19.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:100.0%"></i><span class="limit"></span></span>28.0</td><td class="r">15h 00m</td><td class="r">14</td><td class="r">9</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 13.0</span></td></tr><tr><td class="who"><b>MZI</b><span>CSE</span></td><td class="r">13.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:92.9%"></i><span class="limit"></span></span>26.0</td><td class="r">13h 45m</td><td class="r">13</td><td class="r">7</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 11.0</span></td></tr><tr><td class="who"><b>APS</b><span>CSE</span></td><td class="r">12.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:89.3%"></i><span class="limit"></span></span>25.0</td><td class="r">13h 45m</td><td class="r">13</td><td class="r">6</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 10.0</span></td></tr><tr><td class="who"><b>MM</b><span>CSE</span></td><td class="r">10.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:75.0%"></i><span class="limit"></span></span>21.0</td><td class="r">10h 30m</td><td class="r">10</td><td class="r">5</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 6.0</span></td></tr><tr><td class="who"><b>NH</b><span>CSE</span></td><td class="r">13.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:75.0%"></i><span class="limit"></span></span>21.0</td><td class="r">11h 45m</td><td class="r">11</td><td class="r">7</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 6.0</span></td></tr><tr><td class="who"><b>FSF</b><span>CSE</span></td><td class="r">10.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:75.0%"></i><span class="limit"></span></span>21.0</td><td class="r">11h 15m</td><td class="r">11</td><td class="r">6</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 6.0</span></td></tr><tr><td class="who"><b>RRP</b><span>CSE</span></td><td class="r">8.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:71.4%"></i><span class="limit"></span></span>20.0</td><td class="r">10h 30m</td><td class="r">10</td><td class="r">4</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 5.0</span></td></tr><tr><td class="who"><b>AKS</b><span>CSE</span></td><td class="r">14.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:67.9%"></i><span class="limit"></span></span>19.0</td><td class="r">10h 30m</td><td class="r">10</td><td class="r">6</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 4.0</span></td></tr><tr><td class="who"><b>MRK</b><span>CSE</span></td><td class="r">11.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:64.3%"></i><span class="limit"></span></span>18.0</td><td class="r">9h 30m</td><td class="r">9</td><td class="r">5</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 3.0</span></td></tr><tr><td class="who"><b>MJ</b><span>MATH</span></td><td class="r">11.0</td><td class="r"><span class="bar over" aria-hidden="true"><i style="width:57.1%"></i><span class="limit"></span></span>16.0</td><td class="r">9h 45m</td><td class="r">9</td><td class="r">4</td><td><span class="status warn"><svg><use href="#i-warn"/></svg>Over by 1.0</span></td></tr><tr><td class="who"><b>SR</b><span>CSE</span></td><td class="r">10.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:53.6%"></i><span class="limit"></span></span>15.0</td><td class="r">8h 15m</td><td class="r">8</td><td class="r">6</td><td><span class="status muted">At limit</span></td></tr><tr><td class="who"><b>IM</b><span>CSE</span></td><td class="r">7.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:46.4%"></i><span class="limit"></span></span>13.0</td><td class="r">6h 00m</td><td class="r">6</td><td class="r">3</td><td><span class="status muted">Within limit</span></td></tr><tr><td class="who"><b>RIC</b><span>EEE</span></td><td class="r">8.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:42.9%"></i><span class="limit"></span></span>12.0</td><td class="r">6h 15m</td><td class="r">6</td><td class="r">4</td><td><span class="status muted">Within limit</span></td></tr><tr><td class="who"><b>HEH</b><span>CSE</span></td><td class="r">8.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:35.7%"></i><span class="limit"></span></span>10.0</td><td class="r">5h 30m</td><td class="r">5</td><td class="r">5</td><td><span class="status muted">Within limit</span></td></tr><tr><td class="who"><b>DSR</b><span>CHEM</span></td><td class="r">4.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:35.7%"></i><span class="limit"></span></span>10.0</td><td class="r">5h 15m</td><td class="r">5</td><td class="r">2</td><td><span class="status muted">Within limit</span></td></tr><tr><td class="who"><b>SI</b><span>MATH</span></td><td class="r">6.0</td><td class="r"><span class="bar" aria-hidden="true"><i style="width:32.1%"></i><span class="limit"></span></span>9.0</td><td class="r">4h 00m</td><td class="r">4</td><td class="r">2</td><td><span class="status muted">Within limit</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <p class="print-foot">Workload units follow the department rule in Decisions &amp; settings. Extra load applies above 15 units. Page totals are not official until the routine is published.</p>
+    </div>
+  </main>
+</div>
+<script>
+function toggleNav(force) {
+  const shell = document.getElementById("shell");
+  const btn = document.querySelector(".topbar button");
+  const open = force ?? !shell.classList.contains("open");
+  shell.classList.toggle("open", open);
+  btn.setAttribute("aria-expanded", String(open));
+  if (open) document.querySelector(".nav a").focus();
+}
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleNav(false); });
+if (location.hash === "#nav") toggleNav(true);
+</script>
+</body>
+</html>

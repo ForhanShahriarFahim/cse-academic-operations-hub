@@ -1,0 +1,188 @@
+/* UX-01 proposal mockup — static review artifact, not application code. */
+:root {
+  --paper: #f5f3ec;
+  --sheet: #fffdf8;
+  --ink: #101d16;
+  --ink-2: #33423a;      /* secondary text: 10.9:1 on paper */
+  --muted: #56615a;      /* tertiary text: 6.0:1 on paper, 6.5:1 on sheet */
+  --pine: #134228;
+  --pine-tint: #e3ebe2;
+  --gold: #b3791f;       /* fills and rules only */
+  --gold-text: #7a5212;  /* gold as text: 6.4:1 on paper */
+  --gold-tint: #f6ecd6;
+  --clay: #a3341b;       /* 6.3:1 on sheet */
+  --clay-tint: #f7e4dc;
+  --line: #d9d3c3;
+  --line-soft: #e8e3d5;
+  --focus: #134228;
+  --display: "Fraunces", Georgia, serif;
+  --body: "Inter", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+.num { font-variant-numeric: tabular-nums; }
+.code { font-family: var(--mono); font-size: 12.5px; }
+
+.skip { position: absolute; left: 12px; top: -48px; z-index: 100; background: var(--ink); color: #fff; padding: 8px 12px; border-radius: 4px; }
+.skip:focus { top: 12px; }
+
+/* ---------- Shell ---------- */
+.shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.rail { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--ink); color: #e9ece8; display: flex; flex-direction: column; }
+.brand { padding: 18px 18px 14px; display: block; text-decoration: none; }
+.brand b { font: 600 16px/1.2 var(--display); color: #fff; display: block; }
+.brand span { font-size: 12px; color: #aeb7b1; }
+.term { margin: 0 12px 8px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.14); border-radius: 6px; font-size: 12.5px; }
+.term strong { display: block; color: #fff; font-weight: 600; }
+.term .state { display: inline-flex; align-items: center; gap: 6px; color: #f0c98a; margin-top: 2px; }
+.term .state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+.nav { padding: 6px 12px 12px; flex: 1; }
+.nav h2 { font: 600 11.5px/1 var(--body); color: #aeb7b1; margin: 16px 8px 6px; letter-spacing: .02em; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 5px; text-decoration: none; color: #d5dbd7; font-size: 13.5px; }
+.nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+.nav a[aria-current="page"] { background: rgba(255,255,255,.1); color: #fff; box-shadow: inset 3px 0 0 var(--gold); }
+.nav svg { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; opacity: .85; }
+.nav .count { margin-left: auto; font-size: 11.5px; color: #f3b9a8; font-variant-numeric: tabular-nums; }
+.account { border-top: 1px solid rgba(255,255,255,.12); padding: 12px 18px 16px; font-size: 12.5px; color: #aeb7b1; }
+.account strong { color: #fff; display: block; font-weight: 600; }
+.account button { margin-top: 8px; background: none; border: 1px solid rgba(255,255,255,.25); color: #e9ece8; border-radius: 5px; padding: 5px 10px; font: inherit; cursor: pointer; }
+
+.topbar { display: none; }
+.main { min-width: 0; padding: 28px 36px 48px; }
+.page { max-width: 1180px; }
+
+/* ---------- Page header ---------- */
+.crumb { font-size: 12.5px; color: var(--muted); margin: 0 0 4px; }
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 20px; }
+.page-head h1 { font: 600 30px/1.15 var(--display); margin: 0; letter-spacing: -.01em; }
+.page-head p { margin: 6px 0 0; color: var(--ink-2); max-width: 64ch; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font: 500 13.5px var(--body); text-decoration: none; cursor: pointer; }
+.btn.primary { background: var(--pine); border-color: var(--pine); color: #fff; }
+.btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+/* ---------- Readiness band (dashboard hero) ---------- */
+.readiness { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; padding: 20px 22px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
+.readiness h2 { font: 600 21px/1.3 var(--display); margin: 0 0 6px; }
+.readiness p { margin: 0; color: var(--ink-2); }
+.gate { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.gate li { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: baseline; font-size: 13.5px; }
+.gate .n { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* ---------- Figures row (replaces card soup) ---------- */
+.figures { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 22px 0; }
+.figures div { padding: 14px 16px; border-left: 1px solid var(--line-soft); }
+.figures div:first-child { border-left: 0; padding-left: 0; }
+.figures dt { font-size: 12.5px; color: var(--muted); }
+.figures dd { margin: 2px 0 0; font: 600 26px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.figures dd small { font-family: var(--body); font-weight: 400; }
+.figures small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- Status text: icon + word, never colour alone ---------- */
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.status svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
+.status.block { color: var(--clay); }
+.status.warn { color: var(--gold-text); }
+.status.ok { color: var(--pine); }
+.status.muted { color: var(--muted); font-weight: 500; }
+
+/* ---------- Sections ---------- */
+.two { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; }
+.section { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; }
+.section > header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 18px 10px; }
+.section h2 { font: 600 16px/1.3 var(--display); margin: 0; }
+.section header a { font-size: 13px; color: var(--pine); font-weight: 500; }
+.issues { list-style: none; margin: 0; padding: 0 18px 8px; }
+.issues li { padding: 10px 0; border-top: 1px solid var(--line-soft); }
+.issues p { margin: 0; font-size: 13.5px; }
+.issues p + p { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.empty { margin: 0 18px 18px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 6px; color: var(--ink-2); font-size: 13.5px; }
+.empty a { color: var(--pine); font-weight: 500; }
+
+/* ---------- Ledger table ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--line-soft); }
+.toolbar label { font-size: 13px; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; }
+.toolbar input, .toolbar select { min-height: 34px; border: 1px solid var(--line); border-radius: 6px; padding: 0 10px; font: inherit; background: #fff; }
+.legend { font-size: 12.5px; color: var(--muted); }
+.table-wrap { overflow: auto; max-height: 70vh; }
+.table-wrap:focus-visible { outline-offset: -2px; }
+table.ledger { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+.ledger th, .ledger td { padding: 7px 12px; border-bottom: 1px solid var(--line-soft); text-align: left; white-space: nowrap; }
+.ledger thead th { position: sticky; top: 0; z-index: 2; background: #f3f0e6; font-size: 12.5px; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--line); }
+.ledger th:first-child, .ledger td:first-child { position: sticky; left: 0; z-index: 1; background: var(--sheet); }
+.ledger thead th:first-child { z-index: 3; background: #f3f0e6; }
+.ledger td.r, .ledger th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.ledger tbody tr:hover td { background: #faf7ee; }
+.ledger .who b { font-family: var(--mono); font-weight: 600; font-size: 12.5px; }
+.ledger .who span { color: var(--muted); margin-left: 6px; font-size: 12.5px; }
+.bar { display: inline-block; width: 90px; height: 6px; background: var(--line-soft); border-radius: 3px; vertical-align: middle; margin-right: 8px; position: relative; overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--pine); }
+.bar.over i { background: var(--gold); }
+.bar .limit { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); left: 53.6%; }
+.tfoot td { font-weight: 600; background: #f3f0e6 !important; }
+
+/* ---------- Dialog ---------- */
+.dialog-demo { max-width: 440px; background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; box-shadow: 0 24px 48px -24px rgba(16,29,22,.45); }
+.dialog-demo h2 { font: 600 18px/1.3 var(--display); margin: 0 0 8px; }
+.dialog-demo p { margin: 0 0 16px; color: var(--ink-2); }
+.dialog-demo .actions { justify-content: flex-end; }
+.btn.danger { background: var(--clay); border-color: var(--clay); color: #fff; }
+
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: 6px; border: 1px solid; font-size: 13.5px; margin-bottom: 16px; }
+.notice.ok { background: var(--pine-tint); border-color: #b9ccb9; color: var(--pine); }
+.notice svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; margin-top: 2px; }
+
+/* ---------- Print header ---------- */
+.print-head { display: none; }
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 1023px) {
+  .shell { display: block; }
+  .rail { position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); z-index: 50; transform: translateX(-100%); transition: transform .2s ease; }
+  .shell.open .rail { transform: none; box-shadow: 0 0 0 100vmax rgba(16,29,22,.45); }
+  .topbar { display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 40; background: var(--ink); color: #fff; padding: 8px 12px; }
+  .topbar button { background: none; border: 1px solid rgba(255,255,255,.25); color: #fff; border-radius: 6px; width: 40px; height: 40px; display: grid; place-items: center; }
+  .topbar svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .topbar b { font: 600 15px var(--display); }
+  .topbar .state { margin-left: auto; font-size: 12px; color: #f0c98a; }
+  .main { padding: 18px 16px 40px; }
+  .page-head h1 { font-size: 25px; }
+  .readiness, .two { grid-template-columns: 1fr; }
+  .figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .figures div { border-left: 0; padding-left: 0; border-top: 1px solid var(--line-soft); }
+  .figures div:nth-child(-n+2) { border-top: 0; }
+  .issues li { grid-template-columns: 1fr; gap: 2px; }
+  .table-wrap { max-height: none; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  @page { size: A4 portrait; margin: 12mm 10mm 14mm; }
+  body { background: #fff; font-size: 10pt; }
+  .rail, .topbar, .actions, .toolbar, .skip, .notice, .no-print { display: none !important; }
+  .shell { display: block; }
+  .main { padding: 0; }
+  .crumb, .page-head p { display: none; }
+  .print-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000; padding-bottom: 4mm; margin-bottom: 5mm; }
+  .print-head b { font: 700 13pt var(--display); display: block; }
+  .print-head span { font-size: 9pt; }
+  .print-head .meta { text-align: right; font-size: 8.5pt; line-height: 1.4; }
+  .page-head { margin-bottom: 4mm; }
+  .page-head h1 { font-size: 16pt; }
+  .section { border: 0; }
+  .table-wrap { overflow: visible; max-height: none; }
+  .ledger { font-size: 8.5pt; }
+  .ledger th, .ledger td { padding: 1.4mm 2mm; background: #fff !important; border-bottom: .5pt solid #999; }
+  .ledger thead { display: table-header-group; }
+  .ledger thead th { border-bottom: 1pt solid #000; position: static; }
+  .ledger tr { break-inside: avoid; }
+  .bar { width: 22mm; border: .5pt solid #666; background: #fff; }
+  .bar i { background: #555 !important; }
+  .bar.over i { background: #000 !important; }
+  .print-foot { display: block !important; margin-top: 5mm; font-size: 8pt; color: #333; }
+}
+.print-foot { display: none; }

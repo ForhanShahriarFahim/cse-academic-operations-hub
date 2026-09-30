@@ -108,6 +108,7 @@ async function crossTerm(ids: Record<string, number>) {
   const attempts: Array<[string, () => Promise<{ ok: boolean; message: string }>]> = [
     ["createMeeting", () => actions.createMeetingAction(meetingForm)],
     ["moveMeeting", () => actions.moveMeetingAction(ids.meetingId, 3, 900, 975)],
+    ["updateMeeting", () => actions.updateMeetingAction(ids.meetingId, { dayOfWeek: 3, startMinutes: 900, endMinutes: 975, teacherIds: [ids.teacherId], roomIds: [ids.roomId], isException: false, exceptionNote: null })],
     ["deleteMeeting", () => actions.deleteMeetingAction(ids.meetingId)],
     ["verifyExternal", () => actions.verifyExternalAction(ids.externalId)],
     ["deleteExternal", () => actions.deleteExternalAction(ids.externalId)],

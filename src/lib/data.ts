@@ -190,6 +190,19 @@ export async function getActiveTerm() {
   return rows[0];
 }
 
+/**
+ * Shell summary for the active term: its name and the version number that is
+ * currently published, if any. Reads only small columns (never snapshots).
+ */
+export async function getTermPublicationState(): Promise<{ termName: string; publishedVersion: number | null } | null> {
+  const [term] = await db.select({ id: academicTerms.id, name: academicTerms.name })
+    .from(academicTerms).where(eq(academicTerms.status, "active")).limit(1);
+  if (!term) return null;
+  const versions = await db.select({ versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state })
+    .from(scheduleVersions).where(eq(scheduleVersions.termId, term.id)).orderBy(desc(scheduleVersions.versionNumber));
+  return { termName: term.name, publishedVersion: versions.find((version) => version.state === "published")?.versionNumber ?? null };
+}
+
 export async function getPortalData(): Promise<PortalData> {
   const actor = await getOptionalActor();
   if (!actor) redirect("/login");

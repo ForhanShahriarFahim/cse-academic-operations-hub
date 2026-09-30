@@ -5,10 +5,11 @@ import { Printer } from "lucide-react";
 export function PrintButton() {
   return (
     <button
+      type="button"
       onClick={() => window.print()}
-      className="no-print flex items-center gap-1.5 rounded-md bg-[var(--color-ink)] px-3.5 py-2 text-[12.5px] font-semibold text-white transition-colors hover:bg-black"
+      className="no-print inline-flex min-h-9 items-center gap-1.5 rounded-md border border-[var(--color-line)] bg-sheet px-3.5 text-[13.5px] font-medium hover:bg-wash"
     >
-      <Printer size={14} /> Print / PDF
+      <Printer size={15} strokeWidth={1.8} aria-hidden="true" /> Print or save PDF
     </button>
   );
 }
