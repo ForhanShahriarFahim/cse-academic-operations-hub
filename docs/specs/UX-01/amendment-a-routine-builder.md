@@ -1,7 +1,7 @@
 # UX-01 amendment A — Routine builder workbench
 
 Issue: [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18)
-Status: Approved 30 September 2026. The owner approved R1–R9 including `updateMeetingAction`, pulled L2 (drag and drop) into this amendment, and left L1 and L3–L6 for a separate issue.
+Status: Implemented and verified 30 September 2026; owner review pending. Approved 30 September 2026. The owner approved R1–R9 including `updateMeetingAction`, pulled L2 (drag and drop) into this amendment, and left L1 and L3–L6 for a separate issue.
 Requested: 30 September 2026. The owner asked for the Routine builder to be redesigned and made easy to manage before the UX-01 PR and merge.
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -87,7 +87,7 @@ Unchanged: the placement rules, the conflict engine's rules, the week document, 
 
 | ID | Observable condition | Verification method |
 |---|---|---|
-| RB-01 | Every class involved in a blocker shows "Clash", and every class with a warning shows "Check", matching Validation's issues for that day. Day tabs show each day's clash count. | Compare with `analyzeSchedule` output on the review data; screenshot |
+| RB-01 | Every class involved in a blocker shows "Clash", matching Validation's issues for that day, and the "Show warnings" toggle adds "Check" to classes with warnings. Day tabs show each day's clash count. | Compare with `analyzeSchedule` output on the review data; screenshot |
 | RB-02 | Selecting a class opens the side panel and outlines classes or bookings that share its teacher or room. Esc closes the panel and returns focus to the class. | UX check flow + keyboard review |
 | RB-03 | Day, times, teachers, rooms and the exception note can be changed and saved as one change. A change that would create a blocker is refused and nothing is saved. Success and refusal are both announced next to the form. | Server-action tests (allowed, blocked, permission denied, outside active term, audit written) + UI flow |
 | RB-04 | Teacher and room pickers are searchable and label each option Free, In use (with the class) or Other department booking for the chosen day and time. Sessional classes are offered labs only. The pre-check result matches the server's decision. | Engine parity check on sample edits + UI flow |
@@ -103,13 +103,20 @@ Unchanged: the placement rules, the conflict engine's rules, the week document, 
 
 ## Tasks, if approved
 
-- [ ] T-11 — `updateMeetingAction` in `src/lib/actions.ts`, plus verification: allowed, blocked by a clash, denied without permission, refused outside the active term, and audited (RB-03).
-- [ ] T-12 — Builder state and layout: one-line toolbar, day tabs with counts, grid plus side panel (docked or overlay) replacing the custom modals, Esc and focus handling, "Print & export" menu (RB-02, RB-09).
-- [ ] T-13 — Grid rendering: column spans, removal of the custom-time column, exact-time labels, clash and check markers from issue `meetingIds`, related-class outlines (RB-01, RB-02, RB-06).
-- [ ] T-14 — Class editor in the panel: fields, availability pickers (combobox), live pre-check with `analyzeSchedule`, save through create or update, delete through the existing dialog (RB-03, RB-04).
-- [ ] T-15 — Needs-attention tab and "Where does it fit?" highlighting (RB-05).
-- [ ] T-16 — Undo for save, move and delete via the existing validated actions (RB-07).
-- [ ] T-17 — Phone agenda and full-screen sheet (RB-08).
-- [ ] T-18 — Plain notes and legend; move source-review notes to Decisions & settings (RB-09).
-- [ ] T-20 — Drag and drop: drag a class card onto a cell (or a day tab) to move it through `moveMeetingAction`, with a live drop preview (fits / clash reason) and a "Move to…" keyboard alternative in the panel (RB-11).
-- [ ] T-19 — Verification: `test:ux` routes and a builder flow, print/export comparison, typecheck, lint, domain tests, build, safety suite, screenshots, owner review (RB-01–RB-11).
+- [x] T-11 — `updateMeetingAction` in `src/lib/actions.ts`, plus verification: allowed, blocked by a clash, denied without permission, refused outside the active term, and audited (RB-03).
+- [x] T-12 — Builder state and layout: one-line toolbar, day tabs with counts, grid plus side panel (docked or overlay) replacing the custom modals, Esc and focus handling, "Print & export" menu (RB-02, RB-09).
+- [x] T-13 — Grid rendering: column spans, removal of the custom-time column, exact-time labels, clash and check markers from issue `meetingIds`, related-class outlines (RB-01, RB-02, RB-06).
+- [x] T-14 — Class editor in the panel: fields, availability pickers (combobox), live pre-check with `analyzeSchedule`, save through create or update, delete through the existing dialog (RB-03, RB-04).
+- [x] T-15 — Needs-attention tab and "Where does it fit?" highlighting (RB-05).
+- [x] T-16 — Undo for save, move and delete via the existing validated actions (RB-07).
+- [x] T-17 — Phone agenda and full-screen sheet (RB-08).
+- [x] T-18 — Plain notes and legend; move source-review notes to Decisions & settings (RB-09).
+- [x] T-20 — Drag and drop: drag a class card onto a cell (or a day tab) to move it through `moveMeetingAction`, with a live drop preview (fits / clash reason) and a "Move to…" keyboard alternative in the panel (RB-11).
+- [x] T-19 — Verification: `test:ux` routes and a builder flow, print/export comparison, typecheck, lint, domain tests, build, safety suite, screenshots, owner review (RB-01–RB-11).
+
+## Implementation notes, 30 September 2026
+
+- Warnings are hidden on cards by default, with a "Show warnings" toggle. With 184 warnings (mostly unknown batch sizes) marked on almost every card, the real clashes were lost; RB-01 is worded accordingly.
+- A room whose seat count is not recorded counts as free for a class whose size is also unknown, with a "Seats not recorded" note. It becomes "Check" only when the class size is known.
+- Undo is offered for edits, moves and deletes. Undo that would reintroduce a blocking clash is refused with the server's reason, for example undoing a fix to a class that had an existing clash. A newly added class is removed with Delete.
+- New files: `src/lib/routine-workbench.ts` (pure helpers) and `src/components/routine-workbench/`. `src/components/routine-builder.tsx` was removed.

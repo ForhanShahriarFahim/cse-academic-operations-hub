@@ -92,6 +92,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - Approved scope: see Approval record (30 September 2026, decisions D1–D3).
 - Commits: `35ea10d` (plan), `41d94ae` (T-01), `6d14cad` (T-02/T-03), `1954f4e` (T-04–T-07), `d21eab7` (T-08 and fixes), plus the final verification/docs commit on `codex/ux-01`.
 - Completed tasks: T-01–T-09. T-10 automated checks pass; see [verification](verification.md#acceptance-results-30-september-2026).
-- Next action: implement amendment A tasks T-11–T-20; owner review; then PR, merge, and close #18 and #30.
+- Amendment A: T-11–T-20 complete and verified ([results](verification.md#amendment-a--routine-builder-results-30-september-2026)).
+- Next action: owner review of the Routine builder on the review server; then PR, merge, and close #18 and #30.
 - Verification: AC-01–AC-06 and AC-08–AC-11 pass. AC-07 is partial because the error boundary was not exercised live. AC-03 still needs a manual keyboard walk-through during owner review.
 - Blockers/capabilities: permission-aware states wait for AUTH-01 (#1). Follow-up findings are listed in the verification record.

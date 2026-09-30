@@ -84,9 +84,35 @@ After renders (synthetic reviewer; teacher codes only):
 
 Renders of screens with staff names or contacts stay local in `.tmp/ux-01/`.
 
+## Amendment A — Routine builder results, 30 September 2026
+
+Environment: the same review server, rebuilt from the source fixture (`npm run ux:review -- --fresh`); Edge (Playwright). Tests that change the draft undo themselves.
+
+| AC | Result | Evidence |
+|---|---|---|
+| RB-01 | **Pass** | `tests/ux/routine-builder.spec.ts`: clashing classes are named "has a blocking clash" (for example CSE-3200) and the Saturday tab shows its count. Card markers come from the same projection status as Validation. |
+| RB-02 | **Pass** | Selecting CSE-3200 opens the panel, outlines classes and bookings that share its teacher or room, and Esc returns focus to the card. |
+| RB-03 | **Pass** | SAFE-01 T-04 covers `updateMeetingAction`: denied for anonymous, viewer and teacher; audit failure rolls back; success keeps teacher roles and audits; a clashing edit is refused with no writes. T-03 covers the cross-term refusal. UI: an edit that would clash shows "This change would cause…" and Save is disabled. |
+| RB-04 | **Pass** | The room picker for CSE-4101 lists free rooms first and marks rooms in use with the class using them. The pre-check says "No clashes" before saving, and the server accepted the save. Sessional classes are offered labs only (`suitableRooms`). |
+| RB-05 | **Pass** | After deleting CSE-4103, "Where does it fit?" highlighted one free cell ("Fits CSE-4103") on Saturday; render below. |
+| RB-06 | **Pass** | CSE-2105 and CSE-4105 (9:30 AM–12:00 PM) span two columns, and the custom-time column is gone. The flows find each class once per batch row. |
+| RB-07 | **Pass** | Room edit on CSE-4101 undone; delete of CSE-4103 undone (the class came back). Undo that would reintroduce a blocking clash is refused with the server's reason. |
+| RB-08 | **Pass** | At 390 px: agenda by batch, 0 px page overflow, and the class opens in a full-screen sheet that Esc closes. |
+| RB-09 | **Pass** | `test:ux` axe WCAG 2 A/AA at 1366 and 390 px on `/routine` and `/routine?view=week`: no violations. The pickers use the combobox/listbox pattern; the panel below 1400 px is a native modal `<dialog>`. |
+| RB-10 | **Pass** | The week view still renders `RoutineDocument`, and day-view print still renders the print-only document with no controls visible. The export route and official package code are unchanged. A shell print bug found here (content squeezed into the hidden sidebar column on wide paper) was fixed for all pages, with a new A4-landscape check. |
+| RB-11 | **Pass** | Dragging CSE-4237 onto a free HSC-22B cell shows a floating preview ("Can't move here: Room double-booked: NB-503") and leaves the class unchanged with an explanation. Allowed drops move the class with Undo. The panel's "Move to a free time" lists valid slots for keyboard users. |
+
+Checks after amendment A: `typecheck` ✔, `lint` ✔, `test:domain` ✔, `test:ux` 48/48 ✔ (including 8 builder flows), `build` ✔, `test:safety` ✔ (T-01 to T-04 and T-06 PostgreSQL passed; the default PGlite directory was never opened).
+
+Renders (synthetic reviewer; codes and course titles only):
+- [Before](after/routine-builder-before.png)
+- [Selected class with room picker](after/routine-builder-selected.png)
+- ["Where does it fit?"](after/routine-builder-fit.png)
+- [Phone agenda](after/routine-builder-mobile.png) and [phone sheet](after/routine-builder-mobile-sheet.png)
+
 ## Findings recorded for follow-up
 
 These are outside UX-01's approved scope and were not fixed here:
-- Conflict detail sentences from the validation engine still contain developer phrasing, for example "Room-only OD entries block the room, not an invented teacher." That text lives in `src/lib/conflicts.ts`, a domain module.
+- Conflict detail sentences from the validation engine still contain developer phrasing; they now also appear in the builder's side panel, for example "Room-only OD entries block the room, not an invented teacher." That text lives in `src/lib/conflicts.ts`, a domain module.
 - `OdRowActions` (and similar row actions) ignore the returned `ActionResult`, so a refused change would fail silently. Apply the `Notice` pattern in the owning issue, as ATT-02 (#9) does for attendance.
 - The forbidden page keeps its old styling until AUTH-01 (#1) reviews permission-aware states.
