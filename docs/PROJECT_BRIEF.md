@@ -1,12 +1,12 @@
 # Project brief — start here
 
-Updated: 30 September 2026 (Asia/Dhaka). Implementation/data baseline below was documented on 26 September; this documentation migration did not rerun the seed or certify production. GitHub #1, #2, #16, #17 and #20 were inspected on 30 September; SAFE-01 (#2) was accepted, merged (PR #23) and closed the same day.
+Updated: 1 October 2026 (Asia/Dhaka). Implementation/data baseline below was documented on 26 September; this documentation migration did not rerun the seed or certify production. GitHub #1, #2, #16, #17 and #20 were inspected on 30 September; SAFE-01 (#2) was accepted, merged (PR #23) and closed the same day.
 
 Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md) for issue order, [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for behavior, [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates, [CONTEXT.md](../CONTEXT.md) for terms and [README](../README.md) for setup/operators. [Issue #16](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) is the GitHub index.
 
 ## Current work
 
-**State on 30 September 2026: UX-01 (#18) is accepted and merged. Next issue: RUT-04 ([#34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)), term time grids, selected by the owner and specified on `codex/rut-04` ([spec](specs/RUT-04/spec.md), [plan](specs/RUT-04/plan.md), [mockup](specs/RUT-04/mockups/days-and-periods.html)). The owner approved it with the recommended decisions on 30 September 2026; implementation is in progress. Resume from the plan's checkpoint.**
+**State on 1 October 2026: RUT-04 ([#34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)), term time grids (Days & periods), is implemented and verified on `codex/rut-04`; owner review and acceptance are pending, then PR and merge.** Records: [spec](specs/RUT-04/spec.md), [plan and checkpoint](specs/RUT-04/plan.md), [verification](specs/RUT-04/verification.md). Review with `npm run ux:review` and open `/routine/periods`.
 
 - **Last completed:** [UX-01 / #18](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18), the responsive, accessible and plain-spoken portal baseline with the Routine builder workbench ([amendment A](specs/UX-01/amendment-a-routine-builder.md)). The owner accepted it on 30 September 2026; it also closed #30.
   - Records: [spec](specs/UX-01/spec.md), [plan](specs/UX-01/plan.md), [verification/acceptance](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/). Deferred builder features are in #33.

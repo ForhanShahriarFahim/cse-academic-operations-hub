@@ -4,21 +4,72 @@ import type { OfficialAppendixPage, OfficialRoutinePackage as Package } from "@/
 import type { RoutineDayGroup, RoutineDayProjection } from "@/lib/routine-projection";
 import { DAY_NAMES, fmtDate, fmtRange } from "@/lib/time";
 
+interface SheetTable { day: RoutineDayProjection; group: RoutineDayGroup; label: string | null; withBookings: boolean; weight: number; main: boolean }
+interface Sheet { stream: "HSC" | "DIPLOMA"; tables: SheetTable[]; capacity: number; continued: boolean }
+
+/** Rows a table needs: two header rows, its batches, the bookings row and a caption. */
+const weightOf = (table: Omit<SheetTable, "weight">) => table.group.rows.length + 2 + (table.withBookings ? 1 : 0) + (table.label ? 1 : 0);
+/** Four eight-batch days (the Summer 2026 layout) fill one A4 HSC sheet. */
+const HSC_SHEET_ROWS = 44;
+
+/**
+ * HSC routine sheets. Each day's main table stays on the first sheet, as
+ * before term grids; extra period groups and extra days join it while they
+ * fit at the same density, otherwise they continue on another sheet.
+ */
+function routineSheets(document: Package): Sheet[] {
+  return document.routinePages.flatMap((page) => {
+    const tables: SheetTable[] = page.days.flatMap((day) => day.groups.map((group, index) => {
+      const table = { day, group, label: day.groups.length > 1 ? group.name : null, withBookings: index === 0, main: index === 0 && !day.exceptionOnly };
+      return { ...table, weight: weightOf(table) };
+    }));
+    if (page.stream !== "HSC") return [{ stream: page.stream, tables, capacity: 0, continued: false }];
+    const main = tables.filter((t) => t.main);
+    const capacity = Math.max(HSC_SHEET_ROWS, main.reduce((sum, t) => sum + t.weight, 0));
+    const sheets: Sheet[] = [{ stream: page.stream, tables: [], capacity, continued: false }];
+    let used = main.reduce((sum, t) => sum + t.weight, 0);
+    for (const table of tables) {
+      if (table.main) { sheets[0].tables.push(table); continue; }
+      if (used + table.weight > capacity) {
+        sheets.push({ stream: page.stream, tables: [], capacity, continued: true });
+        used = 0;
+      }
+      sheets[sheets.length - 1].tables.push(table);
+      used += table.weight;
+    }
+    // Keep day order within each sheet.
+    const order = new Map(page.days.map((day, index) => [day.dayOfWeek, index]));
+    for (const sheet of sheets) sheet.tables.sort((a, b) => (order.get(a.day.dayOfWeek) ?? 0) - (order.get(b.day.dayOfWeek) ?? 0));
+    return sheets;
+  });
+}
+
+/** First HSC sheet: rows in proportion to table size, padded to capacity. Continuation sheets size rows to their content. */
+function sheetRows(sheet: Sheet): string {
+  const rows = sheet.tables.map((t) => `minmax(0, ${t.weight}fr)`);
+  const used = sheet.tables.reduce((sum, t) => sum + t.weight, 0);
+  if (sheet.capacity > used) rows.push(`minmax(0, ${sheet.capacity - used}fr)`);
+  return rows.join(" ");
+}
+
 export function OfficialRoutinePackage({ document }: { document: Package }) {
-  const totalPages = document.routinePages.length + document.appendixPages.length;
+  const sheets = routineSheets(document);
+  const totalPages = sheets.length + document.appendixPages.length;
   return (
     <div className="official-package">
-      {document.routinePages.map((page, index) => (
-        <OfficialPage key={page.stream} document={document} title={`Program: B.Sc. in CSE (${page.stream === "HSC" ? "HSC" : "Diploma"})`} page={index + 1} totalPages={totalPages}>
-          <div className={`official-routine-days ${page.stream === "HSC" ? "official-routine-days-hsc" : "official-routine-days-diploma"}`}>
-            {page.days.flatMap((day) => day.groups.map((group, groupIndex) => (
-              <CompactDayTable key={`${day.dayOfWeek}-${group.key}`} day={day} group={group} label={day.groups.length > 1 ? group.name : null} withBookings={groupIndex === 0} />
-            )))}
+      {sheets.map((sheet, index) => (
+        <OfficialPage key={`${sheet.stream}-${index}`} document={document} page={index + 1} totalPages={totalPages}
+          title={`Program: B.Sc. in CSE (${sheet.stream === "HSC" ? "HSC" : "Diploma"})${sheet.continued ? " (continued)" : ""}`}>
+          <div className={`official-routine-days ${sheet.stream === "HSC" && !sheet.continued ? "official-routine-days-hsc" : "official-routine-days-diploma"}`}
+            style={sheet.stream === "HSC" && !sheet.continued ? { gridTemplateRows: sheetRows(sheet) } : undefined}>
+            {sheet.tables.map((table) => (
+              <CompactDayTable key={`${table.day.dayOfWeek}-${table.group.key}`} day={table.day} group={table.group} label={table.label} withBookings={table.withBookings} />
+            ))}
           </div>
         </OfficialPage>
       ))}
       {document.appendixPages.map((page, appendixIndex) => {
-        const pageNumber = document.routinePages.length + appendixIndex + 1;
+        const pageNumber = sheets.length + appendixIndex + 1;
         return page.kind === "courses" ? (
           <OfficialPage key={page.kind} document={document} title="List of Course Offers in Different Semesters" page={pageNumber} totalPages={totalPages}>
             <CourseAppendix page={page} />

@@ -20,7 +20,7 @@ const rowsOf = (pattern: PeriodPattern | null): Row[] => [
   ...(pattern?.breaks ?? []).map((b) => ({ key: ++rowKey, kind: "break" as const, start: toTimeInput(b.start), end: toTimeInput(b.end), name: b.name, blocksClasses: b.blocksClasses })),
 ].sort((a, b) => a.start.localeCompare(b.start));
 
-const input = "min-h-[34px] w-full rounded-md border border-[var(--color-line)] bg-white px-2 font-mono text-[13px]";
+const input = "min-h-[34px] w-full min-w-0 rounded-md border border-[var(--color-line)] bg-white px-1.5 font-mono text-[12.5px]";
 
 export function PatternEditor({ grid, pattern, context, onDone, onCancel }: {
   grid: TimeGrid;

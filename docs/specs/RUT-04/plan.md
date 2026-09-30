@@ -2,8 +2,8 @@
 
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md)
-Verification: `verification.md` (created during implementation)
-Status: Approved 30 September 2026; implementation in progress
+Verification: [verification.md](verification.md)
+Status: Implemented and verified 1 October 2026; owner acceptance pending
 Branch / base: `codex/rut-04` from main `39a39b3`
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -70,16 +70,16 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Tasks
 
-- [ ] T-01 — Schema, migration `0006`, legacy grid module and backfill; covers AC-01. Domain test: backfilled Summer 2026 reproduces `slotsFor`/`daysForStream` exactly.
-- [ ] T-02 — `time-grid` domain module: resolution, groups, validation, impact analysis, clone; covers AC-03–AC-08 logic.
-- [ ] T-03 — Validation inputs (per-batch breaks, closed days) and the Summer 2026 issue-ID regression; covers AC-01, AC-03, AC-05.
-- [ ] T-04 — Projection groups, grid-driven days, snapshot v4 with legacy fallback; update `verify-routine-projection`; covers AC-01, AC-04, AC-09.
-- [ ] T-05 — Consumers: builder (grid, day tabs with batch counts, class panel, fits), Routine Day/Week, official package, public view, auto-schedule; covers AC-02–AC-04.
-- [ ] T-06 — Server actions with guards, audit, active-term and stale checks, impact-option moves in one transaction; SAFE-01 mutation inventory update; covers AC-06, AC-08, AC-10.
-- [ ] T-07 — Days & periods page, pattern editor, exception form, copy dialog, navigation item, Settings link; covers AC-06, AC-07, AC-11.
-- [ ] T-08 — Safety fixture: second term with its own grid; history check that editing one term leaves the other unchanged; covers AC-02, AC-08.
-- [ ] T-09 — Verification: before/after migration comparison on a populated PGlite copy, PostgreSQL via `test:safety`, `test:ux` routes and flows, desktop/phone/print screenshots, all required checks; covers AC-01, AC-11, AC-12.
-- [ ] T-10 — Docs: README, requirements §5, brief, roadmap and index #16; handoff checkpoint.
+- [x] T-01 — Schema, migration `0006`, legacy grid module and backfill; covers AC-01. Domain test: backfilled Summer 2026 reproduces `slotsFor`/`daysForStream` exactly.
+- [x] T-02 — `time-grid` domain module: resolution, groups, validation, impact analysis, clone; covers AC-03–AC-08 logic.
+- [x] T-03 — Validation inputs (per-batch breaks, closed days) and the Summer 2026 issue-ID regression; covers AC-01, AC-03, AC-05.
+- [x] T-04 — Projection groups, grid-driven days, snapshot v4 with legacy fallback; update `verify-routine-projection`; covers AC-01, AC-04, AC-09.
+- [x] T-05 — Consumers: builder (grid, day tabs with batch counts, class panel, fits), Routine Day/Week, official package, public view, auto-schedule; covers AC-02–AC-04.
+- [x] T-06 — Server actions with guards, audit, active-term and stale checks, impact-option moves in one transaction; SAFE-01 mutation inventory update; covers AC-06, AC-08, AC-10.
+- [x] T-07 — Days & periods page, pattern editor, exception form, copy dialog, navigation item, Settings link; covers AC-06, AC-07, AC-11.
+- [x] T-08 — Safety fixture: second term with its own grid; history check that editing one term leaves the other unchanged; covers AC-02, AC-08.
+- [x] T-09 — Verification: before/after migration comparison on a populated PGlite copy, PostgreSQL via `test:safety`, `test:ux` routes and flows, desktop/phone/print screenshots, all required checks; covers AC-01, AC-11, AC-12.
+- [x] T-10 — Docs: README, requirements §5, brief, roadmap and index #16; handoff checkpoint.
 
 ## Verification and delivery
 
@@ -88,8 +88,9 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
 ## Current checkpoint / handoff
 
 - Approved scope: see Approval record (30 September 2026, recommended D-1–D-4).
-- Commits and uncommitted changes: `8e675df` (proposal), plus the approval commit.
-- Completed tasks: none.
-- Next action: T-01.
-- Verification: mockup renders at 1440 px and 390 px with 0 px page overflow.
-- Blockers/capabilities: none known. PostgreSQL client tools at `F:\AI\tools\pgsql-17.11` for AC-01/AC-12.
+- Commits: `8e675df` (proposal), `49d8e58` (approval), `c11940e` (T-01–T-05 data, validation, projections), `a11f4f8` (T-05–T-08 page, actions, checks), plus the verification/docs commit. All pushed to `codex/rut-04`.
+- Completed tasks: T-01–T-10.
+- Implementation notes beyond the plan text: the backfill is a one-time conversion (it runs only while no term has patterns), so a future term starts empty and is set up or copied; the official HSC print page continues extra groups and extra days on a following sheet; the old class-window editor and its two actions were removed from Settings.
+- Verification: all AC pass; see [verification](verification.md). AC-01 byte parity used the Summer 2026 source dataset (not the institutional database); AC-09 is verified at domain level.
+- Next action: owner reviews Days & periods on the review server (`npm run ux:review`, then `/routine/periods`), then PR, merge and close #34.
+- Blockers/capabilities: none.

@@ -140,7 +140,7 @@ export function DaysAndPeriods({ grid, context, termName, otherTerms, initialStr
         </div>
       ) : null}
 
-      <div className="grid items-start gap-4 min-[1180px]:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-4 min-[1180px]:grid-cols-[minmax(0,1fr)_420px]">
         <div className="min-w-0 space-y-4">
           <section aria-labelledby="dp-week" className="rounded-lg border border-[var(--color-line)] bg-sheet">
             <header className="flex flex-wrap items-baseline justify-between gap-2 px-4 pb-2.5 pt-3.5">

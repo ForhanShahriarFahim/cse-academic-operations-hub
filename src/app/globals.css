@@ -169,7 +169,7 @@ body {
 .official-package-body { min-height: 0; overflow: hidden; }
 .official-package-footer { display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 3px; font-size: 6px; font-weight: 600; }
 .official-routine-days { display: grid; height: 100%; gap: 3px; }
-.official-routine-days-hsc { grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.official-routine-days-hsc { grid-template-rows: repeat(4, minmax(0, 1fr)); } /* overridden inline from the table sizes */
 .official-routine-days-diploma { grid-template-rows: auto auto; align-content: start; }
 .official-routine-days-diploma .official-compact-table td,
 .official-routine-days-diploma .official-compact-table tbody th { height: 18px; }
