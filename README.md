@@ -204,6 +204,7 @@ cse-academic-operations-hub/
 ├── docs/
 │   ├── architecture/              # Architecture decision records
 │   ├── plans/                     # Workflow setup plan and delivery evidence
+│   ├── specs/                     # Selected issue specifications and task plans
 │   ├── source/                    # Summer 2026 routine transcription
 │   ├── screenshots/               # README product screenshots
 │   ├── templates/                 # Issue planning and extra-load print references
@@ -293,6 +294,7 @@ development data, not as an approved official schedule.
 - [Project brief — fastest current-state handoff](docs/PROJECT_BRIEF.md)
 - [Shared development workflow — approval, branches and verification](docs/WORKFLOW.md)
 - [Workflow setup — approved plan and delivery checkpoint](docs/plans/WORKFLOW-01.md)
+- [SAFE-01 — proposed safety specification and implementation plan](docs/specs/SAFE-01/plan.md)
 - [Roadmap — order, gates and next issue](docs/ROADMAP.md)
 - [Product requirements — behavior and feature rationale](docs/PRODUCT_REQUIREMENTS.md)
 - [Institutional decisions — approved scope and unanswered questions](docs/decisions/INSTITUTIONAL_DECISIONS.md)

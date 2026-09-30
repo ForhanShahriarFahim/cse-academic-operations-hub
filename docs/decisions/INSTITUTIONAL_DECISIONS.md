@@ -16,7 +16,7 @@ the owner selected the checked-in Summer 2026 routine transcription as the publi
 
 ## D-03 — Next feature priority
 
-Status: decided. The owner selected SAFE-01 (#2) before master-data editing. WORKFLOW-01 is currently authorized documentation preparation; SAFE-01 still needs its own plan approval. Evidence: prior execution plan and current workflow approval.
+Status: decided. The owner selected SAFE-01 (#2) before master-data editing. WORKFLOW-01 is accepted/closed; SAFE-01 inspection produced a [proposed plan](../specs/SAFE-01/plan.md) that still needs its own implementation approval. Evidence: prior execution plan and subsequent workflow acceptance.
 
 ## D-04 — Missing specification and source sign-off
 
