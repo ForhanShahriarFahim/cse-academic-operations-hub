@@ -196,6 +196,8 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
 | `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows). It starts `npm run dev`, which prepares the configured database. |
 | `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. The PostgreSQL group (T-06) runs only when `SAFE01_PG_BIN` points at a PostgreSQL bin directory; otherwise it reports PENDING. |
+| `npm run ux:review` | UX-01 review server on `http://localhost:3100` against a disposable PGlite database in `.tmp/ux-review`. It is seeded from the source fixture, or copied with `-- --from-copy <dir>` after stopping that directory's server. A synthetic signed-in reviewer is added, so internal screens can be reviewed without Google OAuth. It refuses `DATABASE_URL` and `.data`, and pins database and auth variables so `.env` files cannot redirect it. `-- --role <role>` changes the reviewer role; `-- --print-cookie` prints a browser sign-in snippet. |
+| `npm run test:ux` | UX baseline checks against a running `npm run ux:review` server: no page-wide overflow at 360/390/768 px, WCAG 2 A/AA axe checks at desktop and phone widths, skip link, navigation drawer keyboard flow, and no native `confirm()`. It never starts a server itself. |
 
 ## Project structure
 
