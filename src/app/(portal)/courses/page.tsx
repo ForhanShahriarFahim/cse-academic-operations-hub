@@ -43,7 +43,7 @@ export default async function CoursesPage() {
         actions={<PrintButton />}
       />
 
-      <Panel title="Scheduling completeness tracker" sub="Every teaching group vs its approved requirement (spec §10.4)">
+      <Panel title="Scheduling completeness tracker" sub="Each teaching group compared with its required weekly classes">
         <div role="region" aria-label="Scheduling completeness by teaching group" tabIndex={0} className="table-region overflow-x-auto">
           <table className="routine-table text-[12px]">
             <thead>

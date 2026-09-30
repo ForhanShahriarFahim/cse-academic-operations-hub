@@ -31,12 +31,12 @@ export default async function PublicationsPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Current published" value={published ? `v${published.versionNumber}` : "—"}
-          sub={published ? `Effective ${fmtDate(published.effectiveFrom)} · ${published.meetingCount} meetings` : "Nothing published yet"} tone="good" />
+        <StatCard label="Published version" value={published ? `v${published.versionNumber}` : "None yet"}
+          sub={published ? `In effect from ${fmtDate(published.effectiveFrom)} · ${published.meetingCount} meetings` : "No routine has been published for this term"} tone={published ? "good" : "default"} />
         <StatCard label="Working draft" value={`${draftMeetingCount} meetings`}
-          sub={deltas === 0 ? "In sync with published snapshot" : `${deltas > 0 ? "+" : ""}${deltas} meetings vs published`} />
-        <StatCard label="Blockers" value={blockers} tone={blockers ? "bad" : "good"} sub={blockers ? "Publication gated" : "Draft passes validation"} />
-        <StatCard label="Advisories" value={warnings} sub="Disclosed with the published version" />
+          sub={!published ? "Not yet published" : deltas === 0 ? "Same number of meetings as the published version" : `${deltas > 0 ? "+" : ""}${deltas} meetings compared with the published version`} />
+        <StatCard label="Blocking conflicts" value={blockers} tone={blockers ? "bad" : "good"} sub={blockers ? "Must be fixed before publishing" : "Nothing blocks publication"} />
+        <StatCard label="Warnings" value={warnings} sub="Published with the routine" />
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-5">
@@ -94,8 +94,7 @@ export default async function PublicationsPage() {
             </ul>
           </Panel>
           <EmptyNote>
-            Approvals & role gates: coordinator prepares, head approves, publisher activates (spec §17).
-            Role enforcement ships with the auth phase; every publish is already audit-logged with actor and summary.
+            Only people allowed to approve publication can publish. Every publication is recorded in the audit log with who published it and the change summary.
           </EmptyNote>
         </div>
       </div>
