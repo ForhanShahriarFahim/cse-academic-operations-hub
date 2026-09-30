@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Days &amp; periods — RUT-04 mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../UX-01/mockups/mockup.css">
+<link rel="stylesheet" href="days-and-periods.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="M12 8v5M12 16h.01"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a3 3 0 0 1-3-3V5"/><path d="M8 8h7M8 12h7M8 16h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3.5 3 3.5 6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0zM8 21h8"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 21h16M6 21V4h9l3 2v15M13 12h.01"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <header class="topbar">
+    <button type="button" aria-label="Open navigation"><svg><use href="#i-menu"/></svg></button>
+    <b>Days &amp; periods</b>
+    <span class="state">Summer 2026</span>
+  </header>
+  <aside class="rail" aria-label="Portal">
+    <a class="brand" href="#"><b>Pundra Academic Operations</b><span>Department of CSE</span></a>
+    <div class="term"><strong>Summer 2026</strong><span class="state">Draft — not yet published</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="#"><svg><use href="#i-home"/></svg>Dashboard</a>
+      <h2>Routine</h2>
+      <a href="#"><svg><use href="#i-cal"/></svg>Routine builder</a>
+      <a href="#" aria-current="page"><svg><use href="#i-clock"/></svg>Days &amp; periods</a>
+      <a href="#"><svg><use href="#i-shield"/></svg>Validation<span class="count">13</span></a>
+      <a href="#"><svg><use href="#i-scroll"/></svg>Publications</a>
+      <h2>Planning records</h2>
+      <a href="#"><svg><use href="#i-users"/></svg>Teachers</a>
+      <a href="#"><svg><use href="#i-scale"/></svg>Workload</a>
+      <a href="#"><svg><use href="#i-book"/></svg>Courses &amp; offerings</a>
+      <a href="#"><svg><use href="#i-cap"/></svg>Batches</a>
+      <a href="#"><svg><use href="#i-door"/></svg>Rooms</a>
+      <h2>Administration</h2>
+      <a href="#"><svg><use href="#i-list"/></svg>Decisions &amp; settings</a>
+      <a href="#"><svg><use href="#i-key"/></svg>People &amp; access</a>
+    </nav>
+    <div class="account"><strong>UX Reviewer</strong>Routine coordinator<br><button type="button">Sign out</button></div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="page" style="max-width:1320px">
+      <div class="page-head">
+        <div>
+          <p class="crumb">Routine · Summer 2026</p>
+          <h1>Days &amp; periods</h1>
+          <p>Choose which days each stream has classes and the periods it uses. Any batch can have its own days or periods. Changes apply only to Summer 2026: other terms and published versions keep theirs.</p>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#"><svg><use href="#i-copy"/></svg>Copy from another term</a>
+          <a class="btn primary" href="#"><svg><use href="#i-cal"/></svg>Open Routine builder</a>
+        </div>
+      </div>
+
+      <div class="dp-tabs">
+        <div class="seg" role="tablist" aria-label="Stream"><button role="tab" aria-selected="true">HSC</button><button role="tab" aria-selected="false">Diploma</button></div>
+        <span class="dp-note">Sample values for review. The HSC week below uses the Summer 2026 periods.</span>
+      </div>
+
+      <div class="dp-layout">
+        <div>
+          <section class="section" aria-labelledby="wk">
+            <header><h2 id="wk">HSC week</h2><a href="#">+ Add a teaching day</a></header>
+            <div style="overflow:auto">
+            <table class="week">
+              <thead><tr><th scope="col">Day</th><th scope="col">Periods and class hours</th><th scope="col" class="tl-cell"><div class="tl-scale"><span style="left:0%">8 AM</span><span style="left:20%">10</span><span style="left:40%">12</span><span style="left:60%">2 PM</span><span style="left:80%">4</span><span style="left:97%">6</span></div></th><th scope="col">Exceptions</th><th scope="col"><span style="position:absolute;left:-9999px">Edit</span></th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Saturday</th>
+                  <td><span class="pat" style="--sw:#134228">HSC Saturday</span><span class="hours">Class hours 9:30 – 3:45</span></td>
+                  <td class="tl-cell"><div class="tl" aria-label="4 periods from 9:30 AM to 3:45 PM"><i class="p" style="left:15%;width:12.5%"></i><i class="p" style="left:27.5%;width:12.5%"></i><i class="p" style="left:40%;width:12.5%"></i><i class="p" style="left:65%;width:12.5%"></i></div></td>
+                  <td class="exc-cell"></td><td><a class="edit" href="#">Edit</a></td></tr>
+                <tr><th scope="row">Sunday</th>
+                  <td><span class="pat" style="--sw:#b3791f">HSC Sunday–Monday</span><span class="hours">Class hours 9:00 – 1:15</span></td>
+                  <td class="tl-cell"><div class="tl" aria-label="4 periods from 9:00 AM to 1:15 PM"><i class="p" style="left:10%;width:10%"></i><i class="p" style="left:20%;width:10%"></i><i class="p" style="left:30%;width:10%"></i><i class="p" style="left:40%;width:12.5%"></i></div></td>
+                  <td class="exc-cell"></td><td><a class="edit" href="#">Edit</a></td></tr>
+                <tr><th scope="row">Monday</th>
+                  <td><span class="pat" style="--sw:#b3791f">HSC Sunday–Monday</span><span class="hours">Class hours 9:00 – 1:15</span></td>
+                  <td class="tl-cell"><div class="tl"><i class="p" style="left:10%;width:10%"></i><i class="p" style="left:20%;width:10%"></i><i class="p" style="left:30%;width:10%"></i><i class="p" style="left:40%;width:12.5%"></i></div></td>
+                  <td class="exc-cell"></td><td><a class="edit" href="#">Edit</a></td></tr>
+                <tr><th scope="row">Tuesday</th>
+                  <td><span class="pat" style="--sw:#56615a">HSC Tuesday</span><span class="hours">Class hours 9:00 – 2:45</span></td>
+                  <td class="tl-cell"><div class="tl"><i class="p" style="left:10%;width:10%"></i><i class="p" style="left:20%;width:10%"></i><i class="p" style="left:30%;width:10%"></i><i class="p" style="left:40%;width:12.5%"></i><i class="p" style="left:55%;width:12.5%"></i></div></td>
+                  <td class="exc-cell"><span class="exc">HSC-24B: own periods</span></td><td><a class="edit" href="#">Edit</a></td></tr>
+                <tr class="off"><th scope="row">Wednesday</th><td colspan="2">No HSC classes</td><td class="exc-cell"></td><td><a class="edit" href="#">Add</a></td></tr>
+                <tr class="off"><th scope="row">Thursday</th><td colspan="2">No HSC classes</td><td class="exc-cell"></td><td><a class="edit" href="#">Add</a></td></tr>
+                <tr class="off"><th scope="row">Friday</th><td colspan="2">No HSC classes</td><td class="exc-cell"><span class="exc">HSC-25B: extra day</span></td><td><a class="edit" href="#">Add</a></td></tr>
+              </tbody>
+            </table>
+            </div>
+          </section>
+
+          <section class="section" aria-labelledby="ex">
+            <header><h2 id="ex">Batch exceptions</h2><a href="#">+ Add exception</a></header>
+            <p class="lead">An exception changes one batch only. Every other batch keeps the stream's week.</p>
+            <ul class="exc-list">
+              <li><b class="batch">HSC-25B</b>
+                <span class="what"><span class="tag extra">Extra day</span><strong>Friday</strong> · periods <strong>HSC Friday morning</strong> (9:00 – 12:00)</span>
+                <a href="#">Edit</a>
+                <span class="why">Reason: replacement slot agreed with the batch (sample).</span></li>
+              <li><b class="batch">HSC-24B</b>
+                <span class="what"><span class="tag diff">Own periods</span><strong>Tuesday</strong> · periods <strong>Lab block</strong> (9:00 – 2:00)</span>
+                <a href="#">Edit</a>
+                <span class="why">Reason: 2½-hour lab sessions this term (sample).</span></li>
+              <li><b class="batch">HSC-23B</b>
+                <span class="what"><span class="tag none">No classes</span><strong>Monday</strong></span>
+                <a href="#">Edit</a>
+                <span class="why">Reason: batch has an off-campus day (sample). Classes placed here are flagged as clashes.</span></li>
+            </ul>
+          </section>
+
+          <section class="section" aria-labelledby="pv">
+            <header><h2 id="pv">Preview: HSC Tuesday</h2><a href="#">Open in builder</a></header>
+            <p class="lead">When batches on the same day use different periods, each group gets its own header row, like the separate tables in the printed individual routine.</p>
+            <div class="pv" role="region" aria-label="Tuesday preview" tabindex="0">
+              <table class="pv-grid">
+                <thead>
+                  <tr class="grp"><th colspan="7">HSC Tuesday <span>HSC-29B · 28B · 27B · 26B</span></th></tr>
+                  <tr class="hd"><th>Batch</th><th>9:00–10:00</th><th>10:00–11:00</th><th>11:00–12:00</th><th>12:00–1:15</th><th class="brkcol" aria-label="gap"></th><th>1:30–2:45</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>HSC-29B</th><td><span class="c"><b>MTH-1101</b><span>MJ · NB-508</span></span></td><td></td><td><span class="c"><b>CSE-1101</b><span>HEH · NB-408</span></span></td><td></td><td class="brkcol"></td><td></td></tr>
+                  <tr><th>HSC-28B</th><td></td><td><span class="c"><b>CSE-1203</b><span>NH · NB-408</span></span></td><td></td><td><span class="c"><b>CSE-1204</b><span>NH · NB-407</span></span></td><td class="brkcol"></td><td></td></tr>
+                  <tr><th>HSC-26B</th><td><span class="c"><b>CSE-2103</b><span>AKS · NB-407</span></span></td><td></td><td></td><td></td><td class="brkcol"></td><td><span class="c"><b>CSE-2207</b><span>MJ · NB-503</span></span></td></tr>
+                </tbody>
+                <thead>
+                  <tr class="grp"><th colspan="7">Lab block <span>HSC-24B only</span></th></tr>
+                  <tr class="hd"><th>Batch</th><th colspan="2">9:00–11:30</th><th colspan="2">11:30–2:00</th><th colspan="2"></th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>HSC-24B</th><td colspan="2"><span class="c"><b>CSE-3200</b><span>SR · NB-407</span></span></td><td colspan="2"><span class="c"><b>CSE-3108</b><span>MM · NB-406</span></span></td><td colspan="2"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <aside class="editor" aria-labelledby="ed">
+          <header>
+            <h2 id="ed">Edit periods: HSC Sunday–Monday</h2>
+            <p class="sub">Used on Sunday and Monday by 7 HSC batches.</p>
+          </header>
+          <div class="ed-body">
+            <div class="field"><label class="lbl" for="pn">Name</label><input class="inp" id="pn" value="HSC Sunday–Monday"></div>
+            <span class="lbl">Periods and breaks</span>
+            <ol class="rows">
+              <li class="changed"><span class="k">Period 1</span><input class="inp mono" value="9:30 AM" aria-label="Period 1 start"><span class="dash">–</span><input class="inp mono" value="10:45 AM" aria-label="Period 1 end"><button class="x" aria-label="Remove period 1">×</button></li>
+              <li class="changed"><span class="k">Period 2</span><input class="inp mono" value="10:45 AM" aria-label="Period 2 start"><span class="dash">–</span><input class="inp mono" value="12:00 PM" aria-label="Period 2 end"><button class="x" aria-label="Remove period 2">×</button></li>
+              <li class="changed"><span class="k">Period 3</span><input class="inp mono" value="12:00 PM" aria-label="Period 3 start"><span class="dash">–</span><input class="inp mono" value="1:15 PM" aria-label="Period 3 end"><button class="x" aria-label="Remove period 3">×</button></li>
+              <li class="brk"><span class="k">Break</span><input class="inp mono" value="1:15 PM" aria-label="Break start"><span class="dash">–</span><input class="inp mono" value="2:30 PM" aria-label="Break end"><button class="x" aria-label="Remove break">×</button>
+                <span class="brk-opt"><input class="inp" value="Lunch" aria-label="Break name" style="max-width:120px"><label><input type="checkbox"> No classes allowed</label></span></li>
+              <li class="changed"><span class="k">Period 4</span><input class="inp mono" value="2:30 PM" aria-label="Period 4 start"><span class="dash">–</span><input class="inp mono" value="3:45 PM" aria-label="Period 4 end"><button class="x" aria-label="Remove period 4">×</button></li>
+            </ol>
+            <div class="linkbtns">
+              <button class="btn sm" type="button"><svg><use href="#i-plus"/></svg>Period</button>
+              <button class="btn sm" type="button"><svg><use href="#i-plus"/></svg>Break</button>
+              <button class="btn sm" type="button">Fill evenly…</button>
+            </div>
+            <div class="tl" aria-label="New timeline" style="margin-bottom:4px"><i class="p" style="left:15%;width:12.5%"><span>9:30</span></i><i class="p" style="left:27.5%;width:12.5%"><span>10:45</span></i><i class="p" style="left:40%;width:12.5%"><span>12:00</span></i><i class="b" style="left:52.5%;width:12.5%"></i><i class="p" style="left:65%;width:12.5%"><span>2:30</span></i></div>
+            <div class="tl-scale" aria-hidden="true" style="margin-bottom:12px"><span style="left:0%">8</span><span style="left:20%">10</span><span style="left:40%">12</span><span style="left:60%">2</span><span style="left:80%">4</span><span style="left:98%">6</span></div>
+
+            <div class="impact" role="status">
+              <b>Before you save</b>: 46 classes on Sunday and Monday no longer start at a period. They keep their exact times until moved.
+              <ul>
+                <li>3 classes would fall outside the class hours (9:00 – 1:15): <span class="code">CSE-2203</span>, <span class="code">CSE-3107</span>, <span class="code">EEE-1101</span></li>
+              </ul>
+              <label><input type="checkbox" checked> Change class hours to 9:30 AM – 3:45 PM</label>
+              <label><input type="checkbox"> Move each class to the new period in the same position (period 1 → period 1). 43 can move; 3 two-period labs need placing by hand.</label>
+            </div>
+            <div class="ed-actions"><button class="btn" type="button">Cancel</button><button class="btn primary" type="button">Save periods</button></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 30 September 2026: UX-01 (#18) is accepted and merged. Next issue: RUT-04 ([#34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)), term time grids, selected by the owner and being specified on `codex/rut-04`. It is not yet approved for implementation.**
+**State on 30 September 2026: UX-01 (#18) is accepted and merged. Next issue: RUT-04 ([#34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)), term time grids, selected by the owner and specified on `codex/rut-04` ([spec](specs/RUT-04/spec.md), [plan](specs/RUT-04/plan.md), [mockup](specs/RUT-04/mockups/days-and-periods.html)). It awaits owner approval and decisions D-1–D-4; resume from the plan's checkpoint.**
 
 - **Last completed:** [UX-01 / #18](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18), the responsive, accessible and plain-spoken portal baseline with the Routine builder workbench ([amendment A](specs/UX-01/amendment-a-routine-builder.md)). The owner accepted it on 30 September 2026; it also closed #30.
   - Records: [spec](specs/UX-01/spec.md), [plan](specs/UX-01/plan.md), [verification/acceptance](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/). Deferred builder features are in #33.
