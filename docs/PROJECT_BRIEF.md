@@ -16,6 +16,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
   - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
 - **Bugs found during UX-01 inspection:** #29 (database-stamped times are 6 hours ahead; fix before AUTH-01), #31 (People & Access confirmations), #32 (public viewer actions).
 - **Other candidates after UX-01:** AUTH-01 (#1, needs OAuth credentials and hosted PostgreSQL), ATT-02 (#9), SAFE-01 follow-ups #24–#28.
+- **Owner brainstorm, 30 September 2026:** new proposals #34–#42 (term time grids, individual teacher routine print, email/password sign-in, student import/export, calendar, dated class changes, leave, teacher agenda, certificates). The recommended next issue after UX-01 is RUT-04 (#34), then TCH-02 (#35). See the [triage record](plans/owner-brainstorm-2026-09-30.md); each still needs spec and approval.
 - **Last completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.
   - Records: [spec](specs/SAFE-01/spec.md), [plan](specs/SAFE-01/plan.md), [verification/acceptance](specs/SAFE-01/verification.md), [mutation inventory](operations/SAFE-01-mutation-inventory.md), [recovery runbook](operations/DATABASE_RECOVERY.md).
   - Operational ownership (D-07) was deferred to DEP-01 (#19) by the owner.

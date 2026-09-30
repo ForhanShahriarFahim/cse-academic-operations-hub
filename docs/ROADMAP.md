@@ -12,6 +12,7 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
+- Owner brainstorm (30 September 2026) registered #34–#42 and added owner input to #4–#8, #12 and #14; [triage and recommended order](plans/owner-brainstorm-2026-09-30.md). None is approved for implementation.
 - Missing original specification and institutional source/policy gates are recorded in the [decision register](decisions/INSTITUTIONAL_DECISIONS.md).
 
 Use [product requirements](PRODUCT_REQUIREMENTS.md) for behavior, [workflow](WORKFLOW.md) for delivery and the [brief](PROJECT_BRIEF.md) for fast resumption.
@@ -41,6 +42,15 @@ Dependencies are gates, not estimates. When a gate needs institutional input, co
 | 10 | [#12 ATT-05](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/12) | Course-by-date ledger, student matrix and filterable CSV/print from one projection. | #11 |
 | 10 | [#13 OD-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) | Term-aware external commitments with known-fact conflict impact, edit/archive/verify and no duplicate formal offering. | #4, #5, #7 |
 | 11 | [#15 GOV-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/15) | Two-person routine approval and teacher claim → reviewer → payment states with reasoned audit transitions. | #3, #13, #14 |
+| 2b | [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34) | Term-scoped time grids, teaching days and batch day exceptions replace hard-coded periods; clone from previous term; impact preview; screen/print/CSV parity. | UX-01; delivers part of #14 |
+| 2b | [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35) | Individual teacher routine on screen, A4 print and .docx from the owner's template; bulk print. | #34 preferred; #1 for "my" view |
+| 3a | [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36) | Email/password sign-in with administrator setup/reset links, lockout, session revocation and role management. | #29, #31; overlaps #1 |
+| 6a | [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) | Student directory, CSV/.xlsx import with preview, one-step enrolment and roster export. | #6, #9 pattern |
+| 7a | [#38 CAL-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) | Term calendar: holidays, exam periods, teaching dates. | #6/#14 terms |
+| 7b | [#40 LEAVE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/40) | Leave apply/approve with balances and private reasons; teacher availability lookup by date. | #38; #39 for affected classes |
+| 7c | [#39 RUT-05](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/39) | Dated cancel/make-up/substitute classes and the effective schedule for any date. | #38 |
+| Later | [#41 TASK-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/41) | Teacher day agenda: classes, portal-generated tasks, personal and assigned duties. | #39, #10 |
+| Later | [#42 CERT-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/42) | Template certificates with a field designer, single/bulk PDF and an issue register. | #37; template format decision |
 | Release | [#19 DEP-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/19) | Vercel staging then production with hosted PostgreSQL, OAuth, backup, telemetry, smoke tests and rollback drill. | #1, #2, DOC-01; public launch also #3 and #15 |
 
 Independent issues can move when blocked, but do not start a new feature before its plan is reviewed. `#16` remains the open GitHub index and should always point to the next unblocked issue.
