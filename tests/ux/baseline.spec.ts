@@ -12,7 +12,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 
 const internalRoutes = [
   "/", "/routine", "/routine?view=week", "/attendance", "/extra-load", "/conflicts", "/teachers", "/workload",
-  "/rooms", "/batches", "/courses", "/od", "/publications", "/settings", "/access", "/routine/official",
+  "/rooms", "/batches", "/courses", "/od", "/publications", "/settings", "/access", "/routine/official", "/routine/periods",
 ];
 const publicRoutes = ["/public/routine", "/public/routine?view=week"];
 /** Known violations with an owner or a recorded reason: route → axe rule ids. */

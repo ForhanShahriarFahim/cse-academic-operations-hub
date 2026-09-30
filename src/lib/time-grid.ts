@@ -301,8 +301,8 @@ export interface ProposedMove { meetingId: number; courseCode: string; dayOfWeek
 export interface GridImpact {
   /** Classes on affected days that started at a period before and no longer do. */
   misaligned: ImpactMeeting[];
-  /** Classes that would sit outside class hours or on a no-classes day. */
-  breaking: Array<{ meeting: ImpactMeeting; reason: string }>;
+  /** Classes that would sit outside class hours or on a no-classes day; `resolvedByMove` when the same-position move fixes it. */
+  breaking: Array<{ meeting: ImpactMeeting; reason: string; resolvedByMove: boolean }>;
   /** Same-position moves for misaligned classes whose length matches a run of periods. */
   moves: ProposedMove[];
   /** Misaligned classes that cannot be moved automatically. */
@@ -380,7 +380,12 @@ export function analyzeGridChange(input: {
       if (move) moves.push(move);
       else manual.push(m);
     }
-    if (reason) breaking.push({ meeting: m, reason: `${m.courseCode} (${fmtRange(m.startMinutes, m.endMinutes)}): ${reason}.` });
+    if (reason) {
+      const resolvedByMove = !aligned && move != null && m.audiences.every((a) =>
+        effectivePlan(input.after, a.stream, a.batchId, m.dayOfWeek).pattern != null
+        && allowedByWindows(input.windowsAfter, a.stream, a.batchId, m.dayOfWeek, move!.startMinutes, move!.endMinutes));
+      breaking.push({ meeting: m, reason: `${m.courseCode} (${fmtRange(m.startMinutes, m.endMinutes)}): ${reason}.`, resolvedByMove });
+    }
   }
   return { misaligned, breaking, moves, manual, affected };
 }

@@ -148,6 +148,7 @@ assert.deepEqual(impact.misaligned.map((m) => m.id), [1, 2]);
 assert.deepEqual(impact.moves.map((m) => [m.meetingId, m.startMinutes, m.endMinutes]), [[1, 570, 645], [2, 645, 795]], "same position, spanning periods 2–3");
 assert.deepEqual(impact.manual, []);
 assert.deepEqual(impact.breaking.map((b) => b.meeting.id), [1], "only the 9:00 class leaves the new hours");
+assert.equal(impact.breaking[0].resolvedByMove, true, "moving it to 9:30 puts it back inside the hours");
 assert.match(impact.breaking[0].reason, /^A \(9:00 AM – 10:00 AM\): outside HSC-26B class hours on Sunday\.$/);
 const closing = analyzeGridChange({
   meetings: impactMeetings, before: legacy, windowsBefore: hours, windowsAfter: hours,

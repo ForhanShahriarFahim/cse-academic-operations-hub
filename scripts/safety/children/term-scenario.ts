@@ -12,6 +12,7 @@ import type * as PublicModule from "../../../src/lib/public-routine";
 import type * as WorkloadModule from "../../../src/lib/workload";
 import type * as ActionsModule from "../../../src/lib/actions";
 import type * as AcademicActionsModule from "../../../src/lib/academic-actions";
+import type * as TimeGridActionsModule from "../../../src/lib/time-grid-actions";
 
 type RouteModule = { GET(request: Request): Promise<Response> };
 
@@ -98,6 +99,7 @@ async function publish(summary: string) {
 async function crossTerm(ids: Record<string, number>) {
   const actions = loadApp<typeof ActionsModule>("src/lib/actions.ts");
   const academic = loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts");
+  const grid = loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts");
   const meetingForm = new FormData();
   meetingForm.set("teachingGroupId", String(ids.teachingGroupId));
   meetingForm.set("dayOfWeek", "3");
@@ -112,7 +114,9 @@ async function crossTerm(ids: Record<string, number>) {
     ["deleteMeeting", () => actions.deleteMeetingAction(ids.meetingId)],
     ["verifyExternal", () => actions.verifyExternalAction(ids.externalId)],
     ["deleteExternal", () => actions.deleteExternalAction(ids.externalId)],
-    ["deletePermittedWindow", () => academic.deletePermittedWindowAction(ids.windowId)],
+    ["savePattern", () => grid.savePatternAction({ patternId: ids.patternId, expectedUpdatedAt: null, name: "Cross-term", periods: [{ start: 540, end: 600 }], breaks: [], updateHours: false, moveClasses: false })],
+    ["deletePattern", () => grid.deletePatternAction(ids.patternId, null)],
+    ["removeException", () => grid.removeExceptionAction(ids.exceptionId, null)],
     ["deleteExtraLoadClass", () => academic.deleteExtraLoadClassAction(ids.extraLoadClassId)],
     ["deleteManualTopSheetRow", () => academic.deleteManualTopSheetRowAction(ids.manualSummaryId)],
     ["saveAttendance", () => academic.saveAttendanceAction(ids.attendanceSessionId, [{ studentId: ids.studentId, status: "excused" }])],
@@ -131,12 +135,25 @@ async function crossTerm(ids: Record<string, number>) {
   report(results);
 }
 
+/** One Days & periods action (RUT-04), reported as its result. */
+async function gridAction(spec: { action: "savePatternAction" | "copyGridFromTermAction"; args: unknown[] }) {
+  const grid = loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts");
+  const action = grid[spec.action] as (...args: unknown[]) => Promise<{ ok: boolean; message: string; outcome?: unknown }>;
+  try {
+    const result = await action(...spec.args);
+    report({ ok: result.ok, message: result.message, outcome: result.outcome });
+  } catch (error) {
+    report({ ok: false, threw: true, message: error instanceof Error ? error.message : String(error) });
+  }
+}
+
 async function main() {
   const [command, email, argument] = process.argv.slice(2);
   signInAs(email);
   if (command === "view") await view();
   else if (command === "publish") await publish(argument ?? "");
   else if (command === "cross-term") await crossTerm(JSON.parse(argument));
+  else if (command === "grid-action") await gridAction(JSON.parse(argument));
   else throw new Error(`Unknown command ${command}`);
 }
 

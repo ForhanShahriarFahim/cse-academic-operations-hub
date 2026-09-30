@@ -9,7 +9,7 @@ import path from "node:path";
 import { eq, sql } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
 import { DEFAULT_PGLITE_DIR, UnsafeTargetError } from "./targets";
-import { createOwnedRun, migrateOwned, openOwnedPglite, removeOwnedRun, type OwnedRun } from "./pglite";
+import { MIGRATIONS_FOLDER, createOwnedRun, migrateOwned, openOwnedPglite, removeOwnedRun, type OwnedRun } from "./pglite";
 import { fingerprintDatabase, fingerprintDifferences, type DatabaseFingerprint } from "./fingerprint";
 import { populateSummerFixture } from "./fixture";
 import {
@@ -65,7 +65,8 @@ export async function checkRecovery(): Promise<string[]> {
     }
     const populated = Object.entries(original.tables).filter(([, table]) => table.rows > 0);
     assert.ok(populated.length >= 30, `fixture should populate most tables, got ${populated.length}`);
-    assert.equal(original.tables["drizzle.__drizzle_migrations"].rows, 6);
+    const migrationCount = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
+    assert.equal(original.tables["drizzle.__drizzle_migrations"].rows, migrationCount, "every journal migration applied");
 
     // Location refusals.
     await assert.rejects(() => createColdBackup(source, path.join(source.root, "backup")), unsafe(/same or nested/));
@@ -117,7 +118,7 @@ export async function checkRecovery(): Promise<string[]> {
       assert.equal(department.id, 3);
       await migrateOwned(reopened);
       const journal = await reopened.db.execute<{ count: number }>(sql`select count(*)::int as count from drizzle.__drizzle_migrations`);
-      assert.equal(journal.rows[0].count, 6);
+      assert.equal(journal.rows[0].count, migrationCount);
     } finally {
       await reopened.close();
     }

@@ -5,7 +5,7 @@
  */
 import assert from "node:assert/strict";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, and, isNotNull } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
 import { pgliteFactory, withHandle, type DatabaseFactory, type SafetyDatabase, type SafetyHandle } from "./database";
 import { fingerprintDatabase, fingerprintDifferences, selectFingerprint, type TableFingerprint } from "./fingerprint";
@@ -13,6 +13,7 @@ import { activateTerm, populateSpringFixture, populateSummerFixture, type Summer
 
 const SCENARIO = path.join(__dirname, "children", "term-scenario.ts");
 const ADMIN = "admin@example.invalid";
+const TEACHER = "teacher-a@example.invalid";
 
 type View = {
   term: { id: number; name: string };
@@ -53,7 +54,7 @@ function historyQueries(termId: number, auditMaxId: number): Record<string, stri
       "academic_policies", "batch_term_placements", "class_representatives", "department_contacts",
       "routine_source_reconciliations", "course_offerings", "teaching_groups", "external_commitments",
       "workload_allocations", "schedule_versions", "extra_load_classes", "extra_load_manual_summaries",
-      "course_enrollments", "attendance_sessions", "permitted_windows",
+      "course_enrollments", "attendance_sessions", "permitted_windows", "period_patterns", "day_plans",
     ].map((table) => [table, scoped(table)])),
     teaching_group_offerings: `select * from teaching_group_offerings where teaching_group_id in (${groups})`,
     teaching_requirements: `select * from teaching_requirements where teaching_group_id in (${groups})`,
@@ -87,7 +88,8 @@ async function termRecordIds(handle: SafetyHandle, termId: number, groupId: numb
     roomId: await id(handle.db.select().from(schema.rooms).where(eq(schema.rooms.code, "SX-406"))),
     meetingId: await id(handle.db.select().from(schema.meetings).where(eq(schema.meetings.teachingGroupId, groupId))),
     externalId: await id(handle.db.select().from(schema.externalCommitments).where(eq(schema.externalCommitments.termId, termId))),
-    windowId: await id(handle.db.select().from(schema.permittedWindows).where(eq(schema.permittedWindows.termId, termId))),
+    patternId: await id(handle.db.select().from(schema.periodPatterns).where(eq(schema.periodPatterns.termId, termId))),
+    exceptionId: await id(handle.db.select().from(schema.dayPlans).where(and(eq(schema.dayPlans.termId, termId), isNotNull(schema.dayPlans.batchId)))),
     extraLoadClassId: await id(handle.db.select().from(schema.extraLoadClasses).where(eq(schema.extraLoadClasses.termId, termId))),
     manualSummaryId: await id(handle.db.select().from(schema.extraLoadManualSummaries).where(eq(schema.extraLoadManualSummaries.termId, termId))),
     attendanceSessionId: session?.id ?? 0,
@@ -196,6 +198,49 @@ export async function checkHistory(factory: DatabaseFactory = pgliteFactory): Pr
     assert.deepEqual(wronglyRefused, []);
     assert.ok(sameTerm.saveAttendance.ok && sameTerm.deleteExtraLoadClass.ok && sameTerm.verifyExternal.ok, JSON.stringify(sameTerm));
     lines.push(`Cross-term writes refused: ${Object.keys(crossTerm).length} id-based actions against Summer rows while Spring is active (Summer history unchanged); the same actions on Spring rows are not blocked`);
+
+    // RUT-04: Days & periods actions change only the active term, with guards, stale checks and audit.
+    type GridResult = { ok: boolean; message: string; outcome?: { kind: string; reason?: string }; threw?: boolean };
+    const gridAction = (email: string, action: string, args: unknown[]) => child<GridResult>(run, ["grid-action", email, JSON.stringify({ action, args })]);
+    const springGrid = () => withHandle(run, async (handle) => ({
+      patterns: (await handle.db.select().from(schema.periodPatterns).where(eq(schema.periodPatterns.termId, spring.termId)))
+        .map((p) => ({ id: p.id, name: p.name, periods: p.periods, breaks: p.breaks, updatedAt: p.updatedAt.toISOString() })).sort((a, b) => a.name.localeCompare(b.name)),
+      plans: (await handle.db.select().from(schema.dayPlans).where(eq(schema.dayPlans.termId, spring.termId)))
+        .map((p) => `${p.stream}:${p.batchId ?? "-"}:${p.dayOfWeek}`).sort(),
+      audits: (await handle.db.select().from(schema.auditEvents)).filter((a) => a.action.startsWith("time_grid.")).map((a) => a.action),
+    }));
+    const before = await springGrid();
+    const hsc = before.patterns.find((p) => p.name === "Spring HSC")!;
+    const newPeriods = [{ start: 570, end: 645 }, { start: 645, end: 720 }, { start: 720, end: 795 }];
+    const save = (expected: string | null) => ({ patternId: hsc.id, expectedUpdatedAt: expected, name: "Spring HSC", periods: newPeriods, breaks: [], updateHours: true, moveClasses: true });
+
+    const teacherTry = await gridAction(TEACHER, "savePatternAction", [save(hsc.updatedAt)]);
+    assert.deepEqual([teacherTry.ok, teacherTry.outcome?.kind], [false, "permission"], JSON.stringify(teacherTry));
+    const staleTry = await gridAction(ADMIN, "savePatternAction", [save("2000-01-01T00:00:00.000Z")]);
+    assert.deepEqual([staleTry.ok, staleTry.outcome?.kind, staleTry.outcome?.reason], [false, "stale", "changed"], JSON.stringify(staleTry));
+    assert.deepEqual(await springGrid(), before, "refused grid actions change nothing");
+
+    const saved = await gridAction(ADMIN, "savePatternAction", [save(hsc.updatedAt)]);
+    assert.ok(saved.ok && !saved.threw, JSON.stringify(saved));
+    const afterSave = await springGrid();
+    assert.deepEqual(afterSave.patterns.find((p) => p.id === hsc.id)!.periods, newPeriods);
+    assert.deepEqual(afterSave.audits.filter((a) => a === "time_grid.pattern.save").length, before.audits.filter((a) => a === "time_grid.pattern.save").length + 1);
+    assert.deepEqual(await withHandle(run, (handle) => history(handle, summer.termId, auditMaxId)), summerHistory, "a Spring grid change leaves Summer unchanged");
+
+    const staleCopy = await gridAction(ADMIN, "copyGridFromTermAction", [summer.termId, 99]);
+    assert.deepEqual([staleCopy.ok, staleCopy.outcome?.kind], [false, "stale"], JSON.stringify(staleCopy));
+    const copied = await gridAction(ADMIN, "copyGridFromTermAction", [summer.termId, afterSave.patterns.length]);
+    assert.ok(copied.ok, JSON.stringify(copied));
+    const afterCopy = await springGrid();
+    const summerGrid = await withHandle(run, async (handle) => ({
+      patterns: (await handle.db.select().from(schema.periodPatterns).where(eq(schema.periodPatterns.termId, summer.termId))).map((p) => `${p.name}:${JSON.stringify(p.periods)}:${JSON.stringify(p.breaks)}`).sort(),
+      plans: (await handle.db.select().from(schema.dayPlans).where(eq(schema.dayPlans.termId, summer.termId))).map((p) => `${p.stream}:${p.batchId ?? "-"}:${p.dayOfWeek}`).sort(),
+    }));
+    assert.deepEqual(afterCopy.patterns.map((p) => `${p.name}:${JSON.stringify(p.periods)}:${JSON.stringify(p.breaks)}`).sort(), summerGrid.patterns);
+    assert.deepEqual(afterCopy.plans, summerGrid.plans);
+    assert.ok(afterCopy.audits.includes("time_grid.copy"));
+    assert.deepEqual(await withHandle(run, (handle) => history(handle, summer.termId, auditMaxId)), summerHistory, "copying from Summer leaves Summer unchanged");
+    lines.push("Days & periods: a teacher is denied and a stale edit refused with no change; a Spring pattern edit (with class hours and moves) and a copy from Summer change only Spring, write audits, and leave Summer history unchanged");
     return lines;
   } finally {
     await run.dispose();

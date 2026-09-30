@@ -19,3 +19,15 @@ export async function actionActor(capability: Capability, resource?: Resource): 
   try { return await authorize(capability, resource); }
   catch (error) { return denied(error); }
 }
+
+/** Allowed when the actor holds any one of the capabilities (for example RUT-04 grid editing, decision D-1). */
+export async function guardAnyAction(capabilities: Capability[], resource?: Resource): Promise<ActionDenied | null> {
+  let last: ActionDenied | null = null;
+  for (const capability of capabilities) {
+    const result = await guardAction(capability, resource);
+    if (!result) return null;
+    if (result.outcome?.kind === "permission" && result.outcome.reason === "unauthenticated") return result;
+    last = result;
+  }
+  return last;
+}
