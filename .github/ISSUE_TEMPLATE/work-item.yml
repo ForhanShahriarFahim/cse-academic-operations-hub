@@ -1,0 +1,64 @@
+name: Work item
+description: A bounded feature, bug, refinement or documentation outcome.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check for an existing issue first. Keep secrets, database dumps and private student data out of this form.
+        An issue tracks work; creating it does not approve implementation. Use docs/WORKFLOW.md and versioned issue records.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Work type
+      options:
+        - Feature
+        - Bug
+        - Refinement
+        - Documentation
+    validations:
+      required: true
+  - type: input
+    id: work-code
+    attributes:
+      label: Work code
+      description: Existing project code, if assigned; preserve existing issue IDs.
+      placeholder: SAFE-01
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and current behavior
+      description: Describe affected users and inspected evidence. For a bug, include reproduction and environment.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: Describe observable behavior, including relevant edge cases and permissions.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and exclusions
+      description: Bound this issue; identify related work deferred to other issues.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use testable AC identifiers and explain how completion will be verified.
+      placeholder: AC-01 — When ..., the system ...; verified by ...
+    validations:
+      required: true
+  - type: textarea
+    id: gates
+    attributes:
+      label: Dependencies and unanswered decisions
+      description: Link issue IDs, institutional answers and required test environments.
+  - type: textarea
+    id: records
+    attributes:
+      label: Specification, plan and evidence
+      description: Link versioned records when available. Record actual owner approval before implementation; templates are not approval.

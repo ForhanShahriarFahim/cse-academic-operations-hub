@@ -2,6 +2,8 @@
 
 Updated: 26 September 2026. This is the short current-state handover for a new maintainer or coding agent. Read the [README](../README.md) for installation, routes and operator workflows; the [execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) for ordered issues, acceptance gates and decisions; the [implementation roadmap](IMPLEMENTATION_SOLUTION_ROADMAP.md) for feature rationale; and [CONTEXT.md](../CONTEXT.md) for domain language. [GitHub issue #16](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) is the live index. Prefer these current documents over old chat summaries.
 
+Workflow update: 30 September 2026. Read [WORKFLOW.md](WORKFLOW.md) for the shared issue lifecycle, branch/commit policy and focused handoffs. Current documentation work is [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20); [its approved plan](plans/WORKFLOW-01.md) tracks delivery. The owner authorized Step 2; requirements/roadmap migration follows in Step 3. SAFE-01 remains the next feature proposal.
+
 Superseded handover/context and completed feature plans were removed from the working tree because they contradicted the current auth/source state. They remain recoverable in Git history; do not use them as live instructions.
 
 ## What the application does

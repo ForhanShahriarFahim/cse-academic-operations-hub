@@ -206,7 +206,8 @@ cse-academic-operations-hub/
 │   ├── plans/                     # Current execution plan
 │   ├── source/                    # Summer 2026 routine transcription
 │   ├── screenshots/               # README product screenshots
-│   ├── templates/                 # Extra-load template analysis
+│   ├── templates/                 # Issue planning and extra-load print references
+│   ├── WORKFLOW.md                # Shared development lifecycle and Git practices
 │   ├── PROJECT_BRIEF.md           # Current-state agent/operator handoff
 │   └── IMPLEMENTATION_SOLUTION_ROADMAP.md # Feature rationale
 ├── scripts/
@@ -288,6 +289,8 @@ development data, not as an approved official schedule.
 ## Documentation
 
 - [Project brief — fastest current-state handoff](docs/PROJECT_BRIEF.md)
+- [Shared development workflow — approval, branches and verification](docs/WORKFLOW.md)
+- [Workflow setup — approved plan and delivery checkpoint](docs/plans/WORKFLOW-01.md)
 - [Execution plan — order, gates and next issue](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
 - [Implementation roadmap — feature rationale and issue codes](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md)
 - [Domain glossary](CONTEXT.md)

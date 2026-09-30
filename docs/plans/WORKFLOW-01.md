@@ -1,6 +1,6 @@
 # WORKFLOW-01 — Shared spec-driven development workflow
 
-Status: Approved layout and documentation-only scope; Step 2 in progress.
+Status: Step 2 delivered; Step 3 document migration remains pending.
 Prepared: 30 September 2026 (Asia/Dhaka).
 Branch: `codex/workflow-setup`.
 GitHub issue: [#20 WORKFLOW-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20).
@@ -127,8 +127,8 @@ Brief and roadmap status summaries identify their reconciliation date. They link
 - [x] S1: Inspect current entry points and document structure; create the planning branch and this proposal.
 - [x] S1 gate: Owner agrees on the proposed layout, migration scope and operating policy (30 September 2026; approval quoted above).
 - [x] S2: Inspect existing GitHub issues; register or reuse the bounded workflow documentation issue and record its actual URL/number. Registered #20 after inspecting existing issues and index #16; DOC-01 remains its separate completed issue.
-- [ ] S2: Record actual approval and issue reference; check and commit the approved proposal before restructuring.
-- [ ] S2: Add workflow and planning/GitHub templates; refine shared entry instructions. Review, check and commit the coherent documentation slice.
+- [x] S2: Record actual approval and issue reference; check and commit the approved proposal before restructuring. Plan commit `9463fb5` pushed to the issue branch.
+- [x] S2: Add workflow and planning/GitHub templates; refine shared entry instructions. Documentation checks and review completed; delivered in the Step 2 commit containing this checkpoint.
 - [ ] S3: Migrate requirements, roadmap and institutional decisions; reconcile outdated descriptions and update all references. Review, check and commit this documentation slice.
 - [ ] S4: Check both entry paths, link integrity, ownership, handoff format and preservation of source/issue references; present evidence for acceptance. Live tool-loading verification is recorded only if actually exercised.
 - [ ] S4 gate: Obtain acceptance of the documentation issue before merging or closing it.
@@ -151,4 +151,13 @@ GitHub edits and branch pushes occur at their stated milestones. The approved pl
 
 For this documentation issue, inspect the diff, validate local Markdown links and renamed-path references, check the issue/PR template structure, compare the content migration against source sections, and verify both agent reading paths. Code typecheck, lint, domain tests and build remain mandatory for later code changes; do not launch database-preparation scripts to verify this proposal.
 
-Current checkpoint: owner approval recorded; GitHub #20 registered; approved plan ready for its first commit. Next action: commit the approved plan, then establish the shared workflow and templates in Step 2. Requirements/roadmap migration and feature implementation have not started.
+### Step 2 evidence — 30 September 2026
+
+- Approved plan committed as `9463fb5` and pushed before establishing the workflow/templates.
+- Added shared workflow, three planning templates, GitHub issue form and PR template; updated AGENTS, brief and README entry links. CLAUDE remains `@AGENTS.md`.
+- Checked 53 local Markdown links, whitespace, eight unique issue-form fields and required inputs using the existing `js-yaml` parser; verified the generated Next.js block is unchanged and the diff is documentation/templates only.
+- Static reading-path review passed: CLAUDE → AGENTS → brief/workflow → selected issue plan. Live Claude/Codex loading and GitHub form rendering were not exercised; do not treat the static checks as live certification.
+- Review corrections: rendered template placeholders as code so Markdown does not hide them as HTML; removed the active issue number from AGENTS so the brief/plan own that changing state.
+- Code checks and database commands were not run because the slice changes documentation/templates only.
+
+Current checkpoint: Step 2 established on `codex/workflow-setup`; issue #20 remains open. Commit history identifies the Step 2 delivery revision. Next action: Step 3 requirements/roadmap/decision migration when the owner proceeds to that delivery step. Existing source/architecture documents and feature plans retain their current paths. No feature implementation, merge or closure has occurred.
