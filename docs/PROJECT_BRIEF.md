@@ -1,29 +1,27 @@
 # Project brief — start here
 
-Updated: 26 September 2026. This is the short current-state handover for a new maintainer or coding agent. Read the [README](../README.md) for installation, routes and operator workflows; the [execution plan](plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) for ordered issues, acceptance gates and decisions; the [implementation roadmap](IMPLEMENTATION_SOLUTION_ROADMAP.md) for feature rationale; and [CONTEXT.md](../CONTEXT.md) for domain language. [GitHub issue #16](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) is the live index. Prefer these current documents over old chat summaries.
+Updated: 30 September 2026 (Asia/Dhaka). Implementation/data baseline below was documented on 26 September; this documentation migration did not rerun the seed or certify production. GitHub #1, #2, #16, #17 and #20 were inspected on 30 September.
 
-Superseded handover/context and completed feature plans were removed from the working tree because they contradicted the current auth/source state. They remain recoverable in Git history; do not use them as live instructions.
+Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md) for issue order, [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for behavior, [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates, [CONTEXT.md](../CONTEXT.md) for terms and [README](../README.md) for setup/operators. [Issue #16](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16) is the GitHub index.
 
-## What the application does
+## Current work
 
-This Next.js 16/React 19/TypeScript/Drizzle portal coordinates CSE academic terms, HSC and Diploma cohorts, courses and merged teaching groups, exact-time routines, conflict checks, attendance, teacher workload, extra-load claims, and published print/CSV routines. Local development uses a persistent PGlite database; deployment requires PostgreSQL. Source lives in `src/app`, `src/components`, `src/lib` and `src/db`; SQL migrations live in `drizzle/`.
+[WORKFLOW-01 / #20](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20) establishes the shared Codex/Claude workflow on `codex/workflow-setup`. Steps 2 and 3 are delivered; the owner authorized the document migration. [The approved plan](plans/WORKFLOW-01.md) owns progress/evidence. Step 4 review and owner acceptance precede merge/closure.
 
-- Internal pages require an invited Google account and server-enforced roles. A teacher record is not automatically a portal user. Real OAuth and hosted-PostgreSQL verification are still pending.
-- Coordinators edit a working routine; only a validated, approved immutable snapshot belongs on the public route. The Summer 2026 source import currently has 13 blockers, so a clean seed has no published routine.
-- Attendance records dated Midterm/Final sessions for an enrolled teaching group. Students may come from another department; roster import is CSV-based. Current navigation and feedback need improvement.
-- Extra load is determined from assigned workload credit-hours, not merely catalog credits. A one-credit sessional course currently counts as two workload credit-hours; eligibility is strictly above 15. The default rate is Tk 200 per claimed class and is configurable.
-- Rooms 406–408 are computer labs; room 505 also supports microprocessor/networking. A capable free lab can host theory. Day/time windows can be stream- or cohort-specific; do not turn a one-batch Friday exception into a stream rule.
+[SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) remains the next feature proposal: recovery, second-term preservation, mutation/audit inventory and shared action-result contract. Its retained roadmap proposal requires a separate inspected plan and approval before behavior changes. RUT-01 is completed; DOC-01 (#17) is closed. AUTH-01 (#1) remains open for integration/public-contact work.
 
-## Data and source status
+## Application and preserved baseline
 
-The checked-in [Summer 2026 routine transcription](source/CSE_SUMMER_2026_ROUTINE_V1_6.md) supports the import and contact appendices. It parses 185 source entries; two thesis/project entries are teacher-managed without fixed slots, so a fresh seed creates 183 scheduled meetings, 42 teacher records and 78 courses. Four teacher codes and other source facts still need reconciliation in [RUT-03](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/3). The original specification is missing from this checkout; do not infer institutional decisions from older notes. The owner has selected source §§4–6 as the public teacher, HSC/Diploma CR and query contact scope, including listed personal mobiles. Current code still redacts those fields until the approved source-bounded projection is implemented and publication blockers are cleared. Do not expose the full private directory or invent missing contacts.
+- Next.js 16 / React 19 / TypeScript / Drizzle academic portal: terms/cohorts, courses/merged groups, exact-time routines, conflicts, attendance, workload, extra-load claims and published print/CSV.
+- Source: `src/app`, `src/components`, `src/lib`, `src/db`; migrations: `drizzle/`. Persistent local PGlite is development storage; deployment needs PostgreSQL.
+- Internal access uses invited Google accounts and server roles. A teacher record is distinct from a portal user. OAuth, hosted PostgreSQL and adversarial session/permission verification remain pending.
+- [Summer 2026 source](source/CSE_SUMMER_2026_ROUTINE_V1_6.md): 185 parsed entries, two teacher-managed thesis/project entries without fixed slots, 183 scheduled meetings, 42 teacher records, 78 courses. Thirteen blockers prevent official publication; a clean seed has no published routine.
+- Only approved immutable snapshots are public. Owner-approved contacts come from source §§4–6, including listed personal mobiles; unrelated directories/drafts remain private. Redaction persists until the allowlist is implemented/tested and publication gates pass. Missing contacts and teacher identities must not be invented.
+- Attendance uses dated Midterm/Final sessions and group enrollment independent of student home department. Navigation and result visibility need improvement.
+- Catalog credit differs from workload credit-hours: a one-credit sessional currently counts as two; extra load requires strictly more than 15, with a configurable default Tk 200 per class.
+- Rooms 406–408 are computer labs; 505 also supports microprocessor/networking. A free capable lab can host theory. Batch-specific day/window exceptions must not become stream-wide rules.
+- The original institutional specification is missing; source corrections and policy/operational owners remain [open decisions](decisions/INSTITUTIONAL_DECISIONS.md). Retired documents remain Git history, not live instructions.
 
-## Work protocol
+## Essential checks and data safety
 
-The next implementation issue is [SAFE-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2): backup/restore, second-term preservation and mutation/audit inventory. Its detailed proposal is in the execution plan and must be reviewed before behavior changes. Work one issue at a time: inspect, plan, obtain approval, implement, verify, make a focused commit, update the issue, and close only after acceptance criteria pass. RUT-01 is completed; AUTH-01 has pushed code but remains open for integration verification and public-contact work. Do not mark partial work complete.
-
-Never run `npm run db:reset` on institutional data. Use disposable copies for restore and migration tests; preserve Spring/Summer history, published snapshots and attendance. Keep secrets, database dumps and student private data out of Git. Test typecheck, lint, domain checks and build for code changes, then browser/mobile/print paths appropriate to the issue. Before writing Next.js code, follow [AGENTS.md](../AGENTS.md) and the installed Next.js documentation.
-
-## Fast commands
-
-`npm install` → `npm run dev` starts a fresh local PGlite development copy; see README for Google setup. `npm run typecheck`, `npm run lint`, `npm run test:domain` and `npm run build` are the basic code checks. The real production path needs hosted PostgreSQL, OAuth, tested backups, migration/rollback procedures and separate staging; this repository is not yet production-verified.
+Preserve populated data and historical terms; never run `db:reset` on institutional data. Use disposable copies for recovery/migration tests and keep secrets, dumps and student private data out of Git. For code changes run `npm run typecheck`, `npm run lint`, `npm run test:domain`, `npm run build` and relevant issue checks. Documentation verification uses links/content/template/diff checks. Read installed Next.js documentation before relevant code changes per [AGENTS.md](../AGENTS.md). Production still requires recovery, hosted database/OAuth, staging and release evidence.

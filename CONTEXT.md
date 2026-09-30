@@ -16,6 +16,10 @@ _Avoid_: Semester, term batch
 A cohort's curriculum semester and verified size for one academic term.
 _Avoid_: Batch identity
 
+**Curriculum semester**:
+A cohort's curriculum position, such as Semester 3, recorded by its placement in an academic term.
+_Avoid_: Academic term, session
+
 ## Teaching and scheduling
 
 **Catalog course**:
@@ -81,3 +85,11 @@ _Avoid_: Teacher record
 **Institutional decision**:
 A reviewed choice of policy or source interpretation with an owner, evidence, effective term, and affected operations.
 _Avoid_: Unverified default
+
+**Archive/deactivate**:
+Stop future use while preserving referenced history.
+_Avoid_: Delete
+
+**Delete**:
+Permanent removal, restricted to unused draft mistakes with no historical dependencies.
+_Avoid_: Archive, deactivate

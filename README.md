@@ -28,7 +28,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 ## Project status and next work
 
-The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. New maintainers should start with the concise [project brief](docs/PROJECT_BRIEF.md), then the [current execution plan](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md) and [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16). The longer feature rationale remains in [IMPLEMENTATION_SOLUTION_ROADMAP.md](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md).
+The Summer 2026 source routine is imported as a draft. Its remaining source conflicts are visible in **Validation** and must be resolved before a new official publication. New maintainers should start with the concise [project brief](docs/PROJECT_BRIEF.md), then the [current roadmap](docs/ROADMAP.md) and [GitHub project roadmap](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/16). Product behavior and rationale are recorded in [PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md).
 
 ## Product tour
 
@@ -203,12 +203,15 @@ cse-academic-operations-hub/
 ├── drizzle/                       # SQL migrations and migration metadata
 ├── docs/
 │   ├── architecture/              # Architecture decision records
-│   ├── plans/                     # Current execution plan
+│   ├── plans/                     # Workflow setup plan and delivery evidence
 │   ├── source/                    # Summer 2026 routine transcription
 │   ├── screenshots/               # README product screenshots
-│   ├── templates/                 # Extra-load template analysis
+│   ├── templates/                 # Issue planning and extra-load print references
+│   ├── WORKFLOW.md                # Shared development lifecycle and Git practices
 │   ├── PROJECT_BRIEF.md           # Current-state agent/operator handoff
-│   └── IMPLEMENTATION_SOLUTION_ROADMAP.md # Feature rationale
+│   ├── ROADMAP.md                 # Issue order and dependencies
+│   ├── decisions/                # Institutional approvals and unresolved gates
+│   └── PRODUCT_REQUIREMENTS.md    # Product behavior and feature rationale
 ├── scripts/
 │   ├── verify-domain.ts           # Academic-operations domain smoke checks
 │   └── verify-routine-projection.ts # Routine projection/export regression checks
@@ -288,8 +291,11 @@ development data, not as an approved official schedule.
 ## Documentation
 
 - [Project brief — fastest current-state handoff](docs/PROJECT_BRIEF.md)
-- [Execution plan — order, gates and next issue](docs/plans/PROJECT_EXECUTION_PLAN_2026-09-26.md)
-- [Implementation roadmap — feature rationale and issue codes](docs/IMPLEMENTATION_SOLUTION_ROADMAP.md)
+- [Shared development workflow — approval, branches and verification](docs/WORKFLOW.md)
+- [Workflow setup — approved plan and delivery checkpoint](docs/plans/WORKFLOW-01.md)
+- [Roadmap — order, gates and next issue](docs/ROADMAP.md)
+- [Product requirements — behavior and feature rationale](docs/PRODUCT_REQUIREMENTS.md)
+- [Institutional decisions — approved scope and unanswered questions](docs/decisions/INSTITUTIONAL_DECISIONS.md)
 - [Domain glossary](CONTEXT.md)
 - [Academic-operations architecture decision](docs/architecture/ADR-001-academic-operations-boundaries.md)
 - [Extra-load print-template analysis](docs/templates/extra-load-print-templates.md)
