@@ -1,7 +1,7 @@
 # SAFE-01 — Verification and review
 
 Issue / specification / plan: [#2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2) · [spec](spec.md) · [plan](plan.md) (task authority)
-Verified revision: T-05 checkpoint on `codex/safe-01` (T-01 `af8ec05`, T-02 `37be079`, T-03 `9b6cdd4`, T-04 `437bb09`).
+Verified revision: final T-07 run on the code at `bdf41a9` (T-01 `af8ec05`, T-02 `37be079`, T-03 `9b6cdd4`, T-04 `437bb09`, T-05 `bdf41a9`); the T-07 commit changes documentation only.
 Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs under ignored `.tmp/safe-01/`; 30 September 2026 (Asia/Dhaka). No PostgreSQL server or clients available.
 
 ## Acceptance evidence
@@ -14,8 +14,8 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 | AC-04 | Passed on PGlite; PostgreSQL pending T-06 | `test:safety` → `T-03 two-term history: passed`. The synthetic Summer 2026 term is published through the real `publishAction`; Spring 2027 is then added, with HSC 22B progressing, DIPLOMA 22B repeating, HSC 21B graduating (no placement) and a cross-department student in a new merged group. The real loaders run in pinned children under the controlled runtime: `getPortalData`, `getAttendanceData` for each group, `getExtraLoadData`, `computeWorkloads`, `getPublicRoutineData`, and the internal and public CSV route handlers. With Spring active they show only Spring; the extra-load rate is Spring's; the public routine and CSV return nothing rather than falling back to Summer until Spring is published. Summer history is unchanged after Spring data entry and publication. It covers term rows and their dependants, the snapshot, enrollments, attendance, extra load, teachers, roles and earlier audits. Switching the active term back and forth reproduces each term's projections exactly. Repeated migrations on the populated two-term database change nothing. **Correction:** with Spring active, 10 ID-based actions against Summer rows are now refused (before the fix, 6 succeeded and 2 threw), and a control run confirms Spring rows are not blocked. |
 | AC-05 | Passed on PGlite | [Mutation inventory](../../operations/SAFE-01-mutation-inventory.md): 25 server actions plus 7 other paths, each with an owner, guard and audit class. The bootstrap and activation gaps are fixed. `test:safety` → `T-04 audit atomicity: passed`, on the real code in pinned children. **Activation:** a failing audit leaves the user invited and fails the request; the first sign-in writes one user-attributed audit; later sign-ins write nothing. **Shared `auditedChange` (student create), publication, auto-placement and invitation:** anonymous, read-only viewer and teacher are denied with no row changes (access actions throw `AuthenticationError`/`AuthorizationError`); an injected audit-insert failure rolls back every domain write; success changes exactly the expected tables, with audits attributed to the actor. **Bootstrap command:** a failing audit leaves no user or role; success is atomic with one `system` audit; a rerun writes nothing; a second administrator is refused. The tests were red on the original activation and bootstrap code and are green after the fix. Denial checks ignore sequence positions, because a rolled-back insert can still advance a sequence. Not covered: real OAuth, hosted sessions, role revocation and the full action/permission matrix (AUTH-01); PostgreSQL (T-06). |
 | AC-06 | Passed | [src/lib/action-result.ts](../../../src/lib/action-result.ts) keeps `ok`/`message`/`issues` and adds an optional `outcome` covering six categories: success, validation, conflict, permission, stale and partial. Builders enforce the rules: `ok` is true only for success; a partial import is `ok: false`, and its applied and rejected counts must add up to the total; conflict counts come from the blocking issues; issues keep only their display fields. `outcomeOf` classifies legacy results that have no `outcome`. `npm run test:domain` → `Action result contract verification passed` (invariants, JSON/structured-clone round trip, legacy classification). Compatibility: `actions.ts` re-exports the type only (valid in a `"use server"` module per the installed Next docs; build passes), and all 7 existing client consumers typecheck unchanged. Adopted only in shared helpers: the permission guard returns `permission` (`unauthenticated`/`forbidden`) and term-scope refusals return `stale`/`not_active_term`, asserted on production paths in T-04 and T-03. Messages are unchanged, no UI/CSV/toast file changed, and no stale locking was added. |
-| AC-07 | Passed at T-05 checkpoint; final run pending T-07 | `typecheck`, `lint`, `test:domain` (5 suites), `build` and `test:safety` (T-01 to T-04) passed after the final T-05 edits. |
-| AC-08 | Pending | Final review and owner acceptance. |
+| AC-07 | Passed (final) | Final T-07 run, in one sequence on the final code: `typecheck`, `lint`, `test:domain` (5 suites), `build`, and `test:safety` (T-01 to T-04), all passed, about 9 minutes in total. The scratch runs and backups were empty afterwards, and the default PGlite metadata was unchanged. The runbook states its limits: [DATABASE_RECOVERY.md](../../operations/DATABASE_RECOVERY.md). |
+| AC-08 | Pending owner acceptance; full closure blocked by T-06 | The final review is below and all findings are resolved or dispositioned. The pull request presents the evidence. The owner chose option 2 on 30 September 2026: complete T-07 with T-06 recorded as pending, and keep #2 open. |
 
 ## Checks
 
@@ -27,6 +27,21 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 - **T-02 environment fact.** The installed PGlite writes no lock or PID file, so no file-level check can prove another process is not writing. The runbook therefore requires the operator to confirm that all writers have stopped.
 - **T-03 controlled runtime.** [children/controlled-runtime.ts](../../../scripts/safety/children/controlled-runtime.ts) replaces only the identity-provider session and the request-scoped Next modules (`next/headers`, `next/cache`, `next/navigation`), and refuses to load outside a pinned child. The real `getOptionalActor`, portal-user and role lookups, `can()` and transactions all run. It does not certify real OAuth or hosted sessions (AUTH-01).
 - **Not run:** `dev`, `start`, `db:prepare`, `db:migrate`, `db:reset` or `auth:bootstrap` against any non-owned target, and any connection to the institutional database.
+
+- **T-07 final review.**
+  - Branch diff reviewed against `origin/main`.
+  - Production changes are limited to `src/lib/{term-scope,action-result}.ts`, nine term-scope guard lines, `activateInvitedUser`, the bootstrap transaction, the guard's result builder and a type-only re-export.
+  - No file changed outside `docs/`, `scripts/`, `src/lib/`, `README.md` and `package.json`.
+  - No SAFE-01 flag or test hook exists in `src/`. The controlled runtime lives under `scripts/` and refuses to load outside a pinned child.
+  - No credentials, tokens or dumps were committed; the fixture values are synthetic.
+  - README command table updated (`test:safety`, `db:reset` warning, `test:ui` note).
+- **Not applicable / not run, with reasons.**
+  - Browser, mobile and print review: no UI, CSV or print code changed (`src/components` and `src/app` diffs are empty), and the term-scope refusals return the existing message shape.
+  - `npm run test:ui`: it starts `npm run dev`, whose `predev` hook prepares (migrates) the configured, here the institutional, database, so it was deliberately not run.
+- **Pending (keeps #2 open).**
+  - AC-03 and the PostgreSQL half of AC-04: no approved disposable PostgreSQL source/destination, client tools or encrypted storage.
+  - Operational owners (D-07).
+  - An owner decision on verifying institutional backup copies.
 
 ## Review findings
 
@@ -43,6 +58,6 @@ Environment and date: Windows 11, Node 22.11.0, PGlite 0.5.x on-disk owned runs 
 ## Delivery and acceptance
 
 - Commits / PR: `a0d7fe8` (approval), `af8ec05` (T-01), `37be079` (T-02), `9b6cdd4` (T-03), `437bb09` (T-04), T-05 checkpoint on `codex/safe-01`.
-- Remaining gates: T-06 (PostgreSQL, external prerequisites) and T-07; PostgreSQL prerequisites; operational owners (D-07); an owner decision on whether tooling may verify an institutional backup copy.
-- Owner acceptance: Pending.
+- Remaining gates: T-06 (PostgreSQL, external prerequisites); PostgreSQL prerequisites; operational owners (D-07); an owner decision on whether tooling may verify an institutional backup copy.
+- Owner acceptance: Pending (option 2 chosen 30 September 2026: T-07 with T-06 pending; #2 stays open).
 - Merge / closure: Pending.

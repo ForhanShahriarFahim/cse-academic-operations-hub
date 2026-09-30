@@ -189,12 +189,13 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run db:migrate` | Apply checked-in migrations |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
 | `npm run auth:bootstrap` | Create the first invited administrator (explicit email required) |
-| `npm run db:reset` | Destructively replace current data with the development seed |
+| `npm run db:reset` | Destructively replace current data with the development seed; this also erases portal users and roles. Never run it on institutional data. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
-| `npm run test:domain` | Verify academic rules, routine projection, source data, and role policy |
+| `npm run test:domain` | Verify academic rules, routine projection, source data, role policy, and the action result contract |
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
-| `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows) |
+| `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows). It starts `npm run dev`, which prepares the configured database. |
+| `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. |
 
 ## Project structure
 
