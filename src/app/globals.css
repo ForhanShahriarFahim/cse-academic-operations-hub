@@ -242,3 +242,29 @@ body {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* UX-01: grid children may shrink, so wide content scrolls inside its own region. */
+.grid > * { min-width: 0; }
+.table-region:focus-visible { outline-offset: -2px; }
+
+/* UX-01 ledger table: compact rows, sticky header and first column, tabular figures. */
+.ledger { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+.ledger th, .ledger td { padding: 7px 12px; border-bottom: 1px solid var(--color-line-soft); text-align: left; white-space: nowrap; vertical-align: middle; }
+.ledger thead th { position: sticky; top: 0; z-index: 2; background: var(--color-wash); font-size: 12.5px; font-weight: 600; color: var(--color-ink-2); border-bottom-color: var(--color-line); }
+.ledger tbody th, .ledger tbody td:first-child { position: sticky; left: 0; z-index: 1; background: var(--color-sheet); text-align: left; font-weight: 400; }
+.ledger thead th:first-child { left: 0; z-index: 3; }
+.ledger .num { text-align: right; font-variant-numeric: tabular-nums; }
+.ledger tbody tr:hover > * { background: #faf7ee; }
+.load-bar { position: relative; display: inline-block; width: 96px; height: 6px; border-radius: 3px; background: var(--color-line-soft); vertical-align: middle; overflow: visible; }
+.load-bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--color-pine); }
+.load-bar.over > i { background: var(--color-gold); }
+.load-bar > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-ink); }
+@media print {
+  .ledger { font-size: 8.5pt; }
+  .ledger th, .ledger td { padding: 1.3mm 2mm; background: #fff !important; border-bottom: 0.5pt solid #999; position: static !important; }
+  .ledger thead th { border-bottom: 1pt solid #000; }
+  .ledger tr { break-inside: avoid; }
+  .load-bar { width: 20mm; border: 0.5pt solid #666; background: #fff; }
+  .load-bar > i { background: #666 !important; }
+  .load-bar.over > i { background: #000 !important; }
+}

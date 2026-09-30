@@ -38,9 +38,9 @@ export default async function SettingsPage() {
   return (
     <div>
       <PageHeader
-        kicker="Institution configuration"
-        title="Settings & pending decisions"
-        description="Unconfirmed university policies are represented as provisional configuration — development proceeds, but nothing uncertain silently becomes incorrect software (spec §31)."
+        context="Administration"
+        title="Decisions & settings"
+        description="University policies that are still waiting for a decision, and the provisional settings the portal uses until they are confirmed."
       />
 
       <div className="grid gap-4 xl:grid-cols-2">

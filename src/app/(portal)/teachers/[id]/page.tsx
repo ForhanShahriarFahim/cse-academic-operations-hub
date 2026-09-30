@@ -35,7 +35,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
         <ArrowLeft size={13} /> All teachers
       </Link>
       <PageHeader
-        kicker={`${t.homeDepartmentName ?? "Unknown department"} · ${t.employmentType.replace("_", " ")}`}
+        context={`${t.homeDepartmentName ?? "Unknown department"} · ${t.employmentType.replace("_", " ")}`}
         title={`${t.fullName} (${t.shortCode})`}
         description={[
           t.designation,
@@ -90,7 +90,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
         </Panel>
 
         <Panel title="Workload allocations" sub="Explicit approved records — never derived by summing timetable cells">
-          <table className="w-full text-[12.5px]">
+          <div role="region" aria-label="Workload allocations" tabIndex={0} className="table-region overflow-x-auto"><table className="w-full text-[12.5px]">
             <thead>
               <tr className="border-b border-[var(--color-line-soft)] text-left">
                 <th className="pb-1.5"><span className="micro-label">Assignment</span></th>
@@ -119,7 +119,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
                 <td className="py-2 text-right font-mono font-bold text-[var(--color-pine)]">{w ? w.workloadUnits.toFixed(1) : "0.0"}</td>
               </tr>
             </tbody>
-          </table>
+          </table></div>
           {myExternals.length > 0 && (
             <div className="mt-3 border-t border-[var(--color-line-soft)] pt-2.5">
               <p className="micro-label mb-1.5">External commitments (OD)</p>

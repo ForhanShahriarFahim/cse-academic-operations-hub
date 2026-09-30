@@ -60,9 +60,9 @@ export default async function RoomsPage() {
   return (
     <div>
       <PageHeader
-        kicker="Resources"
+        context="Planning records"
         title="Rooms & occupancy"
-        description={`Utilization = union of reserved minutes (CSE delivery + verified OD bookings, counted once per physical event) ÷ usable window minutes (${windowMinutes} min/week across permitted windows, breaks excluded).`}
+        description={`How much of each room's usable time is booked, out of ${windowMinutes} minutes a week in the permitted class windows (breaks excluded). CSE classes and confirmed bookings by other departments count once per class.`}
       />
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

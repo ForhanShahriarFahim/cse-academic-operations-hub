@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
 import { getPortalData } from "@/lib/data";
 import { computeWorkloads } from "@/lib/workload";
 import { WORKLOAD_ADVISORY_UNITS } from "@/lib/constants";
-import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
+import { PageHeader, Panel, StatusText, TableRegion } from "@/components/ui";
+import { PrintButton } from "@/components/print-button";
+import { PrintHeader } from "@/components/print-header";
 
 export const dynamic = "force-dynamic";
 
@@ -20,95 +21,90 @@ export default async function WorkloadPage() {
   );
 
   const rows = data.teachers
-    .map((t) => ({ t, w: workloads.get(t.id) }))
+    .map((t) => ({ t, w: workloads.get(t.id)! }))
     .filter((r) => r.w && (r.w.workloadUnits > 0 || r.w.weeklyContactMinutes > 0))
-    .sort((a, b) => (b.w!.workloadUnits - a.w!.workloadUnits));
+    .sort((a, b) => (b.w.workloadUnits - a.w.workloadUnits));
 
-  const maxUnits = Math.max(...rows.map((r) => r.w!.workloadUnits), 1);
+  const scale = Math.max(...rows.map((r) => r.w.workloadUnits), WORKLOAD_ADVISORY_UNITS, 1);
+  const overCount = rows.filter((r) => r.w.workloadUnits > WORKLOAD_ADVISORY_UNITS).length;
+  const publishedVersion = data.versions.find((v) => v.state === "published")?.versionNumber ?? null;
 
   return (
     <div>
+      <PrintHeader title="Teacher workload" termName={data.term.name} publishedVersion={publishedVersion} />
       <PageHeader
-        kicker="Governance"
+        context="Planning records"
         title="Teacher workload"
-        description="Three metrics are kept strictly separate (spec §16): catalog credits of assigned offerings, approved workload units from explicit allocation records, and scheduled contact minutes from canonical meetings. Merged classes are counted once per teacher — never once per audience."
+        description={`Workload units from assigned offerings, compared with the ${WORKLOAD_ADVISORY_UNITS}-unit advisory limit, next to weekly contact time and catalog credits. A merged class counts once per teacher.`}
+        actions={<PrintButton />}
       />
 
       <Panel
         title="Department summary"
-        sub={`Advisory threshold ${WORKLOAD_ADVISORY_UNITS} units (configurable — no assumed universal maximum)`}
+        sub={`${rows.length} teachers with teaching this term · ${overCount} above the advisory limit of ${WORKLOAD_ADVISORY_UNITS} units`}
+        flush
       >
-        <div className="overflow-x-auto">
-          <table className="routine-table text-[12.5px]">
+        <TableRegion label="Teacher workload" maxHeight="72vh">
+          <table className="ledger">
+            <caption className="sr-only">Teacher workload for {data.term.name}, working draft, sorted by workload units</caption>
             <thead>
               <tr>
-                {["Teacher", "Catalog credits", "Workload units", "Local / external", "Contact min/wk", "Meetings", "Courses", "Coverage & alerts"].map((h) => (
-                  <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>
-                ))}
+                <th scope="col">Teacher</th>
+                <th scope="col" className="num">Workload units</th>
+                <th scope="col">Against limit</th>
+                <th scope="col" className="num">Contact / week</th>
+                <th scope="col" className="num">Meetings</th>
+                <th scope="col" className="num">Courses</th>
+                <th scope="col" className="num">Catalog credits</th>
+                <th scope="col" className="num">Local / external units</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ t, w }, i) => (
-                <tr key={t.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
-                  <td className="px-3 py-2">
-                    <Link href={`/teachers/${t.id}`} className="font-mono font-bold text-[var(--color-pine)] hover:underline">{t.shortCode}</Link>
-                    <span className="ml-1.5 text-[10.5px] text-muted">{t.homeDepartmentCode}</span>
-                  </td>
-                  <td className="px-3 py-2 font-mono">{w!.catalogCredits.toFixed(1)}</td>
-                  <td className="w-[220px] px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/[0.06]">
-                        <div
-                          className={`h-full rounded-full ${w!.workloadUnits > WORKLOAD_ADVISORY_UNITS ? "bg-[var(--color-clay)]" : "bg-[var(--color-pine)]"}`}
-                          style={{ width: `${Math.min(100, (w!.workloadUnits / maxUnits) * 100)}%` }}
-                        />
-                      </div>
-                      <span className="w-9 text-right font-mono font-semibold">{w!.workloadUnits.toFixed(1)}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2 font-mono text-[11.5px]">{w!.localUnits.toFixed(1)} / {w!.externalUnits.toFixed(1)}</td>
-                  <td className="px-3 py-2 font-mono">{fmtMinutes(w!.weeklyContactMinutes)}</td>
-                  <td className="px-3 py-2 font-mono">{w!.weeklyMeetings}</td>
-                  <td className="px-3 py-2 font-mono">{w!.distinctCourses}</td>
-                  <td className="px-3 py-2">
-                    {w!.alerts.length === 0 ? <span className="text-[10.5px] text-muted">—</span> : (
-                      <span className="flex flex-wrap items-center gap-1">
-                        {w!.alerts.map((a, k) => (
-                          <Badge key={k} tone={a.startsWith("External") ? "gold" : "clay"}>
-                            <AlertTriangle size={9} /> {a.startsWith("External") ? "ext. unverified" : "high load"}
-                          </Badge>
-                        ))}
+              {rows.map(({ t, w }) => {
+                const over = w.workloadUnits > WORKLOAD_ADVISORY_UNITS;
+                const externalPending = w.alerts.some((alert) => alert.startsWith("External"));
+                return (
+                  <tr key={t.id}>
+                    <th scope="row">
+                      <Link href={`/teachers/${t.id}`} className="font-mono font-semibold text-[var(--color-pine)] underline-offset-2 hover:underline">{t.shortCode}</Link>
+                      <span className="ml-1.5 text-[12px] text-muted">{t.homeDepartmentCode}</span>
+                    </th>
+                    <td className="num">
+                      <span className={`load-bar mr-2.5 ${over ? "over" : ""}`} aria-hidden="true">
+                        <i style={{ width: `${Math.min(100, (w.workloadUnits / scale) * 100)}%` }} />
+                        <b style={{ left: `${(WORKLOAD_ADVISORY_UNITS / scale) * 100}%` }} />
                       </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      <span className="font-semibold">{w.workloadUnits.toFixed(1)}</span>
+                    </td>
+                    <td>
+                      <span className="flex flex-col gap-0.5">
+                        {over
+                          ? <StatusText tone="warn">Over by {(w.workloadUnits - WORKLOAD_ADVISORY_UNITS).toFixed(1)}</StatusText>
+                          : <StatusText tone="muted">{w.workloadUnits === WORKLOAD_ADVISORY_UNITS ? "At limit" : "Within limit"}</StatusText>}
+                        {externalPending ? <StatusText tone="pending">External teaching not yet confirmed</StatusText> : null}
+                      </span>
+                    </td>
+                    <td className="num">{fmtMinutes(w.weeklyContactMinutes)}</td>
+                    <td className="num">{w.weeklyMeetings}</td>
+                    <td className="num">{w.distinctCourses}</td>
+                    <td className="num">{w.catalogCredits.toFixed(1)}</td>
+                    <td className="num">{w.localUnits.toFixed(1)} / {w.externalUnits.toFixed(1)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-        </div>
+        </TableRegion>
       </Panel>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        <Panel title="Merged class policy" sub="Example A (spec §16.3)">
-          <EmptyNote>
-            CSE-2101 is one merged HSC-27B + DIP-21B delivery: two 3-credit offerings, but the physical
-            meeting and KMH’s load are recorded once (3.0 units via <em>shared_policy</em>) — automatically
-            multiplying to 6 is forbidden.
-          </EmptyNote>
-        </Panel>
-        <Panel title="Co-teaching split" sub="Example C — not assumed 50/50">
-          <EmptyNote>
-            CSE-2201 (HSC-26B) is co-taught: TAH and SJD are both occupied during meetings, while the
-            workload split is an explicit 2.0 / 1.0 allocation record.
-          </EmptyNote>
-        </Panel>
-        <Panel title="External coverage" sub="Known total ≠ full total">
-          <EmptyNote>
-            Outgoing teaching (MRI → Mathematics, NAK → EEE) counts in these totals. Commitments still at
-            completeness level B/D are flagged, so no report claims a verified university-wide figure.
-          </EmptyNote>
-        </Panel>
-      </div>
+      <Panel title="How workload is counted" className="mt-5">
+        <ul className="list-disc space-y-1.5 pl-5 text-[13.5px] leading-relaxed text-ink-2 marker:text-muted">
+          <li><strong className="font-semibold text-[var(--color-ink)]">Workload units</strong> come from approved allocation records, not from counting timetable cells. A one-credit sessional counts as two units.</li>
+          <li>A <strong className="font-semibold text-[var(--color-ink)]">merged class</strong> taught to several batches at once counts once for the teacher, even though each batch has its own offering.</li>
+          <li><strong className="font-semibold text-[var(--color-ink)]">Co-taught classes</strong> are split by their allocation record, not assumed to be half each.</li>
+          <li>Teaching for other departments is included. While those bookings are unconfirmed, the total is the known minimum, not the full figure.</li>
+        </ul>
+      </Panel>
     </div>
   );
 }

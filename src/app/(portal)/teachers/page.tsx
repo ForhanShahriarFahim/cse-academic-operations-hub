@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { getPortalData } from "@/lib/data";
 import { computeWorkloads } from "@/lib/workload";
-import { PageHeader, Badge } from "@/components/ui";
+import { WORKLOAD_ADVISORY_UNITS } from "@/lib/constants";
+import { PageHeader, Badge, Panel, StatusText, TableRegion } from "@/components/ui";
+import { PrintButton } from "@/components/print-button";
+import { PrintHeader } from "@/components/print-header";
 
 export const dynamic = "force-dynamic";
 
@@ -18,69 +20,76 @@ export default async function TeachersPage() {
     (a.homeDepartmentCode !== "CSE" ? 1 : 0) - (b.homeDepartmentCode !== "CSE" ? 1 : 0) ||
     a.shortCode.localeCompare(b.shortCode),
   );
+  const publishedVersion = data.versions.find((v) => v.state === "published")?.versionNumber ?? null;
+  const fromOtherDepartments = sorted.filter((t) => t.homeDepartmentCode !== "CSE").length;
 
   return (
     <div>
+      <PrintHeader title="Teachers" termName={data.term.name} publishedVersion={publishedVersion} />
       <PageHeader
-        kicker="People"
+        context="Planning records"
         title="Teachers"
-        description="Home department, incoming/outgoing teaching and identity are modeled separately. Short codes are exact identifiers — IM and IMN are different people and are never merged by substring matching."
+        description="Each teacher's home department, load and teaching outside the department. Short codes are exact: IM and IMN are different people. Vacant posts appear in Courses as “Teacher to be assigned”, not here."
+        actions={<PrintButton />}
       />
-      <div className="ruled overflow-hidden rounded-lg">
-        <table className="routine-table text-[12.5px]">
-          <thead>
-            <tr>
-              {["Code", "Name", "Home dept.", "Designation", "Credits", "Units", "Contact/wk", "Courses", "Flags", ""].map((h) => (
-                <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((t, i) => {
-              const w = workloads.get(t.id);
-              const isExt = t.homeDepartmentCode !== "CSE";
-              return (
-                <tr key={t.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
-                  <td className="px-3 py-2">
-                    <span className="font-mono text-[13px] font-bold text-[var(--color-pine)]">{t.shortCode}</span>
-                    {t.shortCode === "IM" && (
-                      <span className="ml-1 rounded bg-sky-100 px-1 py-px text-[9px] font-bold text-sky-800" title="Distinct from IMN — exact-code matching only">≠ IMN</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 font-medium">{t.fullName}</td>
-                  <td className="px-3 py-2">
-                    <Badge tone={isExt ? "gold" : "pine"}>{t.homeDepartmentCode ?? "?"}</Badge>
-                    {isExt && <span className="ml-1 text-[10px] text-muted">incoming</span>}
-                  </td>
-                  <td className="px-3 py-2 text-muted">{t.designation ?? "—"}</td>
-                  <td className="px-3 py-2 font-mono font-semibold text-[var(--color-pine)]">{w ? w.catalogCredits.toFixed(1) : "0.0"}</td>
-                  <td className="px-3 py-2 font-mono font-semibold">{w ? w.workloadUnits.toFixed(1) : "0.0"}</td>
-                  <td className="px-3 py-2 font-mono">
-                    {w ? `${Math.floor(w.weeklyContactMinutes / 60)}h ${w.weeklyContactMinutes % 60}m` : "—"}
-                  </td>
-                  <td className="px-3 py-2 font-mono">{w?.distinctCourses ?? 0}</td>
-                  <td className="px-3 py-2">
-                    {w?.alerts.map((a, k) => (
-                      <Badge key={k} tone="clay">{a.split("—")[0].slice(0, 42)}</Badge>
-                    ))}
-                    {data.externals.some((e) => e.teacherId === t.id && e.kind !== "unresolved_note") && (
-                      <Badge tone="gold">teaches OD</Badge>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <Link href={`/teachers/${t.id}`} className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-[var(--color-pine)] hover:underline">
-                      Detail <ArrowRight size={12} />
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-3 text-[11.5px] text-muted">
-        Vacancies are never shown as people — “UT / Upcoming Teacher” appears in the scheduling tracker, not in this directory.
-      </p>
+      <Panel
+        title="Teaching staff"
+        sub={`${sorted.length} teachers · ${sorted.length - fromOtherDepartments} from CSE, ${fromOtherDepartments} from other departments`}
+        flush
+      >
+        <TableRegion label="Teachers" maxHeight="72vh">
+          <table className="ledger">
+            <caption className="sr-only">Teachers for {data.term.name}, CSE first, then other departments, by short code</caption>
+            <thead>
+              <tr>
+                <th scope="col">Teacher</th>
+                <th scope="col">Department</th>
+                <th scope="col">Designation</th>
+                <th scope="col" className="num">Workload units</th>
+                <th scope="col" className="num">Contact / week</th>
+                <th scope="col" className="num">Courses</th>
+                <th scope="col" className="num">Catalog credits</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((t) => {
+                const w = workloads.get(t.id);
+                const isExternal = t.homeDepartmentCode !== "CSE";
+                const over = (w?.workloadUnits ?? 0) > WORKLOAD_ADVISORY_UNITS;
+                const pendingExternal = w?.alerts.some((alert) => alert.startsWith("External")) ?? false;
+                const teachesElsewhere = data.externals.some((e) => e.teacherId === t.id && e.kind !== "unresolved_note");
+                return (
+                  <tr key={t.id}>
+                    <th scope="row">
+                      <Link href={`/teachers/${t.id}`} className="group inline-flex items-baseline gap-2 underline-offset-2">
+                        <span className="font-mono font-semibold text-[var(--color-pine)] group-hover:underline">{t.shortCode}</span>
+                        <span className="text-[var(--color-ink)] group-hover:underline">{t.fullName}</span>
+                      </Link>
+                    </th>
+                    <td>
+                      <Badge tone={isExternal ? "gold" : "pine"}>{t.homeDepartmentCode ?? "Unknown"}</Badge>
+                    </td>
+                    <td className="text-ink-2">{t.designation ?? "—"}</td>
+                    <td className="num font-semibold">{w ? w.workloadUnits.toFixed(1) : "0.0"}</td>
+                    <td className="num">{w ? `${Math.floor(w.weeklyContactMinutes / 60)}h ${String(w.weeklyContactMinutes % 60).padStart(2, "0")}m` : "—"}</td>
+                    <td className="num">{w?.distinctCourses ?? 0}</td>
+                    <td className="num">{w ? w.catalogCredits.toFixed(1) : "0.0"}</td>
+                    <td>
+                      <span className="flex flex-col gap-0.5">
+                        {over ? <StatusText tone="warn">Above the {WORKLOAD_ADVISORY_UNITS}-unit limit</StatusText> : null}
+                        {pendingExternal ? <StatusText tone="pending">External teaching not yet confirmed</StatusText> : null}
+                        {teachesElsewhere && !pendingExternal ? <span className="text-[12.5px] text-ink-2">Also teaches for other departments</span> : null}
+                        {!over && !pendingExternal && !teachesElsewhere ? <span className="text-muted">—</span> : null}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </TableRegion>
+      </Panel>
     </div>
   );
 }

@@ -25,9 +25,9 @@ export default async function PublicationsPage() {
   return (
     <div>
       <PageHeader
-        kicker="Governance — immutable, date-aware versions"
-        title="Publications & archives"
-        description="Publication is atomic: validate → snapshot → activate effective period → audit. A published version is never mutated; rollback means publishing a new validated revision."
+        context="Routine"
+        title="Publications"
+        description="Publish the working draft as a new version once it has no blockers. Published versions never change; to correct one, publish a new version."
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -42,7 +42,7 @@ export default async function PublicationsPage() {
       <div className="mt-5 grid gap-4 xl:grid-cols-5">
         <div className="xl:col-span-3">
           <Panel title="Version history" sub="Superseded versions remain in the archive — history is never deleted">
-            <table className="w-full text-[12.5px]">
+            <div role="region" aria-label="Version history" tabIndex={0} className="table-region overflow-x-auto"><table className="w-full text-[12.5px]">
               <thead>
                 <tr className="border-b border-[var(--color-line-soft)] text-left">
                   <th className="pb-1.5"><span className="micro-label">Version</span></th>
@@ -73,7 +73,7 @@ export default async function PublicationsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             <Link href="/public/routine" target="_blank"
               className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)] hover:bg-[var(--color-pine)]/10">
               <Eye size={13} /> Open public viewer (published data only)

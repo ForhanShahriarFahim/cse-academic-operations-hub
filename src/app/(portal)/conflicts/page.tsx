@@ -37,9 +37,9 @@ export default async function ConflictsPage() {
   return (
     <div>
       <PageHeader
-        kicker="Validation engine — exact minute intervals, half-open [start, end)"
-        title="Conflicts & validation"
-        description="Every issue carries its type, severity, conflicting entities and the exact overlap — never just “conflict found”. Blockers gate publication; advisories are disclosed with the published version."
+        context="Routine"
+        title="Validation"
+        description="Every clash and warning in the working draft, with the classes and exact times involved. Blockers must be fixed before the routine can be published; warnings are published alongside it."
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

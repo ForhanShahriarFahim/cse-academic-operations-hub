@@ -9,6 +9,7 @@ import { DAY_NAMES, fmtRange, fmtRange24, overlaps, parseTimeToMinutes } from "@
 import { sharingLabel, type MeetingView, type ExternalCommitmentView } from "@/lib/serialize";
 import type { GroupCoverage } from "@/lib/data";
 import type { RoutineBatch, RoutineProjection } from "@/lib/routine-projection";
+import { useConfirm } from "@/components/confirm-dialog";
 import {
   createMeetingAction, moveMeetingAction, deleteMeetingAction, type ActionResult,
 } from "@/lib/actions";
@@ -215,7 +216,7 @@ export function RoutineBuilder(props: Props) {
       </div>
 
       {/* Grid */}
-      <div className="ruled overflow-x-auto rounded-lg">
+      <div role="region" aria-label="Routine grid" tabIndex={0} className="table-region ruled overflow-x-auto rounded-lg">
         <table className={`routine-table ${dense ? "text-[11px]" : "text-[12px]"}`}>
           <thead>
             <tr>
@@ -656,6 +657,7 @@ function EditMeetingDialog({
   onDone: (msg: string) => void;
   onError: (msg: string) => void;
 }) {
+  const [ask, confirmDialog] = useConfirm();
   const [day, setDay] = useState(m.dayOfWeek);
   const [start, setStart] = useState(fmt24(m.startMinutes));
   const [end, setEnd] = useState(fmt24(m.endMinutes));
@@ -674,7 +676,7 @@ function EditMeetingDialog({
   }
 
   return (
-    <Modal title={`${m.courseCode} — ${m.courseTitle}`} onClose={onClose}>
+    <Modal title={`${m.courseCode} — ${m.courseTitle}`} onClose={onClose}>{confirmDialog}
       <div className="space-y-3 text-[12.5px]">
         <div className="rounded-md border border-[var(--color-line-soft)] bg-wash p-3">
           <p><span className="micro-label mr-2">Audience</span>{m.audiences.map((a) => `${a.stream}-${a.batchLabel}`).join(" + ")}{m.externalAudienceLabel ? ` + ${m.externalAudienceLabel}` : ""}</p>
@@ -727,8 +729,8 @@ function EditMeetingDialog({
         <div className="flex justify-between gap-2 border-t border-[var(--color-line-soft)] pt-3">
           <button
             disabled={pending}
-            onClick={() => {
-              if (!confirm(`Delete ${m.courseCode} on ${DAY_NAMES[m.dayOfWeek]} from the draft?`)) return;
+            onClick={async () => {
+              if (!await ask({ title: `Delete ${m.courseCode} on ${DAY_NAMES[m.dayOfWeek]}?`, body: "This class is removed from the working draft for every stream, teacher and room view. The published routine is not affected.", confirmLabel: "Delete class" })) return;
               startTransition(async () => {
                 const r = await deleteMeetingAction(m.id);
                 if (r.ok) onDone(r.message); else onError(r.message);

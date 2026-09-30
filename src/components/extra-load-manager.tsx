@@ -11,6 +11,7 @@ import {
 } from "@/lib/academic-actions";
 import { fmtRange } from "@/lib/time";
 import type { ActionResult } from "@/lib/actions";
+import { useConfirm } from "@/components/confirm-dialog";
 
 interface Teacher { id: number; fullName: string; shortCode: string; designation: string | null }
 interface Group { id: number; courseCode: string; courseTitle: string; audience: string; teacherIds: number[] }
@@ -38,6 +39,7 @@ export function ExtraLoadManager({
   canReview: boolean;
   canSubmit: boolean;
 }) {
+  const [ask, confirmDialog] = useConfirm();
   const eligible = summaries.filter((row) => row.assignedCredits > threshold);
   const [teacherId, setTeacherId] = useState(eligible[0]?.teacher.id ?? 0);
   const [from, setFrom] = useState(termStart);
@@ -57,7 +59,7 @@ export function ExtraLoadManager({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4">{confirmDialog}
       {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
 
       <div className={canSubmit ? "grid gap-4 xl:grid-cols-[1.05fr_1.35fr]" : "grid gap-4"}>
@@ -101,7 +103,7 @@ export function ExtraLoadManager({
               <label><span className="micro-label mb-1 block">From</span><input type="date" value={from} min={termStart} max={termEnd} onChange={(e) => setFrom(e.target.value)} className={control} /></label>
               <label><span className="micro-label mb-1 block">To</span><input type="date" value={to} min={termStart} max={termEnd} onChange={(e) => setTo(e.target.value)} className={control} /></label>
             </div>
-            <div className="overflow-x-auto">
+            <div role="region" aria-label="Teachers above the credit threshold" tabIndex={0} className="table-region overflow-x-auto">
               <table className="w-full text-[12px]">
                 <thead><tr className="border-b border-[var(--color-line)] text-left"><th className="py-1.5">Teacher</th><th>Credits</th><th>Classes</th><th>Amount</th><th className="text-right">Sheet</th></tr></thead>
                 <tbody>{eligible.map((row) => <tr key={row.teacher.id} className="border-b border-[var(--color-line-soft)]">
@@ -117,11 +119,11 @@ export function ExtraLoadManager({
 
       <section className="ruled rounded-lg">
         <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Recorded extra classes</h2></header>
-        <div className="overflow-x-auto p-4">
+        <div role="region" aria-label="Recorded extra classes" tabIndex={0} className="table-region overflow-x-auto p-4">
           <table className="routine-table text-[12px]"><thead><tr>{["Date", "Teacher", "Course", "Batch / audience", "Time", ""].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead>
             <tbody>{entries.length === 0 ? <tr><td colSpan={6} className="px-3 py-6 text-center text-muted">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
               <td className="px-2.5 py-2 font-mono">{entry.classDate}</td><td className="px-2.5 py-2">{entry.teacherShortCode} · {entry.teacherName}</td><td className="px-2.5 py-2 font-mono font-semibold">{entry.courseCodeSnapshot}</td><td className="px-2.5 py-2">{entry.batchLabelSnapshot}</td><td className="px-2.5 py-2 font-mono">{fmtRange(entry.startMinutes, entry.endMinutes)}</td>
-              <td className="px-2.5 py-2 text-right">{canSubmit && <button title="Delete" disabled={pending} onClick={() => confirm("Remove this extra class?") && startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id)))} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} /></button>}</td>
+              <td className="px-2.5 py-2 text-right">{canSubmit && <button type="button" aria-label={`Remove extra class ${entry.courseCodeSnapshot} on ${entry.classDate}`} title="Remove" disabled={pending} onClick={async () => { if (await ask({ title: `Remove ${entry.courseCodeSnapshot} on ${entry.classDate}?`, body: `This extra class will no longer count toward ${entry.teacherName}'s claim or appear on printed sheets.`, confirmLabel: "Remove extra class" })) startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id))); }} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} aria-hidden="true" /></button>}</td>
             </tr>)}</tbody>
           </table>
         </div>

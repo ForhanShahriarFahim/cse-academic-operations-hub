@@ -34,13 +34,13 @@ export default async function CoursesPage() {
   return (
     <div>
       <PageHeader
-        kicker="Catalog & delivery"
-        title="Courses, offerings & completeness"
-        description="Course identity is the catalog code — CSE-4000(A) and CSE-4000(B) stay distinct, and semester placement comes from the curriculum, never from code digits. Merged and teacher-managed are delivery states, not offering statuses."
+        context="Planning records"
+        title="Courses & offerings"
+        description="Courses offered this term, who teaches each group, and whether every required class is scheduled. Merged and teacher-managed groups are marked."
       />
 
       <Panel title="Scheduling completeness tracker" sub="Every teaching group vs its approved requirement (spec §10.4)">
-        <div className="overflow-x-auto">
+        <div role="region" aria-label="Scheduling completeness by teaching group" tabIndex={0} className="table-region overflow-x-auto">
           <table className="routine-table text-[12px]">
             <thead>
               <tr>
@@ -99,7 +99,7 @@ export default async function CoursesPage() {
 
       <div className="mt-4">
         <Panel title={`Catalog (${data.term.name} active courses)`} sub={`${data.courses.length} courses across 8 curriculum semesters`}>
-          <div className="overflow-x-auto">
+          <div role="region" aria-label="Course catalog" tabIndex={0} className="table-region overflow-x-auto">
             <table className="routine-table text-[12px]">
               <thead>
                 <tr>

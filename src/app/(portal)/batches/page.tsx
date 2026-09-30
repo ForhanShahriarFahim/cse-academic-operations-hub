@@ -14,16 +14,16 @@ export default async function BatchesPage() {
   return (
     <div>
       <PageHeader
-        kicker="Cohorts"
+        context="Planning records"
         title="Batches & semester placements"
-        description={`Identity is (programme, stream, label) — HSC-22B and Diploma-22B are different cohorts even though the number repeats. Placements are historical records for ${data.term.name} and are never overwritten as batches progress.`}
+        description={`Each batch's semester in ${data.term.name}. HSC-22B and Diploma-22B are separate batches, and earlier terms keep their own placements.`}
       />
       <div className="grid gap-4 xl:grid-cols-2">
         {streams.map((s) => {
           const rows = data.batches.filter((b) => b.stream === s.key);
           return (
             <Panel key={s.key} title={s.title} sub={s.note}>
-              <table className="w-full text-[12.5px]">
+              <div role="region" aria-label="Batches and semesters" tabIndex={0} className="table-region overflow-x-auto"><table className="w-full text-[12.5px]">
                 <thead>
                   <tr className="border-b border-[var(--color-line-soft)] text-left">
                     <th className="pb-1.5"><span className="micro-label">Batch</span></th>
@@ -57,7 +57,7 @@ export default async function BatchesPage() {
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
             </Panel>
           );
         })}

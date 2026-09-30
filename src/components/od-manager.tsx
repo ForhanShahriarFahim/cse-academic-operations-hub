@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { BadgeCheck, CirclePlus, Trash2, X } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
 import type { ExternalCommitmentView } from "@/lib/serialize";
+import { useConfirm } from "@/components/confirm-dialog";
 import {
   createExternalAction, verifyExternalAction, deleteExternalAction, type ActionResult,
 } from "@/lib/actions";
@@ -143,9 +144,10 @@ export function OdManager({
 }
 
 export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
+  const [ask, confirmDialog] = useConfirm();
   const [pending, startTransition] = useTransition();
   return (
-    <span className="flex items-center justify-end gap-1">
+    <span className="flex items-center justify-end gap-1">{confirmDialog}
       {e.verificationStatus !== "verified" && (
         <button
           disabled={pending}
@@ -158,9 +160,10 @@ export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
       )}
       <button
         disabled={pending}
-        title="Delete"
-        onClick={() => {
-          if (!confirm("Remove this external commitment?")) return;
+        title="Remove"
+        aria-label="Remove this external commitment"
+        onClick={async () => {
+          if (!await ask({ title: "Remove this external commitment?", body: "The booking will disappear from the OD row and will no longer block the room or teacher at that time.", confirmLabel: "Remove commitment" })) return;
           startTransition(async () => { await deleteExternalAction(e.id); });
         }}
         className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10 disabled:opacity-50"

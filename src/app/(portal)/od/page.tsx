@@ -22,9 +22,9 @@ export default async function OdPage() {
   return (
     <div>
       <PageHeader
-        kicker="Cross-department register"
-        title="External commitments (the OD row)"
-        description="The printed OD row is a report generated from these structured records — it is not the data model. A room/dept label alone never identifies a teacher, and level-D notes stay review items rather than fabricated reservations."
+        context="Planning records"
+        title="External commitments"
+        description="Rooms and teachers committed to other departments. These records produce the OD row on the printed routine; entries that still need confirming are marked for review."
         actions={
           <OdManager
             teachers={data.teachers.map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode }))}
@@ -34,7 +34,7 @@ export default async function OdPage() {
       />
 
       <Panel title="Commitment register" sub={`${data.externals.length} records · completeness levels A (full) to D (unresolved)`}>
-        <div className="overflow-x-auto">
+        <div role="region" aria-label="External commitment register" tabIndex={0} className="table-region overflow-x-auto">
           <table className="routine-table text-[12px]">
             <thead>
               <tr>

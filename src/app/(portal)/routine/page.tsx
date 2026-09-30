@@ -45,9 +45,9 @@ export default async function RoutinePage({
   return (
     <div>
       <PageHeader
-        kicker="Draft workspace — exact-time conflict checking"
-        title="Routine Builder"
-        description="Drag-free, click-to-edit builder. One physical class is stored once and appears in every relevant stream, teacher and room view. Blocking conflicts are rejected by the server; advised placements are recorded with their warnings."
+        context="Routine · Working draft"
+        title="Routine builder"
+        description="Place and edit classes in the working draft. Each class is stored once and appears in every stream, teacher and room view. Changes that would create a blocking clash are refused; warnings are kept with the class."
         actions={<Link href="/routine/auto" className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-pine)] px-3.5 py-2 text-[12.5px] font-semibold text-white"><Sparkles size={14} />Auto-schedule gaps</Link>}
       />
       <div className="mb-4 rounded-lg border border-[var(--color-line)] bg-wash p-3">

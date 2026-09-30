@@ -40,7 +40,7 @@ export function RoutineDocument({
             )}
           </header>
 
-          <div className="hidden overflow-x-auto md:block print:block">
+          <div role="region" aria-label="Routine table" tabIndex={0} className="table-region hidden overflow-x-auto md:block print:block">
             <table className="routine-table text-[11px]">
               <thead><tr>
                 <th className="w-[72px] px-2 py-2 text-left"><span className="micro-label">Batch</span></th>

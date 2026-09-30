@@ -16,9 +16,9 @@ export default async function ExtraLoadPage() {
   const totalAmount = source.classes.length * source.policy.extraClassRate + source.manualSummaries.reduce((sum, row) => sum + row.amount, 0);
   return <div>
     <PageHeader
-      kicker="Teacher honorarium"
+      context="Classes"
       title="Extra class load"
-      description="A term-scoped ledger for teachers whose assigned course credits exceed the configured threshold. Detailed sheets and the department top sheet follow the supplied university templates; signature cells are intentionally left blank for print."
+      description="Record extra classes for teachers above the credit threshold, then print each teacher's sheet and the department top sheet for signature."
       actions={<Badge tone="gold">{source.policy.extraClassRate.toLocaleString()} Tk / class</Badge>}
     />
     <div className="mb-4 grid gap-3 md:grid-cols-3">
