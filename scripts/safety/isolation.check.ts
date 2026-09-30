@@ -169,7 +169,7 @@ async function checkChildEnvironment(): Promise<void> {
     assert.equal(env.PGHOST, undefined);
     assert.equal(env.npm_lifecycle_event, "");
     for (const probeCwd of [cwd, REPO_ROOT]) {
-      const pinned = await runAppChild(run, PROBE, ["--dotenv-first"], probeCwd);
+      const pinned = await runAppChild(run, PROBE, ["--dotenv-first"], { cwd: probeCwd });
       assert.equal(pinned.status, 0, pinned.stderr);
       assert.equal(pinned.report?.databaseMode, "pglite");
       assert.equal(pinned.report?.pgliteDataDir, run.dataDir);

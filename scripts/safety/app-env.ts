@@ -51,9 +51,17 @@ function spawnTsx(script: string, args: string[], env: EnvironmentView, cwd: str
   return { status: result.status, stdout: result.stdout, stderr: result.stderr, report: lastJsonLine(result.stdout) };
 }
 
+/** The only variables a caller may set on a pinned child (operator inputs, never targets or secrets). */
+export type ChildInputs = Partial<Record<"PORTAL_BOOTSTRAP_ADMIN_EMAIL" | "PORTAL_BOOTSTRAP_ADMIN_NAME", string>>;
+
 /** Run a production-path child against the owned run while holding its writer lock. */
-export function runAppChild(run: OwnedRun, script: string, args: string[] = [], cwd = REPO_ROOT): Promise<ChildResult> {
-  return withWriterLock(run, async () => spawnTsx(script, args, appChildEnv(run), cwd));
+export function runAppChild(
+  run: OwnedRun,
+  script: string,
+  args: string[] = [],
+  options: { cwd?: string; inputs?: ChildInputs } = {},
+): Promise<ChildResult> {
+  return withWriterLock(run, async () => spawnTsx(script, args, { ...appChildEnv(run), ...options.inputs }, options.cwd ?? REPO_ROOT));
 }
 
 /**

@@ -142,7 +142,7 @@ Without `DATABASE_URL`, the first development start creates `.data/pglite-summer
 
 1. Copy `.env.example` to `.env.local` and uncomment/set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep secrets out of Git.
 2. Create a Google OAuth **Web application** client and authorize `http://localhost:3000/api/auth/callback/google` as a redirect URI. See [Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
-3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. This is idempotent for the same first administrator and refuses to silently replace an existing administrator.
+3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. It writes the invitation, role and a system-attributed audit event in one transaction, is idempotent for the same first administrator, and refuses to silently replace an existing administrator.
 4. Run `npm run dev` and sign in at `/login` with that Google account. Use **People & Access** to invite staff, assign roles, link a teacher short code, suspend users, or revoke roles.
 
 No public sign-up is enabled. An invited address must be verified by Google before it can access the portal. Without the four auth settings, internal access stays closed and `/login` shows a setup notice.

@@ -10,6 +10,7 @@ import { DEFAULT_PGLITE_DIR } from "./safety/targets";
 import { checkIsolation } from "./safety/isolation.check";
 import { checkRecovery } from "./safety/recovery.check";
 import { checkHistory } from "./safety/history.check";
+import { checkAudit } from "./safety/audit.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -34,6 +35,7 @@ async function main() {
     ["T-01 isolation", checkIsolation],
     ["T-02 PGlite recovery", checkRecovery],
     ["T-03 two-term history", checkHistory],
+    ["T-04 audit atomicity", checkAudit],
   ];
   // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
   const only = process.argv[2];

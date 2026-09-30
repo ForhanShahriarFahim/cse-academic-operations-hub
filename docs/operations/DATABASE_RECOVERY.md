@@ -55,7 +55,7 @@ Run these from the repository folder in PowerShell, after following the rules ab
 3. Rename the current directory, for example to `.data\pglite-summer-2026-replaced-<stamp>`. Keep it until the restore has been accepted.
 4. Copy the backup to `.data\pglite-summer-2026`. The destination must not already exist.
 5. Start the application. Check `/api/health`, then check the active term, routine, attendance, extra-load and access pages against what is expected.
-6. If access control was lost (for example after a reset), run `npm run auth:bootstrap` with the first administrator's email. Until T-04 lands, this bootstrap is not audited.
+6. If access control was lost (for example after a reset), run `npm run auth:bootstrap` with the first administrator's email. The bootstrap writes the invitation, the role and a system-attributed audit event in one transaction.
 
 ## Disposable-data tooling (`scripts/safety/`)
 

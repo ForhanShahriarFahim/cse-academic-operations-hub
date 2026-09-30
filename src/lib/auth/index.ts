@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { and, eq, gt, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  attendanceSessions, courses, departments, extraLoadClasses, meetingTeachers,
+  attendanceSessions, auditEvents, courses, departments, extraLoadClasses, meetingTeachers,
   meetings, portalUsers, roleAssignments, teachers, teachingGroups, workloadAllocations,
 } from "@/db/schema";
 import { auth, googleAuthConfigured } from "./provider";
@@ -51,11 +51,26 @@ export async function getOptionalActor(): Promise<Actor | null> {
       activeTo: row.activeTo,
     })),
   };
-  if (user.status === "invited") {
-    await db.update(portalUsers).set({ status: "active", lastLoginAt: now, updatedAt: now })
-      .where(eq(portalUsers.id, user.id));
-  }
+  if (user.status === "invited") await activateInvitedUser(user, now);
   return actor;
+}
+
+/**
+ * First verified sign-in. The conditional transition and its audit commit
+ * together, so concurrent first requests activate and record exactly once; if
+ * the audit cannot be written the account stays invited and the request fails.
+ */
+async function activateInvitedUser(user: { id: number; displayName: string }, now: Date): Promise<void> {
+  await db.transaction(async (tx) => {
+    const [activated] = await tx.update(portalUsers).set({ status: "active", lastLoginAt: now, updatedAt: now })
+      .where(and(eq(portalUsers.id, user.id), eq(portalUsers.status, "invited"))).returning({ id: portalUsers.id });
+    if (!activated) return;
+    await tx.insert(auditEvents).values({
+      actor: user.displayName, actorUserId: user.id, actorDisplayName: user.displayName, actorKind: "user",
+      action: "user.activate", entity: "portal_user", entityId: user.id,
+      before: { status: "invited" }, after: { status: "active" },
+    });
+  });
 }
 
 export async function requireActor(): Promise<Actor> {
