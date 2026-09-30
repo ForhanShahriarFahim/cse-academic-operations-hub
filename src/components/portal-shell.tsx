@@ -55,7 +55,7 @@ export function PortalShell({ capabilities, termName, publishedVersion, displayN
   }, [open]);
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
+    <div className="min-h-screen lg:grid lg:grid-cols-[248px_minmax(0,1fr)] print:!block">
       <a href="#main" className="skip-link">Skip to content</a>
 
       <header inert={open} className="no-print on-ink sticky top-0 z-30 flex items-center gap-3 bg-[var(--color-ink)] px-3 py-2 text-white lg:hidden">

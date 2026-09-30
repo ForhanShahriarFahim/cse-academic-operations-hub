@@ -105,3 +105,13 @@ test("no native confirm() remains in application code", () => {
   walk(path.join(root, "src"));
   expect(offenders).toEqual([]);
 });
+
+test("print uses the full page width at A4 landscape (the sidebar column must not remain)", async ({ page }) => {
+  await page.setViewportSize({ width: 1123, height: 794 });
+  await page.emulateMedia({ media: "print" });
+  for (const route of ["/routine", "/workload", "/conflicts"]) {
+    await page.goto(route, { waitUntil: "networkidle" });
+    const width = await page.evaluate(() => document.querySelector("main")!.getBoundingClientRect().width);
+    expect(width, `${route} main width in print`).toBeGreaterThan(1000);
+  }
+});
