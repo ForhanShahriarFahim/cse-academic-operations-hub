@@ -2,7 +2,7 @@
 
 Issue: [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Implementation verified; owner visual review and acceptance pending
+Status: Accepted by the owner 30 September 2026; merged to main. On 30 September 2026 (Asia/Dhaka) the owner reported the review finished, including the keyboard walk-through requested for AC-03, reported no changes, and chose "Accept and merge" for UX-01 and closure of #18 and #30.
 Updated: 30 September 2026, Asia/Dhaka
 
 ## Baseline, 30 September 2026
@@ -68,7 +68,7 @@ Environment:
 |---|---|---|
 | AC-01 | **Pass** | `npm run test:ux`: 0 px page overflow at 360/390/768 px on all 16 internal and 2 public routes. |
 | AC-02 | **Pass** | `test:ux` drawer flow: Enter opens it, focus moves inside, Esc closes it and returns focus to the menu button, and following a link closes it. The page behind is `inert` while the drawer is open. |
-| AC-03 | **Pass (automated)**; full manual keyboard walk-through pending owner review | The skip link is the first tab stop and focuses `main`. A global pine `:focus-visible` ring is in place. All scroll regions are focusable, and axe reports no `scrollable-region-focusable`. |
+| AC-03 | **Pass (automated)**; owner review completed 30 September 2026 with no keyboard issues reported | The skip link is the first tab stop and focuses `main`. A global pine `:focus-visible` ring is in place. All scroll regions are focusable, and axe reports no `scrollable-region-focusable`. |
 | AC-04 | **Pass** with two recorded deferrals | axe WCAG 2 A/AA at 1366 and 390 px: 0 violations on 17 of 18 routes (baseline: every internal route failed, up to 310 contrast nodes). Deferrals: People & access `select-name` (#31); the official routine package keeps the institutional template's 5–6 px grey print captions (27 nodes). |
 | AC-05 | **Pass** | `StatusText` (icon + word) on the Dashboard, Workload, Teachers and Validation screens. Badges are sentence case, wrap instead of truncating, and use AA tints. Workload over the advisory limit is a gold warning; blockers are clay. |
 | AC-06 | **Pass** | `test:ux` finds no `confirm(` in `src/`. Manual flow on External commitments: the dialog names the item and consequence; Cancel has initial focus; Esc and Cancel leave the rows unchanged; focus returns to the trigger; confirming removed the commitment. The other six call sites use the same `useConfirm` dialog (code review); they were not exercised one by one. |

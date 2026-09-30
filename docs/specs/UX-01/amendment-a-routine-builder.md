@@ -1,7 +1,7 @@
 # UX-01 amendment A — Routine builder workbench
 
 Issue: [#18 UX-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18)
-Status: Implemented and verified 30 September 2026; owner review pending. Approved 30 September 2026. The owner approved R1–R9 including `updateMeetingAction`, pulled L2 (drag and drop) into this amendment, and left L1 and L3–L6 for a separate issue.
+Status: Implemented, verified and accepted by the owner 30 September 2026. Approved 30 September 2026. The owner approved R1–R9 including `updateMeetingAction`, pulled L2 (drag and drop) into this amendment, and left L1 and L3–L6 for a separate issue.
 Requested: 30 September 2026. The owner asked for the Routine builder to be redesigned and made easy to manage before the UX-01 PR and merge.
 Updated: 30 September 2026, Asia/Dhaka
 
