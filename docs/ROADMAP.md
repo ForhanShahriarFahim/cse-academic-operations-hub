@@ -8,7 +8,7 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 
 - WORKFLOW-01 (#20): accepted/closed; PRs #21/#22 merged, final main baseline `78db43d`. [Review/acceptance record](plans/WORKFLOW-01.md).
 - SAFE-01 (#2): **accepted and closed** 30 September 2026; merged via PR #23. Evidence: [verification](specs/SAFE-01/verification.md). D-07 operational ownership deferred to DEP-01 (#19). Follow-up bugs #24–#28.
-- **Next:** no issue is in progress. The owner selects the next issue (AUTH-01 #1 needs OAuth credentials and a hosted PostgreSQL target; UX-01 #18, ATT-02 #9 and follow-ups #24–#28 are alternatives). Then specify and plan it, and get owner approval before implementation.
+- **Next:** UX-01 (#18) is in progress on `codex/ux-01` (approved 30 September 2026; see [spec](specs/UX-01/spec.md) and [plan](specs/UX-01/plan.md)). Bugs found during its inspection: #29–#32 (#30 is folded into UX-01).
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
