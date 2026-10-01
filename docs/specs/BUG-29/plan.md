@@ -3,7 +3,7 @@
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md) (created during T-07)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); not started
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01 done)
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -29,6 +29,8 @@ The baseline is in the [spec](spec.md#problem-and-inspected-baseline). These add
 
 That is 34 columns. T-01 re-checks every write path with a search before the SQL is written. A column whose path differs from this table is reported back rather than silently reclassified.
 
+Re-check on 1 October 2026 (T-01): every production write path matches the table. One path differs, and only in disposable review copies: `scripts/ux-review.ts` writes `auth_session.expires_at` and `role_assignments.active_from` with SQL `now()`. Such a copy that is upgraded rather than rebuilt may keep a session expiry up to 6 hours off. Rebuilding with `--fresh` avoids it, so the columns keep their production class.
+
 **Guard.** After converting, the migration raises an error, and the migration's transaction rolls back, if:
 
 - the session `TimeZone` is empty, or
@@ -52,7 +54,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Tasks
 
-- [ ] T-01 — **Schema and migration.**
+- [x] T-01 — **Schema and migration.**
   - Re-verify the column classification. Add `{ withTimezone: true }` to all 34 columns in `src/db/schema.ts`.
   - Write `drizzle/0007_instant-timestamps.sql` and its journal entry: the guard, the mixed columns first, then the default-stamped and application-written groups, then the future-value check.
   - Covers AC-03 and AC-04 (conversion); no dependencies.
@@ -102,8 +104,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: the spec is at `ca9e788` and this plan is committed after it; no code changes.
-- Completed tasks: none.
-- Next action: T-01.
-- Verification: none yet.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01 is committed locally as an unfinished checkpoint, not pushed; it is pushed together with T-02–T-04 after their focused checks.
+- Completed tasks: T-01.
+- Next action: T-02.
+- Verification: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass.
 - Blockers/capabilities: T-08 needs the owner's go-ahead. The PostgreSQL checks need `SAFE01_PG_BIN`; the tools are installed outside the repo.
