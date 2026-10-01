@@ -9,7 +9,7 @@ Tracker: [GitHub index #16](https://github.com/ForhanShahriarFahim/cse-academic-
 - WORKFLOW-01 (#20): accepted/closed; PRs #21/#22 merged, final main baseline `78db43d`. [Review/acceptance record](plans/WORKFLOW-01.md).
 - SAFE-01 (#2): **accepted and closed** 30 September 2026; merged via PR #23. Evidence: [verification](specs/SAFE-01/verification.md). D-07 operational ownership deferred to DEP-01 (#19). Follow-up bugs #24–#28.
 - UX-01 (#18): **accepted and merged** 30 September 2026 ([verification](specs/UX-01/verification.md)); closed #30. Remaining inspection bugs: #29, #31, #32; builder follow-ups #33.
-- **Current:** none in progress. RUT-04 (#34) was accepted 1 October 2026, including the official print redesign, and merged ([verification](specs/RUT-04/verification.md)). TCH-02 (#35) is recommended next; it needs a spec and owner approval.
+- **Current:** TCH-02 (#35), with the spec and mockups proposed 1 October 2026 and awaiting owner approval ([spec](specs/TCH-02/spec.md)). RUT-04 (#34) was accepted 1 October 2026 and merged ([verification](specs/RUT-04/verification.md)).
 - RUT-01: completed (e6c8fae and completion tag), without a GitHub issue for that earlier work. DOC-01 (#17) is closed (e183980).
 - AUTH-01 (#1): code implemented (26eb86c, c70984f); real OAuth, hosted PostgreSQL, adversarial permissions/sessions and approved contact projection remain pending. Do not close on code presence.
 - Documented development baseline: 185 parsed source entries, two teacher-managed thesis/project entries, 183 scheduled meetings, 42 teacher records, 78 courses and 13 publication blockers. Counts were not re-seeded/retested during migration. Local PGlite is not production storage.
