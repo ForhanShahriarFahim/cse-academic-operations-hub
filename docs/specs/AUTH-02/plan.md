@@ -137,8 +137,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Tasks
 
-- [ ] T-01 — Migration 0008 and schema: method, lockout and password columns, `account_links`, `auth_session.sign_in_method`, the check constraint. Checked on a populated PGlite copy and on PostgreSQL 17. Covers AC-16.
-- [ ] T-02 — Provider configuration: the two config flags, email/password with sign-up and the reset/change paths disabled, sign-in hooks, lockout counting, the session method stamp, the actor's method check, linking settings and rate limits. Covers AC-04–AC-06, AC-08 and AC-10.
+- [x] T-01 — Migration 0008 and schema: method, lockout and password columns, `account_links`, `auth_session.sign_in_method`, the check constraint. Checked on a populated PGlite copy and on PostgreSQL 17. Covers AC-16.
+- [x] T-02 — Provider configuration: the two config flags, email/password with sign-up and the reset/change paths disabled, sign-in hooks, lockout counting, the session method stamp, the actor's method check, linking settings and rate limits. Covers AC-04–AC-06, AC-08 and AC-10.
 - [ ] T-03 — Pure modules: password rules with the common list, links, access summary and account rules, with tests in `test:domain`. Covers AC-07, AC-11 and AC-15.
 - [ ] T-04 — Administrator actions and the person's own actions, with audit and session revocation, and the last-administrator lock. Covers AC-01–AC-03, AC-09, AC-11–AC-13.
 - [ ] T-05 — `/login` and `/set-password` screens. Covers AC-01, AC-04, AC-06, AC-07 and AC-18.
@@ -171,7 +171,11 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 - Approved scope: see Approval record (1 October 2026).
 - Commits: `bf214b8` (proposed spec), then the plan, the recorded decisions and the mockups.
-- Completed tasks: none.
-- Next action: T-01 (migration 0008 and schema).
-- Verification: not started.
+- Completed tasks: T-01, T-02.
+- Implementation notes beyond the plan text:
+  - Password sign-in runs only through the portal's server action (`sign-in-actions.ts` → `password-sign-in.ts`). The library's `/sign-in/email` HTTP route is disabled too, so lockout and throttling cannot be bypassed. This replaces the planned `hooks.before/after` on that route; the behaviour is the same.
+  - The BUG-29 safety check now inserts its pre-0007 rows with explicit SQL and ignores time columns added after 0007, so it keeps testing the database as it was before BUG-29.
+  - The SAFE-01 controlled runtime's provider stub exports `authConfigured` and a session sign-in method.
+- Next action: T-03 (pure modules). The common-password list download still needs the owner's go-ahead.
+- Verification so far: `typecheck`, `lint`, `test:domain` pass. `test:safety` T-01–T-04 and BUG-29 (PGlite and PostgreSQL 17) pass with 0008. A throwaway-database smoke test of the real provider passes: correct password, session stamped `password`, lockout after 5 with one audit row, unknown account refused.
 - Blockers/capabilities: downloading the common-password list needs the owner's go-ahead (T-03). Google OAuth credentials are not available, so the real callback stays pending.

@@ -1,12 +1,13 @@
 import { headers } from "next/headers";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   attendanceSessions, auditEvents, courses, departments, extraLoadClasses, meetingTeachers,
   meetings, portalUsers, teachers, teachingGroups, workloadAllocations,
 } from "@/db/schema";
 import { selectActiveAssignments } from "./assignments";
-import { auth, googleAuthConfigured } from "./provider";
+import { auth, authConfigured } from "./provider";
+import { normalizeEmail, sessionAllowed, sessionMethod } from "./account-policy";
 import { hasCapability, isRole, type Actor, type Capability } from "./policy";
 
 export { hasCapability, type Actor, type Capability, type Role } from "./policy";
@@ -28,12 +29,17 @@ export class AuthorizationError extends Error {
 }
 
 export async function getOptionalActor(): Promise<Actor | null> {
-  if (!googleAuthConfigured) return null;
+  if (!authConfigured) return null;
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user?.email || !session.user.emailVerified) return null;
-  const email = session.user.email.trim().toLowerCase();
-  const [user] = await db.select().from(portalUsers).where(eq(portalUsers.email, email)).limit(1);
-  if (!user || !["invited", "active"].includes(user.status)) return null;
+  if (!session?.user?.email) return null;
+  // A Google session needs Google's verified address. A password account's email is an
+  // administrator-entered identifier, so its sessions do not (AUTH-02 spec, accounts).
+  const method = sessionMethod(session.session.signInMethod);
+  if (method !== "password" && !session.user.emailVerified) return null;
+  const email = normalizeEmail(session.user.email);
+  const [user] = await db.select().from(portalUsers).where(eq(sql`lower(${portalUsers.email})`, email)).limit(1);
+  // Suspension, or turning off the method this session came from, ends it on the next request.
+  if (!user || !sessionAllowed(user, session.session.signInMethod)) return null;
   const now = new Date();
   const assignments = await selectActiveAssignments(db, user.id, now);
   const actor: Actor = {

@@ -33,10 +33,13 @@ export class RedirectSignal extends Error {
 }
 
 let signedInEmail: string | null = null;
+let signedInMethod: "password" | "google" | null = null;
 export const revalidations: string[] = [];
 
-export function signInAs(email: string | null): void {
+/** `method` is the session's AUTH-02 sign-in method; null is a session from before AUTH-02 (Google). */
+export function signInAs(email: string | null, method: "password" | "google" | null = null): void {
   signedInEmail = email;
+  signedInMethod = method;
 }
 
 function stub(request: string, exports: Record<string, unknown>): void {
@@ -49,10 +52,13 @@ function stub(request: string, exports: Record<string, unknown>): void {
 }
 
 stub("./provider", {
+  authConfigured: true,
   googleAuthConfigured: true,
   auth: {
     api: {
-      getSession: async () => signedInEmail ? { user: { email: signedInEmail, emailVerified: true } } : null,
+      getSession: async () => signedInEmail
+        ? { user: { email: signedInEmail, emailVerified: signedInMethod !== "password" }, session: { signInMethod: signedInMethod } }
+        : null,
     },
   },
 });
