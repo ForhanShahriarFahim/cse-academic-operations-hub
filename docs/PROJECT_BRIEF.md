@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage).
+**State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage). The last fix was [BUG-49 / #49](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/49): Sign out without Google, and no tokens in the dev log ([record](specs/BUG-49/verification.md)); accepted and merged 2 October 2026.
 
 - **Last completed:** [BUG-48 / #48](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/48) (SAFE-01 follow-up F-10). A disposable PostgreSQL cluster from `test:safety` is now stopped even when the run is killed: in-process stop, a detached watchdog, and a sweep of stale cluster runs. Accepted by the owner on 2 October 2026 and merged. Records: [spec/plan](specs/BUG-48/spec.md), [verification](specs/BUG-48/verification.md).
 
