@@ -3,7 +3,7 @@
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Implemented and verified 1 October 2026, including amendment B (print redesign). Owner acceptance pending.
+Status: Accepted by the owner 1 October 2026, including amendment B; merged to main and #34 closed.
 Branch / base: `codex/rut-04` from main `39a39b3`
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -109,5 +109,5 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
   - A fit check (body overflow, cells outside the frame, clipped text) passes on all 5 pages on screen and in print.
   - Owner feedback, 1 October 2026: the lab-block row now shows each time above its classes (not beside them), with a thin rule under the time; the "Head, Department of CSE" signature line is dropped; the serif/condensed-sans type pairing is accepted. Overall design approval is still pending.
 - **Amendment B implemented and verified, 1 October 2026** (`d7db17d`): see [verification](verification.md#amendment-b-official-print-redesign-1-october-2026). The design follows the mockup, with two additions found on real data: an "Other times" column, so classes outside a day's periods are no longer dropped; and a class's time is written on its room line, which keeps Diploma on one sheet. Summer 2026 review data gives HSC on 2 sheets and Diploma on 1, 5 pages in total. All required checks pass.
-- **Next:** owner acceptance of RUT-04 (with amendment B); then PR, merge and close #34.
+- **Accepted 1 October 2026:** the owner replied "I accept RUT-04, go ahead and merge". Merged to main and #34 closed.
 - Blockers/capabilities: none.

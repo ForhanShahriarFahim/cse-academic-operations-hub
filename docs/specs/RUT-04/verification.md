@@ -2,7 +2,7 @@
 
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Implementation verified; owner acceptance pending
+Status: Accepted by the owner 1 October 2026, including amendment B (official print redesign); merged to main. After reviewing the redesigned package, the owner replied "I accept RUT-04, go ahead and merge".
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
