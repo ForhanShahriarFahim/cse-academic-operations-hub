@@ -1,7 +1,7 @@
 # BUG-29 — Database-stamped times are stored and read as real instants
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29) (UX-01 finding B1)
-Status: Proposed — awaiting owner decisions D-1–D-3 and approval
+Status: Approved 1 October 2026 with recommended decisions D-1–D-3 (see [plan approval record](plan.md#approval-record))
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline
