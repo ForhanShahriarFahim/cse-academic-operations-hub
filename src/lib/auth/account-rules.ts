@@ -49,3 +49,31 @@ export function lastAdministratorMessage(displayName: string): string {
 export function teacherRoleProblem(role: Role, hasTeacherLink: boolean): string | null {
   return role === "teacher" && !hasTeacherLink ? "The Teacher role needs a linked teacher record. Link one in the account details first." : null;
 }
+
+const DHAKA_OFFSET = "+06:00"; // Asia/Dhaka has no daylight saving
+const YMD = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Today's date in Asia/Dhaka as YYYY-MM-DD. */
+export function dhakaToday(now: Date): string {
+  return new Date(now.getTime() + 6 * 3_600_000).toISOString().slice(0, 10);
+}
+
+const dhakaMidnight = (ymd: string) => new Date(`${ymd}T00:00:00${DHAKA_OFFSET}`);
+
+/**
+ * A role's start and end from form dates (days in Asia/Dhaka). A start of today
+ * takes effect now; a later start at that day's midnight. The end date is the
+ * last day the role applies, so it ends at the following midnight.
+ */
+export function roleWindow(start: string, end: string, now: Date):
+  { ok: true; activeFrom: Date; activeTo: Date | null } | { ok: false; field: "activeFrom" | "activeTo"; message: string } {
+  const today = dhakaToday(now);
+  const startDay = start || today;
+  if (!YMD.test(startDay) || Number.isNaN(dhakaMidnight(startDay).getTime())) return { ok: false, field: "activeFrom", message: "Enter a valid start date." };
+  if (startDay < today) return { ok: false, field: "activeFrom", message: "A role cannot start in the past. Use today or a later date." };
+  if (end && (!YMD.test(end) || Number.isNaN(dhakaMidnight(end).getTime()))) return { ok: false, field: "activeTo", message: "Enter a valid end date, or leave it empty." };
+  if (end && end < startDay) return { ok: false, field: "activeTo", message: "The end date must be on or after the start date." };
+  const activeFrom = startDay === today ? now : dhakaMidnight(startDay);
+  const activeTo = end ? new Date(dhakaMidnight(end).getTime() + 86_400_000) : null;
+  return { ok: true, activeFrom, activeTo };
+}

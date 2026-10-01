@@ -155,3 +155,10 @@ export async function authorize(capability: Capability, resource?: Resource): Pr
   if (!await can(actor, capability, resource)) throw new AuthorizationError();
   return actor;
 }
+
+/** The signed-in browser's own session token, so "sign out other devices" can keep it. */
+export async function getCurrentSessionToken(): Promise<string | null> {
+  if (!authConfigured) return null;
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.session?.token ?? null;
+}

@@ -31,9 +31,8 @@ async function run(operation: string, argument: unknown): Promise<unknown> {
     }
     case "autoSchedule":
       return loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts").applyAutoScheduleAction();
-    case "invite":
-      await loadApp<typeof AdminActionsModule>("src/lib/auth/admin-actions.ts").inviteUserAction(form(argument as Record<string, string>));
-      return { ok: true };
+    case "createAccount":
+      return loadApp<typeof AdminActionsModule>("src/lib/auth/admin-actions.ts").createAccountAction(null, form(argument as Record<string, string>));
     default:
       throw new Error(`Unknown operation ${operation}`);
   }

@@ -11,7 +11,7 @@ import { passwordChecks, passwordProblem } from "../src/lib/auth/password-rules"
 import { hashLinkToken, linkUrl, newLinkToken, parseLinkToken } from "../src/lib/auth/links";
 import { Throttle } from "../src/lib/auth/throttle";
 import {
-  KEEP_ONE_METHOD, changeProblem, removesLastAdministrator, selfChangeProblem, teacherRoleProblem,
+  KEEP_ONE_METHOD, changeProblem, dhakaToday, removesLastAdministrator, roleWindow, selfChangeProblem, teacherRoleProblem,
 } from "../src/lib/auth/account-rules";
 import { CAPABILITY_LABELS, summarizeAccess } from "../src/lib/auth/access-summary";
 import { ROLES, hasCapability, type Actor, type Capability } from "../src/lib/auth/policy";
@@ -100,6 +100,20 @@ assert.equal(removesLastAdministrator(9, new Set([7]), { kind: "suspend" }), fal
 assert.match(teacherRoleProblem("teacher", false) ?? "", /linked teacher record/);
 assert.equal(teacherRoleProblem("teacher", true), null);
 assert.equal(teacherRoleProblem("accounts_officer", false), null);
+
+// Role dates are Asia/Dhaka days; today starts now, the end day is inclusive.
+const at = new Date("2026-09-30T19:30:00Z"); // 1 October 01:30 in Dhaka
+assert.equal(dhakaToday(at), "2026-10-01");
+assert.deepEqual(roleWindow("2026-10-01", "", at), { ok: true, activeFrom: at, activeTo: null });
+assert.deepEqual(roleWindow("", "", at), { ok: true, activeFrom: at, activeTo: null });
+const window = roleWindow("2026-10-05", "2026-12-31", at);
+assert.ok(window.ok);
+assert.equal(window.activeFrom.toISOString(), "2026-10-04T18:00:00.000Z");
+assert.equal(window.activeTo?.toISOString(), "2026-12-31T18:00:00.000Z");
+assert.deepEqual(roleWindow("2026-09-30", "", at), { ok: false, field: "activeFrom", message: "A role cannot start in the past. Use today or a later date." });
+assert.equal((roleWindow("2026-10-05", "2026-10-04", at) as { field: string }).field, "activeTo");
+assert.equal((roleWindow("2026-13-45", "", at) as { field: string }).field, "activeFrom");
+assert.equal(roleWindow("2026-10-05", "2026-10-05", at).ok, true, "a one-day role is allowed");
 
 // AC-15: for every role alone, the summary lists exactly what the server policy grants.
 const now = new Date("2026-10-01T06:00:00Z");
