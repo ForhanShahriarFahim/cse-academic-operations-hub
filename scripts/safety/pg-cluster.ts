@@ -3,15 +3,19 @@
  * initialised inside an owned run under .tmp/safe-01, listens only on
  * 127.0.0.1 on a free port, uses a random per-run password and is stopped and
  * removed afterwards. Client tools come only from the explicit SAFE01_PG_BIN
- * directory; nothing is taken from PATH or PG* variables.
+ * directory; nothing is taken from PATH or PG* variables. BUG-48: the cluster is
+ * stopped on every exit path, including a killed harness (see ./cluster-control).
  */
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { Pool } from "pg";
-import { createOwnedRun, removeOwnedRun, withWriterLock, type OwnedRun } from "./pglite";
+import { createOwnedRun, removeOwnedRun, withWriterLock, type OwnedRun } from "./owned-run";
+import {
+  CLUSTER_PURPOSE, ClusterStopError, launchWatchdog, logCleanup, pgExe, stopCluster, sweepStaleClusters, toolEnv, trackCluster,
+} from "./cluster-control";
 import { UnsafeTargetError, resolvePostgresTarget, type PostgresTarget } from "./targets";
 
 const TOOLS = ["initdb", "pg_ctl", "pg_dump", "pg_restore", "psql"] as const;
@@ -30,7 +34,19 @@ export interface PgCluster {
   dropDatabase(target: PostgresTarget): Promise<void>;
 }
 
-const exe = (bin: string, name: string) => path.join(bin, process.platform === "win32" ? `${name}.exe` : name);
+const exe = pgExe;
+
+/** Test hooks for the BUG-48 cleanup group; production checks pass none. */
+export interface ClusterOptions {
+  /** Start the out-of-process watchdog (default true). */
+  watchdog?: boolean;
+  /** `pg_ctl start -w -t` seconds (default 60); 0 makes start fail while the server is still starting. */
+  startWaitSeconds?: number;
+  /** Simulate a stop that cannot be confirmed: the server is left running and the run kept. */
+  failStop?: boolean;
+  /** Called before `pg_ctl start` with the run, its port and the watchdog PID (if any). */
+  onStarting?: (info: { run: OwnedRun; port: number; watchdogPid: number | null }) => void;
+}
 
 /** Validate an explicit client-tool directory and return its major.minor version. */
 export function resolvePgBin(bin: string | undefined): { bin: string; version: string } {
@@ -60,15 +76,17 @@ function check(result: SpawnSyncReturns<string>, what: string): void {
 }
 
 /** Start a disposable cluster, run `work`, then always stop and remove it. */
-export async function withDisposableCluster<T>(binInput: string | undefined, work: (cluster: PgCluster) => Promise<T>): Promise<T> {
+export async function withDisposableCluster<T>(
+  binInput: string | undefined,
+  work: (cluster: PgCluster) => Promise<T>,
+  options: ClusterOptions = {},
+): Promise<T> {
   const { bin, version } = resolvePgBin(binInput);
-  const run = createOwnedRun("t06 postgres cluster");
+  for (const line of sweepStaleClusters(bin)) console.log(`  [cleanup] ${line}`);
+  const run = createOwnedRun(CLUSTER_PURPOSE);
   const password = randomBytes(24).toString("base64url");
-  const env = (): NodeJS.ProcessEnv => {
-    const clean: Record<string, string | undefined> = {};
-    for (const [key, value] of Object.entries(process.env)) if (!/^PG/i.test(key)) clean[key] = value;
-    return { ...clean, PGPASSWORD: password, PGCONNECT_TIMEOUT: "10" } as unknown as NodeJS.ProcessEnv;
-  };
+  const env = () => toolEnv({ PGPASSWORD: password, PGCONNECT_TIMEOUT: "10" });
+  let keepRun = false;
   try {
     return await withWriterLock(run, async () => {
       const pwfile = path.join(run.root, "initdb.pw");
@@ -81,13 +99,39 @@ export async function withDisposableCluster<T>(binInput: string | undefined, wor
         rmSync(pwfile, { force: true });
       }
       const port = await freePort(55432);
+
+      // From here on the server may exist, so every exit path must stop it (BUG-48).
+      const watchdogPid = options.watchdog === false ? null : launchWatchdog(run, bin);
+      options.onStarting?.({ run, port, watchdogPid });
+      const release = trackCluster(bin, run.dataDir);
+      const stopOrKeep = (failure: unknown, settleMs: number) => {
+        try {
+          if (options.failStop) throw new ClusterStopError(run.dataDir);
+          return stopCluster(bin, run.dataDir, settleMs);
+        } catch (stopError) {
+          keepRun = true;
+          logCleanup(`kept ${path.basename(run.root)}: ${(stopError as Error).message}`);
+          throw new Error(`${(stopError as Error).message} Its run directory was kept for inspection.`, { cause: failure ?? stopError });
+        } finally {
+          release();
+        }
+      };
+
       // Start detached with no inherited pipes (pg_ctl would otherwise keep them open on Windows).
       const started = spawnSync(exe(bin, "pg_ctl"), [
-        "start", "-D", run.dataDir, "-l", path.join(run.root, "postgres.log"), "-w", "-t", "60",
+        "start", "-D", run.dataDir, "-l", path.join(run.root, "postgres.log"), "-w", "-t", String(options.startWaitSeconds ?? 60),
         "-o", `-p ${port} -c listen_addresses=127.0.0.1 -c timezone=UTC`,
-      ], { stdio: "ignore", env: env() });
-      if (started.error) throw started.error;
-      if (started.status !== 0) throw new Error(`pg_ctl start failed (${started.status}); see ${path.join(run.root, "postgres.log")}`);
+      ], { stdio: "ignore", env: env(), windowsHide: true });
+      if (started.error || started.status !== 0) {
+        // The run (and its log) is removed afterwards, so the log tail travels with the error.
+        const log = path.join(run.root, "postgres.log");
+        const tail = existsSync(log) ? readFileSync(log, "utf8").slice(-1500).trim() : "";
+        const failure = started.error ?? new Error(`pg_ctl start failed (${started.status})${tail ? `; postgres.log ends:\n${tail}` : ""}`);
+        // The postmaster may still be starting after pg_ctl gave up waiting.
+        if (stopOrKeep(failure, 10_000)) logCleanup(`failed start: stopped the server pg_ctl gave up on in ${path.basename(run.root)}`);
+        throw failure;
+      }
+
       const url = (database: string) =>
         `postgresql://${OWNER}:${encodeURIComponent(password)}@127.0.0.1:${port}/${database}`;
       const admin = new Pool({ connectionString: url("postgres"), max: 1 });
@@ -105,14 +149,21 @@ export async function withDisposableCluster<T>(binInput: string | undefined, wor
           await admin.query(`drop database if exists "${checked.database}" with (force)`);
         },
       };
+      let result: T;
       try {
-        return await work(cluster);
-      } finally {
-        await admin.end();
-        spawnSync(exe(bin, "pg_ctl"), ["stop", "-D", run.dataDir, "-m", "fast", "-w", "-t", "60"], { stdio: "ignore", env: env() });
+        try {
+          result = await work(cluster);
+        } finally {
+          await admin.end();
+        }
+      } catch (error) {
+        stopOrKeep(error, 0);
+        throw error;
       }
+      stopOrKeep(undefined, 0);
+      return result;
     });
   } finally {
-    removeOwnedRun(run);
+    if (!keepRun) removeOwnedRun(run);
   }
 }
