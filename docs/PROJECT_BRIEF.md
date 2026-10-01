@@ -6,9 +6,14 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 1 October 2026: no issue in progress.** TCH-02 was accepted and merged; choose the next issue with the owner. #29 (database-stamped times 6 hours ahead) is the small fix recommended before AUTH-01/AUTH-02. It needs a short spec and owner approval first.
+**State on 1 October 2026: no issue in progress.** Choose the next issue with the owner. AUTH-02 (#36) and AUTH-01 (#1) were waiting on #29, which is now fixed.
 
-- **Last completed:** [TCH-02 / #35](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35), the individual teacher routine: My routine, each teacher's routine, a phone agenda, an A4 portrait print in the department's template, and bulk print. The owner accepted it on 1 October 2026.
+- **Last completed:** [BUG-29 / #29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29).
+  - **The fix.** Every database time is now `timestamp with time zone`, so a role granted now takes effect at once, and screens show instants in Asia/Dhaka. The owner accepted it on 1 October 2026, and it was merged through PR #46.
+  - **The institutional database is migrated** to 0007 (T-08). The pre-migration cold backup and its hash manifest are at `F:\AI\backups\academic-operations-portal\`, outside Git.
+  - **Records:** [spec](specs/BUG-29/spec.md), [plan](specs/BUG-29/plan.md), [verification/acceptance](specs/BUG-29/verification.md). The regression groups run in `npm run test:safety`.
+
+- **Earlier completed:** [TCH-02 / #35](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35), the individual teacher routine: My routine, each teacher's routine, a phone agenda, an A4 portrait print in the department's template, and bulk print. The owner accepted it on 1 October 2026.
   - Records: [spec](specs/TCH-02/spec.md), [plan](specs/TCH-02/plan.md), [verification/acceptance](specs/TCH-02/verification.md). Review published views with `npm run ux:review -- --fresh --publishable`. That clears the 13 room blockers in the disposable copy only, then publishes. The real blockers remain for the owner.
   - Follow-ups not in scope: .docx download, the logo, and past-term selection (D-2, D-3, D-6).
 - **Earlier completed:** [RUT-04 / #34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34), term time grids (Days & periods) and the redesigned black-and-white official routine package ([amendment B](specs/RUT-04/mockups/official-package.html)). The owner accepted it on 1 October 2026.
@@ -16,7 +21,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 - **Earlier completed:** [UX-01 / #18](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18), the responsive, accessible and plain-spoken portal baseline with the Routine builder workbench ([amendment A](specs/UX-01/amendment-a-routine-builder.md)). The owner accepted it on 30 September 2026; it also closed #30.
   - Records: [spec](specs/UX-01/spec.md), [plan](specs/UX-01/plan.md), [verification/acceptance](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/). Deferred builder features are in #33.
   - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
-- **Bugs found during UX-01 inspection:** #29 (database-stamped times are 6 hours ahead; fix before AUTH-01), #31 (People & Access confirmations), #32 (public viewer actions).
+- **Bugs found during UX-01 inspection:** #29 (fixed, BUG-29), #31 (People & Access confirmations), #32 (public viewer actions).
 - **Other candidates:** AUTH-01 (#1, needs OAuth credentials and hosted PostgreSQL), ATT-02 (#9), SAFE-01 follow-ups #24–#28.
 - **Owner brainstorm, 30 September 2026:** new proposals #34–#42 (term time grids, individual teacher routine print, email/password sign-in, student import/export, calendar, dated class changes, leave, teacher agenda, certificates). RUT-04 (#34) and TCH-02 (#35) are done. See the [triage record](plans/owner-brainstorm-2026-09-30.md); each of the rest still needs a spec and approval.
 - **Earlier completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.

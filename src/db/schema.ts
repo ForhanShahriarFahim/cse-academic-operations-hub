@@ -80,9 +80,9 @@ export const portalUsers = pgTable("portal_users", {
   displayName: text("display_name").notNull(),
   status: text("status").notNull().default("invited"),
   teacherId: integer("teacher_id").references(() => teachers.id),
-  lastLoginAt: timestamp("last_login_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("portal_users_teacher_idx").on(t.teacherId)]);
 
 export const roleAssignments = pgTable("role_assignments", {
@@ -90,10 +90,10 @@ export const roleAssignments = pgTable("role_assignments", {
   userId: integer("user_id").notNull().references(() => portalUsers.id),
   role: text("role").notNull(),
   departmentId: integer("department_id").references(() => departments.id),
-  activeFrom: timestamp("active_from").notNull().defaultNow(),
-  activeTo: timestamp("active_to"),
+  activeFrom: timestamp("active_from", { withTimezone: true }).notNull().defaultNow(),
+  activeTo: timestamp("active_to", { withTimezone: true }),
   grantedByUserId: integer("granted_by_user_id").references(() => portalUsers.id),
-  grantedAt: timestamp("granted_at").notNull().defaultNow(),
+  grantedAt: timestamp("granted_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("role_assignments_user_idx").on(t.userId)]);
 
 export const authUser = pgTable("auth_user", {
@@ -102,16 +102,16 @@ export const authUser = pgTable("auth_user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const authSession = pgTable("auth_session", {
   id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id").notNull().references(() => authUser.id),
@@ -125,21 +125,21 @@ export const authAccount = pgTable("auth_account", {
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
   scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [uniqueIndex("auth_account_provider_uq").on(t.providerId, t.accountId)]);
 
 export const authVerification = pgTable("auth_verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index("auth_verification_identifier_idx").on(t.identifier)]);
 
 // ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ export const academicPolicies = pgTable(
     extraClassRate: numeric("extra_class_rate", { precision: 10, scale: 2 }).notNull().default("200.00"),
     theoryAttendanceMarks: numeric("theory_attendance_marks", { precision: 4, scale: 1 }).notNull().default("10.0"),
     sessionalAttendanceMarks: numeric("sessional_attendance_marks", { precision: 4, scale: 1 }).notNull().default("5.0"),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("academic_policies_term_uq").on(t.termId)],
 );
@@ -236,7 +236,7 @@ export const routineSourceReconciliations = pgTable(
     sourceLabel: text("source_label").notNull(),
     detail: text("detail").notNull(),
     status: text("status").notNull().default("open"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("routine_source_reconciliations_term_idx").on(t.termId)],
 );
@@ -330,7 +330,7 @@ export const meetings = pgTable(
     customTimeLabel: text("custom_time_label"), // e.g. "10:00–11:15 AM*" — display only
     highlightColor: text("highlight_color"), // source highlight preserved; meaning unconfirmed
     status: text("status").notNull().default("active"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("meetings_day_idx").on(t.dayOfWeek),
@@ -392,8 +392,8 @@ export const periodPatterns = pgTable(
     name: text("name").notNull(),
     periods: jsonb("periods").$type<Array<{ start: number; end: number }>>().notNull().default([]),
     breaks: jsonb("breaks").$type<Array<{ name: string; start: number; end: number; blocksClasses: boolean }>>().notNull().default([]),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("period_patterns_term_name_uq").on(t.termId, t.name)],
 );
@@ -408,8 +408,8 @@ export const dayPlans = pgTable(
     dayOfWeek: integer("day_of_week").notNull(),
     patternId: integer("pattern_id").references(() => periodPatterns.id), // null = no classes (batch only)
     reason: text("reason"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("day_plans_term_idx").on(t.termId)],
 );
@@ -441,7 +441,7 @@ export const students = pgTable(
     homeBatchId: integer("home_batch_id").references(() => batches.id),
     status: text("status").notNull().default("active"), // active | inactive
     notes: text("notes"),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("students_name_idx").on(t.fullName)],
 );
@@ -457,7 +457,7 @@ export const courseEnrollments = pgTable(
     studentId: integer("student_id").notNull().references(() => students.id),
     audienceType: text("audience_type").notNull().default("local"), // local | external | merged
     status: text("status").notNull().default("active"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex("course_enrollments_uq").on(t.termId, t.teachingGroupId, t.studentId),
@@ -478,7 +478,7 @@ export const attendanceSessions = pgTable(
     startMinutes: integer("start_minutes"),
     endMinutes: integer("end_minutes"),
     notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("attendance_sessions_group_date_idx").on(t.teachingGroupId, t.classDate)],
 );
@@ -491,7 +491,7 @@ export const attendanceRecords = pgTable(
     studentId: integer("student_id").notNull().references(() => students.id),
     status: text("status").notNull().default("absent"), // present | absent | late | excused
     note: text("note"),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex("attendance_records_uq").on(t.sessionId, t.studentId),
@@ -517,7 +517,7 @@ export const extraLoadClasses = pgTable(
     courseTitleSnapshot: text("course_title_snapshot").notNull(),
     batchLabelSnapshot: text("batch_label_snapshot").notNull(),
     notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("extra_load_classes_teacher_date_idx").on(t.teacherId, t.classDate),
@@ -537,7 +537,7 @@ export const extraLoadManualSummaries = pgTable(
     rateOverride: numeric("rate_override", { precision: 10, scale: 2 }),
     amountOverride: numeric("amount_override", { precision: 12, scale: 2 }),
     notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("extra_load_manual_term_idx").on(t.termId)],
 );
@@ -565,7 +565,7 @@ export const externalCommitments = pgTable(
     credits: numeric("credits", { precision: 4, scale: 1 }),
     verificationStatus: text("verification_status").notNull().default("pending"), // pending | verified
     source: text("source"),
-    lastVerifiedAt: timestamp("last_verified_at"),
+    lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
     notes: text("notes"),
   },
   (t) => [index("ec_term_idx").on(t.termId)],
@@ -599,7 +599,7 @@ export const scheduleVersions = pgTable("schedule_versions", {
   state: text("state").notNull().default("draft"), // draft | published | superseded
   effectiveFrom: date("effective_from"),
   effectiveTo: date("effective_to"),
-  publishedAt: timestamp("published_at"),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
   publishedBy: text("published_by"),
   changeSummary: text("change_summary"),
   snapshot: jsonb("snapshot"), // immutable meeting snapshot when published
@@ -609,7 +609,7 @@ export const auditEvents = pgTable(
   "audit_events",
   {
     id: serial("id").primaryKey(),
-    at: timestamp("at").notNull().defaultNow(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
     actor: text("actor").notNull().default("coordinator"),
     actorUserId: integer("actor_user_id").references(() => portalUsers.id),
     actorDisplayName: text("actor_display_name"),

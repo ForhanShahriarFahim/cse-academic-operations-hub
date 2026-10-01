@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Globe, ShieldAlert, FileCheck2 } from "lucide-react";
 import { getPortalData } from "@/lib/data";
 import { analyzeSchedule } from "@/lib/conflicts";
-import { fmtDate, fmtRange, DAY_NAMES, jsDayToAcademic } from "@/lib/time";
+import { fmtDate, fmtRange, DAY_NAMES } from "@/lib/time";
+import { todayIndex } from "@/lib/teacher-routine-data";
 import { sharingLabel, type MeetingView } from "@/lib/serialize";
 import { PageHeader, Panel, Badge, EmptyNote, StatusText } from "@/components/ui";
 
@@ -35,7 +36,7 @@ export default async function DashboardPage() {
   // Only a version in the published state counts; a draft never implies publication (#30).
   const publishedVersion = data.versions.find((v) => v.state === "published") ?? null;
   const snapshotMeetings: MeetingView[] = data.publishedSnapshot?.meetings ?? [];
-  const todayIdx = jsDayToAcademic(new Date().getDay());
+  const todayIdx = todayIndex();
   const todaysClasses = snapshotMeetings
     .filter((m) => m.dayOfWeek === todayIdx)
     .sort((a, b) => a.startMinutes - b.startMinutes);

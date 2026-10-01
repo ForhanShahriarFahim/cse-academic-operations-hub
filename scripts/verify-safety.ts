@@ -12,6 +12,7 @@ import { checkRecovery } from "./safety/recovery.check";
 import { checkHistory } from "./safety/history.check";
 import { checkAudit } from "./safety/audit.check";
 import { checkPostgres } from "./safety/postgres.check";
+import { checkTimeZones, checkTimeZonesPostgres } from "./safety/time-zone.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -32,18 +33,21 @@ function metadataFingerprint(directory: string): string {
 
 async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
-  const groups: Array<[string, () => Promise<string[]>]> = [
+  // [name, check, needs SAFE01_PG_BIN]
+  const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
     ["T-01 isolation", checkIsolation],
     ["T-02 PGlite recovery", checkRecovery],
     ["T-03 two-term history", () => checkHistory()],
     ["T-04 audit atomicity", () => checkAudit()],
-    ["T-06 PostgreSQL", () => checkPostgres(process.env.SAFE01_PG_BIN)],
+    ["T-06 PostgreSQL", () => checkPostgres(process.env.SAFE01_PG_BIN), true],
+    ["BUG-29 time zones (PGlite)", () => checkTimeZones()],
+    ["BUG-29 time zones (PostgreSQL)", () => checkTimeZonesPostgres(process.env.SAFE01_PG_BIN), true],
   ];
   // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
   const only = process.argv[2];
-  for (const [name, check] of groups.filter(([label]) => !only || label.startsWith(only))) {
+  for (const [name, check, needsPostgres] of groups.filter(([label]) => !only || label.startsWith(only))) {
     // PostgreSQL needs explicitly configured client tools; without them it is pending, never "passed".
-    if (name.startsWith("T-06") && !process.env.SAFE01_PG_BIN) {
+    if (needsPostgres && !process.env.SAFE01_PG_BIN) {
       console.log(`${name}: PENDING — set SAFE01_PG_BIN to a PostgreSQL bin directory (see docs/operations/DATABASE_RECOVERY.md)`);
       continue;
     }

@@ -50,6 +50,13 @@
       "when": 1790758800000,
       "tag": "0006_term-time-grids",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790845200000,
+      "tag": "0007_instant-timestamps",
+      "breakpoints": true
     }
   ]
 }

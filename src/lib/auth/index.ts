@@ -1,10 +1,11 @@
 import { headers } from "next/headers";
-import { and, eq, gt, isNull, lte, or } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   attendanceSessions, auditEvents, courses, departments, extraLoadClasses, meetingTeachers,
-  meetings, portalUsers, roleAssignments, teachers, teachingGroups, workloadAllocations,
+  meetings, portalUsers, teachers, teachingGroups, workloadAllocations,
 } from "@/db/schema";
+import { selectActiveAssignments } from "./assignments";
 import { auth, googleAuthConfigured } from "./provider";
 import { hasCapability, isRole, type Actor, type Capability } from "./policy";
 
@@ -34,11 +35,7 @@ export async function getOptionalActor(): Promise<Actor | null> {
   const [user] = await db.select().from(portalUsers).where(eq(portalUsers.email, email)).limit(1);
   if (!user || !["invited", "active"].includes(user.status)) return null;
   const now = new Date();
-  const assignments = await db.select().from(roleAssignments).where(and(
-    eq(roleAssignments.userId, user.id),
-    lte(roleAssignments.activeFrom, now),
-    or(isNull(roleAssignments.activeTo), gt(roleAssignments.activeTo, now)),
-  ));
+  const assignments = await selectActiveAssignments(db, user.id, now);
   const actor: Actor = {
     id: user.id,
     email,

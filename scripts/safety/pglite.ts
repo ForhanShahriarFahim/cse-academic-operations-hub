@@ -3,7 +3,7 @@
  * ownership marker, and a writer lock records the one open writer so backup and
  * cleanup can refuse to act while it is active.
  */
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, writeSync } from "node:fs";
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
@@ -104,6 +104,30 @@ export async function migrateOwned(handle: OwnedPglite): Promise<void> {
 export async function migratePgliteDb(db: PgliteDatabase<typeof schema>): Promise<void> {
   await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
   await backfillTimeGrids(db as unknown as GridDb); // as migrateDatabase does in production
+}
+
+/** Drizzle migrations only, from `folder` (BUG-29 upgrades start from a trimmed copy). */
+export async function migratePgliteFrom(db: PgliteDatabase<typeof schema>, folder: string): Promise<void> {
+  await migrate(db, { migrationsFolder: folder });
+}
+
+export const isTimeZoneName = (zone: string) => /^[A-Za-z][A-Za-z0-9_+\-/]*$/.test(zone);
+
+/**
+ * PGlite fixes its session TimeZone when the data directory is created (from the
+ * creating process's TZ) and keeps it in postgresql.conf; neither TZ nor
+ * ALTER DATABASE changes it later. Rewriting that line while no writer is open
+ * pins the zone for every later session, including child processes.
+ */
+export function setPgliteTimeZone(run: OwnedRun, zone: string): void {
+  assertOwnedRun(run);
+  if (!isTimeZoneName(zone)) throw new UnsafeTargetError(`Not a time zone name: ${zone}`);
+  if (isWriterActive(run)) throw new UnsafeTargetError("Refusing to change the time zone while a writer is active.");
+  const conf = path.join(run.dataDir, "postgresql.conf");
+  const text = readFileSync(conf, "utf8");
+  const pattern = /^timezone = .*$/gm;
+  if ((text.match(pattern) ?? []).length !== 1) throw new Error("Expected exactly one timezone line in postgresql.conf.");
+  writeFileSync(conf, text.replace(pattern, `timezone = '${zone}'`));
 }
 
 export function removeOwnedRun(run: OwnedRun): void {
