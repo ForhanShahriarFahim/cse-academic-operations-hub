@@ -1,7 +1,7 @@
 # BUG-49 — Sign-out without Google; tokens in the dev log
 
 Issue: [#49](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/49) · Follows [AUTH-02](../AUTH-02/verification.md) (#36, PR #47)
-Status: Fixed and verified; owner acceptance pending.
+Status: **Accepted by the owner on 2 October 2026** ("accept BUG-49"); merged.
 Updated: 2 October 2026, Asia/Dhaka
 
 A small bug, so this one record holds the problem, the fix and the evidence.
@@ -32,5 +32,5 @@ Not repeated: the full `test:ux` run. The change touches only the auth route gat
 ## Delivery and acceptance
 
 - Branch `codex/bug-49` from main `cb51925`.
-- Owner acceptance: **Pending**. The owner can confirm by pressing **Sign out** on the running portal.
-- Merge / closure: Pending.
+- Owner acceptance: **Accepted** on 2 October 2026 in the Claude Code session, after trying Sign out on the running portal: "accept BUG-49".
+- Merge / closure: merged into `main` through PR #50 on 2 October 2026; #49 closed.
