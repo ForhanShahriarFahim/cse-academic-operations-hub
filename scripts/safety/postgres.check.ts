@@ -23,7 +23,7 @@ const SCENARIO = path.join(__dirname, "children", "term-scenario.ts");
 const unsafe = (pattern: RegExp) => (error: unknown) => error instanceof UnsafeTargetError && pattern.test(error.message);
 const corrupt = (pattern: RegExp) => (error: unknown) => error instanceof BackupIntegrityError && pattern.test(error.message);
 
-function factoryFor(cluster: PgCluster): DatabaseFactory {
+export function factoryFor(cluster: PgCluster): DatabaseFactory {
   let counter = 0;
   return async (purpose) => {
     const name = `safe01_${purpose.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${counter++}`;

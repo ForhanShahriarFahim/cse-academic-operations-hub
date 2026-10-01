@@ -3,7 +3,7 @@
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md) (created during T-07)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-03 done)
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-04 done)
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -16,6 +16,7 @@ The baseline is in the [spec](spec.md#problem-and-inspected-baseline). These add
 - **A plain cast does the D-2 conversion for default-stamped values.** `ALTER COLUMN … TYPE timestamptz` with no `USING` reads the old value in the session's `TimeZone`, which is the zone that stamped it. Application-written columns use `USING col AT TIME ZONE 'UTC'`.
 - **Better Auth writes its own times.** `better-auth` sets `createdAt`/`updatedAt`/`expiresAt` from `new Date()` (`dist/db/internal-adapter.mjs`). The local `auth_verification` row confirms this: it is UTC, 18 minutes after a default-stamped Dhaka-time `portal_users` row.
 - **Test harness.** SAFE-01 already provides owned disposable PGlite runs (`scripts/safety/pglite.ts`), a PostgreSQL 17 cluster started with `timezone=UTC` (`pg-cluster.ts`), child runs of `auth:bootstrap` (`app-env.ts`), cold backup/restore (`pglite-backup.ts`) and a fingerprint (`fingerprint.ts`).
+- **PGlite's zone is fixed when its data directory is created** (checked during T-04). It is taken from the creating process's `TZ` and stored in `pgdata/postgresql.conf` (`source = configuration file`). Neither `TZ` nor `ALTER DATABASE … SET timezone` changes it later. The local database reports `Etc/GMT-6` because it was created on this machine. The checks pin a disposable run's zone by rewriting that line while no writer is open.
 - **Displays.** Only `src/app/(portal)/publications/page.tsx:71` and `src/components/routine-document.tsx:72` format an instant without a zone.
 
 ### Column classification (D-2)
@@ -60,11 +61,11 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - Covers AC-03 and AC-04 (conversion); no dependencies.
 - [x] T-02 — **Access query seam.** Move the assignment query in `getOptionalActor()` into an exported `selectActiveAssignments(db, userId, now)` in `src/lib/auth/`, with no behavior change, so the regression check runs the exact production predicate. Covers AC-01.
 - [x] T-03 — **Displays.** Pass `timeZone: INSTITUTION.timeZone` in the two zone-less formatters. Search again for other zone-less instant formatting and fix any found. Covers AC-09.
-- [ ] T-04 — **Regression group.** Add `scripts/safety/time-zone.check.ts` as group `BUG-29 time zones` in `npm run test:safety`. The PostgreSQL half stays PENDING without `SAFE01_PG_BIN`, as the existing T-06 group does. On disposable PGlite and PostgreSQL 17 it checks:
+- [x] T-04 — **Regression group.** Add `scripts/safety/time-zone.check.ts` as groups `BUG-29 time zones (PGlite)` and `(PostgreSQL)` in `npm run test:safety`. The PostgreSQL half stays PENDING without `SAFE01_PG_BIN`, as the existing T-06 group does. On disposable PGlite and PostgreSQL 17 it checks:
   - **Round trip:** under session zones `UTC`, `Etc/GMT-6` and `America/New_York`, a default-stamped and an application-written value for the same instant read back as equal `Date`s (AC-02).
   - **Access timing:** a role inserted with the production default, and one written by an `auth:bootstrap` child run, are returned at once by `selectActiveAssignments`. A role revoked with `active_to = now` is excluded at once (AC-01).
   - **Catalog:** after migrating, no `timestamp without time zone` column remains and `date` columns are unchanged (AC-03).
-  - **Fresh migration:** from empty, on PGlite and on PostgreSQL databases set to `UTC` and to `Asia/Dhaka` (`ALTER DATABASE … SET timezone`) (AC-06).
+  - **Fresh migration:** from empty, on PGlite and on PostgreSQL databases set to `UTC`, `Etc/GMT-6` (Asia/Dhaka's fixed UTC+06) and `America/New_York` (`ALTER DATABASE … SET timezone`; the cluster's server zone stays UTC) (AC-06).
   - **Upgrade:** migrate to 0006 using a trimmed copy of the migrations folder, stamp rows of every class under `Etc/GMT-6`, apply 0007, and check that each value is its true instant. This covers the `updated_at = created_at` rule and the stale-edit token on `period_patterns`/`day_plans` (AC-04 and AC-08 at database level).
   - **Guard:** default-stamped values written under `Etc/GMT-6` and migrated under `UTC` make 0007 fail and roll back completely.
 - [ ] T-05 — **Rehearsal on a copy of the local database.**
@@ -104,9 +105,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-03 are committed locally as unfinished checkpoints, not pushed; they are pushed together with T-04 after its focused checks.
-- Completed tasks: T-01, T-02, T-03.
-- Next action: T-04.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 are committed and pushed as one checkpoint after the focused checks.
+- Completed tasks: T-01, T-02, T-03, T-04.
+- Next action: T-05. Stop every writer on `.data/pglite-summer-2026` first. A `ux:review` server on a disposable copy, started outside this session at 13:08 on 1 October, still holds port 3100; T-06 needs that port.
 - Verification: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
 
 T-03 named `Asia/Dhaka` on the two zone-less formatters. The wider search found one more zone-dependent display: the dashboard's "today's classes" took the weekday from the server clock (`new Date().getDay()`). On a UTC server that shows the previous day's classes between 00:00 and 06:00 Dhaka time. It now uses `todayIndex()` (`src/lib/teacher-routine-data.ts`), and the unused `jsDayToAcademic` was removed. Every other instant formatter already names a zone, and `fmtDate` formats date-only strings.
@@ -114,4 +115,8 @@ T-03 named `Asia/Dhaka` on the two zone-less formatters. The wider search found 
 Under `TZ=UTC` (Node on Windows honours it), 02:30 on Saturday 3 October in Dhaka formerly displayed as "2 Oct 2026, 20:30" with Friday's classes. It now displays "3 Oct 2026, 02:30" with Saturday's. `typecheck`, `eslint` and `test:domain` pass.
 
 **Never start the dev server against the institutional database.** It migrates its target, so before T-08 the browser check (T-06) uses a disposable `ux:review` copy only.
+
+T-04 added the two groups and gave the shared harness `setTimeZone` and `migrateFrom` (`scripts/safety/database.ts`, `pglite.ts`), and `factoryFor` is now exported from `postgres.check.ts`. Both groups pass: PGlite in about 1 min 45 s, and PostgreSQL 17.11 in about 38 s with `SAFE01_PG_BIN`. The full `npm run test:safety` with `SAFE01_PG_BIN` then passed every group in 11 min 23 s: SAFE-01 T-01–T-04 and T-06, and both BUG-29 groups. The default PGlite directory was never opened.
+
+The check was also shown to fail on the pre-fix code. With the `d68b2b7` schema and migration list it first fails the catalog assertion. With that assertion disabled it fails on the time value itself: under `Etc/GMT-6` a default-stamped audit time read back at 16:06 UTC, against a true time of 10:06.
 - Blockers/capabilities: T-08 needs the owner's go-ahead. The PostgreSQL checks need `SAFE01_PG_BIN`; the tools are installed outside the repo.
