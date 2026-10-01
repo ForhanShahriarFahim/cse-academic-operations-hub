@@ -2,8 +2,8 @@
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
-Verification: [verification.md](verification.md) (created during T-07)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-04 done)
+Verification: [verification.md](verification.md)
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-05 done)
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -68,7 +68,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - **Fresh migration:** from empty, on PGlite and on PostgreSQL databases set to `UTC`, `Etc/GMT-6` (Asia/Dhaka's fixed UTC+06) and `America/New_York` (`ALTER DATABASE … SET timezone`; the cluster's server zone stays UTC) (AC-06).
   - **Upgrade:** migrate to 0006 using a trimmed copy of the migrations folder, stamp rows of every class under `Etc/GMT-6`, apply 0007, and check that each value is its true instant. This covers the `updated_at = created_at` rule and the stale-edit token on `period_patterns`/`day_plans` (AC-04 and AC-08 at database level).
   - **Guard:** default-stamped values written under `Etc/GMT-6` and migrated under `UTC` make 0007 fail and roll back completely.
-- [ ] T-05 — **Rehearsal on a copy of the local database.**
+- [x] T-05 — **Rehearsal on a copy of the local database.**
   - Add `scripts/rehearse-time-zone-migration.ts`. It copies the stopped `.data/pglite-summer-2026` into an owned run under `.tmp/safe-01`, and refuses if the source is in use or the target is outside `.tmp`.
   - It takes a SAFE-01 cold backup, migrates the copy from 0005 through 0007 and the backfill, and writes a report.
   - The report holds the session zone, every column's class, row count, minimum and maximum before and after, and a fingerprint of all non-time columns before and after.
@@ -85,6 +85,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - [ ] T-08 — **Migrate the institutional database (owner go-ahead).**
   - Stop every writer and take the cold backup and hash manifest per the runbook.
   - Run `npm run db:migrate`, which applies 0006, 0007 and the backfill.
+  - Expect the first open to run PGlite's crash recovery and remove the `postmaster.pid` left on 25 September (seen in T-05). The backup is taken before that open, so it keeps the file.
   - Check `/api/health`, People & Access and `/routine/periods`, and record the result.
   - Gated on T-07 and on the owner's explicit go-ahead; the backup's location stays outside Git.
 
@@ -105,10 +106,11 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 are committed and pushed as one checkpoint after the focused checks.
-- Completed tasks: T-01, T-02, T-03, T-04.
-- Next action: T-05. Stop every writer on `.data/pglite-summer-2026` first. A `ux:review` server on a disposable copy, started outside this session at 13:08 on 1 October, still holds port 3100; T-06 needs that port.
-- Verification: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 pushed as checkpoint `df11ed2`; T-05 (rehearsal script and `verification.md`) committed and pushed after it.
+- Completed tasks: T-01–T-05.
+- Next action: T-06. A `ux:review` server on a disposable copy, started outside this session at 13:08 on 1 October, still holds port 3100. It must be stopped, or the owner asked, before T-06 restarts it under `TZ=UTC`.
+- Verification: [verification.md](verification.md) holds results per AC, including the T-05 report. The notes below record each task.
+- Task notes: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
 
 T-03 named `Asia/Dhaka` on the two zone-less formatters. The wider search found one more zone-dependent display: the dashboard's "today's classes" took the weekday from the server clock (`new Date().getDay()`). On a UTC server that shows the previous day's classes between 00:00 and 06:00 Dhaka time. It now uses `todayIndex()` (`src/lib/teacher-routine-data.ts`), and the unused `jsDayToAcademic` was removed. Every other instant formatter already names a zone, and `fmtDate` formats date-only strings.
 
