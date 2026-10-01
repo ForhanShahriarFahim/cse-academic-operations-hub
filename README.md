@@ -14,6 +14,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 - Exact-time Day and Week routine views for HSC and Diploma streams, with optional batch filtering.
 - Term-specific days and periods per stream (Days & periods), with batch exceptions: an extra day such as Friday, its own periods, or no classes on a day.
+- Individual teacher routines in the department's "Individual Class Routine" layout: My routine for a signed-in teacher, any teacher's routine, a phone agenda, A4 portrait print or PDF, and bulk print for many teachers.
 - Deterministic automatic scheduler for safe initial placements.
 - Conflict detection for teachers, rooms, audiences, breaks, capacity, external commitments, and room capabilities.
 - Course-group attendance with CSV roster import and Midterm, Final, and semester summaries.
@@ -196,8 +197,8 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run test:routine` | Run focused routine projection and CSV regression checks |
 | `npm run test:ui` | Run Playwright routine view/export/print browser tests (Microsoft Edge on Windows). It starts `npm run dev`, which prepares the configured database. |
 | `npm run test:safety` | SAFE-01 checks on synthetic data under `.tmp/safe-01` only: target isolation, PGlite backup/restore, two-term history, and audit atomicity. It never opens the institutional database. Add a task prefix to run one group, e.g. `npm run test:safety -- T-03`. The PostgreSQL group (T-06) runs only when `SAFE01_PG_BIN` points at a PostgreSQL bin directory; otherwise it reports PENDING. |
-| `npm run ux:review` | UX-01 review server on `http://localhost:3100` against a disposable PGlite database in `.tmp/ux-review`. It is seeded from the source fixture, or copied with `-- --from-copy <dir>` after stopping that directory's server. A synthetic signed-in reviewer is added, so internal screens can be reviewed without Google OAuth. It refuses `DATABASE_URL` and `.data`, and pins database and auth variables so `.env` files cannot redirect it. `-- --role <role>` changes the reviewer role; `-- --print-cookie` prints a browser sign-in snippet. |
-| `npm run test:ux` | UX baseline checks against a running `npm run ux:review` server: no page-wide overflow at 360/390/768 px, WCAG 2 A/AA axe checks at desktop and phone widths, skip link, navigation drawer keyboard flow, and no native `confirm()`. It never starts a server itself. |
+| `npm run ux:review` | UX-01 review server on `http://localhost:3100` against a disposable PGlite database in `.tmp/ux-review`. It is seeded from the source fixture, or copied with `-- --from-copy <dir>` after stopping that directory's server. A synthetic signed-in reviewer is added, so internal screens can be reviewed without Google OAuth, plus a second account with the teacher role linked to the teacher with the most classes, for My routine. It refuses `DATABASE_URL` and `.data`, and pins database and auth variables so `.env` files cannot redirect it. `-- --role <role>` changes the reviewer role; `-- --print-cookie` prints a browser sign-in snippet. `-- --fresh --publishable` rebuilds the copy, moves the classes behind the 13 Summer 2026 room blockers to free rooms at the same times (review data only), publishes it, and leaves one draft change for the linked teacher, so published views can be reviewed. |
+| `npm run test:ux` | UX baseline checks against a running `npm run ux:review` server: no page-wide overflow at 360/390/768 px, WCAG 2 A/AA axe checks at desktop and phone widths, skip link, navigation drawer keyboard flow, and no native `confirm()`. Feature specs add flows for the builder, Days & periods, the official package and teacher routines (print fit and page counts). It never starts a server itself. |
 
 ## Project structure
 
@@ -262,6 +263,7 @@ cse-academic-operations-hub/
 | `/login` | Invited-account Google sign-in and setup notice |
 | `/access` | Administrator-managed invitations, roles, teacher links, and suspension |
 | `/` | Coordinator dashboard |
+| `/my-routine` | The signed-in teacher's individual routine (accounts linked to a teacher record) |
 | `/routine` | Manual exact-time builder plus Day/Week, batch filter, print, and draft CSV |
 | `/routine/export` | URL-addressed draft routine CSV export |
 | `/routine/periods` | Days & periods: per-term period patterns, stream days, class hours and batch exceptions |
@@ -270,6 +272,8 @@ cse-academic-operations-hub/
 | `/attendance` | Roster, CSV import, attendance, and summaries |
 | `/extra-load` | Extra-class ledger, honorarium, and print center |
 | `/teachers` | Teacher directory and operational overview |
+| `/teachers/[id]/routine` | One teacher's individual routine: published or working draft, phone agenda, A4 print |
+| `/teachers/routines` | Choose teachers and print their individual routines in one run (`/teachers/routines/print`) |
 | `/workload` | Credits, workload units, and contact minutes |
 | `/rooms` | Room capabilities and occupancy |
 | `/batches` | Batch and term-semester placements |

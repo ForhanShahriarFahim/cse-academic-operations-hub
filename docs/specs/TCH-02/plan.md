@@ -2,7 +2,7 @@
 
 Issue: [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)
 Specification: [spec.md](spec.md)
-Verification: verification.md (created during T-07)
+Verification: [verification.md](verification.md)
 Status: Approved 1 October 2026 (see Approval record); implementation in progress
 Branch / base: `codex/tch-02` from main `4237c0d`
 Updated: 1 October 2026, Asia/Dhaka
@@ -59,13 +59,13 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Tasks
 
-- [ ] T-01 — `teacher-routine` projection: sections, pattern tables, cells, lists, figures, credit hours, agenda and diff. Shared span/off-grid helpers extracted with no change to the official package. `scripts/verify-teacher-routine.ts` added to `test:domain` and `test:routine`. Covers AC-01–AC-05 and AC-10.
-- [ ] T-02 — `IndividualRoutineSheet` with A4 portrait print styles, fit step, continuation page and draft box. Covers AC-08.
-- [ ] T-03 — `TeacherRoutineScreen`: figures, tables, agenda, breakdown, lists, source switch and draft notice. Covers AC-05 and AC-07.
-- [ ] T-04 — Routes `/my-routine` and `/teachers/[id]/routine`, plus the navigation item and links. Covers AC-06.
-- [ ] T-05 — Bulk page and print route. Covers AC-09.
-- [ ] T-06 — Review data (linked and unlinked accounts, publication), `ux:review`/`test:ux` routes and flows, the PDF clipping/page-count check. Covers AC-06–AC-09.
-- [ ] T-07 — Verification record, screenshots (desktop, phone, print, bulk), README/brief/roadmap updates and handoff. Covers AC-11.
+- [x] T-01 — `teacher-routine` projection: sections, pattern tables, cells, lists, figures, credit hours, agenda and diff. The official package is unchanged; cells are built separately (see handoff notes). `scripts/verify-teacher-routine.ts` added to `test:domain` and `test:routine`. Covers AC-01–AC-05 and AC-10.
+- [x] T-02 — `IndividualRoutineSheet` with A4 portrait print styles, fit step, continuation page and draft box. Covers AC-08.
+- [x] T-03 — `TeacherRoutineScreen`: figures, tables, agenda, breakdown, lists, source switch and draft notice. Covers AC-05 and AC-07.
+- [x] T-04 — Routes `/my-routine` and `/teachers/[id]/routine`, plus the navigation item and links. Covers AC-06.
+- [x] T-05 — Bulk page and print route. Covers AC-09.
+- [x] T-06 — Review data (linked and unlinked accounts; a publication is impossible while Summer 2026 has blockers, so the published path is domain-tested), `ux:review`/`test:ux` routes and flows, the PDF clipping/page-count check. Covers AC-06–AC-09.
+- [x] T-07 — Verification record, screenshots (desktop, phone, print, bulk), README/brief/roadmap updates and handoff. Covers AC-11.
 
 ## Verification and delivery
 
@@ -77,8 +77,18 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: see Approval record (1 October 2026, recommended D-1–D-6).
-- Commits: `8fa5942` (proposal) and the approval record, on `codex/tch-02`.
-- Completed tasks: none; inspection and mockups done.
-- Next action: T-01, the `teacher-routine` projection and its domain test.
-- Verification: mockup renders have 0 px page overflow and no clipped sheets.
-- Blockers/capabilities: none for the recommended scope. The logo (D-3) and .docx (D-2) are excluded unless the owner chooses otherwise.
+- Commits: `8fa5942` (proposal), `6de0fa6` (approval), then the implementation and verification commits on `codex/tch-02`.
+- Completed tasks: T-01–T-07. All required checks pass; see [verification](verification.md#commands-1-october-2026).
+- Implementation notes beyond the plan text:
+  - The projection builds its own cells, by clustering a row's classes by the period columns they overlap. The official package's sheet code is unchanged rather than shared, because its per-batch "own periods" segments do not apply here.
+  - The A4 capacity (220 mm) was measured from the approved mockup.
+  - Source audience labels are tidied for display only.
+  - The review harness seeds a second, linked teacher account.
+  - An unknown teacher id is a soft 404 (streamed page), as on `/teachers/[id]`.
+- Next action: owner review of the screenshots and the running review server, then acceptance before merge.
+- Verification: see [verification.md](verification.md).
+- Owner request, 1 October 2026: "change the data so that block doesn't occur". This was done for test data only. `npm run ux:review -- --fresh --publishable` runs `src/db/review-publishable.ts`, which refuses any target except the disposable review copy.
+  - It moves the classes behind the 13 room blockers to free rooms at the same times, publishes, and leaves one draft change for the linked teacher.
+  - `getPortalDataForSeed` now also admits this CLI.
+  - The Summer 2026 source and the institutional database are unchanged, and the real blockers remain for the owner to resolve.
+- Blockers/capabilities: none.
