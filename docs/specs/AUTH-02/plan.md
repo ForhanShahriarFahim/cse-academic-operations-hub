@@ -2,8 +2,8 @@
 
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
 Specification: [spec.md](spec.md)
-Verification: verification.md (created during T-11)
-Status: Approved 1 October 2026; implementation in progress.
+Verification: [verification.md](verification.md)
+Status: Approved 1 October 2026; implemented and verified; owner acceptance pending.
 Branch / base: `codex/auth-02` from main `8821e91`
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -156,8 +156,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - a planted-secret search of audit rows and server output.
   
   Covers AC-02–AC-04, AC-08–AC-13.
-- [ ] T-10 — Review data and `test:ux` flows, desktop and 375 px screenshots, axe, a keyboard pass, and the security review of the branch (the `/security-review` skill plus a manual checklist). Covers AC-14, AC-18 and AC-19.
-- [ ] T-11 — Final checks, verification record, brief/roadmap/README updates and handoff. After acceptance, with the owner's go-ahead: back up and migrate the institutional database. Covers AC-16 and AC-19.
+- [x] T-10 — Review data and `test:ux` flows, desktop and 375 px screenshots, axe, a keyboard pass, and the security review of the branch (the `/security-review` skill plus a manual checklist). Covers AC-14, AC-18 and AC-19.
+- [ ] T-11 — Final checks, verification record, brief/roadmap/README updates and handoff. After acceptance, with the owner's go-ahead: back up and migrate the institutional database. Covers AC-16 and AC-19. *Final checks, record and handoff done; acceptance and the institutional migration remain.*
 
 ## Verification and delivery
 
@@ -170,8 +170,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: see Approval record (1 October 2026).
-- Commits: `bf214b8` (proposed spec), then the plan, the recorded decisions and the mockups.
-- Completed tasks: T-01–T-09. T-10 partly done (see below). `tests/ux/accounts.spec.ts` (part of T-10) already covers the setup link, sign-in, lockout, administrator actions, own password change, axe and overflow. (with a hand-written starter list of common passwords in `src/lib/auth/common-passwords.ts`, pending the owner's go-ahead for the SecLists-derived list).
+- Commits: `bf214b8` (spec) … `13ee3e8` (T-10: return-path fix, screenshots), then the verification record and this checkpoint. Branch `codex/auth-02`, pushed.
+- Completed tasks: T-01–T-10. T-11: final checks, [verification.md](verification.md) (AC-01–AC-19) and brief/roadmap updates are done; owner acceptance and the institutional migration remain.
 - Implementation notes beyond the plan text:
   - Password sign-in runs only through the portal's server action (`sign-in-actions.ts` → `password-sign-in.ts`). The library's `/sign-in/email` HTTP route is disabled too, so lockout and throttling cannot be bypassed. This replaces the planned `hooks.before/after` on that route; the behaviour is the same.
   - The BUG-29 safety check now inserts its pre-0007 rows with explicit SQL and ignores time columns added after 0007, so it keeps testing the database as it was before BUG-29.
@@ -179,8 +179,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - The SAFE-01 audit probe now creates an account with `createAccountAction` (Google only), which returns results instead of throwing.
   - The set-password page reads the token once into a ref before clearing the fragment, because React may run the effect twice. A page opened without a fragment (for example after a reload) says to open the link from the message again, rather than calling it invalid.
   - On the create page the link panel replaces the form, with a link to the account, instead of moving to the account page. That keeps the link in memory only, on the page that showed it.
-- Security review (T-10), 1 October 2026, at `69a2083`: no high- or medium-confidence findings. One hardening fix to make before merge: `safeReturnPath` in `src/lib/auth/account-policy.ts` should also refuse control characters (for example `"/	/evil.example"`, which browsers turn into `//evil.example`), or parse with `new URL` and require the same origin. Add a case to `scripts/verify-account-rules.ts`.
-- T-10 still to do: that fix; full `test:ux` run (`accounts.spec.ts` and baseline pass for the account routes); desktop/phone screenshots of the real screens into `docs/specs/AUTH-02/screenshots/`.
-- Next action: finish T-10, then T-11: final `typecheck`, `lint`, `test:domain`, `test:safety` with `SAFE01_PG_BIN`, `build`, `test:ux`; write `verification.md` mapping AC-01–AC-19; update brief/roadmap; ask the owner for acceptance. The institutional migration (backup, then 0008) waits for acceptance and the owner's go-ahead. The common-password list download still needs the owner's go-ahead.
-- Verification so far: `test:safety` AUTH-02 group passes on PGlite and PostgreSQL 17.11; `tests/ux/accounts.spec.ts` passes (7 tests). Earlier: `typecheck`, `lint`, `test:domain` pass. `test:safety` T-01–T-04 and BUG-29 (PGlite and PostgreSQL 17) pass with 0008. A throwaway-database smoke test of the real provider passes: correct password, session stamped `password`, lockout after 5 with one audit row, unknown account refused.
-- Blockers/capabilities: downloading the common-password list needs the owner's go-ahead (T-03). Google OAuth credentials are not available, so the real callback stays pending.
+  - `ux:review` does not seed account states; the browser tests and the screenshot script create their own synthetic accounts through the screens.
+- Security review (T-10), 1 October 2026, at `69a2083`: no high- or medium-confidence findings. The one hardening item (`safeReturnPath` and control characters) is fixed in `13ee3e8`.
+- Verification, 1 October 2026: `typecheck`, `lint`, `test:domain`, `test:safety` (PGlite and PostgreSQL 17.11) and `build` pass; `test:ux` 77 passed (1 skipped by design). See [verification.md](verification.md).
+- Next action: ask the owner for acceptance. After acceptance and only with the owner's go-ahead: cold backup of the institutional database with a SHA-256 manifest in the backup folder outside Git (as for BUG-29), migrate to 0008, compare counts (BUG-29 T-08 pattern); then merge, and close #36 and #31.
+- Blockers/capabilities: the SecLists common-password download still needs the owner's go-ahead (the 80-entry starter list is in use). Google OAuth credentials are not available, so the real callback stays pending under AUTH-01.
