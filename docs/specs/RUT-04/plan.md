@@ -64,7 +64,7 @@ Existing UX-01 patterns are reused: `ActionResult` feedback, confirmation dialog
 - Owner authorization: Approved.
 - Date and evidence: 30 September 2026, in the Claude Code session. After reviewing the spec, plan and mockup renders, the owner replied "Approve RUT-04 with the recommendations".
 - Approved scope: [spec.md](spec.md) as committed in `8e675df`, with the recommended decisions: D-1 editing by `manage_routine` or `manage_policy`; D-2 include the opt-in same-position move; D-3 no lunch break added by the migration; D-4 a class on a batch's no-classes day is a blocker.
-- Material amendments: none.
+- Material amendments: **Amendment B (official print redesign), approved.** 1 October 2026, in the Claude Code session: after reviewing the mockup renders in [mockups/renders](mockups/renders/) (commits `5f654c1`, `f647cef`, `dfb913d`), the owner replied "Yes perfect go ahead". Scope: rebuild `/routine/official` and `/public/routine/official` to match [official-package.html](mockups/official-package.html) as described in the checkpoint below. That means black and white only; HSC on as many sheets as needed (two for Summer 2026) and Diploma on one; sheets filled by height without splitting a day table unless one table cannot fit a sheet; a batch on its own periods shown as one row with each time above its classes and a thin rule under the time; multi-period classes merged; no signature line; no source-review note in print; serif/condensed-sans fonts. Data, validation, CSV and the screen Routine views are unchanged.
 
 Commit the approved plan before implementation. Unchanged approved scope survives agent handoff; do not infer acceptance or expanded authorization from it.
 
@@ -80,6 +80,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - [x] T-08 — Safety fixture: second term with its own grid; history check that editing one term leaves the other unchanged; covers AC-02, AC-08.
 - [x] T-09 — Verification: before/after migration comparison on a populated PGlite copy, PostgreSQL via `test:safety`, `test:ux` routes and flows, desktop/phone/print screenshots, all required checks; covers AC-01, AC-11, AC-12.
 - [x] T-10 — Docs: README, requirements §5, brief, roadmap and index #16; handoff checkpoint.
+- [ ] T-11 — Amendment B: pure sheet layout module (table cells with merged spans, own-period rows, height estimate, sheet filling) with domain tests.
+- [ ] T-12 — Amendment B: official package component, styles, fonts and A4 named page; remove validation colour.
+- [ ] T-13 — Amendment B: verification (fit check on screen and print, `test:ux`, AC-01 parity, required checks), screenshots and handoff.
 
 ## Verification and delivery
 
