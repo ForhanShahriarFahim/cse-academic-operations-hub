@@ -24,6 +24,13 @@ const DHAKA_OFFSET_MS = 6 * 3600_000;
 const ZONES = ["UTC", DHAKA, "America/New_York"];
 const LAST_LEGACY_MIGRATION = 6; // 0006_term-time-grids, the last migration before BUG-29
 const SLACK_MS = 2000; // database and harness share one clock; this only absorbs statement latency
+// Time columns added by migrations after 0007. A database stopped before BUG-29 predates them,
+// and so does any write to it: legacy rows in their tables are inserted with explicit SQL.
+const ADDED_AFTER_BUG29 = new Set([
+  "portal_users.password_changed_at", "portal_users.locked_until", // 0008 (AUTH-02)
+  "account_links.expires_at", "account_links.issued_at", "account_links.used_at", "account_links.revoked_at",
+]);
+const JOURNAL_LENGTH = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
 
 type ColumnType = "timestamp with time zone" | "timestamp without time zone" | "date";
 
@@ -53,6 +60,7 @@ async function catalogTimeColumns(client: Queryable): Promise<Map<string, Column
 async function assertCatalog(client: Queryable, state: "current" | "legacy"): Promise<number> {
   const expected = schemaTimeColumns();
   if (state === "legacy") {
+    for (const key of ADDED_AFTER_BUG29) expected.delete(key);
     for (const [key, type] of expected) if (type === "timestamp with time zone") expected.set(key, "timestamp without time zone");
   }
   assert.deepEqual(Object.fromEntries([...await catalogTimeColumns(client)].sort()), Object.fromEntries([...expected].sort()));
@@ -166,12 +174,14 @@ interface LegacyRows { before: number; after: number; ids: Record<string, number
  * BUG-29: omitted columns take now() (session wall time); Drizzle sends
  * application values as ISO strings, and the legacy column keeps their UTC wall time.
  */
-async function stampLegacyRows({ db }: SafetyHandle, values: typeof APP): Promise<LegacyRows> {
+async function stampLegacyRows({ db, client }: SafetyHandle, values: typeof APP): Promise<LegacyRows> {
   const before = Date.now();
-  const [defaultUser] = await db.insert(portalUsers).values({ email: "upgrade-default@example.invalid", displayName: "Default stamped", status: "active" }).returning({ id: portalUsers.id });
-  const [editedUser] = await db.insert(portalUsers).values({
-    email: "upgrade-edited@example.invalid", displayName: "Edited", status: "active", updatedAt: values.edited, lastLoginAt: values.login,
-  }).returning({ id: portalUsers.id });
+  // portal_users and auth_session have columns added after 0007, so these rows use the legacy column lists.
+  const { rows: [defaultUser] } = await client.query<{ id: number }>(
+    `insert into portal_users (email, display_name, status) values ('upgrade-default@example.invalid', 'Default stamped', 'active') returning id`);
+  const { rows: [editedUser] } = await client.query<{ id: number }>(
+    `insert into portal_users (email, display_name, status, updated_at, last_login_at) values ('upgrade-edited@example.invalid', 'Edited', 'active', $1, $2) returning id`,
+    [values.edited.toISOString(), values.login.toISOString()]);
   const [role] = await db.insert(roleAssignments).values({ userId: defaultUser.id, role: "teacher", activeTo: values.roleEnds }).returning({ id: roleAssignments.id });
   const [event] = await db.insert(auditEvents).values({ action: "bug29.legacy", entity: "probe" }).returning({ id: auditEvents.id });
   const [term] = await db.insert(academicTerms).values({ name: "Upgrade term", academicYear: 2026, startDate: "2026-06-01", endDate: "2026-09-30" }).returning({ id: academicTerms.id });
@@ -179,7 +189,8 @@ async function stampLegacyRows({ db }: SafetyHandle, values: typeof APP): Promis
   const [backfilled] = await db.insert(periodPatterns).values({ termId: term.id, name: "Backfilled" }).returning({ id: periodPatterns.id });
   const [edited] = await db.insert(periodPatterns).values({ termId: term.id, name: "Edited", createdAt: values.grid, updatedAt: values.grid }).returning({ id: periodPatterns.id });
   await db.insert(authUser).values({ id: "upgrade-auth", name: "Upgrade", email: "upgrade-auth@example.invalid", createdAt: values.login, updatedAt: values.login });
-  await db.insert(authSession).values({ id: "upgrade-session", token: "synthetic-not-a-real-token", userId: "upgrade-auth", expiresAt: values.sessionEnds, createdAt: values.login, updatedAt: values.login });
+  await client.query(`insert into auth_session (id, token, user_id, expires_at, created_at, updated_at) values ('upgrade-session', 'synthetic-not-a-real-token', 'upgrade-auth', $1, $2, $2)`,
+    [values.sessionEnds.toISOString(), values.login.toISOString()]);
   const after = Date.now();
   return {
     before, after,
@@ -207,7 +218,7 @@ async function checkUpgrade(factory: DatabaseFactory, legacyFolder: string): Pro
       const { before, after, ids } = await stampLegacyRows(handle, APP);
 
       await database.migrateFrom(handle, MIGRATIONS_FOLDER);
-      assert.equal(await appliedMigrations(client), LAST_LEGACY_MIGRATION + 2);
+      assert.equal(await appliedMigrations(client), JOURNAL_LENGTH);
       await assertCatalog(client, "current");
 
       const byId = async <T>(rows: Promise<T[]>) => (await rows)[0];
@@ -263,7 +274,7 @@ async function checkGuard(factory: DatabaseFactory, legacyFolder: string): Promi
     await database.setTimeZone(DHAKA);
     await withHandle(database, async (handle) => {
       await database.migrateFrom(handle, legacyFolder);
-      await handle.db.insert(portalUsers).values({ email: "guard@example.invalid", displayName: "Guard", status: "active" });
+      await handle.client.query(`insert into portal_users (email, display_name, status) values ('guard@example.invalid', 'Guard', 'active')`);
     });
     await database.setTimeZone("UTC");
     await withHandle(database, async (handle) => {

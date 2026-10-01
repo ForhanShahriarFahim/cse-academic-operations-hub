@@ -25,7 +25,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 - Draft and immutable published routine CSV exports generated from the same projection shown on screen.
 - Immutable routine publication with an independent public/print viewer and browser Print/PDF output.
 - PostgreSQL production mode and zero-configuration PGlite development mode.
-- Invite-only Google sign-in, department-scoped roles, teacher-owned attendance/extra-load actions, and real-user audit attribution.
+- Administrator-created accounts with email/password and/or Google sign-in (one-time setup and reset links, lockout, session revocation), department-scoped roles with dates, teacher-owned attendance/extra-load actions, and real-user audit attribution.
 
 ## Project status and next work
 
@@ -135,18 +135,24 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The public routine is available without a login. Internal pages require an invited Google account.
+Open [http://localhost:3000](http://localhost:3000). The public routine is available without a login. Internal pages require an account created by the portal administrator.
 
 Without `DATABASE_URL`, the first development start creates `.data/pglite-summer-2026`, applies the checked-in migrations, and loads the verified Summer 2026 source dataset. Later starts preserve changes.
 
-### Enable Google sign-in
+### Enable sign-in
 
-1. Copy `.env.example` to `.env.local` and uncomment/set `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` (at least 32 random characters), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. Keep secrets out of Git.
-2. Create a Google OAuth **Web application** client and authorize `http://localhost:3000/api/auth/callback/google` as a redirect URI. See [Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server).
-3. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` to the owner's chosen Google address (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`) in `.env.local`, then run `npm run auth:bootstrap` **once**. It writes the invitation, role and a system-attributed audit event in one transaction, is idempotent for the same first administrator, and refuses to silently replace an existing administrator.
-4. Run `npm run dev` and sign in at `/login` with that Google account. Use **People & Access** to invite staff, assign roles, link a teacher short code, suspend users, or revoke roles.
+Sign-in needs `BETTER_AUTH_URL` (the exact origin of this app) and `BETTER_AUTH_SECRET` (at least 32 random characters) in `.env.local`. Email/password sign-in then works; Google is optional ([AUTH-02](docs/specs/AUTH-02/spec.md)). Keep secrets out of Git.
 
-No public sign-up is enabled. An invited address must be verified by Google before it can access the portal. Without the four auth settings, internal access stays closed and `/login` shows a setup notice.
+**First administrator with a password** (no Google needed):
+
+1. Set `PORTAL_BOOTSTRAP_ADMIN_EMAIL` (and optionally `PORTAL_BOOTSTRAP_ADMIN_NAME`), then run `npm run auth:bootstrap -- --password` **once**. It creates the administrator with Password sign-in and prints a one-time setup link (72 hours) to the terminal. The link is not stored or logged anywhere; only its hash is kept.
+2. Open the link, choose a password, and you are signed in. Use **People & access** to create accounts. Each new Password account gets its own setup link, which you send to the person yourself.
+
+**Google sign-in** (optional): also set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google OAuth **Web application** client that authorizes `http://localhost:3000/api/auth/callback/google` ([Google's server-side OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server)). Turn Google on per account in People & access. `npm run auth:bootstrap` without `--password` creates a Google-only first administrator as before.
+
+**Recovery:** if an administrator is locked out or has forgotten the password, run `npm run auth:bootstrap -- --reset-link <administrator email>` from a terminal with access to the database. It turns Password on, clears any lockout, and prints a setup or reset link. It works only for a current, unsuspended system administrator, and writes a system audit event. Other people get reset links from People & access.
+
+No public sign-up is enabled. Without `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET`, internal access stays closed and `/login` shows a setup notice. Password sign-in locks for 15 minutes after 5 wrong passwords in a row, and is throttled per client address. Behind a proxy, the client address comes from `X-Forwarded-For`; trusting that header is a deployment decision (DEP-01).
 
 > Important: run only one database-using project process against `.data/pglite` at a time. Stop the development server before running a separate migration, preparation, or reset command.
 
@@ -193,7 +199,7 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm start` | Prepare and run the production server |
 | `npm run db:migrate` | Apply checked-in migrations |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
-| `npm run auth:bootstrap` | Create the first invited administrator (explicit email required) |
+| `npm run auth:bootstrap` | Create the first administrator (explicit email required; `-- --password` prints a setup link; `-- --reset-link <email>` recovers a system administrator) |
 | `npm run db:reset` | Destructively replace current data with the development seed; this also erases portal users and roles. Never run it on institutional data. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
@@ -228,8 +234,8 @@ cse-academic-operations-hub/
 ├── src/
 │   ├── app/
 │   │   ├── (portal)/              # Authenticated staff pages, including Access
-│   │   ├── api/auth/              # Google sign-in/session routes
-│   │   ├── login/                 # Invited-account sign-in
+│   │   ├── api/auth/              # Sign-in/session routes (Better Auth)
+│   │   ├── login/                 # Email/password and Google sign-in
 │   │   ├── api/health/            # Database health endpoint
 │   │   └── public/routine/        # Published routine viewer
 │   ├── components/                # Interactive UI modules
@@ -264,7 +270,9 @@ cse-academic-operations-hub/
 
 | Route | Purpose |
 |---|---|
-| `/login` | Invited-account Google sign-in and setup notice |
+| `/login` | Email/password sign-in, Google when configured, and setup notice |
+| `/set-password` | Choose a password from a one-time setup or reset link |
+| `/account` | My account: change password, sign-in methods, access, devices |
 | `/access` | Administrator-managed invitations, roles, teacher links, and suspension |
 | `/` | Coordinator dashboard |
 | `/my-routine` | The signed-in teacher's individual routine (accounts linked to a teacher record) |

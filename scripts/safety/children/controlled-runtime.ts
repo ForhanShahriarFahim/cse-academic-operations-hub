@@ -8,18 +8,7 @@
  */
 import Module from "node:module";
 import path from "node:path";
-
-function pinnedTarget(): boolean {
-  if (process.env.SAFE01_CHILD !== "1") return false;
-  if (process.env.DATABASE_URL === "") return Boolean(process.env.PGLITE_DATA_DIR);
-  // PostgreSQL children are pinned to the confirmed disposable safe01_* database only.
-  try {
-    const database = decodeURIComponent(new URL(process.env.DATABASE_URL ?? "").pathname.slice(1));
-    return /^safe01_[a-z0-9_]+$/.test(database) && process.env.SAFE01_PG_TARGET === database;
-  } catch {
-    return false;
-  }
-}
+import { pinnedTarget } from "./pinned";
 
 if (!pinnedTarget()) {
   throw new Error("The SAFE-01 controlled runtime only runs inside a pinned child process.");
@@ -33,10 +22,13 @@ export class RedirectSignal extends Error {
 }
 
 let signedInEmail: string | null = null;
+let signedInMethod: "password" | "google" | null = null;
 export const revalidations: string[] = [];
 
-export function signInAs(email: string | null): void {
+/** `method` is the session's AUTH-02 sign-in method; null is a session from before AUTH-02 (Google). */
+export function signInAs(email: string | null, method: "password" | "google" | null = null): void {
   signedInEmail = email;
+  signedInMethod = method;
 }
 
 function stub(request: string, exports: Record<string, unknown>): void {
@@ -49,10 +41,13 @@ function stub(request: string, exports: Record<string, unknown>): void {
 }
 
 stub("./provider", {
+  authConfigured: true,
   googleAuthConfigured: true,
   auth: {
     api: {
-      getSession: async () => signedInEmail ? { user: { email: signedInEmail, emailVerified: true } } : null,
+      getSession: async () => signedInEmail
+        ? { user: { email: signedInEmail, emailVerified: signedInMethod !== "password" }, session: { signInMethod: signedInMethod } }
+        : null,
     },
   },
 });

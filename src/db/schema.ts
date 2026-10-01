@@ -10,7 +10,9 @@ import {
   jsonb,
   uniqueIndex,
   index,
+  check,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 /**
  * Pundra Academic Operations Portal — relational application schema.
@@ -83,7 +85,33 @@ export const portalUsers = pgTable("portal_users", {
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index("portal_users_teacher_idx").on(t.teacherId)]);
+  // AUTH-02: sign-in methods the administrator allows; at least one stays on.
+  passwordEnabled: boolean("password_enabled").notNull().default(false),
+  googleEnabled: boolean("google_enabled").notNull().default(true),
+  passwordChangedAt: timestamp("password_changed_at", { withTimezone: true }),
+  failedSignIns: integer("failed_sign_ins").notNull().default(0),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+}, (t) => [
+  index("portal_users_teacher_idx").on(t.teacherId),
+  check("portal_users_sign_in_method_ck", sql`${t.passwordEnabled} or ${t.googleEnabled}`),
+]);
+
+/** AUTH-02: one-time setup and reset links. Only the token's SHA-256 hash is stored. */
+export const accountLinks = pgTable("account_links", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => portalUsers.id),
+  purpose: text("purpose").notNull(), // setup | reset
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  issuedByUserId: integer("issued_by_user_id").references(() => portalUsers.id), // null: operator command
+  issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+}, (t) => [
+  index("account_links_user_idx").on(t.userId),
+  uniqueIndex("account_links_one_open_uq").on(t.userId).where(sql`${t.usedAt} is null and ${t.revokedAt} is null`),
+  check("account_links_purpose_check", sql`${t.purpose} in ('setup', 'reset')`),
+]);
 
 export const roleAssignments = pgTable("role_assignments", {
   id: serial("id").primaryKey(),
@@ -115,7 +143,11 @@ export const authSession = pgTable("auth_session", {
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id").notNull().references(() => authUser.id),
-}, (t) => [index("auth_session_user_idx").on(t.userId)]);
+  signInMethod: text("sign_in_method"), // AUTH-02: password | google; null before AUTH-02 (Google only)
+}, (t) => [
+  index("auth_session_user_idx").on(t.userId),
+  check("auth_session_sign_in_method_check", sql`${t.signInMethod} in ('password', 'google')`),
+]);
 
 export const authAccount = pgTable("auth_account", {
   id: text("id").primaryKey(),

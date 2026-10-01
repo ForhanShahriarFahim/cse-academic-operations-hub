@@ -170,13 +170,13 @@ async function checkApplicationPaths(factory: DatabaseFactory, lines: string[]):
     const refused = await expectNoWrites(run, "updateMeeting onto an external booking", () => probe(run, ADMIN, "updateMeeting", clash));
     assert.ok(refused.result?.ok === false && /blocking conflict/.test(refused.result.message ?? ""), JSON.stringify(refused));
 
-    // Manual transaction: access management (throws on denial).
-    const invitation = { email: "new-viewer@example.invalid", displayName: "Synthetic Invitee", role: "read_only_viewer", teacherCode: "" };
-    await category(run, "invite", [[null, /AuthenticationError/], [VIEWER, /AuthorizationError/], [TEACHER, /AuthorizationError/]],
-      (email) => probe(run, email, "invite", invitation), ["portal_users", "role_assignments", "audit_events"]);
+    // Manual transaction: access management (AUTH-02 account creation, Google only so no link).
+    const invitation = { email: "new-viewer@example.invalid", displayName: "Synthetic Invitee", role: "read_only_viewer", google: "on" };
+    await category(run, "createAccount", [[null, signIn], [VIEWER, forbidden], [TEACHER, forbidden]],
+      (email) => probe(run, email, "createAccount", invitation), ["portal_users", "role_assignments", "audit_events"]);
     const invited = await withHandle(run, (handle) => handle.db.select().from(schema.portalUsers).where(eq(schema.portalUsers.email, invitation.email)));
     assert.equal(invited.length, 1);
-    assert.equal((await auditRows(run, "user.invite"))[0].entityId, invited[0].id);
+    assert.equal((await auditRows(run, "user.create"))[0].entityId, invited[0].id);
     lines.push("Shared auditedChange (student), publication, auto-placement, class edit and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits; a class edit keeps teacher roles and a clashing edit is refused with no writes");
   } finally {
     await run.dispose();

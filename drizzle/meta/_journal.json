@@ -57,6 +57,13 @@
       "when": 1790845200000,
       "tag": "0007_instant-timestamps",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790931600000,
+      "tag": "0008_account-sign-in",
+      "breakpoints": true
     }
   ]
 }
