@@ -2,7 +2,7 @@
 
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md) · Mockups: [mockups/](mockups/)
-Status: **Accepted by the owner on 2 October 2026** ("accept AUTH-02"). The institutional migration and the merge wait for the owner's separate go-ahead.
+Status: **Accepted by the owner on 2 October 2026** ("accept AUTH-02"). The institutional database was backed up and migrated to 0008 the same day, with the owner's go-ahead.
 Updated: 2 October 2026, Asia/Dhaka
 
 ## Environment
@@ -71,15 +71,36 @@ Fresh review copy, synthetic people, 1440 px desktop and 390 px phone.
 ## Notes and limitations
 
 - **Common-password list (2 October 2026, owner's go-ahead).** `100k-most-used-passwords-NCSC.txt` from SecLists (MIT) at commit `1a7bb91`, SHA-256 `c2e56968…c576e0`, was downloaded once to a scratch folder. `scripts/derive-common-passwords.ts` keeps printable-ASCII entries whose folded form has 12+ characters (1,188; mis-encoded Cyrillic entries dropped) and writes `src/lib/auth/common-passwords-seclists.ts` with the source, hash and MIT notice. The 80 local additions stay. Builds never download. Rechecked: `test:domain` (new cases for SecLists-only entries), `typecheck`, `lint`, `build`, and `tests/ux/accounts.spec.ts` (7 passed).
+- **Leftover test cluster (not AUTH-02).** A disposable PostgreSQL cluster from a `test:safety` run on 1 October 18:03 (`.tmp/safe-01/runs/…-t06-postgres-cluster-…`, port 55432) was still running on 2 October, so that run did not stop its cluster. Synthetic data only; it is a SAFE-01 harness cleanup issue, recorded for follow-up.
 - **Lockout browser test hardened.** One run of the lockout test failed after the list change; two reruns passed. The test typed the next attempt before React had reset the form, so an attempt could go out empty. It now waits for the reset; 7 passed afterwards.
 - **Review data.** The plan said `ux:review` would seed a password account, a locked account and an open link. Instead each browser test and the screenshot script create their own synthetic accounts through the screens, so every state is produced by the real flows.
 - **Full-page desktop screenshots** show the sidebar only to the window's height, because the sidebar is fixed to the viewport. This is how the screenshot is stitched, not a layout fault.
 - **Date fields** use the browser's own date format (shown as month/day/year in this Edge).
 - **Not covered:** the real Google OAuth callback and hosted PostgreSQL stay with AUTH-01 (#1) and DEP-01 (#19).
 
+## Institutional migration (2 October 2026)
+
+The owner's go-ahead came after acceptance, in answer to the question "May I now back up your real database and update it to the AUTH-02 version, then merge AUTH-02 into main and close #36 and #31?": "Go ahead". The same answer approved the SecLists download. The step ran on `f6c3bee`, the code that is merged.
+
+1. **No writer.**
+   - No process used `.data/pglite-summer-2026`, and ports 3000 and 3100 were free. The newest file in the folder was dated 1 October, 16:49 (the BUG-29 T-08 run).
+   - One process mentioned the repository: a throwaway PostgreSQL test cluster under `.tmp/safe-01` (port 55432, started 1 October 18:03 by an earlier `test:safety` run, synthetic data only). It does not touch the institutional folder. It was left running; see Notes.
+2. **Cold backup, per the [runbook](../../operations/DATABASE_RECOVERY.md).**
+   - The backup is `F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-AUTH-02-20261002-0119`, outside the repository, with the hash manifest `….sha256.csv` beside it (manifest SHA-256 `f2c29ef8…297156`).
+   - It holds 1,218 files (60.2 MB). Every file is identical to the source by SHA-256, with none missing or extra. The backup itself was never opened.
+3. **Migration.** `npm run db:migrate`, with no `.env`/`.env.local`, `DATABASE_URL` or `PGLITE_DATA_DIR`, applied 0008 to `.data/pglite-summer-2026` in about 5 s.
+4. **Before/after comparison.** A throwaway copy of the backup under `.tmp` (removed afterwards) was compared with the migrated database. Only counts and digests were printed, no row content.
+   - Session zone `Etc/GMT-6` in both; 8 migrations before, 9 after.
+   - 38 tables before, 39 after; the new one is `account_links`, empty.
+   - **All 38 pre-existing tables are identical** in their pre-0008 columns (1,557 rows, compared by an ordered digest of every row).
+   - `portal_users`: 1 account, still `invited` (it has never signed in, because Google is not configured here). It now has Google only, no password, no lock. The one `system_administrator` role is unchanged. The "at least one method" check constraint is present. `auth_session` is empty.
+5. **Running app.** `npm run dev` (port 3000): `predev` reported "Database ready (pglite); existing academic data preserved." `/api/health` returned `{"ok":true,"database":"pglite"}`. `/public/routine`, `/login` and `/set-password` returned 200; `/access` and `/account` redirect to `/login`. The server logged no errors and was then stopped.
+
+**To start using password sign-in** on this machine: create `.env.local` with `BETTER_AUTH_URL=http://localhost:3000` and a random `BETTER_AUTH_SECRET` of at least 32 characters, then run `npm run auth:bootstrap -- --reset-link <administrator email>`. It turns Password on for the existing (invited) administrator and prints a one-time link; choosing a password through it activates the account (README, "Sign-in").
+
 ## Delivery and acceptance
 
-- Commits: `bf214b8` (spec) … `13ee3e8` (T-10) on `codex/auth-02`, plus this record.
-- Remaining gates: with the owner's go-ahead, a cold backup of the institutional database with a SHA-256 manifest and migration 0008 (BUG-29 T-08 pattern); merge; close #36 and #31.
-- Owner acceptance: **Accepted** on 2 October 2026 in the Claude Code session, after reviewing this record, the screenshots and the delivery summary: "accept AUTH-02". The message did not authorize the institutional migration; that go-ahead is still requested separately, as agreed.
-- Merge / closure: Pending.
+- Commits: `bf214b8` (spec) … `13ee3e8` (T-10), `f6c3bee` (SecLists list) on `codex/auth-02`, plus these records.
+- Remaining gates: none for AUTH-02. The real Google callback and hosted PostgreSQL stay with AUTH-01 (#1) and DEP-01 (#19).
+- Owner acceptance: **Accepted** on 2 October 2026 in the Claude Code session, after reviewing this record, the screenshots and the delivery summary: "accept AUTH-02". The institutional migration and merge were authorized separately the same day ("Go ahead").
+- Merge / closure: merged into `main` through a pull request on 2 October 2026; #36 and #31 closed (references in the PR).

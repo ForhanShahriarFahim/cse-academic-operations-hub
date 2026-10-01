@@ -3,7 +3,7 @@
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Approved 1 October 2026; implemented and verified; accepted by the owner 2 October 2026.
+Status: Approved 1 October 2026; accepted by the owner 2 October 2026; institutional database migrated to 0008; merged.
 Branch / base: `codex/auth-02` from main `8821e91`
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -157,7 +157,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   
   Covers AC-02–AC-04, AC-08–AC-13.
 - [x] T-10 — Review data and `test:ux` flows, desktop and 375 px screenshots, axe, a keyboard pass, and the security review of the branch (the `/security-review` skill plus a manual checklist). Covers AC-14, AC-18 and AC-19.
-- [ ] T-11 — Final checks, verification record, brief/roadmap/README updates and handoff. After acceptance, with the owner's go-ahead: back up and migrate the institutional database. Covers AC-16 and AC-19. *Final checks, record and handoff done; accepted 2 October 2026. The institutional migration remains, waiting for the owner's go-ahead.*
+- [x] T-11 — Final checks, verification record, brief/roadmap/README updates and handoff. After acceptance, with the owner's go-ahead: back up and migrate the institutional database. Covers AC-16 and AC-19. *Accepted 2 October 2026; institutional backup and migration done the same day ([record](verification.md#institutional-migration-2-october-2026)).*
 
 ## Verification and delivery
 
@@ -171,7 +171,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 - Approved scope: see Approval record (1 October 2026).
 - Commits: `bf214b8` (spec) … `13ee3e8` (T-10: return-path fix, screenshots), then the verification record and this checkpoint. Branch `codex/auth-02`, pushed.
-- Completed tasks: T-01–T-10. T-11: final checks, [verification.md](verification.md) (AC-01–AC-19) and brief/roadmap updates are done; the owner accepted on 2 October 2026 ("accept AUTH-02"); the institutional migration remains.
+- Completed tasks: T-01–T-10. T-11: final checks, [verification.md](verification.md) (AC-01–AC-19) and brief/roadmap updates are done; the owner accepted on 2 October 2026 ("accept AUTH-02"), then gave the go-ahead for the institutional step, which is done.
 - Implementation notes beyond the plan text:
   - Password sign-in runs only through the portal's server action (`sign-in-actions.ts` → `password-sign-in.ts`). The library's `/sign-in/email` HTTP route is disabled too, so lockout and throttling cannot be bypassed. This replaces the planned `hooks.before/after` on that route; the behaviour is the same.
   - The BUG-29 safety check now inserts its pre-0007 rows with explicit SQL and ignores time columns added after 0007, so it keeps testing the database as it was before BUG-29.
@@ -182,6 +182,6 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - `ux:review` does not seed account states; the browser tests and the screenshot script create their own synthetic accounts through the screens.
 - Security review (T-10), 1 October 2026, at `69a2083`: no high- or medium-confidence findings. The one hardening item (`safeReturnPath` and control characters) is fixed in `13ee3e8`.
 - Verification, 1 October 2026: `typecheck`, `lint`, `test:domain`, `test:safety` (PGlite and PostgreSQL 17.11) and `build` pass; `test:ux` 77 passed (1 skipped by design). See [verification.md](verification.md).
-- Next action: get the owner's go-ahead for the institutional step (not given in the acceptance message). Then: cold backup of the institutional database with a SHA-256 manifest in the backup folder outside Git (as for BUG-29), migrate to 0008, compare counts (BUG-29 T-08 pattern); then merge, and close #36 and #31.
+- Next action: none for AUTH-02. It is merged and #36 and #31 are closed. Choose the next issue with the owner.
 - Common-password list: the owner approved the SecLists download on 2 October 2026; the derived NCSC list (1,188 entries) is in use with the 80 local additions.
 - Blockers/capabilities: Google OAuth credentials are not available, so the real callback stays pending under AUTH-01.

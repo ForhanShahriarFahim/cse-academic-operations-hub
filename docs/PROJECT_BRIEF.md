@@ -6,9 +6,14 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 1 October 2026: [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36) was accepted by the owner on 2 October 2026** on branch `codex/auth-02`, not yet merged. T-01–T-10 are done and the T-11 checks pass ([verification](specs/AUTH-02/verification.md), [screenshots](specs/AUTH-02/screenshots/)). Only with the owner's separate go-ahead, the institutional database is backed up and migrated to 0008; then merge and close #36 and #31. Resume from the [plan checkpoint](specs/AUTH-02/plan.md#current-checkpoint--handoff); see also the [spec](specs/AUTH-02/spec.md) and [mockups](specs/AUTH-02/mockups/).
+**State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage).
 
-- **Last completed:** [BUG-29 / #29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29).
+- **Last completed:** [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36), email/password sign-in with administrator setup and reset links, lockout, session revocation, dated roles and the rebuilt People & Access (also closes #31).
+  - **Accepted** by the owner on 2 October 2026 and merged. The institutional database was cold-backed-up (`F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-AUTH-02-20261002-0119`, with its SHA-256 manifest) and migrated to 0008; all 38 existing tables are unchanged.
+  - **To sign in with a password here:** set `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET` in `.env.local`, then `npm run auth:bootstrap -- --reset-link <administrator email>` (README, Sign-in). The administrator account is still invited.
+  - **Records:** [spec](specs/AUTH-02/spec.md), [plan](specs/AUTH-02/plan.md), [verification/acceptance](specs/AUTH-02/verification.md), [screenshots](specs/AUTH-02/screenshots/). The adversarial account checks run in `npm run test:safety`.
+
+- **Earlier completed:** [BUG-29 / #29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29).
   - **The fix.** Every database time is now `timestamp with time zone`, so a role granted now takes effect at once, and screens show instants in Asia/Dhaka. The owner accepted it on 1 October 2026, and it was merged through PR #46.
   - **The institutional database is migrated** to 0007 (T-08). The pre-migration cold backup and its hash manifest are at `F:\AI\backups\academic-operations-portal\`, outside Git.
   - **Records:** [spec](specs/BUG-29/spec.md), [plan](specs/BUG-29/plan.md), [verification/acceptance](specs/BUG-29/verification.md). The regression groups run in `npm run test:safety`.
@@ -21,9 +26,9 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 - **Earlier completed:** [UX-01 / #18](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/18), the responsive, accessible and plain-spoken portal baseline with the Routine builder workbench ([amendment A](specs/UX-01/amendment-a-routine-builder.md)). The owner accepted it on 30 September 2026; it also closed #30.
   - Records: [spec](specs/UX-01/spec.md), [plan](specs/UX-01/plan.md), [verification/acceptance](specs/UX-01/verification.md), [mockups](specs/UX-01/mockups/). Deferred builder features are in #33.
   - Review screens safely with `npm run ux:review` and `npm run test:ux`; see the [UI review checklist](operations/UI_REVIEW_CHECKLIST.md).
-- **Bugs found during UX-01 inspection:** #29 (fixed, BUG-29), #31 (People & Access confirmations), #32 (public viewer actions).
+- **Bugs found during UX-01 inspection:** #29 (fixed, BUG-29), #31 (fixed by AUTH-02), #32 (public viewer actions).
 - **Other candidates:** AUTH-01 (#1, needs OAuth credentials and hosted PostgreSQL), ATT-02 (#9), SAFE-01 follow-ups #24–#28.
-- **Owner brainstorm, 30 September 2026:** new proposals #34–#42 (term time grids, individual teacher routine print, email/password sign-in, student import/export, calendar, dated class changes, leave, teacher agenda, certificates). RUT-04 (#34) and TCH-02 (#35) are done. See the [triage record](plans/owner-brainstorm-2026-09-30.md); each of the rest still needs a spec and approval.
+- **Owner brainstorm, 30 September 2026:** new proposals #34–#42 (term time grids, individual teacher routine print, email/password sign-in (done, AUTH-02), student import/export, calendar, dated class changes, leave, teacher agenda, certificates). RUT-04 (#34) and TCH-02 (#35) are done. See the [triage record](plans/owner-brainstorm-2026-09-30.md); each of the rest still needs a spec and approval.
 - **Earlier completed:** [SAFE-01 / #2](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/2). The owner accepted it on 30 September 2026, and it was merged through PR #23 and closed.
   - Records: [spec](specs/SAFE-01/spec.md), [plan](specs/SAFE-01/plan.md), [verification/acceptance](specs/SAFE-01/verification.md), [mutation inventory](operations/SAFE-01-mutation-inventory.md), [recovery runbook](operations/DATABASE_RECOVERY.md).
   - Operational ownership (D-07) was deferred to DEP-01 (#19) by the owner.
