@@ -28,6 +28,7 @@ export default async function PortalLayout({ children }: { children: React.React
   return (
     <PortalShell
       capabilities={capabilities}
+      linkedTeacher={actor.teacherId != null}
       termName={termName}
       publishedVersion={publishedVersion}
       displayName={actor.displayName}

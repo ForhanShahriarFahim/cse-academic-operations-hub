@@ -30,7 +30,10 @@ export default async function TeachersPage() {
         context="Planning records"
         title="Teachers"
         description="Each teacher's home department, load and teaching outside the department. Short codes are exact: IM and IMN are different people. Vacant posts appear in Courses as “Teacher to be assigned”, not here."
-        actions={<PrintButton />}
+        actions={<>
+          <Link href="/teachers/routines" className="inline-flex min-h-9 items-center rounded-md border border-[var(--color-line)] bg-sheet px-3.5 text-[13.5px] font-medium hover:bg-wash">Print teacher routines</Link>
+          <PrintButton />
+        </>}
       />
       <Panel
         title="Teaching staff"
