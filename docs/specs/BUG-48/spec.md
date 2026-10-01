@@ -1,7 +1,7 @@
 # BUG-48 (SAFE-01 F-10): The disposable PostgreSQL cluster is stopped even when a safety run is killed
 
 Issue: [#48](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/48), "SAFE-01 follow-up (F-10): disposable PostgreSQL cluster survives a killed safety run"
-Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); awaiting owner acceptance.
+Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implemented, verified ([verification](verification.md)) and accepted by the owner on 2 October 2026.
 Updated: 2 October 2026, Asia/Dhaka
 
 This is a small bug, so the spec and the plan are combined in this one record (see [WORKFLOW](../../WORKFLOW.md#issue-lifecycle)).
@@ -85,4 +85,4 @@ Branch: `claude/bug-48` from `main` (`cb51925`), in the app-created worktree `br
 - [x] T-05 safety group
 - [x] T-06 documentation and verification record
 
-Next: owner acceptance, then merge and close #48. Pending checks: none. A real console Ctrl+C keypress could not be sent to a child process on Windows (see AC-06 in the [verification record](verification.md)).
+Accepted 2 October 2026; merged to `main` and #48 closed. Pending checks: none. A real console Ctrl+C keypress could not be sent to a child process on Windows (see AC-06 in the [verification record](verification.md)).

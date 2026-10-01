@@ -2,7 +2,7 @@
 
 Issue: [#48](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/48). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `claude/bug-48`, Windows 11, Node 22.11.0, PostgreSQL 17.11 tools (`SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`).
-Status: **Verified; awaiting owner acceptance.**
+Status: **Verified. Accepted by the owner on 2 October 2026** ("Accepted.", in chat).
 
 ## What changed
 
