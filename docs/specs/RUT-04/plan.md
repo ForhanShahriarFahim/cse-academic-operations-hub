@@ -3,7 +3,7 @@
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Implemented and verified 1 October 2026; owner review returned a print redesign request (see checkpoint). Acceptance pending.
+Status: Implemented and verified 1 October 2026, including amendment B (print redesign). Owner acceptance pending.
 Branch / base: `codex/rut-04` from main `39a39b3`
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -80,9 +80,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - [x] T-08 — Safety fixture: second term with its own grid; history check that editing one term leaves the other unchanged; covers AC-02, AC-08.
 - [x] T-09 — Verification: before/after migration comparison on a populated PGlite copy, PostgreSQL via `test:safety`, `test:ux` routes and flows, desktop/phone/print screenshots, all required checks; covers AC-01, AC-11, AC-12.
 - [x] T-10 — Docs: README, requirements §5, brief, roadmap and index #16; handoff checkpoint.
-- [ ] T-11 — Amendment B: pure sheet layout module (table cells with merged spans, own-period rows, height estimate, sheet filling) with domain tests.
-- [ ] T-12 — Amendment B: official package component, styles, fonts and A4 named page; remove validation colour.
-- [ ] T-13 — Amendment B: verification (fit check on screen and print, `test:ux`, AC-01 parity, required checks), screenshots and handoff.
+- [x] T-11 — Amendment B: pure sheet layout module (table cells with merged spans, own-period rows, height estimate, sheet filling) with domain tests.
+- [x] T-12 — Amendment B: official package component, styles, fonts and A4 named page; remove validation colour.
+- [x] T-13 — Amendment B: verification (fit check on screen and print, `test:ux`, AC-01 parity, required checks), screenshots and handoff.
 
 ## Verification and delivery
 
@@ -100,7 +100,7 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
   2. **Pages 1–2 look poor:** the top of the HSC sheet (header block, very small 5–6 px type, crowded tables) and the new "(continued)" sheet need a better, more readable design. See [official-package.pdf](screenshots/official-package.pdf) and [official-hsc-page.png](screenshots/official-hsc-page.png) for the version the owner rejected.
   3. **Content overlaps the border:** tables run into or past the page border and footer (fixed A4 height with `overflow: hidden` and proportional rows).
 - **Next action (agreed workflow):** design mockups first (as in UX-01: static HTML under `docs/specs/RUT-04/mockups/`, rendered desktop and A4 print to PNG/PDF, 0 overflow, no clipping), show them to the owner and get approval; then implement, keeping screen, print and CSV agreeing and Summer 2026 data unchanged; re-run `test:ux`, the print checks and the AC-01 parity; then ask for acceptance. Treat this as amendment B of RUT-04 (print redesign), recorded here when approved. Useful reference: the owner's A4 portrait individual-routine template (black-and-white, clear bold headers, grey header cells, day cells merged down, course and room per cell), as summarised in #35.
-- **Amendment B mockups, 1 October 2026 (awaiting owner approval):** [official-package.html](mockups/official-package.html) with made-up data (owner's choice; no institutional names or contacts), renders in [mockups/renders](mockups/renders/) (`official-page-1..5.png`, `draft-page-1.png`, `official-package.pdf`). The owner set the frame: one weekly routine for HSC and one for Diploma, and HSC may run onto a second sheet. Proposed design:
+- **Amendment B mockups, 1 October 2026 (approved; see Approval record):** [official-package.html](mockups/official-package.html) with made-up data (owner's choice; no institutional names or contacts), renders in [mockups/renders](mockups/renders/) (`official-page-1..5.png`, `draft-page-1.png`, `official-package.pdf`). The owner set the frame: one weekly routine for HSC and one for Diploma, and HSC may run onto a second sheet. Proposed design:
   - A4 landscape, black and white only (black rules, grey header and day cells); no validation colour anywhere. Drafts say "DRAFT: NOT OFFICIAL" in the header box and footer, plus a faint grey watermark.
   - Readable type: 7.4 pt cells and 8 pt batch/day labels, up from about 4–5 pt. Two days per sheet: HSC = 2 sheets (Sat–Sun, Mon–Tue), Diploma = 1 sheet; each says "Sheet x of y" and whether it continues.
   - Sheets are filled by measured height; a day table is never split. A batch on its own periods for a day (the lab-block case) gets one row in that day's table with each time written in, instead of a separate "(continued)" sheet.
@@ -108,4 +108,6 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
   - Courses: four year columns (1st/2nd semester stacked). Contacts: teachers in two tables with separate Mobile and Email columns, class representatives per program, three query boxes. No source-review note in print.
   - A fit check (body overflow, cells outside the frame, clipped text) passes on all 5 pages on screen and in print.
   - Owner feedback, 1 October 2026: the lab-block row now shows each time above its classes (not beside them), with a thin rule under the time; the "Head, Department of CSE" signature line is dropped; the serif/condensed-sans type pairing is accepted. Overall design approval is still pending.
+- **Amendment B implemented and verified, 1 October 2026** (`d7db17d`): see [verification](verification.md#amendment-b-official-print-redesign-1-october-2026). The design follows the mockup, with two additions found on real data: an "Other times" column, so classes outside a day's periods are no longer dropped; and a class's time is written on its room line, which keeps Diploma on one sheet. Summer 2026 review data gives HSC on 2 sheets and Diploma on 1, 5 pages in total. All required checks pass.
+- **Next:** owner acceptance of RUT-04 (with amendment B); then PR, merge and close #34.
 - Blockers/capabilities: none.

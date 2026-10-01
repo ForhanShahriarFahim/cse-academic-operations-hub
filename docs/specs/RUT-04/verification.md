@@ -56,6 +56,25 @@ The sample exceptions in these screenshots were created on the disposable review
 - The backfill would have given a future term the Summer layout on every restart; it is now a one-time conversion.
 - Two SAFE-01 recovery assertions hard-coded six migrations; they now read the migration journal.
 
+## Amendment B: official print redesign, 1 October 2026
+
+The owner rejected the package above (red/orange marks, poor pages 1–2, content over the border). The approved mockup is [mockups/official-package.html](mockups/official-package.html). The implementation is `d7db17d`.
+
+| Requirement | Result | Evidence |
+|---|---|---|
+| Black and white only | **Pass** | `official-package.spec.ts` reads the computed text, background and border colours of every element in the package and finds no non-grey colour. Validation status never reaches the print model (`verify-official-sheets.ts` asserts that no blocker or warning data appears in it). |
+| Nothing over the border or footer, nothing clipped | **Pass** | `official-package.spec.ts` checks every sheet on screen and again with print media: no body overflow, no table or cell outside the side margins or below the footer line, and no clipped cell text. It also fails if any table is more than 1.5 mm taller than the height used to fill sheets. Estimates match the real heights within 0.5 mm (Saturday 69.2/69.3, Tuesday 77.3/77.0, Diploma Friday 71.2/71.4). |
+| HSC on as many sheets as needed, Diploma on one | **Pass** | Summer 2026 review data: HSC on 2 sheets (Saturday–Sunday, Monday–Tuesday), Diploma on 1 (Friday and Saturday), then the courses and contacts pages: 5 pages, down from 4 unreadable ones. Domain test: four eight-batch days fill two sheets, and a 30-batch day is split into parts with repeated headers, with no row lost and OD on the last part. |
+| A batch on its own periods | **Pass** | Domain test (24B lab block: one row in batch order, split at breaks by start time, times above the classes). Rendered through the real component with synthetic data: matches the approved mockup, and the estimate is within 0.3 mm. |
+| Classes are not dropped | **Pass (fix)** | The old print silently left out classes outside a day's periods (six Diploma Saturday classes at 4:00–5:00 PM in the review data). They now appear in an "Other times" column with their times. The column appears only on days that need it. |
+| Accessibility | **Pass** | Baseline axe check of `/routine/official` at desktop and phone with no exceptions; the earlier colour-contrast exception was removed. The sideways-scrolling package is a labelled, focusable region. |
+
+Commands on the final code: `typecheck` pass; `lint` pass; `test:domain` pass (with `verify-official-sheets.ts`); `build` pass; `test:safety` with `SAFE01_PG_BIN` pass (T-01–T-04 and T-06 PostgreSQL); `test:ux` 56 passed.
+
+AC-01 parity: this amendment does not change the projection, CSV, snapshot, migration or validation code (`git diff 035346a d7db17d -- src/lib` touches only the new `official-routine-sheets.ts` and a new `fmtRangeShort` in `time.ts`). So the 147-output comparison above still holds for data and CSV, and `test:domain` (including the Summer 2026 source check) passes. Only the HTML of the official package changed, as intended.
+
+Screenshots of the real pages were reviewed in the session and are not committed, because the contacts page shows real teachers' phone numbers and emails. The committed record is the mockup renders in [mockups/renders](mockups/renders/), which use made-up data. The older [official-hsc-page.png](screenshots/official-hsc-page.png) and [official-package.pdf](screenshots/official-package.pdf) show the rejected design.
+
 ## Pending and limits
 
 - The byte-level parity (AC-01) used the Summer 2026 source dataset, not the institutional database, which was not opened. Before merging to production data, run `npm run ux:review -- --from-copy <cold copy>` on a stopped copy to review the owner's real data.
