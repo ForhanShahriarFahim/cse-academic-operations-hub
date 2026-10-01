@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
+  Clock3,
   ShieldAlert,
   Users,
   Scale,
@@ -34,6 +35,7 @@ export const navGroups: { label: string | null; items: NavItem[] }[] = [
     label: "Routine",
     items: [
       { href: "/routine", label: "Routine builder", icon: CalendarDays },
+      { href: "/routine/periods", label: "Days & periods", icon: Clock3 },
       { href: "/conflicts", label: "Validation", icon: ShieldAlert },
       { href: "/publications", label: "Publications", icon: ScrollText, required: ["approve_publication", "manage_routine"] },
     ],
@@ -65,8 +67,13 @@ export const navGroups: { label: string | null; items: NavItem[] }[] = [
   },
 ];
 
-export const isActive = (href: string, pathname: string) =>
-  href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+// The most specific entry wins, so /routine/periods does not also mark the builder.
+const allHrefs = () => navGroups.flatMap((group) => group.items.map((item) => item.href));
+export const isActive = (href: string, pathname: string) => {
+  if (href === "/") return pathname === "/";
+  if (!(pathname === href || pathname.startsWith(`${href}/`))) return false;
+  return !allHrefs().some((other) => other !== href && other.startsWith(`${href}/`) && (pathname === other || pathname.startsWith(`${other}/`)));
+};
 
 /** Label of the navigation entry for the current path, for the narrow top bar. */
 export function currentNavLabel(pathname: string): string {

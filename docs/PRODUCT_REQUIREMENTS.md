@@ -106,8 +106,19 @@ The implementation should hide meeting deduplication, shared-audience labels, OD
 - Existing day view remains unchanged unless Week mode is selected.
 - Mobile Week mode remains usable without a horizontally enormous table.
 
+#### Term time grids (RUT-04)
+
+Delivered by [RUT-04 / #34](specs/RUT-04/spec.md). Period columns, teaching days and breaks are term data, not constants:
+
+- A term owns **period patterns** (periods and breaks; a break may block classes) and **day plans**: which pattern each stream uses on each day, plus **batch exceptions** (extra day, own periods, or no classes), each with class hours and a reason.
+- A batch exception never becomes a stream-wide rule. A day taught only through exceptions shows only those batches.
+- Batches that use different patterns on one day are drawn as separate header groups on screen and in print; the official HSC page keeps each day's main table on the first sheet and continues extra groups on a following sheet.
+- Publications store their grid (snapshot schema 4); older publications use the Summer 2026 layout they were drawn with.
+- Changing periods shows the effect on existing classes first; classes move only when the coordinator opts in.
+
 #### Likely code seams
 
+- `src/lib/time-grid.ts`, `src/lib/time-grid-actions.ts`, `src/app/(portal)/routine/periods/page.tsx`
 - `src/app/(portal)/routine/page.tsx`
 - `src/components/routine-builder.tsx`
 - `src/app/public/routine/page.tsx`

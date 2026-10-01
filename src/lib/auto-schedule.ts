@@ -1,4 +1,5 @@
 import { analyzeSchedule, type BreakRule, type PermittedWindow } from "./conflicts";
+import type { TimeGrid } from "./time-grid";
 import { knownAudienceSize, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
 
 export interface AutoScheduleGroup {
@@ -80,6 +81,7 @@ export function suggestSchedule(input: {
   externals: Parameters<typeof analyzeSchedule>[0]["externals"];
   breaks: BreakRule[];
   windows: PermittedWindow[];
+  grid?: TimeGrid | null;
 }): AutoSchedulePlan {
   const suggestions: AutoScheduleSuggestion[] = [];
   const skipped: AutoSchedulePlan["skipped"] = [];
@@ -140,7 +142,7 @@ export function suggestSchedule(input: {
               externalAudienceLabel: group.externalAudienceLabel,
               externalStudentCount: group.externalStudentCount,
             };
-            const candidateIssues = analyzeSchedule({ meetings: [...working, candidate], externals: input.externals, breaks: input.breaks, windows: input.windows }).filter((issue) => issue.meetingIds.includes(tempId));
+            const candidateIssues = analyzeSchedule({ meetings: [...working, candidate], externals: input.externals, breaks: input.breaks, windows: input.windows, grid: input.grid }).filter((issue) => issue.meetingIds.includes(tempId));
             if (candidateIssues.some((issue) => issue.severity === "blocker")) continue;
             chosen = candidate;
             chosenWarnings = candidateIssues.filter((issue) => issue.severity === "warning").map((issue) => issue.title);

@@ -7,6 +7,7 @@
  * publication gate (blockers must be resolved before publishing).
  */
 import { overlaps, fmtRange, DAY_NAMES } from "./time";
+import { blockingBreaks, isClosedDay, type TimeGrid } from "./time-grid";
 import { knownAudienceSize, meetingStreams, type MeetingView, type ExternalCommitmentView } from "./serialize";
 
 export interface BreakRule {
@@ -47,6 +48,12 @@ export interface EngineInput {
   externals: ExternalCommitmentView[];
   breaks: BreakRule[];
   windows: PermittedWindow[];
+  /**
+   * The term's time grid (RUT-04). When given, breaks come from each batch's
+   * own periods and "No classes" batch days are checked; `breaks` is then
+   * ignored. Without it (older publications) the break rules apply as before.
+   */
+  grid?: TimeGrid | null;
 }
 
 function refRangesTouch(aStart: number, aEnd: number, bStart: number, bEnd: number) {
@@ -197,8 +204,27 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
       }
     }
 
-    // Breaks. Institution scope applies to all; stream scope by audience.
-    for (const br of input.breaks) {
+    // Breaks. From the grid: each audience batch's own pattern that day.
+    if (input.grid) {
+      const seen = new Set<string>();
+      for (const audience of m.audiences) {
+        for (const br of blockingBreaks(input.grid, audience.stream, audience.batchId, audience.batchLabel, m.dayOfWeek)) {
+          if (seen.has(br.key) || !overlaps(m.startMinutes, m.endMinutes, br.start, br.end)) continue;
+          seen.add(br.key);
+          issues.push({
+            id: `brk-${br.key}-${m.id}`,
+            severity: "blocker",
+            type: "break_conflict",
+            title: `Scheduled during ${br.name}`,
+            detail: `${m.courseCode} overlaps ${br.name} (${fmtRange(br.start, br.end)}) on ${DAY_NAMES[m.dayOfWeek]} — applies to ${br.appliesTo}.`,
+            dayOfWeek: m.dayOfWeek,
+            meetingIds: [m.id],
+          });
+        }
+      }
+    }
+    // Legacy break rules: institution scope applies to all; stream scope by audience.
+    for (const br of input.grid ? [] : input.breaks) {
       if (br.dayOfWeek != null && br.dayOfWeek !== m.dayOfWeek) continue;
       if (br.scope === "stream" && br.stream && !streams.includes(br.stream as "HSC" | "DIPLOMA")) continue;
       if (!overlaps(m.startMinutes, m.endMinutes, br.startMinutes, br.endMinutes)) continue;
@@ -217,6 +243,20 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
     // replaces the stream default for that batch/day (for example HSC-24B
     // may meet Friday without enabling Friday for every HSC batch).
     for (const audience of m.audiences) {
+      const closed = input.grid ? isClosedDay(input.grid, audience.batchId, m.dayOfWeek) : null;
+      if (closed) {
+        const label = `${audience.stream}-${audience.batchLabel}`;
+        issues.push({
+          id: `wcl-${audience.batchId}-${m.id}`,
+          severity: m.isException ? "warning" : "blocker",
+          type: m.isException ? "window_exception_in_use" : "outside_permitted_window",
+          title: m.isException ? `Approved ${label} ${DAY_NAMES[m.dayOfWeek]} exception in use` : `${label} has no classes on ${DAY_NAMES[m.dayOfWeek]}`,
+          detail: `${m.courseCode} is scheduled for ${label} on ${DAY_NAMES[m.dayOfWeek]}, which is marked "No classes" for this batch${closed.reason ? ` (${closed.reason})` : ""}${m.isException ? ` and has an approved exception (${m.exceptionNote ?? "no note"})` : ""}.`,
+          dayOfWeek: m.dayOfWeek,
+          meetingIds: [m.id],
+        });
+        continue;
+      }
       const specific = input.windows.filter((x) => x.batchId === audience.batchId && x.dayOfWeek === m.dayOfWeek);
       const applicable = specific.length > 0
         ? specific

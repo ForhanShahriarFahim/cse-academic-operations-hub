@@ -19,7 +19,7 @@ export function RoutineAgenda({ day, meetings, statusById, showWarnings, matches
 }) {
   return (
     <div className="space-y-2">
-      {day.rows.map(({ batch }) => {
+      {day.groups.flatMap((group) => group.rows).filter((row) => !row.unplanned).map(({ batch }) => {
         const list = meetings.filter((m) => m.audiences.some((a) => a.batchId === batch.id)).sort((a, b) => a.startMinutes - b.startMinutes);
         const clashes = list.filter((m) => statusById.get(m.id) === "blocker").length;
         return (

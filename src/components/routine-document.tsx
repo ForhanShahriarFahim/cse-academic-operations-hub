@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { AlertTriangle, Asterisk, Clock3, Landmark } from "lucide-react";
 import { INSTITUTION } from "@/lib/constants";
-import type { ProjectedMeeting, ProjectedSlot, RoutineProjection } from "@/lib/routine-projection";
+import type { ProjectedMeeting, ProjectedSlot, RoutineDayGroup, RoutineDayProjection, RoutineProjection } from "@/lib/routine-projection";
 import { sharingLabel } from "@/lib/serialize";
 import { DAY_NAMES, DAY_SHORT, fmtDate, fmtRange, fmtRange24, overlaps } from "@/lib/time";
 
@@ -41,66 +41,16 @@ export function RoutineDocument({
           </header>
 
           <div role="region" aria-label="Routine table" tabIndex={0} className="table-region hidden overflow-x-auto md:block print:block">
-            <table className="routine-table text-[11px]">
-              <thead><tr>
-                <th className="w-[72px] px-2 py-2 text-left"><span className="micro-label">Batch</span></th>
-                <th className="w-[104px] px-2 py-2 text-left"><span className="micro-label">Custom</span></th>
-                {day.slots.map((slot, index) => (
-                  <Fragment key={slot.start}>
-                    <th className="min-w-[116px] px-2 py-2 text-center">
-                      <span className="font-mono text-[11px] font-semibold text-[var(--color-pine)]">{fmtRange24(slot.start, slot.end)}</span>
-                      <span className="block text-[9px] font-normal text-muted">{fmtRange(slot.start, slot.end)}</span>
-                    </th>
-                    {day.breaks.filter((item) => item.afterSlot === index).map((item) => (
-                      <th key={item.id} className="break-column w-[30px] px-0 py-2 text-center">
-                        <span className="inline-block rotate-180 text-[8px] font-bold uppercase tracking-[0.16em] text-muted [writing-mode:vertical-rl]">{item.name}</span>
-                      </th>
-                    ))}
-                  </Fragment>
-                ))}
-              </tr></thead>
-              <tbody>
-                {day.rows.map((row, rowIndex) => (
-                  <tr key={row.batch.id} className={rowIndex % 2 ? "bg-wash" : "bg-sheet"}>
-                    <td className="px-2 py-1.5">
-                      <p className="font-mono text-[11.5px] font-bold">{row.batch.stream === "HSC" ? "HSC" : "DIP"}-{row.batch.label}</p>
-                      <p className="text-[9px] text-muted">Semester {row.batch.semester ?? "?"}</p>
-                    </td>
-                    <td className="px-1.5 py-1.5">{row.offGrid.map((item) => <RoutineMeeting key={item.meeting.id} item={item} />)}</td>
-                    {row.slots.map((slot, index) => (
-                      <Fragment key={slot.start}>
-                        <td className="px-1.5 py-1.5 align-top">
-                          {slot.meetings.map((item) => <RoutineMeeting key={item.meeting.id} item={item} slot={slot} />)}
-                          {slot.continuations.map((item) => <p key={item.meeting.id} className="mt-1 text-[8px] italic text-muted">◂ {item.meeting.courseCode} continues</p>)}
-                        </td>
-                        {day.breaks.filter((item) => item.afterSlot === index).map((item) => <td key={item.id} className="break-column w-[30px]" />)}
-                      </Fragment>
-                    ))}
-                  </tr>
-                ))}
-                {day.rows.length === 0 && (
-                  <tr><td colSpan={day.slots.length + 2} className="p-8 text-center text-[11px] text-muted">No batches match this selection.</td></tr>
-                )}
-                <tr className="bg-wash">
-                  <td className="px-2 py-1.5"><p className="font-mono text-[11px] font-bold text-[var(--color-clay)]">OD</p><p className="text-[8px] text-muted">Other Depts.</p></td>
-                  <td className="px-1.5 py-1.5">
-                    {day.externals.filter((item) => !day.slots.some((slot) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end))).map((item) => <ExternalChip key={item.id} item={item} />)}
-                  </td>
-                  {day.slots.map((slot, index) => (
-                    <Fragment key={slot.start}>
-                      <td className="px-1.5 py-1.5 align-top">
-                        {day.externals.filter((item) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end)).map((item) => <ExternalChip key={item.id} item={item} />)}
-                      </td>
-                      {day.breaks.filter((item) => item.afterSlot === index).map((item) => <td key={item.id} className="break-column w-[30px]" />)}
-                    </Fragment>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+            {day.groups.length === 0 && (
+              <p className="p-8 text-center text-[11px] text-muted">No periods are set for this day.</p>
+            )}
+            {day.groups.map((group, groupIndex) => (
+              <GroupTable key={group.key} group={group} day={day} showLabel={day.groups.length > 1} withBookings={groupIndex === 0} />
+            ))}
           </div>
 
           <div className="px-4 py-4 md:hidden print:hidden">
-            {day.rows.map((row) => {
+            {day.groups.flatMap((group) => group.rows).map((row) => {
               const items = uniqueMeetings([row.offGrid, ...row.slots.map((slot) => slot.meetings)]);
               return <div key={row.batch.id} className="mb-3 last:mb-0">
                 <p className="font-mono text-[12px] font-bold text-[var(--color-pine)]">{row.batch.stream === "HSC" ? "HSC" : "DIP"}-{row.batch.label}</p>
@@ -129,6 +79,82 @@ export function RoutineDocument({
         </section>
       ))}
     </div>
+  );
+}
+
+function GroupTable({ group, day, showLabel, withBookings }: {
+  group: RoutineDayGroup;
+  day: RoutineDayProjection;
+  showLabel: boolean;
+  withBookings: boolean;
+}) {
+  const slots = group.slots;
+  const breaksAfter = (index: number) => group.breaks.filter((item) => item.afterSlot === index);
+  return (
+    <table className="routine-table text-[11px]">
+      {showLabel && (
+        <caption className="routine-group-caption px-2 pb-1 pt-3 text-left text-[10.5px] font-semibold text-[var(--color-ink)]">
+          {group.name}
+          <span className="ml-2 font-normal text-muted">{group.rows.map((row) => `${row.batch.stream === "HSC" ? "HSC" : "DIP"}-${row.batch.label}`).join(" · ")}</span>
+        </caption>
+      )}
+      <thead><tr>
+        <th className="w-[72px] px-2 py-2 text-left"><span className="micro-label">Batch</span></th>
+        <th className="w-[104px] px-2 py-2 text-left"><span className="micro-label">Custom</span></th>
+        {slots.map((slot, index) => (
+          <Fragment key={slot.start}>
+            <th className="min-w-[116px] px-2 py-2 text-center">
+              <span className="font-mono text-[11px] font-semibold text-[var(--color-pine)]">{fmtRange24(slot.start, slot.end)}</span>
+              <span className="block text-[9px] font-normal text-muted">{fmtRange(slot.start, slot.end)}</span>
+            </th>
+            {breaksAfter(index).map((item) => (
+              <th key={item.id} className="break-column w-[30px] px-0 py-2 text-center">
+                <span className="inline-block rotate-180 text-[8px] font-bold uppercase tracking-[0.16em] text-muted [writing-mode:vertical-rl]">{item.name}</span>
+              </th>
+            ))}
+          </Fragment>
+        ))}
+      </tr></thead>
+      <tbody>
+        {group.rows.map((row, rowIndex) => (
+          <tr key={row.batch.id} className={rowIndex % 2 ? "bg-wash" : "bg-sheet"}>
+            <td className="px-2 py-1.5">
+              <p className="font-mono text-[11.5px] font-bold">{row.batch.stream === "HSC" ? "HSC" : "DIP"}-{row.batch.label}</p>
+              <p className="text-[9px] text-muted">{row.unplanned ? "No classes planned this day" : `Semester ${row.batch.semester ?? "?"}`}</p>
+            </td>
+            <td className="px-1.5 py-1.5">{row.offGrid.map((item) => <RoutineMeeting key={item.meeting.id} item={item} />)}</td>
+            {row.slots.map((slot, index) => (
+              <Fragment key={slot.start}>
+                <td className="px-1.5 py-1.5 align-top">
+                  {slot.meetings.map((item) => <RoutineMeeting key={item.meeting.id} item={item} slot={slot} />)}
+                  {slot.continuations.map((item) => <p key={item.meeting.id} className="mt-1 text-[8px] italic text-muted">◂ {item.meeting.courseCode} continues</p>)}
+                </td>
+                {breaksAfter(index).map((item) => <td key={item.id} className="break-column w-[30px]" />)}
+              </Fragment>
+            ))}
+          </tr>
+        ))}
+        {group.rows.length === 0 && (
+          <tr><td colSpan={slots.length + 2} className="p-8 text-center text-[11px] text-muted">No batches match this selection.</td></tr>
+        )}
+        {withBookings && (
+          <tr className="bg-wash">
+            <td className="px-2 py-1.5"><p className="font-mono text-[11px] font-bold text-[var(--color-clay)]">OD</p><p className="text-[8px] text-muted">Other Depts.</p></td>
+            <td className="px-1.5 py-1.5">
+              {day.externals.filter((item) => !slots.some((slot) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end))).map((item) => <ExternalChip key={item.id} item={item} />)}
+            </td>
+            {slots.map((slot, index) => (
+              <Fragment key={slot.start}>
+                <td className="px-1.5 py-1.5 align-top">
+                  {day.externals.filter((item) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end)).map((item) => <ExternalChip key={item.id} item={item} />)}
+                </td>
+                {breaksAfter(index).map((item) => <td key={item.id} className="break-column w-[30px]" />)}
+              </Fragment>
+            ))}
+          </tr>
+        )}
+      </tbody>
+    </table>
   );
 }
 

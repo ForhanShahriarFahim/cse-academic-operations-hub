@@ -7,6 +7,7 @@
  */
 import { eq } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
+import { backfillTimeGrids } from "../../src/db/time-grid-backfill";
 import type { SafetyDb } from "./database";
 
 type Db = SafetyDb;
@@ -159,6 +160,8 @@ export async function populateSummerFixture(db: Db): Promise<SummerFixture> {
     { at: at("2026-06-06T00:00:00Z"), actor: admin.displayName, actorUserId: admin.id, actorDisplayName: admin.displayName, actorKind: "user", action: "publish", entity: "schedule_version", entityId: 1, after: { versionNumber: 1 } },
   ]);
 
+  // Summer uses the grid it was drawn with before term grids (RUT-04 backfill).
+  await backfillTimeGrids(db);
   return {
     termId: term.id,
     departmentIds: { cse: cse.id, eee: eee.id },
@@ -270,6 +273,15 @@ export async function populateSpringFixture(db: Db, summer: SummerFixture): Prom
     { teacherId: teacherB, termId: term.id, externalCommitmentId: external.id, units: "3.00", allocationMethod: "external" },
   ]);
   await db.insert(schema.auditEvents).values({ at: at("2026-12-20T00:00:00Z"), actor: "system", actorKind: "system", action: "fixture.spring_term", entity: "academic_term", entityId: term.id, detail: { synthetic: true } });
+  // Spring has its own, different periods (RUT-04): 75-minute HSC periods and a Diploma Friday prayer break.
+  const [springHsc, springDiploma] = await db.insert(schema.periodPatterns).values([
+    { termId: term.id, name: "Spring HSC", periods: [{ start: 540, end: 615 }, { start: 630, end: 705 }, { start: 720, end: 795 }], breaks: [], updatedAt: at("2026-12-20T00:00:00Z"), createdAt: at("2026-12-20T00:00:00Z") },
+    { termId: term.id, name: "Spring Diploma", periods: [{ start: 540, end: 615 }, { start: 630, end: 705 }, { start: 870, end: 945 }], breaks: [{ name: "Prayer", start: 780, end: 840, blocksClasses: true }], updatedAt: at("2026-12-20T00:00:00Z"), createdAt: at("2026-12-20T00:00:00Z") },
+  ]).returning();
+  await db.insert(schema.dayPlans).values([
+    ...[0, 1, 2, 3].map((dayOfWeek) => ({ termId: term.id, stream: "HSC", dayOfWeek, patternId: springHsc.id, updatedAt: at("2026-12-20T00:00:00Z"), createdAt: at("2026-12-20T00:00:00Z") })),
+    ...[6, 0].map((dayOfWeek) => ({ termId: term.id, stream: "DIPLOMA", dayOfWeek, patternId: springDiploma.id, updatedAt: at("2026-12-20T00:00:00Z"), createdAt: at("2026-12-20T00:00:00Z") })),
+  ]);
   await activateTerm(db, term.id);
   return { termId: term.id, mergedGroupId: merged.id, repeatGroupId: repeat.id };
 }

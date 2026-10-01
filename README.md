@@ -13,7 +13,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 ## Highlights
 
 - Exact-time Day and Week routine views for HSC and Diploma streams, with optional batch filtering.
-- Batch-specific class days and time windows, including approved Friday exceptions.
+- Term-specific days and periods per stream (Days & periods), with batch exceptions: an extra day such as Friday, its own periods, or no classes on a day.
 - Deterministic automatic scheduler for safe initial placements.
 - Conflict detection for teachers, rooms, audiences, breaks, capacity, external commitments, and room capabilities.
 - Course-group attendance with CSV roster import and Midterm, Final, and semester summaries.
@@ -54,7 +54,7 @@ These screenshots illustrate an earlier demo dataset; they do not certify the cu
 
 ### Build and publish a routine
 
-1. Confirm academic policy, permitted days, batch overrides, and breaks in **Settings**.
+1. Set the term's teaching days, periods, breaks, class hours and any batch exceptions in **Days & periods** (copy them from an earlier term to start), and confirm academic policy in **Settings**.
 2. Add or move classes in **Routine Builder**, or preview safe suggestions in **Auto-schedule gaps**.
 3. Review blockers and advisories in **Validation**.
 4. Resolve every blocker.
@@ -264,6 +264,7 @@ cse-academic-operations-hub/
 | `/` | Coordinator dashboard |
 | `/routine` | Manual exact-time builder plus Day/Week, batch filter, print, and draft CSV |
 | `/routine/export` | URL-addressed draft routine CSV export |
+| `/routine/periods` | Days & periods: per-term period patterns, stream days, class hours and batch exceptions |
 | `/routine/auto` | Safe automatic placement suggestions |
 | `/conflicts` | Blockers and advisory warnings |
 | `/attendance` | Roster, CSV import, attendance, and summaries |
@@ -275,7 +276,7 @@ cse-academic-operations-hub/
 | `/courses` | Catalog, offerings, and coverage |
 | `/od` | External teaching and room commitments |
 | `/publications` | Immutable version publication and history |
-| `/settings` | Term policy, class windows, and pending decisions |
+| `/settings` | Term policy and pending decisions |
 | `/routine/official` | Internal compact official routine/appendix print package |
 | `/public/routine` | Public Day/Week viewer, batch filter, and printable immutable routine |
 | `/public/routine/official` | Published compact official routine/appendix print package |

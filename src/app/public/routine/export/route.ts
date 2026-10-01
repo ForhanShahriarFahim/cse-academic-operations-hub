@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const source = data?.source ?? null;
   if (!source) return Response.json({ error: "No published routine." }, { status: 404 });
   const params = Object.fromEntries(new URL(request.url).searchParams.entries());
-  const parsed = parseRoutineSelection(params, source.batches, { strict: true });
+  const parsed = parseRoutineSelection(params, source, { strict: true });
   if (parsed.errors.length > 0) {
     return Response.json({ errors: parsed.errors }, { status: 400 });
   }

@@ -15,7 +15,6 @@ import {
   meetingRooms,
   meetings,
   meetingTeachers,
-  permittedWindows,
   students,
 } from "@/db/schema";
 import { parseStudentCsv, ATTENDANCE_STATUSES } from "./attendance";
@@ -66,43 +65,7 @@ export async function updateAcademicPolicyAction(formData: FormData): Promise<Ac
   return { ok: true, message: "Academic and payment policy updated for this term." };
 }
 
-export async function createPermittedWindowAction(formData: FormData): Promise<ActionResult> {
-  const denied = await guardAction("manage_policy");
-  if (denied) return denied;
-  const term = await getActiveTerm();
-  const stream = String(formData.get("stream") ?? "");
-  const dayOfWeek = Number(formData.get("dayOfWeek"));
-  const startMinutes = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
-  const endMinutes = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
-  const batchId = numberField(formData, "batchId");
-  const note = String(formData.get("note") ?? "").trim() || null;
-  if (!['HSC', 'DIPLOMA'].includes(stream) || !Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6 || startMinutes == null || endMinutes == null || endMinutes <= startMinutes) {
-    return { ok: false, message: "Choose a stream, day, and valid start/end time." };
-  }
-  if (batchId) {
-    const [batch] = await db.select().from(batches).where(eq(batches.id, batchId)).limit(1);
-    if (!batch || batch.stream !== stream) return { ok: false, message: "The selected batch does not belong to that stream." };
-  }
-  await auditedChange("window.create", "permitted_window", async (tx) => {
-    const [row] = await tx.insert(permittedWindows).values({ termId: term.id, batchId, stream, dayOfWeek, startMinutes, endMinutes, requiresExceptionNote: note }).returning();
-    return { result: null, entityId: row.id, after: row };
-  });
-  refresh();
-  return { ok: true, message: batchId ? "Batch-specific class window added." : "Stream-wide class window added." };
-}
-
-export async function deletePermittedWindowAction(id: number): Promise<ActionResult> {
-  const denied = await guardAction("manage_policy");
-  if (denied) return denied;
-  if (!Number.isInteger(id) || id <= 0) return { ok: false, message: "Invalid time window." };
-  if (!await isInActiveTerm("permitted_window", id)) return { ...OUTSIDE_ACTIVE_TERM };
-  await auditedChange("window.delete", "permitted_window", async (tx) => {
-    const [previous] = await tx.delete(permittedWindows).where(eq(permittedWindows.id, id)).returning();
-    return { result: null, entityId: id, before: previous ?? null };
-  });
-  refresh();
-  return { ok: true, message: "Class window removed." };
-}
+// Class days, periods and class hours are edited in Days & periods (RUT-04, time-grid-actions.ts).
 
 export async function createExtraLoadClassAction(formData: FormData): Promise<ActionResult> {
   const teacherId = Number(formData.get("teacherId"));

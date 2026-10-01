@@ -1,7 +1,7 @@
 import { getPortalData } from "@/lib/data";
-import { fmtRange, DAY_NAMES } from "@/lib/time";
+import Link from "next/link";
 import { INSTITUTION } from "@/lib/constants";
-import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
+import { PageHeader, Panel, EmptyNote } from "@/components/ui";
 import { CircleAlert, CircleCheck } from "lucide-react";
 import { getAcademicPolicy } from "@/lib/academic-operations";
 import { PolicyManager } from "@/components/policy-manager";
@@ -75,23 +75,12 @@ export default async function SettingsPage() {
             </dl>
           </Panel>
 
-          <Panel title="Active time policy (from database)">
-            <p className="micro-label mb-1.5">Breaks</p>
-            <div className="mb-3 flex flex-wrap gap-1.5">
-              {data.breaks.map((b) => (
-                <Badge key={b.id} tone="sage">
-                  {b.name} · {b.scope === "stream" ? b.stream : "all"} · {b.dayOfWeek != null ? DAY_NAMES[b.dayOfWeek] : "every day"} {fmtRange(b.startMinutes, b.endMinutes)}
-                </Badge>
-              ))}
-            </div>
-            <p className="micro-label mb-1.5">Permitted windows</p>
-            <div className="flex flex-wrap gap-1.5">
-              {data.windows.map((w) => (
-                <Badge key={w.id} tone={w.note ? "gold" : "pine"}>
-                  {w.stream} · {DAY_NAMES[w.dayOfWeek]} {fmtRange(w.startMinutes, w.endMinutes)}{w.note ? " (provisional)" : ""}
-                </Badge>
-              ))}
-            </div>
+          <Panel title="Class days and periods">
+            <p className="text-[12.5px] leading-relaxed text-ink-2">
+              {data.term.name} uses {data.timeGrid.patterns.length} period pattern{data.timeGrid.patterns.length === 1 ? "" : "s"}.
+              Days, periods, breaks and class hours for each stream and batch are set in{" "}
+              <Link href="/routine/periods" className="font-semibold text-[var(--color-pine)] underline underline-offset-2">Days &amp; periods</Link>.
+            </p>
           </Panel>
 
           <Panel title="Operational decisions" sub="Before production rollout">
@@ -107,7 +96,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="mt-4">
-        <PolicyManager policy={policy} windows={data.windows} batches={data.batches} />
+        <PolicyManager policy={policy} />
       </div>
 
       <div className="mt-4">

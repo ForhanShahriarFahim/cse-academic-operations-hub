@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { Download, FileText, Printer } from "lucide-react";
 import { DAY_SHORT } from "@/lib/time";
-import { daysForStream, type Stream } from "@/lib/constants";
+import type { Stream } from "@/lib/time-grid";
 import type { RoutineBatch, RoutineSelection, RoutineView } from "@/lib/routine-projection";
 
 export function RoutineViewControls({
@@ -12,9 +12,12 @@ export function RoutineViewControls({
   exportPath,
   dark = false,
   officialPath,
+  days,
 }: {
   selection: RoutineSelection;
   batches: RoutineBatch[];
+  /** Teaching days per stream, and the days taught only by batches with an exception. */
+  days: Record<Stream, { all: number[]; exceptionOnly: number[] }>;
   exportPath: string;
   dark?: boolean;
   officialPath?: string;
@@ -36,7 +39,7 @@ export function RoutineViewControls({
   }
 
   function selectStream(stream: Stream) {
-    navigate({ stream, day: String(daysForStream(stream)[0]), batch: "all" });
+    navigate({ stream, day: String(days[stream].all[0] ?? 0), batch: "all" });
   }
 
   function selectView(view: RoutineView) {
@@ -72,10 +75,10 @@ export function RoutineViewControls({
       </div>
       {selection.view === "day" && (
         <div className={`flex rounded-md border p-0.5 ${base}`} role="group" aria-label="Day">
-          {daysForStream(selection.stream).map((day) => (
+          {days[selection.stream].all.map((day) => (
             <button key={day} type="button" onClick={() => navigate({ day: String(day) })} aria-pressed={selection.day === day}
               className={`rounded px-2.5 py-1.5 text-[11.5px] font-semibold ${selection.day === day ? "bg-[var(--color-gold)] text-[var(--color-ink)]" : inactive}`}>
-              {DAY_SHORT[day]}{selection.stream === "HSC" && day === 6 ? "*" : ""}
+              {DAY_SHORT[day]}{days[selection.stream].exceptionOnly.includes(day) ? <span title="Only some batches teach this day">*</span> : null}
             </button>
           ))}
         </div>

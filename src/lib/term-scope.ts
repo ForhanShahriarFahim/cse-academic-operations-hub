@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
   academicTerms, attendanceSessions, externalCommitments, extraLoadClasses, extraLoadManualSummaries,
-  meetings, permittedWindows, teachingGroups,
+  meetings, teachingGroups,
 } from "@/db/schema";
 import { stale } from "./action-result";
 
@@ -15,7 +15,6 @@ export type TermScopedRecord =
   | "teaching_group"
   | "meeting"
   | "external_commitment"
-  | "permitted_window"
   | "extra_load_class"
   | "extra_load_manual_summary"
   | "attendance_session";
@@ -36,8 +35,6 @@ async function owningTermId(kind: TermScopedRecord, id: number): Promise<number 
         .innerJoin(teachingGroups, eq(meetings.teachingGroupId, teachingGroups.id)).where(eq(meetings.id, id)).limit(1));
     case "external_commitment":
       return first(db.select({ termId: externalCommitments.termId }).from(externalCommitments).where(eq(externalCommitments.id, id)).limit(1));
-    case "permitted_window":
-      return first(db.select({ termId: permittedWindows.termId }).from(permittedWindows).where(eq(permittedWindows.id, id)).limit(1));
     case "extra_load_class":
       return first(db.select({ termId: extraLoadClasses.termId }).from(extraLoadClasses).where(eq(extraLoadClasses.id, id)).limit(1));
     case "extra_load_manual_summary":

@@ -14,6 +14,7 @@ export default async function PublicationsPage() {
     meetings: data.meetings,
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   });
   const blockers = issues.filter((i) => i.severity === "blocker").length;

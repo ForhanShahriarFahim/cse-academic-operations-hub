@@ -124,6 +124,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     meetings: [...data.meetings, candidate],
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(-1));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -164,6 +165,7 @@ export async function moveMeetingAction(
     meetings: [...data.meetings.filter((m) => m.id !== meetingId), moved],
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(meetingId));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -239,6 +241,7 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     meetings: [...data.meetings.filter((m) => m.id !== meetingId), updated],
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(meetingId));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -376,6 +379,7 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
     meetings: data.meetings,
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   });
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -405,6 +409,7 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
       externals: data.externals,
       issues,
       metadata: data.publicationMetadata,
+      timeGrid: data.timeGrid,
   });
 
   // Atomic state transition: supersede the old published version, insert new.

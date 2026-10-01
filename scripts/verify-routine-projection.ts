@@ -12,6 +12,7 @@ import {
   type MeetingView,
 } from "../src/lib/serialize";
 import { buildOfficialRoutinePackage } from "../src/lib/official-routine-package";
+import { legacyTimeGrid } from "../src/lib/time-grid-legacy";
 
 const batches: RoutineBatch[] = [
   { id: 1, stream: "HSC", label: "29B", semester: 1, studentCount: 30, sortOrder: 20 },
@@ -80,6 +81,7 @@ const source: RoutineSource = {
   meetings: [shared, custom],
   batches,
   breaks: [],
+  timeGrid: legacyTimeGrid([]),
   externals: [],
   issues: [{
     id: "warn-10",
@@ -94,21 +96,22 @@ const source: RoutineSource = {
 
 const parsed = parseRoutineSelection(
   { stream: "HSC", view: "week", batch: "1", day: "6" },
-  batches,
+  source,
 );
 assert.deepEqual(parsed.errors, []);
 assert.deepEqual(parsed.selection, { stream: "HSC", view: "week", day: 0, batchId: 1 });
 
 const projection = projectRoutine({ source, selection: parsed.selection });
 assert.deepEqual(projection.days.map((day) => day.dayOfWeek), [0, 1, 2, 3]);
-assert.deepEqual(projection.days[1].slots.map((slot) => [slot.start, slot.end]), [[540, 600], [600, 660], [660, 720], [720, 795]]);
-assert.deepEqual(projection.days[3].slots.at(-1), { start: 810, end: 885 });
+assert.deepEqual(projection.days[1].groups[0].slots.map((slot) => [slot.start, slot.end]), [[540, 600], [600, 660], [660, 720], [720, 795]]);
+assert.deepEqual(projection.days[3].groups[0].slots.at(-1), { start: 810, end: 885 });
+assert.ok(projection.days.every((day) => day.groups.length === 1 && !day.exceptionOnly));
 assert.deepEqual(projection.exportMeetings.map((item) => item.meeting.id), [10]);
 assert.equal(projection.exportMeetings[0].validationStatus, "warning");
 assert.deepEqual(projection.exportMeetings[0].warningCodes, ["capacity_unverified"]);
-assert.equal(projection.days[0].rows.length, 1);
-assert.equal(projection.days[0].rows[0].batch.id, 1);
-assert.equal(projection.days[0].rows[0].slots[0].meetings[0].meeting.id, 10);
+assert.equal(projection.days[0].groups[0].rows.length, 1);
+assert.equal(projection.days[0].groups[0].rows[0].batch.id, 1);
+assert.equal(projection.days[0].groups[0].rows[0].slots[0].meetings[0].meeting.id, 10);
 
 const diplomaProjection = projectRoutine({
   source,
@@ -127,7 +130,7 @@ assert.match(csv.body, /DRAFT — NOT OFFICIAL/);
 
 const invalid = parseRoutineSelection(
   { stream: "UNKNOWN", view: "month", day: "99", batch: "3" },
-  batches,
+  source,
   { strict: true },
 );
 assert.equal(invalid.errors.length, 4);
@@ -188,9 +191,11 @@ const snapshot = buildSnapshot({
   ],
   issues: source.issues,
   metadata,
+  timeGrid: source.timeGrid,
   generatedAt: "2026-09-23T00:00:00.000Z",
 });
-assert.equal(snapshot.schemaVersion, 3);
+assert.equal(snapshot.schemaVersion, 4);
+assert.deepEqual(snapshot.timeGrid, source.timeGrid);
 assert.equal(snapshot.externalCommitments.length, 1);
 assert.equal(snapshot.issues.length, 1);
 

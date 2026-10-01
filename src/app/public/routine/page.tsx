@@ -3,6 +3,7 @@ import { getPublicRoutineData } from "@/lib/public-routine";
 import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection";
 import { RoutineViewControls } from "@/components/routine-view-controls";
 import { RoutineDocument } from "@/components/routine-document";
+import { EMPTY_GRID, teachingDays } from "@/lib/time-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export default async function PublicRoutinePage({
 }) {
   const data = await getPublicRoutineData();
   const source = data?.source ?? null;
-  const selectionSource = source?.batches ?? [];
+  const selectionSource = source ?? { batches: [], timeGrid: EMPTY_GRID };
   const { selection } = parseRoutineSelection(await searchParams, selectionSource);
 
   return (
@@ -28,7 +29,7 @@ export default async function PublicRoutinePage({
             </div>
             {source?.versionNumber && <span className="ml-auto rounded-md border border-white/15 px-2.5 py-1 text-[10.5px] text-white/60">v{source.versionNumber}</span>}
           </div>
-          <RoutineViewControls selection={selection} batches={selectionSource.filter((batch) => batch.stream === selection.stream)} exportPath="/public/routine/export" officialPath="/public/routine/official" dark />
+          <RoutineViewControls selection={selection} days={teachingDays(selectionSource.timeGrid)} batches={selectionSource.batches.filter((batch) => batch.stream === selection.stream)} exportPath="/public/routine/export" officialPath="/public/routine/official" dark />
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">

@@ -18,8 +18,9 @@ import {
   meetings,
   meetingTeachers,
   meetingRooms,
-  breakRules,
   permittedWindows,
+  periodPatterns,
+  dayPlans,
   externalCommitments,
   workloadAllocations,
   scheduleVersions,
@@ -39,6 +40,7 @@ import {
   type PublicationSnapshotV3,
   type PublicationRoutineMetadata,
 } from "./serialize";
+import type { DayPlan, PeriodPattern, Stream, TimeGrid } from "./time-grid";
 
 export interface BatchView {
   id: number;
@@ -155,10 +157,13 @@ export interface PortalData {
   batches: BatchView[];
   meetings: MeetingView[];
   externals: ExternalCommitmentView[];
+  /** Breaks in the stream patterns, for summaries and snapshot compatibility. Validation uses `timeGrid`. */
   breaks: {
     id: number; name: string; scope: string; stream: string | null;
     dayOfWeek: number | null; startMinutes: number; endMinutes: number;
   }[];
+  /** The active term's periods, teaching days and batch exceptions (RUT-04). */
+  timeGrid: TimeGrid;
   windows: {
     id: number; termId: number | null; batchId: number | null; stream: string; dayOfWeek: number;
     startMinutes: number; endMinutes: number; note: string | null;
@@ -177,6 +182,32 @@ export interface PortalData {
     id: number; fullName: string; designation: string; phone: string; email: string | null; sortOrder: number;
   }[];
   sourceReconciliations: { id: number; detail: string; status: string; sourceLabel: string }[];
+}
+
+export function timeGridFromRows(
+  patternRows: Array<typeof periodPatterns.$inferSelect>,
+  planRows: Array<typeof dayPlans.$inferSelect>,
+): TimeGrid {
+  const patterns: PeriodPattern[] = patternRows.map((row) => ({
+    id: row.id, name: row.name, periods: row.periods ?? [], breaks: row.breaks ?? [], updatedAt: row.updatedAt.toISOString(),
+  })).sort((a, b) => a.name.localeCompare(b.name));
+  const plans: DayPlan[] = planRows.map((row) => ({
+    id: row.id, stream: (row.stream === "DIPLOMA" ? "DIPLOMA" : "HSC") as Stream, batchId: row.batchId, dayOfWeek: row.dayOfWeek,
+    patternId: row.patternId, reason: row.reason, updatedAt: row.updatedAt.toISOString(),
+  }));
+  return { patterns, dayPlans: plans };
+}
+
+/** One break row per stream-plan break, in the shape older snapshots and summaries use. */
+export function streamBreaks(grid: TimeGrid): PortalData["breaks"] {
+  let id = 0;
+  return grid.dayPlans
+    .filter((plan) => plan.batchId == null && plan.patternId != null)
+    .sort((a, b) => a.stream.localeCompare(b.stream) || a.dayOfWeek - b.dayOfWeek)
+    .flatMap((plan) => (grid.patterns.find((p) => p.id === plan.patternId)?.breaks ?? []).map((item) => ({
+      id: ++id, name: item.name, scope: "stream", stream: plan.stream, dayOfWeek: plan.dayOfWeek,
+      startMinutes: item.start, endMinutes: item.end,
+    })));
 }
 
 function toNum(v: string | number | null): number | null {
@@ -226,7 +257,7 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
   const [
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
     offeringRows, groupRows, linkRows, requirementRows, meetingRows, mtRows,
-    mrRows, breakRows, windowRows, ecRows, allocationRows, versionRows,
+    mrRows, patternRows, dayPlanRows, windowRows, ecRows, allocationRows, versionRows,
     representativeRows, contactRows, reconciliationRows,
   ] = await Promise.all([
     db.select().from(departments),
@@ -242,7 +273,8 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
     db.select().from(meetings),
     db.select().from(meetingTeachers),
     db.select().from(meetingRooms),
-    db.select().from(breakRules),
+    db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
+    db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
     db.select().from(permittedWindows),
     db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
     db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
@@ -393,15 +425,8 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       sortOrder: b.sortOrder,
     }))
     .sort((a, b) => b.sortOrder - a.sortOrder);
-  const breakViews = breakRows.map((b) => ({
-    id: b.id,
-    name: b.name,
-    scope: b.scope,
-    stream: b.stream,
-    dayOfWeek: b.dayOfWeek,
-    startMinutes: b.startMinutes,
-    endMinutes: b.endMinutes,
-  }));
+  const timeGrid = timeGridFromRows(patternRows, dayPlanRows);
+  const breakViews = streamBreaks(timeGrid);
   const publicationMetadata: PublicationRoutineMetadata = {
     teachers: teacherRows.map((teacher) => ({
       shortCode: teacher.shortCode,
@@ -509,6 +534,7 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
     meetings: meetingViews,
     externals,
     breaks: breakViews,
+    timeGrid,
     windows: windowRows.filter((w) => w.termId == null || w.termId === term.id).map((w) => ({
       id: w.id, termId: w.termId, batchId: w.batchId, stream: w.stream, dayOfWeek: w.dayOfWeek,
       startMinutes: w.startMinutes, endMinutes: w.endMinutes,

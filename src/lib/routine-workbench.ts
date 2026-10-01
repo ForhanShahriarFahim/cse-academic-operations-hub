@@ -7,6 +7,7 @@
 import { analyzeSchedule, type BreakRule, type Issue, type PermittedWindow } from "./conflicts";
 import { knownAudienceSize as audienceSizeOf, type ExternalCommitmentView, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
 import { fmtRange, overlaps } from "./time";
+import type { TimeGrid } from "./time-grid";
 
 /** Everything about a teaching group needed to place a new class, without a time or staff. */
 export type GroupTemplate = Omit<MeetingView, "id" | "dayOfWeek" | "startMinutes" | "endMinutes" | "teachers" | "rooms">;
@@ -24,6 +25,7 @@ export interface EngineContext {
   externals: ExternalCommitmentView[];
   breaks: BreakRule[];
   windows: PermittedWindow[];
+  grid: TimeGrid;
 }
 
 export interface Placement {
@@ -75,6 +77,7 @@ export function precheck(candidate: MeetingView, context: EngineContext): Issue[
     externals: context.externals,
     breaks: context.breaks,
     windows: context.windows,
+    grid: context.grid,
   }).filter((issue) => issue.meetingIds.includes(candidate.id));
 }
 

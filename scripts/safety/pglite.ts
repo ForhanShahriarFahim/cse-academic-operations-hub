@@ -9,6 +9,7 @@ import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
+import { backfillTimeGrids, type GridDb } from "../../src/db/time-grid-backfill";
 import * as schema from "../../src/db/schema";
 import { REPO_ROOT, SCRATCH_ROOT, UnsafeTargetError, isWithin, resolvePgliteTarget } from "./targets";
 
@@ -102,6 +103,7 @@ export async function migrateOwned(handle: OwnedPglite): Promise<void> {
 
 export async function migratePgliteDb(db: PgliteDatabase<typeof schema>): Promise<void> {
   await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+  await backfillTimeGrids(db as unknown as GridDb); // as migrateDatabase does in production
 }
 
 export function removeOwnedRun(run: OwnedRun): void {

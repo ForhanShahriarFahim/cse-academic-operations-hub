@@ -88,6 +88,7 @@ body {
 }
 
 /* Routine table */
+.routine-group-caption { caption-side: top; }
 .routine-table {
   border-collapse: separate;
   border-spacing: 0;
@@ -149,80 +150,96 @@ body {
   border-collapse: collapse;
 }
 
-/* Compact official routine package: two routine pages plus appendices. */
-.official-package { display: flex; flex-direction: column; gap: 20px; }
-.official-package-page {
-  width: min(100%, 1120px);
-  aspect-ratio: 297 / 210;
-  padding: 12px 18px 10px;
-  color: #111;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+/* Official routine package (RUT-04 amendment B): A4 landscape sheets, black and white only.
+   Measures are in mm/pt and mirror SHEET_MM in src/lib/official-routine-sheets.ts. */
+.official-package {
+  --official-serif: "Source Serif 4", "Times New Roman", Times, serif;
+  --official-sans: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  display: flex; flex-direction: column; align-items: center; gap: 8mm;
+  overflow-x: auto; padding: 4mm 0 10mm; color: #000;
+  font-family: var(--official-sans);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.official-package-header { padding-bottom: 5px; }
-.official-university { font-family: var(--font-display), Georgia, serif; font-size: 17px; font-weight: 800; }
-.official-department { font-family: var(--font-display), Georgia, serif; font-size: 12px; }
-.official-term { font-size: 10px; font-weight: 700; }
-.official-effective { position: absolute; right: 0; top: 14px; font-size: 8px; font-weight: 700; }
-.official-package-header h1 { margin-top: 3px; font-family: var(--font-display), Georgia, serif; font-size: 11px; font-weight: 800; text-decoration: underline; }
-.official-package-body { min-height: 0; overflow: hidden; }
-.official-package-footer { display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 3px; font-size: 6px; font-weight: 600; }
-.official-routine-days { display: grid; height: 100%; gap: 3px; }
-.official-routine-days-hsc { grid-template-rows: repeat(4, minmax(0, 1fr)); }
-.official-routine-days-diploma { grid-template-rows: auto auto; align-content: start; }
-.official-routine-days-diploma .official-compact-table td,
-.official-routine-days-diploma .official-compact-table tbody th { height: 18px; }
-.official-routine-days-diploma .official-compact-table thead th { height: 20px; }
-.official-compact-table, .official-appendix-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.official-compact-table th, .official-compact-table td { border: 1px solid #222; padding: 1px 2px; text-align: center; font-size: 6.2px; line-height: 1.08; }
-.official-compact-table thead th { background: #d7d7d7; font-weight: 800; }
-.official-compact-table thead th:first-child { width: 48px; }
-.official-compact-table thead th:nth-child(2) { width: 38px; }
-.official-day-spacer { background: #cfcfcf; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .08em; }
-.official-slot-caption { color: #666; font-size: 5px !important; font-weight: 500 !important; }
-.official-break-heading { width: 18px; background: #d7d7d7; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 5.5px !important; letter-spacing: .08em; }
-.official-break-body { width: 18px; background: #efefef; padding: 0 !important; }
-.official-break-body span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 5.5px; font-weight: 800; letter-spacing: .08em; }
-.official-compact-table td > div + div { border-top: 1px dotted #888; margin-top: 1px; padding-top: 1px; }
-.official-compact-table small, .official-appendix-table small { display: block; font-size: 5px; line-height: 1.05; }
-.official-cell-blocker { background: #fee2e2; }
-.official-od-row th, .official-od-row td { color: #b45309; background: #fff7ed; }
-.official-course-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
-.official-course-grid h2, .official-directory h2 { margin: 1px 0; background: #9bd3e3; border: 1px solid #222; padding: 1px 3px; text-align: center; font-size: 7px; font-weight: 800; }
-.official-appendix-table th, .official-appendix-table td { border: 1px solid #222; padding: 1px 3px; font-size: 5.7px; line-height: 1.08; }
-.official-appendix-table thead th, .official-appendix-table tfoot th { background: #d9eef4; font-weight: 800; }
-.official-course-grid .official-appendix-table th:first-child { width: 76px; }
-.official-course-grid .official-appendix-table th:last-child { width: 42px; text-align: center; }
-.official-teacher-columns, .official-cr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.official-teacher-columns .official-appendix-table th:first-child { width: 24px; }
-.official-teacher-columns .official-appendix-table th:nth-child(3) { width: 38px; }
-.official-teacher-columns .official-appendix-table th:last-child { width: 110px; }
-.official-cr-grid { margin-top: 4px; }
-.official-query-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-.official-query-grid > div { border: 1px solid #222; padding: 3px; text-align: center; font-size: 6px; }
-.official-query-grid span { display: block; }
-.official-source-note { margin-top: 3px; border: 1px solid #c0841a; background: #fff8e7; padding: 2px 4px; font-size: 5.5px; }
+.official-package:focus-visible { outline: 2px solid #000; outline-offset: -2px; }
+.official-sheet {
+  position: relative; flex: none; box-sizing: border-box;
+  width: 297mm; height: 210mm; padding: 8mm 11mm 7mm;
+  background: #fff; box-shadow: 0 1px 2px rgb(0 0 0 / .18), 0 6px 22px rgb(0 0 0 / .1);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; row-gap: 2.6mm; overflow: hidden;
+  page: official-sheet;
+}
+.official-sheet-head { position: relative; display: grid; grid-template-columns: 62mm 1fr 62mm; align-items: center; column-gap: 6mm; padding-bottom: 2.2mm; border-bottom: 1.6pt solid #000; }
+.official-sheet-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2.4pt; border-bottom: .5pt solid #000; }
+.official-institution { text-align: center; }
+.official-university { font: 700 16pt/1.1 var(--official-serif); }
+.official-department { margin-top: .6mm; font: 400 10.5pt/1.25 var(--official-serif); }
+.official-doc { margin-top: 1.4mm; font: 600 8pt/1.2 var(--official-sans); letter-spacing: .16em; text-transform: uppercase; }
+.official-tag { min-width: 50mm; border: .75pt solid #000; padding: 1.4mm 2.4mm; font-size: 8pt; line-height: 1.25; }
+.official-tag small { display: block; font-size: 6.6pt; letter-spacing: .1em; text-transform: uppercase; color: #333; }
+.official-tag strong { display: block; font-size: 10pt; font-weight: 700; }
+.official-tag-left { justify-self: start; }
+.official-tag-right { justify-self: end; text-align: right; }
+.official-sheet-main { min-height: 0; display: flex; flex-direction: column; }
+.official-sheet-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6mm; margin-bottom: 1.8mm; font-size: 8pt; color: #333; }
+.official-sheet-title h2 { margin: 0; font: 700 10.5pt/1.2 var(--official-serif); color: #000; }
+.official-sheet-body { min-height: 0; flex: 1; display: flex; flex-direction: column; gap: 3mm; }
+.official-empty { font-size: 9pt; }
 
+.official-routine, .official-plain { width: 100%; border-collapse: collapse; table-layout: fixed; font-variant-numeric: tabular-nums; }
+.official-routine th, .official-routine td { border: .6pt solid #000; padding: .55mm 1mm; text-align: center; vertical-align: middle; }
+.official-routine thead th { height: 5.6mm; background: #d9d9d9; font-size: 7.4pt; font-weight: 700; line-height: 1.15; }
+.official-col-day { width: 8.5mm; }
+.official-col-batch { width: 13mm; }
+.official-col-break { width: 7mm; }
+.official-routine td { height: 6.6mm; font-size: 7.4pt; line-height: 1.14; }
+.official-routine tbody th.official-batch { font-size: 8pt; font-weight: 700; white-space: nowrap; }
+.official-routine .official-day, .official-routine .official-break { padding: 0; background: #efefef; }
+.official-routine thead th.official-break { background: #d9d9d9; }
+.official-vertical { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); }
+.official-day .official-vertical { font-size: 8pt; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
+.official-break .official-vertical { font-size: 6.8pt; font-weight: 600; letter-spacing: .08em; }
+.official-class + .official-class { margin-top: .5mm; border-top: .5pt dotted #8c8c8c; padding-top: .5mm; }
+.official-class b { font-weight: 700; }
+.official-class span { display: block; }
+.official-class small { font-size: 6.6pt; color: #333; }
+.official-class i { display: inline; font-size: 6.6pt; }
+.official-routine td.official-own { padding: 0; }
+.official-own-row { display: flex; align-items: stretch; }
+.official-segment { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3mm; padding: .55mm 1mm; }
+.official-segment + .official-segment { border-left: .6pt solid #000; }
+.official-segment-time { align-self: stretch; margin-bottom: .3mm; border-bottom: .5pt solid #8c8c8c; padding-bottom: .3mm; font-size: 6.8pt; font-weight: 700; font-style: italic; text-align: center; }
+.official-segment-classes { display: flex; justify-content: center; gap: 5mm; }
+.official-segment .official-class + .official-class { margin-top: 0; border-top: 0; padding-top: 0; }
+.official-routine tr.official-od th, .official-routine tr.official-od td { height: 4.4mm; font-size: 6.8pt; }
+.official-routine tr.official-od td { font-style: italic; }
+.official-routine tr.official-od th { font-weight: 600; }
+
+.official-years { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 4mm; row-gap: 3.5mm; align-content: start; }
+.official-plain th, .official-plain td { border: .5pt solid #000; padding: .45mm 1mm; font-size: 6.9pt; line-height: 1.18; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.official-plain thead th { background: #d9d9d9; font-weight: 700; }
+.official-plain .official-band th { background: #000; color: #fff; text-align: center; font-size: 7.4pt; letter-spacing: .06em; }
+.official-plain tfoot th { background: #efefef; font-weight: 700; }
+.official-plain .official-num { text-align: right; }
+.official-plain td small { color: #333; font-size: 6.9pt; }
+.official-directory { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 5mm; row-gap: 3.5mm; align-content: start; }
+.official-directory .official-span { grid-column: 1 / -1; }
+.official-section-label { margin: 0 0 1.2mm; font: 700 8.6pt/1.2 var(--official-serif); }
+.official-contacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3mm; }
+.official-contacts div { border: .6pt solid #000; padding: 1.6mm 2mm; text-align: center; font-size: 7pt; line-height: 1.3; }
+.official-contacts b { display: block; font-size: 8pt; }
+
+.official-sheet-foot { display: flex; justify-content: space-between; align-items: end; gap: 8mm; border-top: .6pt solid #000; padding-top: 1.6mm; font-size: 6.8pt; line-height: 1.3; color: #333; }
+.official-sheet-foot p { margin: 0; }
+.official-sheet-foot .official-page { text-align: right; }
+.official-sheet-foot b { color: #000; }
+.official-watermark { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.official-watermark::after { content: "DRAFT"; position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%) rotate(-24deg); font: 700 92pt/1 var(--official-sans); letter-spacing: .2em; color: rgb(0 0 0 / .045); white-space: nowrap; }
+
+@page official-sheet { size: A4 landscape; margin: 0; }
 @media print {
-  .official-package { display: block; }
-  .official-package-page {
-    box-sizing: border-box;
-    width: 100%;
-    height: 190mm;
-    aspect-ratio: auto;
-    padding: 3mm 4mm 2mm;
-    break-after: page;
-    page-break-after: always;
-  }
-  .official-package-page:last-child { break-after: auto; page-break-after: auto; }
-  .official-package-header { padding-bottom: 1mm; }
-  .official-university { font-size: 13pt; }
-  .official-department { font-size: 9pt; }
-  .official-term, .official-package-header h1 { font-size: 8pt; }
-  .official-effective { font-size: 6.5pt; }
-  .official-compact-table th, .official-compact-table td { font-size: 5.2pt; padding: .25mm .4mm; }
-  .official-appendix-table th, .official-appendix-table td { font-size: 4.8pt; padding: .25mm .5mm; }
-  .official-package-footer { font-size: 5pt; }
+  .official-package { display: block; overflow: visible; padding: 0; }
+  .official-sheet { box-shadow: none; break-after: page; page-break-after: always; }
+  .official-sheet:last-child { break-after: auto; page-break-after: auto; }
 }
 .official-grid th,
 .official-grid td {

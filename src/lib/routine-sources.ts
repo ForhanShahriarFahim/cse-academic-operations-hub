@@ -1,12 +1,14 @@
 import { analyzeSchedule } from "./conflicts";
 import type { PortalData } from "./data";
 import type { RoutineSource } from "./routine-projection";
+import { legacyTimeGrid } from "./time-grid-legacy";
 
 export function draftRoutineSource(data: PortalData): RoutineSource {
   const issues = analyzeSchedule({
     meetings: data.meetings,
     externals: data.externals,
     breaks: data.breaks,
+    grid: data.timeGrid,
     windows: data.windows,
   });
   return {
@@ -19,6 +21,7 @@ export function draftRoutineSource(data: PortalData): RoutineSource {
     meetings: data.meetings,
     batches: data.batches,
     breaks: data.breaks,
+    timeGrid: data.timeGrid,
     externals: data.externals,
     issues,
   };
@@ -47,6 +50,7 @@ export function publishedRoutineSource(data: PortalData): RoutineSource | null {
     meetings: snapshot.meetings,
     batches: snapshot.batches,
     breaks: snapshot.breaks,
+    timeGrid: snapshot.timeGrid ?? legacyTimeGrid(snapshot.breaks),
     externals: snapshot.externalCommitments,
     issues,
   };

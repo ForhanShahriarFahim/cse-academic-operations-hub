@@ -29,6 +29,12 @@ export function fmtRange(start: number, end: number): string {
   return `${fmtTime(start)} – ${fmtTime(end)}`;
 }
 
+/** "9:30 – 10:45 AM" when both ends share AM/PM, otherwise "10:45 AM – 12:00 PM". */
+export function fmtRangeShort(start: number, end: number): string {
+  const [from, to] = [fmtTime(start), fmtTime(end)];
+  return from.slice(-2) === to.slice(-2) ? `${from.slice(0, -3)} – ${to}` : `${from} – ${to}`;
+}
+
 /** Compact header style: "09:30–10:45" in 24h. */
 export function fmtRange24(start: number, end: number): string {
   const p = (v: number) =>

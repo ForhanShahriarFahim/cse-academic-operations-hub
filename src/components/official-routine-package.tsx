@@ -1,132 +1,195 @@
 import { Fragment } from "react";
 import { INSTITUTION } from "@/lib/constants";
 import type { OfficialAppendixPage, OfficialRoutinePackage as Package } from "@/lib/official-routine-package";
-import type { RoutineDayProjection } from "@/lib/routine-projection";
-import { DAY_NAMES, fmtDate, fmtRange } from "@/lib/time";
+import { routineSheets, type SheetCell, type SheetClass, type SheetTable } from "@/lib/official-routine-sheets";
+import { DAY_NAMES } from "@/lib/time";
+
+const LEGEND = <>NB = New Building · OD = rooms used by other departments<br />Teacher codes are listed on the last page.</>;
+const STREAM_NAME = { HSC: "B.Sc. in CSE (HSC)", DIPLOMA: "B.Sc. in CSE (Diploma)" } as const;
+
+/** "14 August 2026" for a date, or the Asia/Dhaka date of a timestamp. */
+function longDate(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(iso);
+  const value = new Date(dateOnly ? `${iso}T00:00:00Z` : iso);
+  if (Number.isNaN(value.getTime())) return null;
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: dateOnly ? "UTC" : INSTITUTION.timeZone }).format(value);
+}
+
+function dayRange(days: number[]): string {
+  const names = days.map((day) => DAY_NAMES[day]);
+  return names.length > 2 ? `${names[0]} to ${names[names.length - 1]}` : names.join(" and ");
+}
+
+interface SheetSpec { key: string; label: string; program: string; title: string; note?: string; foot: React.ReactNode; body: React.ReactNode }
 
 export function OfficialRoutinePackage({ document }: { document: Package }) {
-  const totalPages = document.routinePages.length + document.appendixPages.length;
+  const specs: SheetSpec[] = document.routinePages.flatMap((page) => {
+    const sheets = routineSheets(page.days);
+    return sheets.map((sheet, index) => ({
+      key: `${page.stream}-${index}`,
+      label: "Program",
+      program: STREAM_NAME[page.stream],
+      title: sheet.days.length ? `Weekly Class Routine: ${dayRange(sheet.days)}` : "Weekly Class Routine",
+      note: sheets.length > 1 ? `Sheet ${index + 1} of ${sheets.length} · ${index + 1 < sheets.length ? "continued on the next sheet" : "continued from the previous sheet"}` : undefined,
+      foot: LEGEND,
+      body: sheet.tables.length
+        ? sheet.tables.map((table) => <DayTable key={`${table.dayOfWeek}-${table.continued ? table.rows[0]?.batchLabel : "main"}`} table={table} />)
+        : <p className="official-empty">No classes are planned for this program.</p>,
+    }));
+  });
+  for (const page of document.appendixPages) {
+    specs.push(page.kind === "courses"
+      ? { key: page.kind, label: "Courses offered", program: "B.Sc. in CSE (HSC and Diploma)", title: `Courses Offered in ${document.source.termName}, by Year and Semester`, foot: "Totals are credits per semester.", body: <CourseAppendix page={page} /> }
+      : { key: page.kind, label: "Contacts", program: "B.Sc. in CSE (HSC and Diploma)", title: "Teachers, Class Representatives and Query Contacts", foot: "Teacher codes match the routine pages.", body: <DirectoryAppendix page={page} /> });
+  }
   return (
-    <div className="official-package">
-      {document.routinePages.map((page, index) => (
-        <OfficialPage key={page.stream} document={document} title={`Program: B.Sc. in CSE (${page.stream === "HSC" ? "HSC" : "Diploma"})`} page={index + 1} totalPages={totalPages}>
-          <div className={`official-routine-days ${page.stream === "HSC" ? "official-routine-days-hsc" : "official-routine-days-diploma"}`}>
-            {page.days.map((day) => <CompactDayTable key={day.dayOfWeek} day={day} />)}
-          </div>
-        </OfficialPage>
+    <div className="official-package" role="region" aria-label="Official routine package, A4 sheets" tabIndex={0}>
+      {specs.map((spec, index) => (
+        <OfficialSheet key={spec.key} document={document} spec={spec} page={index + 1} totalPages={specs.length} />
       ))}
-      {document.appendixPages.map((page, appendixIndex) => {
-        const pageNumber = document.routinePages.length + appendixIndex + 1;
-        return page.kind === "courses" ? (
-          <OfficialPage key={page.kind} document={document} title="List of Course Offers in Different Semesters" page={pageNumber} totalPages={totalPages}>
-            <CourseAppendix page={page} />
-          </OfficialPage>
-        ) : (
-          <OfficialPage key={page.kind} document={document} title="Teachers, Class Representatives & Query Contacts" page={pageNumber} totalPages={totalPages}>
-            <DirectoryAppendix page={page} />
-          </OfficialPage>
-        );
-      })}
     </div>
   );
 }
 
-function OfficialPage({ document, title, page, totalPages, children }: {
-  document: Package; title: string; page: number; totalPages: number; children: React.ReactNode;
-}) {
+function OfficialSheet({ document, spec, page, totalPages }: { document: Package; spec: SheetSpec; page: number; totalPages: number }) {
   const source = document.source;
+  const draft = source.kind === "draft";
+  const issued = longDate(source.publishedAt ?? source.generatedAt);
   return (
-    <section className="official-package-page mx-auto overflow-hidden border border-[#777] bg-white shadow-sm print:border-0 print:shadow-none">
-      <header className="official-package-header relative text-center">
-        <p className="official-university">{INSTITUTION.universityName}</p>
-        <p className="official-department">{INSTITUTION.departmentName}</p>
-        <p className="official-term">Class Routine, {source.termName}</p>
-        <p className="official-effective">Effective from {fmtDate(source.effectiveFrom)}</p>
-        <h1>{title}</h1>
+    <section className="official-sheet" aria-label={`${spec.program}: ${spec.title}, page ${page} of ${totalPages}`}>
+      {draft && <div className="official-watermark" aria-hidden="true" />}
+      <header className="official-sheet-head">
+        <div className="official-tag official-tag-left"><small>{spec.label}</small><strong>{spec.program}</strong></div>
+        <div className="official-institution">
+          <p className="official-university">{INSTITUTION.universityName}</p>
+          <p className="official-department">{INSTITUTION.departmentName}</p>
+          <p className="official-doc">Class Routine · {source.termName}</p>
+        </div>
+        <div className="official-tag official-tag-right">
+          <small>Effective from</small><strong>{longDate(source.effectiveFrom) ?? "Not set"}</strong>
+          {draft ? <b>DRAFT: NOT OFFICIAL</b> : <span>Publication v{source.versionNumber}</span>}
+        </div>
       </header>
-      <div className="official-package-body">{children}</div>
-      <footer className="official-package-footer">
-        <span>NB = New Building | OD = Other Departments</span>
-        <span>{source.kind === "draft" ? "DRAFT - NOT OFFICIAL" : `Publication v${source.versionNumber}`} | Page {page} of {totalPages}</span>
+      <div className="official-sheet-main">
+        <div className="official-sheet-title"><h2>{spec.title}</h2>{spec.note && <span>{spec.note}</span>}</div>
+        <div className="official-sheet-body">{spec.body}</div>
+      </div>
+      <footer className="official-sheet-foot">
+        <p>{spec.foot}</p>
+        <p className="official-page">
+          {draft
+            ? `Draft printed ${longDate(source.generatedAt) ?? ""} · not for the notice board`
+            : `Publication v${source.versionNumber}${issued ? ` · issued ${issued}` : ""}`}
+          {" · "}<b>Page {page} of {totalPages}</b>
+        </p>
       </footer>
     </section>
   );
 }
 
-function CompactDayTable({ day }: { day: RoutineDayProjection }) {
+function ClassBlock({ item }: { item: SheetClass }) {
   return (
-    <table className="official-compact-table">
+    <div className="official-class">
+      <b>{item.code}</b> ({item.teachers})
+      <span>{item.rooms}{item.note && <small> · {item.note}</small>}{item.time && <i> · {item.time}</i>}</span>
+    </div>
+  );
+}
+
+function Cell({ cell }: { cell: SheetCell }) {
+  const span = cell.span > 1 ? cell.span : undefined;
+  if (cell.kind === "classes") return <td colSpan={span}>{cell.classes.map((item, index) => <ClassBlock key={`${item.code}-${index}`} item={item} />)}</td>;
+  return (
+    <td className="official-own" colSpan={span}>
+      <div className="official-own-row">
+        {cell.segments.map((segment) => (
+          <div key={segment.start} className="official-segment">
+            <span className="official-segment-time">{segment.time}</span>
+            <div className="official-segment-classes">{segment.classes.map((item, index) => <ClassBlock key={`${item.code}-${index}`} item={item} />)}</div>
+          </div>
+        ))}
+      </div>
+    </td>
+  );
+}
+
+function DayTable({ table }: { table: SheetTable }) {
+  const bodyRows = table.rows.length + (table.od ? 1 : 0);
+  const breaksAfter = (slot: number) => table.breaks.filter((item) => item.afterSlot === slot);
+  const breakCells = (slot: number) => breaksAfter(slot).map((item) => (
+    <td key={`break-${item.afterSlot}`} className="official-break" rowSpan={bodyRows}><span className="official-vertical">{item.label}</span></td>
+  ));
+  const dayName = `${DAY_NAMES[table.dayOfWeek]}${table.continued ? " (cont.)" : ""}`;
+  const dayCell = <th className="official-day" rowSpan={bodyRows} scope="rowgroup"><span className="official-vertical">{dayName}</span></th>;
+  return (
+    <table className="official-routine" data-estimate-mm={table.height.toFixed(1)}>
       <thead>
         <tr>
-          <th className="official-day-heading" rowSpan={2}>Day</th>
-          <th rowSpan={2}>Batch</th>
-          {day.slots.map((slot, index) => (
-            <Fragment key={slot.start}>
-              <th>{fmtRange(slot.start, slot.end)}</th>
-              {day.breaks.filter((item) => item.afterSlot === index).map((item) => (
-                <th key={item.id} className="official-break-heading" rowSpan={2}>{item.name}</th>
-              ))}
+          <th className="official-col-day" scope="col">Day</th>
+          <th className="official-col-batch" scope="col">Batch</th>
+          {table.slots.map((label, index) => (
+            <Fragment key={index}>
+              <th scope="col">{label}</th>
+              {breaksAfter(index).map((item) => <th key={item.afterSlot} className="official-col-break official-break"><span className="official-vertical">Break</span></th>)}
             </Fragment>
           ))}
         </tr>
-        <tr>
-          {day.slots.map((slot) => <th key={slot.start} className="official-slot-caption">{slot.start} - {slot.end}</th>)}
-        </tr>
       </thead>
       <tbody>
-        {day.rows.map((row, rowIndex) => (
-          <tr key={row.batch.id}>
-            {rowIndex === 0 && <th className="official-day-spacer" rowSpan={day.rows.length + 1}>{DAY_NAMES[day.dayOfWeek]}</th>}
-            <th>{row.batch.label.replace("B", " B")}</th>
-            {row.slots.map((slot, slotIndex) => (
-              <Fragment key={slot.start}>
-                <td>
-                  {slot.meetings.map((item) => {
-                    const meeting = item.meeting;
-                    return <div key={meeting.id} className={item.validationStatus === "blocker" ? "official-cell-blocker" : ""}>
-                      <b>{meeting.courseCode}</b> ({meeting.teachers.map((teacher) => teacher.shortCode).join("/") || "UT"}) {meeting.rooms.map((room) => room.code).join("/") || "Room pending"}
-                      {meeting.customTimeLabel && <small>{meeting.customTimeLabel}</small>}
-                      {meeting.externalAudienceLabel && <small>{meeting.externalAudienceLabel}</small>}
-                    </div>;
-                  })}
-                </td>
-                {rowIndex === 0 && day.breaks.filter((item) => item.afterSlot === slotIndex).map((item) => (
-                  <td key={item.id} className="official-break-body" rowSpan={day.rows.length + 1}><span>{item.name}</span></td>
-                ))}
+        {table.rows.map((row, rowIndex) => {
+          let slot = 0;
+          return (
+            <tr key={row.batchLabel}>
+              {rowIndex === 0 && dayCell}
+              <th className="official-batch" scope="row">{row.batchLabel.replace(/B$/, " B")}</th>
+              {row.cells.map((cell, index) => {
+                slot += cell.span;
+                return <Fragment key={index}><Cell cell={cell} />{rowIndex === 0 && breakCells(slot - 1)}</Fragment>;
+              })}
+            </tr>
+          );
+        })}
+        {table.od && (
+          <tr className="official-od">
+            {table.rows.length === 0 && dayCell}
+            <th scope="row">OD</th>
+            {table.od.map((entries, index) => (
+              <Fragment key={index}>
+                <td>{entries.map((entry, entryIndex) => <Fragment key={entryIndex}>{entryIndex > 0 && <br />}{entry}</Fragment>)}</td>
+                {table.rows.length === 0 && breakCells(index)}
               </Fragment>
             ))}
           </tr>
-        ))}
-        <tr className="official-od-row">
-          <th>OD</th>
-          {day.slots.map((slot) => (
-            <td key={slot.start}>
-              {day.externals
-                .filter((item) => item.startMinutes != null && item.endMinutes != null && item.startMinutes < slot.end && item.endMinutes > slot.start)
-                .map((item) => <div key={item.id}>{item.roomCode ?? item.teacherShortCode ?? "?"} ({item.counterpartDepartment})</div>)}
-            </td>
-          ))}
-        </tr>
+        )}
       </tbody>
     </table>
   );
 }
 
+const YEAR = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
+
 function CourseAppendix({ page }: { page: Extract<OfficialAppendixPage, { kind: "courses" }> }) {
   return (
-    <div className="official-course-grid">
-      {page.semesters.map((semester) => (
-        <section key={semester.semester}>
-          <h2>{ordinalSemester(semester.semester)} Semester</h2>
-          <table className="official-appendix-table">
-            <thead><tr><th>Course Code</th><th>Course Title</th><th>Credits</th></tr></thead>
+    <div className="official-years">
+      {page.semesters.map((semester) => {
+        const year = Math.ceil(semester.semester / 2);
+        const total = semester.courses.reduce((sum, course) => sum + course.credits, 0);
+        return (
+          <table key={semester.semester} className="official-plain"
+            style={{ gridColumn: ((year - 1) % 4) + 1, gridRow: Math.floor((year - 1) / 4) * 2 + (semester.semester % 2 === 1 ? 1 : 2) }}>
+            <colgroup><col style={{ width: "15mm" }} /><col /><col style={{ width: "12mm" }} /></colgroup>
+            <thead>
+              <tr className="official-band"><th colSpan={3}>{YEAR[year - 1] ?? `${year}th`} Year, {semester.semester % 2 === 1 ? "1st" : "2nd"} Semester</th></tr>
+              <tr><th scope="col">Code</th><th scope="col">Course title</th><th scope="col" className="official-num">Credits</th></tr>
+            </thead>
             <tbody>{semester.courses.map((course) => (
-              <tr key={course.code}><td>{course.code}</td><td>{course.title}</td><td>{course.credits.toFixed(2)}</td></tr>
+              <tr key={course.code}><td>{course.code}</td><td>{course.title}</td><td className="official-num">{course.credits.toFixed(2)}</td></tr>
             ))}</tbody>
-            <tfoot><tr><th colSpan={2}>Total credit</th><th>{semester.courses.reduce((sum, course) => sum + course.credits, 0).toFixed(2)}</th></tr></tfoot>
+            <tfoot><tr><th colSpan={2}>Total credits</th><th className="official-num">{total.toFixed(2)}</th></tr></tfoot>
           </table>
-        </section>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -136,46 +199,46 @@ function DirectoryAppendix({ page }: { page: Extract<OfficialAppendixPage, { kin
   const teacherColumns = [page.teachers.slice(0, midpoint), page.teachers.slice(midpoint)];
   return (
     <div className="official-directory">
-      <h2>List of Teachers</h2>
-      <div className="official-teacher-columns">
-        {teacherColumns.map((teachers, column) => (
-          <table key={column} className="official-appendix-table">
-            <thead><tr><th>SL</th><th>Teacher&apos;s Name</th><th>Code</th><th>Mobile / Email</th></tr></thead>
-            <tbody>{teachers.map((teacher, index) => (
-              <tr key={teacher.shortCode}>
-                <td>{column * midpoint + index + 1}</td><td>{teacher.fullName}{teacher.designation ? ` (${teacher.designation})` : ""}</td>
-                <td>{teacher.shortCode}</td><td>{teacher.phone ?? "-"}{teacher.email ? <small>{teacher.email}</small> : null}</td>
-              </tr>
-            ))}</tbody>
-          </table>
-        ))}
-      </div>
-      <div className="official-cr-grid">
-        {(["HSC", "DIPLOMA"] as const).map((stream) => (
-          <section key={stream}>
-            <h2>Class Representatives - {stream === "HSC" ? "B.Sc. in CSE (HSC)" : "B.Sc. in CSE (Diploma)"}</h2>
-            <table className="official-appendix-table"><thead><tr><th>Batch</th><th>Name</th><th>Contact</th></tr></thead>
-              <tbody>{page.classRepresentatives.filter((item) => item.stream === stream).map((item) => (
-                <tr key={`${stream}-${item.batchLabel}`}><td>{item.batchLabel}</td><td>{item.fullName ?? "Not listed"}</td><td>{item.phone ?? "-"}</td></tr>
+      <div className="official-span">
+        <p className="official-section-label">Teachers</p>
+        <div className="official-directory">
+          {teacherColumns.map((teachers, column) => (
+            <table key={column} className="official-plain">
+              <colgroup><col style={{ width: "6mm" }} /><col /><col style={{ width: "11mm" }} /><col style={{ width: "19mm" }} /><col style={{ width: "41mm" }} /></colgroup>
+              <thead><tr><th scope="col" className="official-num">SL</th><th scope="col">Teacher</th><th scope="col">Code</th><th scope="col">Mobile</th><th scope="col">Email</th></tr></thead>
+              <tbody>{teachers.map((teacher, index) => (
+                <tr key={teacher.shortCode}>
+                  <td className="official-num">{column * midpoint + index + 1}</td>
+                  <td>{teacher.fullName}{teacher.designation && <small>, {teacher.designation}</small>}</td>
+                  <td>{teacher.shortCode}</td><td>{teacher.phone ?? "-"}</td><td>{teacher.email ?? ""}</td>
+                </tr>
               ))}</tbody>
             </table>
-          </section>
-        ))}
+          ))}
+        </div>
       </div>
-      <h2>For Any Query</h2>
-      <div className="official-query-grid">
-        {page.queryContacts.map((contact) => <div key={contact.fullName}><b>{contact.fullName}</b><span>{contact.designation}</span><span>Contact No: {contact.phone}</span></div>)}
-      </div>
-      {page.sourceReconciliations.some((item) => item.status === "open") && (
-        <p className="official-source-note">Source review pending: {page.sourceReconciliations.filter((item) => item.status === "open").map((item) => item.detail).join(" ")}</p>
+      {(["HSC", "DIPLOMA"] as const).map((stream) => (
+        <div key={stream}>
+          <p className="official-section-label">Class representatives, {STREAM_NAME[stream]}</p>
+          <table className="official-plain">
+            <colgroup><col style={{ width: "12mm" }} /><col /><col style={{ width: "22mm" }} /></colgroup>
+            <thead><tr><th scope="col">Batch</th><th scope="col">Class representative</th><th scope="col">Mobile</th></tr></thead>
+            <tbody>{page.classRepresentatives.filter((item) => item.stream === stream).map((item) => (
+              <tr key={item.batchLabel}><td>{item.batchLabel.replace(/B$/, " B")}</td><td>{item.fullName ?? <i>Not listed</i>}</td><td>{item.phone ?? ""}</td></tr>
+            ))}</tbody>
+          </table>
+        </div>
+      ))}
+      {page.queryContacts.length > 0 && (
+        <div className="official-span">
+          <p className="official-section-label">For any query</p>
+          <div className="official-contacts">
+            {page.queryContacts.map((contact) => (
+              <div key={contact.fullName}><b>{contact.fullName}</b>{contact.designation}<br />Mobile {contact.phone}{contact.email && <><br />{contact.email}</>}</div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
-}
-
-function ordinalSemester(value: number) {
-  const year = Math.ceil(value / 2);
-  const term = value % 2 === 1 ? "1st" : "2nd";
-  const yearLabel = year === 1 ? "1st" : year === 2 ? "2nd" : year === 3 ? "3rd" : "4th";
-  return `${yearLabel} Year ${term}`;
 }

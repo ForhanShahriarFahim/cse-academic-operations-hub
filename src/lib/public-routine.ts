@@ -3,11 +3,13 @@ import { db } from "@/db";
 import { academicTerms, scheduleVersions } from "@/db/schema";
 import type { RoutineSource } from "./routine-projection";
 import type { PublicationSnapshotV3, PublicationRoutineMetadata } from "./serialize";
+import { isTimeGrid } from "./time-grid";
+import { legacyTimeGrid } from "./time-grid-legacy";
 
 function isPublishedSnapshot(value: unknown): value is PublicationSnapshotV3 {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
-  return item.schemaVersion === 3 && typeof item.generatedAt === "string"
+  return (item.schemaVersion === 3 || (item.schemaVersion === 4 && isTimeGrid(item.timeGrid))) && typeof item.generatedAt === "string"
     && typeof item.versionNumber === "number" && Array.isArray(item.meetings)
     && Array.isArray(item.batches) && Array.isArray(item.breaks)
     && Array.isArray(item.externalCommitments) && Array.isArray(item.issues)
@@ -46,6 +48,7 @@ export async function getPublicRoutineData(): Promise<{ source: RoutineSource; m
       meetings: snapshot.meetings,
       batches: snapshot.batches,
       breaks: snapshot.breaks,
+      timeGrid: snapshot.timeGrid ?? legacyTimeGrid(snapshot.breaks),
       externals: snapshot.externalCommitments,
       issues: snapshot.issues,
     },

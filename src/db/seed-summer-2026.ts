@@ -8,6 +8,7 @@ import { parseSummer2026Routine } from "../lib/source-routine";
 import { buildSnapshot } from "../lib/serialize";
 import { analyzeSchedule } from "../lib/conflicts";
 import { getPortalDataForSeed } from "../lib/data";
+import { backfillTimeGrids } from "./time-grid-backfill";
 
 const SOURCE_LABEL = "CSE Summer-2026 Class Routine v1.6";
 const SOURCE_PATH = path.join(process.cwd(), "docs", "source", "CSE_SUMMER_2026_ROUTINE_V1_6.md");
@@ -54,7 +55,7 @@ export async function seedSummer2026Database() {
       academic_policies, workload_allocations, meeting_rooms, meeting_teachers, meetings,
       teaching_requirements, teaching_group_offerings, teaching_groups,
       course_offerings, batch_term_placements, courses, batches,
-      permitted_windows, break_rules, external_commitments,
+      day_plans, period_patterns, permitted_windows, break_rules, external_commitments,
       academic_terms, rooms, teachers, departments RESTART IDENTITY CASCADE
   `);
 
@@ -224,9 +225,11 @@ export async function seedSummer2026Database() {
     { termId: term.id, stream: "DIPLOMA", dayOfWeek: 6, startMinutes: 540, endMinutes: 960 },
     { termId: term.id, stream: "DIPLOMA", dayOfWeek: 0, startMinutes: 720, endMinutes: 1020 },
   ]);
+  // The Summer 2026 periods, as drawn before term grids existed (RUT-04).
+  await backfillTimeGrids(db);
 
   const data = await getPortalDataForSeed();
-  const issues = analyzeSchedule({ meetings: data.meetings, externals: data.externals, breaks: data.breaks, windows: data.windows });
+  const issues = analyzeSchedule({ meetings: data.meetings, externals: data.externals, breaks: data.breaks, windows: data.windows, grid: data.timeGrid });
   const blockers = issues.filter((issue) => issue.severity === "blocker");
   const publish = blockers.length === 0;
   await db.insert(schema.scheduleVersions).values({
@@ -239,6 +242,7 @@ export async function seedSummer2026Database() {
       term: { id: term.id, name: term.name, academicYear: term.academicYear, effectiveFrom: term.effectiveFrom },
       versionNumber: 1, batches: data.batches, breaks: data.breaks, externals: data.externals, issues,
       metadata: data.publicationMetadata,
+      timeGrid: data.timeGrid,
       generatedAt: "2026-08-14T09:00:00+06:00",
     }) : null,
   });
