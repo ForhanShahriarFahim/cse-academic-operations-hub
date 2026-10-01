@@ -3,7 +3,7 @@
 Issue: [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Approved 1 October 2026 (see Approval record); implementation in progress
+Status: Accepted by the owner 1 October 2026; merged to main and #35 closed.
 Branch / base: `codex/tch-02` from main `4237c0d`
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -85,7 +85,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - Source audience labels are tidied for display only.
   - The review harness seeds a second, linked teacher account.
   - An unknown teacher id is a soft 404 (streamed page), as on `/teachers/[id]`.
-- Next action: owner review of the screenshots and the running review server, then acceptance before merge.
+- Owner acceptance: 1 October 2026, in the Claude Code session, the owner replied "I accept TCH-02, go ahead and merge".
+- Next action: none for TCH-02. Choose the next issue with the owner.
 - Verification: see [verification.md](verification.md).
 - Owner request, 1 October 2026: "change the data so that block doesn't occur". This was done for test data only. `npm run ux:review -- --fresh --publishable` runs `src/db/review-publishable.ts`, which refuses any target except the disposable review copy.
   - It moves the classes behind the 13 room blockers to free rooms at the same times, publishes, and leaves one draft change for the linked teacher.

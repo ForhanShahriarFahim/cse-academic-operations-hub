@@ -2,7 +2,7 @@
 
 Issue: [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Implemented and verified 1 October 2026; owner acceptance pending
+Status: Accepted by the owner 1 October 2026 ("I accept TCH-02, go ahead and merge"); merged to main.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
