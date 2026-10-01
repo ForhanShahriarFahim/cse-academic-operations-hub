@@ -145,7 +145,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - [x] T-06 — `/account` (My account) and the shell link. Covers AC-09, AC-15 and AC-18.
 - [x] T-07 — `/access`, `/access/new` and `/access/[id]`, with confirmations, results and the effective-access summary. Covers AC-14, AC-15 and AC-18, and #31.
 - [x] T-08 — Operator command flags and the README operator notes. Covers AC-17.
-- [ ] T-09 — Adversarial checks in `test:safety`, a new `auth` group on disposable databases. It covers:
+- [x] T-09 — Adversarial checks in `test:safety`, a new `auth` group on disposable databases. It covers:
   - the link matrix and the race;
   - the sign-in matrix;
   - lockout with a controlled clock and a restart;
@@ -171,7 +171,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 - Approved scope: see Approval record (1 October 2026).
 - Commits: `bf214b8` (proposed spec), then the plan, the recorded decisions and the mockups.
-- Completed tasks: T-01–T-08. `tests/ux/accounts.spec.ts` (part of T-10) already covers the setup link, sign-in, lockout, administrator actions, own password change, axe and overflow. (with a hand-written starter list of common passwords in `src/lib/auth/common-passwords.ts`, pending the owner's go-ahead for the SecLists-derived list).
+- Completed tasks: T-01–T-09. T-10 partly done (see below). `tests/ux/accounts.spec.ts` (part of T-10) already covers the setup link, sign-in, lockout, administrator actions, own password change, axe and overflow. (with a hand-written starter list of common passwords in `src/lib/auth/common-passwords.ts`, pending the owner's go-ahead for the SecLists-derived list).
 - Implementation notes beyond the plan text:
   - Password sign-in runs only through the portal's server action (`sign-in-actions.ts` → `password-sign-in.ts`). The library's `/sign-in/email` HTTP route is disabled too, so lockout and throttling cannot be bypassed. This replaces the planned `hooks.before/after` on that route; the behaviour is the same.
   - The BUG-29 safety check now inserts its pre-0007 rows with explicit SQL and ignores time columns added after 0007, so it keeps testing the database as it was before BUG-29.
@@ -179,6 +179,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - The SAFE-01 audit probe now creates an account with `createAccountAction` (Google only), which returns results instead of throwing.
   - The set-password page reads the token once into a ref before clearing the fragment, because React may run the effect twice. A page opened without a fragment (for example after a reload) says to open the link from the message again, rather than calling it invalid.
   - On the create page the link panel replaces the form, with a link to the account, instead of moving to the account page. That keeps the link in memory only, on the page that showed it.
-- Next action: T-09 (adversarial `auth` group in `test:safety`). The common-password list download still needs the owner's go-ahead.
-- Verification so far: `typecheck`, `lint`, `test:domain` pass. `test:safety` T-01–T-04 and BUG-29 (PGlite and PostgreSQL 17) pass with 0008. A throwaway-database smoke test of the real provider passes: correct password, session stamped `password`, lockout after 5 with one audit row, unknown account refused.
+- Security review (T-10), 1 October 2026, at `69a2083`: no high- or medium-confidence findings. One hardening fix to make before merge: `safeReturnPath` in `src/lib/auth/account-policy.ts` should also refuse control characters (for example `"/	/evil.example"`, which browsers turn into `//evil.example`), or parse with `new URL` and require the same origin. Add a case to `scripts/verify-account-rules.ts`.
+- T-10 still to do: that fix; full `test:ux` run (`accounts.spec.ts` and baseline pass for the account routes); desktop/phone screenshots of the real screens into `docs/specs/AUTH-02/screenshots/`.
+- Next action: finish T-10, then T-11: final `typecheck`, `lint`, `test:domain`, `test:safety` with `SAFE01_PG_BIN`, `build`, `test:ux`; write `verification.md` mapping AC-01–AC-19; update brief/roadmap; ask the owner for acceptance. The institutional migration (backup, then 0008) waits for acceptance and the owner's go-ahead. The common-password list download still needs the owner's go-ahead.
+- Verification so far: `test:safety` AUTH-02 group passes on PGlite and PostgreSQL 17.11; `tests/ux/accounts.spec.ts` passes (7 tests). Earlier: `typecheck`, `lint`, `test:domain` pass. `test:safety` T-01–T-04 and BUG-29 (PGlite and PostgreSQL 17) pass with 0008. A throwaway-database smoke test of the real provider passes: correct password, session stamped `password`, lockout after 5 with one audit row, unknown account refused.
 - Blockers/capabilities: downloading the common-password list needs the owner's go-ahead (T-03). Google OAuth credentials are not available, so the real callback stays pending.

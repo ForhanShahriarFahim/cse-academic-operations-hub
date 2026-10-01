@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 1 October 2026: [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36) is approved and in progress** on branch `codex/auth-02`. Resume from the [plan checkpoint](specs/AUTH-02/plan.md#current-checkpoint--handoff); see also the [spec](specs/AUTH-02/spec.md) and [mockups](specs/AUTH-02/mockups/).
+**State on 1 October 2026: [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36) is approved and in progress** on branch `codex/auth-02`. T-01–T-09 are done; next are the T-10 hardening fix and screenshots, then T-11 final checks and verification. Resume from the [plan checkpoint](specs/AUTH-02/plan.md#current-checkpoint--handoff); see also the [spec](specs/AUTH-02/spec.md) and [mockups](specs/AUTH-02/mockups/).
 
 - **Last completed:** [BUG-29 / #29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29).
   - **The fix.** Every database time is now `timestamp with time zone`, so a role granted now takes effect at once, and screens show instants in Asia/Dhaka. The owner accepted it on 1 October 2026, and it was merged through PR #46.
