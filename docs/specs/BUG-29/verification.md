@@ -2,7 +2,7 @@
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: In progress. T-04 and T-05 evidence is recorded; T-06 (browser) and T-07 (final checks) are pending, and T-08 awaits the owner's go-ahead.
+Status: In progress. T-04–T-06 evidence is recorded; T-07 (final checks) is pending, and T-08 awaits the owner's go-ahead.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
@@ -11,20 +11,24 @@ Updated: 1 October 2026, Asia/Dhaka
 - **Databases:**
   - Disposable PGlite runs and a disposable PostgreSQL 17.11 cluster under `.tmp/safe-01`. The client tools come from `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`.
   - The institutional `.data/pglite-summer-2026` was only copied, for T-05; it was never opened. Its newest file is still dated 25 September 2026, 20:22.
+- **Browser (T-06):** the Claude desktop browser pane, against `npm run ux:review` on port 3100. The review data was built as the worst case for this bug:
+  - The review database was rebuilt with `npm run ux:review -- --fresh --publishable --prepare-only` under the normal zone. Its `postgresql.conf` therefore holds `timezone = 'Etc/GMT-6'`, and 0007 was applied when it was created.
+  - The server was then started with `TZ=UTC npm run ux:review`, so a UTC+06 database sits behind a UTC server process.
+  - The leftover review server from 13:08 was stopped first, at the owner's request, and this one was stopped afterwards.
 
 ## Acceptance results
 
 | ID | Result | Evidence |
 |---|---|---|
-| AC-01 | **Pass (database level)** | `test:safety`, BUG-29 groups, PGlite and PostgreSQL: in UTC, `Etc/GMT-6` and `America/New_York`, a role granted with the column default is returned at once by `selectActiveAssignments` (the production predicate), and a role revoked with `active_to = now` is excluded. An `auth:bootstrap` child in `Etc/GMT-6` grants a role that is in force at once, with a true-time audit event. The People & Access action writes the same column default as the in-process insert. |
+| AC-01 | **Pass** | `test:safety`, BUG-29 groups, PGlite and PostgreSQL: in UTC, `Etc/GMT-6` and `America/New_York`, a role granted with the column default is returned at once by `selectActiveAssignments` (the production predicate), and a role revoked with `active_to = now` is excluded. An `auth:bootstrap` child in `Etc/GMT-6` grants a role that is in force at once, with a true-time audit event. The People & Access action writes the same column default as the in-process insert.<br>**Browser (T-06):**<ul><li>Signed in as the teacher-role review account, `/access` redirected to `/forbidden`.</li><li>The administrator then added "system administrator" to that account in People & Access (10:33:22 UTC).</li><li>Six seconds later the teacher's session opened People & Access, with the header showing "Teacher, System administrator" ([screenshot](screenshots/access-role-in-force-at-once.jpg)).</li></ul> |
 | AC-02 | **Pass** | Same groups: in all three zones, on both adapters, a default-stamped audit time falls within the harness's clock window. An application write of the same instant reads back equal to the millisecond. |
 | AC-03 | **Pass** | Same groups: after migrating, the catalog's instant and date columns match the schema exactly (34 `timestamptz`, date columns unchanged, no `timestamp without time zone`). T-05 copy: 34 columns, all `timestamptz`. |
 | AC-04 | **Pass** | T-05 rehearsal on a copy of the local database, migrated from 0005 to 0007 plus the grid backfill (report below). Every one of the 217 stored values moved by exactly its class's correction. Row counts and every non-time column are unchanged in all 36 pre-existing tables. The test groups cover the same rule for every write-path class, including the mixed `updated_at` rule. |
 | AC-05 | **Pass** | T-05: the bootstrap administrator's role is in force on the migrated copy. A role granted now is in force at once (start 15 ms from now). |
 | AC-06 | **Pass** | Same groups: fresh migration from empty on PGlite, and on PostgreSQL databases set to UTC, `Etc/GMT-6` and `America/New_York` (the cluster's server zone is UTC). |
 | AC-07 | **Pass** | T-05: a SAFE-01 cold backup of the pre-migration copy restored into a separate run with an identical fingerprint (schema, sequences, every table's rows): 6 migrations and 30 legacy time columns. The migrated copy's fingerprint differs from it. |
-| AC-08 | **Pass (database level)**; browser pending | Same groups: a token round-trips exactly after the upgrade and changes on save. The existing SAFE-01 T-03 check ("a stale edit refused with no change") passes on PGlite and PostgreSQL with the new column types. The browser flow is T-06. |
-| AC-09 | Pending | T-06. |
+| AC-08 | **Pass** | Same groups: a token round-trips exactly after the upgrade and changes on save. The existing SAFE-01 T-03 check ("a stale edit refused with no change") passes on PGlite and PostgreSQL with the new column types. **Browser (T-06):** two tabs opened Days & periods.<ul><li>The first saved Diploma Friday unchanged: "Periods saved: Diploma Friday."</li><li>The second, opened before that save, was refused with "Someone else changed these periods since you opened them. Reload the page to see the latest version." ([screenshot](screenshots/days-periods-stale-edit.jpg)).</li></ul> |
+| AC-09 | **Pass** | Browser, server under `TZ=UTC` (T-06). The machine clock read 10:29 UTC, which is 16:29 in Dhaka.<ul><li>`/publications` shows v2 published "1 Oct 2026, 16:25" ([screenshot](screenshots/publications-utc-server.jpg)). The version was published at about 10:25 UTC, which the old code would have shown as 10:25.</li><li>The routine page's document reads "Generated 1 Oct 2026, 16:29." That line is in the print-only document, so it was read from the page text.</li><li>No console errors in either tab, and no errors or hydration warnings in the server log.</li></ul> |
 | AC-10 | Partial | `test:safety` with PostgreSQL passed all groups (11 min 23 s) on `df11ed2`. `typecheck`, `lint` and `test:domain` passed per task; the final run and `build` are T-07. |
 
 ## T-05 rehearsal report
@@ -80,6 +84,6 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
 ## Delivery and acceptance
 
 - Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2` and the T-05 commit.
-- Remaining gates: T-06 browser check, T-07 final checks, the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead.
+- Remaining gates: T-07 final checks, the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead.
 - Owner acceptance: Pending.
 - Merge / closure: Pending.

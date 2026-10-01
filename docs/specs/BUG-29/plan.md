@@ -3,7 +3,7 @@
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-05 done)
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-06 done)
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -75,7 +75,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - It also checks that the bootstrap administrator's role is effective and that a role granted now is effective at once.
   - Finally it restores the backup into a separate run, compares that fingerprint with the pre-migration one, and removes both runs.
   - Covers AC-04, AC-05 and AC-07; depends on T-01, T-02 and T-04.
-- [ ] T-06 — **Browser check.** Run `npm run ux:review -- --fresh --publishable` with the server under `TZ=UTC`. Confirm that `/publications` and the routine document show Asia/Dhaka wall time, and capture a screenshot. Also confirm that Days & periods still saves an unchanged pattern and rejects a stale edit (AC-08, AC-09). If Node on Windows ignores `TZ`, record that and use another way to force UTC rather than marking AC-09 passed.
+- [x] T-06 — **Browser check.** Run `npm run ux:review -- --fresh --publishable` with the server under `TZ=UTC`. Confirm that `/publications` and the routine document show Asia/Dhaka wall time, and capture a screenshot. Also confirm that Days & periods still saves an unchanged pattern and rejects a stale edit (AC-08, AC-09). If Node on Windows ignores `TZ`, record that and use another way to force UTC rather than marking AC-09 passed.
 - [ ] T-07 — **Final checks and records.**
   - Run `typecheck`, `lint`, `test:domain`, `build` and `test:safety` with `SAFE01_PG_BIN`.
   - Review the diff.
@@ -106,9 +106,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 pushed as checkpoint `df11ed2`; T-05 (rehearsal script and `verification.md`) committed and pushed after it.
-- Completed tasks: T-01–T-05.
-- Next action: T-06. A `ux:review` server on a disposable copy, started outside this session at 13:08 on 1 October, still holds port 3100. It must be stopped, or the owner asked, before T-06 restarts it under `TZ=UTC`.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 pushed as checkpoint `df11ed2`; T-05 and T-06 (rehearsal, `verification.md`, screenshots) committed and pushed after it.
+- Completed tasks: T-01–T-06.
+- Next action: T-07 (final checks, diff review, README/runbook/brief/roadmap updates). Port 3100 is free, and no review server is running.
 - Verification: [verification.md](verification.md) holds results per AC, including the T-05 report. The notes below record each task.
 - Task notes: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
 
