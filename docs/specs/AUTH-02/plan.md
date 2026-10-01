@@ -141,8 +141,8 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - [x] T-02 — Provider configuration: the two config flags, email/password with sign-up and the reset/change paths disabled, sign-in hooks, lockout counting, the session method stamp, the actor's method check, linking settings and rate limits. Covers AC-04–AC-06, AC-08 and AC-10.
 - [x] T-03 — Pure modules: password rules with the common list, links, access summary and account rules, with tests in `test:domain`. Covers AC-07, AC-11 and AC-15.
 - [x] T-04 — Administrator actions and the person's own actions, with audit and session revocation, and the last-administrator lock. Covers AC-01–AC-03, AC-09, AC-11–AC-13.
-- [ ] T-05 — `/login` and `/set-password` screens. Covers AC-01, AC-04, AC-06, AC-07 and AC-18.
-- [ ] T-06 — `/account` (My account) and the shell link. Covers AC-09, AC-15 and AC-18.
+- [x] T-05 — `/login` and `/set-password` screens. Covers AC-01, AC-04, AC-06, AC-07 and AC-18.
+- [x] T-06 — `/account` (My account) and the shell link. Covers AC-09, AC-15 and AC-18.
 - [x] T-07 — `/access`, `/access/new` and `/access/[id]`, with confirmations, results and the effective-access summary. Covers AC-14, AC-15 and AC-18, and #31.
 - [ ] T-08 — Operator command flags and the README operator notes. Covers AC-17.
 - [ ] T-09 — Adversarial checks in `test:safety`, a new `auth` group on disposable databases. It covers:
@@ -171,13 +171,14 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 - Approved scope: see Approval record (1 October 2026).
 - Commits: `bf214b8` (proposed spec), then the plan, the recorded decisions and the mockups.
-- Completed tasks: T-01, T-02, T-03, T-04, T-07 (browser flows and axe follow in T-10) (with a hand-written starter list of common passwords in `src/lib/auth/common-passwords.ts`, pending the owner's go-ahead for the SecLists-derived list).
+- Completed tasks: T-01–T-07. `tests/ux/accounts.spec.ts` (part of T-10) already covers the setup link, sign-in, lockout, administrator actions, own password change, axe and overflow. (with a hand-written starter list of common passwords in `src/lib/auth/common-passwords.ts`, pending the owner's go-ahead for the SecLists-derived list).
 - Implementation notes beyond the plan text:
   - Password sign-in runs only through the portal's server action (`sign-in-actions.ts` → `password-sign-in.ts`). The library's `/sign-in/email` HTTP route is disabled too, so lockout and throttling cannot be bypassed. This replaces the planned `hooks.before/after` on that route; the behaviour is the same.
   - The BUG-29 safety check now inserts its pre-0007 rows with explicit SQL and ignores time columns added after 0007, so it keeps testing the database as it was before BUG-29.
   - The SAFE-01 controlled runtime's provider stub exports `authConfigured` and a session sign-in method.
   - The SAFE-01 audit probe now creates an account with `createAccountAction` (Google only), which returns results instead of throwing.
+  - The set-password page reads the token once into a ref before clearing the fragment, because React may run the effect twice. A page opened without a fragment (for example after a reload) says to open the link from the message again, rather than calling it invalid.
   - On the create page the link panel replaces the form, with a link to the account, instead of moving to the account page. That keeps the link in memory only, on the page that showed it.
-- Next action: T-05 (login and set-password screens). The common-password list download still needs the owner's go-ahead.
+- Next action: T-08 (operator command flags and README). The common-password list download still needs the owner's go-ahead.
 - Verification so far: `typecheck`, `lint`, `test:domain` pass. `test:safety` T-01–T-04 and BUG-29 (PGlite and PostgreSQL 17) pass with 0008. A throwaway-database smoke test of the real provider passes: correct password, session stamped `password`, lockout after 5 with one audit row, unknown account refused.
 - Blockers/capabilities: downloading the common-password list needs the owner's go-ahead (T-03). Google OAuth credentials are not available, so the real callback stays pending.

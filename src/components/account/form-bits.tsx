@@ -2,6 +2,7 @@
 
 import { useId, useState, type InputHTMLAttributes, type ReactNode } from "react";
 import { Check, CircleAlert, Copy, Link2 } from "lucide-react";
+import type { CapabilityLine } from "@/lib/auth/access-summary";
 import type { ActionResult } from "@/lib/action-result";
 import { passwordChecks } from "@/lib/auth/password-rules";
 import { fmtInstant } from "@/lib/auth/display";
@@ -148,3 +149,19 @@ export function Chip({ tone = "neutral", children }: { tone?: "neutral" | "pine"
   return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-px text-[12px] font-medium ${tones[tone]}`}>{children}</span>;
 }
 
+
+/** What a person can do, one line per permission. A scope shared by every line is said once. */
+export function CapabilityList({ lines, empty }: { lines: CapabilityLine[]; empty?: string }) {
+  if (!lines.length) return empty ? <p className="px-4 pb-4 text-[13px] text-muted">{empty}</p> : null;
+  const details = [...new Set(lines.map((line) => line.detail).filter((detail): detail is string => detail != null))];
+  const shared = details.length === 1 && lines.filter((line) => line.detail != null).length > 1 ? details[0] : null;
+  return <>
+    <ul className="grid gap-2 px-4 pb-3 text-[13.5px]">
+      {lines.map((line) => <li key={line.capability} className="grid grid-cols-[16px_minmax(0,1fr)] gap-2">
+        <Check size={15} strokeWidth={2.2} aria-hidden="true" className="mt-0.5 text-[var(--color-pine)]" />
+        <span>{line.label}{line.detail && line.detail !== shared ? <small className="block text-[12px] text-muted">{line.detail}</small> : null}</span>
+      </li>)}
+    </ul>
+    {shared ? <p className="px-4 pb-3 text-[12.5px] text-muted">Applies to: {shared}</p> : null}
+  </>;
+}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState, useTransition, type ReactNode } from "react";
-import { Ban, Check, KeyRound, Laptop, Link2, Lock, Smartphone } from "lucide-react";
+import { Ban, KeyRound, Laptop, Link2, Lock, Smartphone } from "lucide-react";
 import {
   clearLockAction, endRoleAction, grantRoleAction, issueLinkAction, revokeLinkAction, setMethodsAction, setStatusAction,
   signOutEverywhereAction, updateDetailsAction, type AccountActionResult, type IssuedLink,
@@ -14,7 +14,7 @@ import { activityText, deviceLabel, fmtDay, fmtInstant, fmtLastDay, isPhone } fr
 import { ROLES } from "@/lib/auth/policy";
 import { useConfirm } from "@/components/confirm-dialog";
 import { PageHeader, StatusText } from "@/components/ui";
-import { Chip, FieldError, IssuedLinkPanel, ResultNotice, TextField, buttonClass, fieldErrors, inputClass } from "./form-bits";
+import { CapabilityList, Chip, FieldError, IssuedLinkPanel, ResultNotice, TextField, buttonClass, fieldErrors, inputClass } from "./form-bits";
 
 interface TeacherOption { id: number; code: string; name: string }
 type Action = (previous: AccountActionResult | null, formData: FormData) => Promise<AccountActionResult>;
@@ -226,16 +226,6 @@ export function AccountManager({ detail, teachers, viewerId, googleConfigured }:
       </div>
     </div>
   </div>;
-}
-
-function CapabilityList({ lines, empty }: { lines: AccountDetail["summary"]["now"]; empty?: string }) {
-  if (!lines.length) return empty ? <p className="px-4 pb-4 text-[13px] text-muted">{empty}</p> : null;
-  return <ul className="grid gap-2 px-4 pb-3.5 text-[13.5px]">
-    {lines.map((line) => <li key={line.capability} className="grid grid-cols-[16px_minmax(0,1fr)] gap-2">
-      <Check size={15} strokeWidth={2.2} aria-hidden="true" className="mt-0.5 text-[var(--color-pine)]" />
-      <span>{line.label}{line.detail ? <small className="block text-[12px] text-muted">{line.detail}</small> : null}</span>
-    </li>)}
-  </ul>;
 }
 
 type ConfirmThen = (request: Parameters<ReturnType<typeof useConfirm>[0]>[0], action: Action, fields: FormData, after?: (result: AccountActionResult) => void) => Promise<void>;

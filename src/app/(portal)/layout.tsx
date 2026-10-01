@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PortalShell } from "@/components/portal-shell";
 import { getTermPublicationState } from "@/lib/data";
@@ -33,7 +34,10 @@ export default async function PortalLayout({ children }: { children: React.React
       publishedVersion={publishedVersion}
       displayName={actor.displayName}
       roleLabel={roleLabel}
-      account={<SignOutButton />}
+      account={<>
+        <Link href="/account" className="mt-1 block w-fit text-[12.5px] font-medium text-[#f0c98a] underline underline-offset-2">My account</Link>
+        <SignOutButton />
+      </>}
     >
       {children}
     </PortalShell>

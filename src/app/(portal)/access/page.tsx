@@ -66,7 +66,7 @@ export default async function AccessPage({ searchParams }: { searchParams: Promi
       {figures.map((figure) => <div key={figure.label} className="border-[var(--color-line-soft)] py-3 pr-3 lg:border-l lg:pl-4 lg:first:border-l-0 lg:first:pl-0">
         <dt className="text-[12.5px] text-muted">{figure.label}</dt>
         <dd className="font-display tabular mt-0.5 text-[26px] font-semibold leading-tight">{figure.value}</dd>
-        <p className="text-[12px] text-muted">{figure.sub}</p>
+        <dd className="text-[12px] text-muted">{figure.sub}</dd>
       </div>)}
     </dl>
 
