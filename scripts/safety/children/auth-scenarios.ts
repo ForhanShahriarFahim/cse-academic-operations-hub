@@ -18,6 +18,7 @@ import type * as StoreModule from "../../../src/lib/auth/account-store";
 import type * as AdminModule from "../../../src/lib/auth/admin-actions";
 import type * as AccountModule from "../../../src/lib/auth/account-actions";
 import type * as PolicyModule from "../../../src/lib/auth/account-policy";
+import type * as RouteModule from "../../../src/app/api/auth/[...all]/route";
 
 const { db } = loadApp<typeof DbModule>("src/db/index.ts");
 const schema = loadApp<typeof SchemaModule>("src/db/schema.ts");
@@ -213,7 +214,17 @@ async function signInMatrix() {
 
   // AC-06: all of the above ran with no Google settings at all.
   assert.equal(process.env.GOOGLE_CLIENT_ID ?? "", "");
-  lines.push("Password sign-in works with Google unconfigured");
+  // #49: the auth route used to refuse everything without Google, so Sign out did nothing.
+  const route = loadApp<typeof RouteModule>("src/app/api/auth/[...all]/route.ts");
+  const cookie = await signIn("teacher@example.invalid", "plain teacher long phrase");
+  const before = (await sessionsOf("teacher@example.invalid")).length;
+  const signOut = await route.POST(new Request(`${process.env.BETTER_AUTH_URL}/api/auth/sign-out`, {
+    method: "POST", headers: { origin: process.env.BETTER_AUTH_URL!, cookie: `better-auth.session_token=${cookie}` },
+  }));
+  assert.equal(signOut.status, 200, `sign-out through the route: ${signOut.status}`);
+  assert.equal((await sessionsOf("teacher@example.invalid")).length, before - 1, "sign-out removes that session");
+  assert.equal(await actorWith(cookie), null, "the signed-out cookie no longer works");
+  lines.push("Password sign-in and sign-out work with Google unconfigured");
 }
 
 async function lockout(alphaCookie: string) {

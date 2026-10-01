@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage).
+**State on 2 October 2026: [BUG-49 / #49](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/49) is fixed on branch `codex/bug-49`, awaiting owner acceptance** (Sign out failed without Google; the dev log printed link tokens). Record: [verification](specs/BUG-49/verification.md). After that: choose the next issue with the owner (see Other candidates and the brainstorm triage).
 
 - **Last completed:** [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36), email/password sign-in with administrator setup and reset links, lockout, session revocation, dated roles and the rebuilt People & Access (also closes #31).
   - **Accepted** by the owner on 2 October 2026 and merged. The institutional database was cold-backed-up (`F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-AUTH-02-20261002-0119`, with its SHA-256 manifest) and migrated to 0008; all 38 existing tables are unchanged.
