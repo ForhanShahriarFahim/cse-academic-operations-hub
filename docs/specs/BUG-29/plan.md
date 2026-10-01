@@ -3,7 +3,7 @@
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md) (created during T-07)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-02 done)
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); in progress (T-01–T-03 done)
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -59,7 +59,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - Write `drizzle/0007_instant-timestamps.sql` and its journal entry: the guard, the mixed columns first, then the default-stamped and application-written groups, then the future-value check.
   - Covers AC-03 and AC-04 (conversion); no dependencies.
 - [x] T-02 — **Access query seam.** Move the assignment query in `getOptionalActor()` into an exported `selectActiveAssignments(db, userId, now)` in `src/lib/auth/`, with no behavior change, so the regression check runs the exact production predicate. Covers AC-01.
-- [ ] T-03 — **Displays.** Pass `timeZone: INSTITUTION.timeZone` in the two zone-less formatters. Search again for other zone-less instant formatting and fix any found. Covers AC-09.
+- [x] T-03 — **Displays.** Pass `timeZone: INSTITUTION.timeZone` in the two zone-less formatters. Search again for other zone-less instant formatting and fix any found. Covers AC-09.
 - [ ] T-04 — **Regression group.** Add `scripts/safety/time-zone.check.ts` as group `BUG-29 time zones` in `npm run test:safety`. The PostgreSQL half stays PENDING without `SAFE01_PG_BIN`, as the existing T-06 group does. On disposable PGlite and PostgreSQL 17 it checks:
   - **Round trip:** under session zones `UTC`, `Etc/GMT-6` and `America/New_York`, a default-stamped and an application-written value for the same instant read back as equal `Date`s (AC-02).
   - **Access timing:** a role inserted with the production default, and one written by an `auth:bootstrap` child run, are returned at once by `selectActiveAssignments`. A role revoked with `active_to = now` is excluded at once (AC-01).
@@ -104,8 +104,14 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01 and T-02 are committed locally as unfinished checkpoints, not pushed; they are pushed together with T-03–T-04 after their focused checks.
-- Completed tasks: T-01, T-02.
-- Next action: T-03.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-03 are committed locally as unfinished checkpoints, not pushed; they are pushed together with T-04 after its focused checks.
+- Completed tasks: T-01, T-02, T-03.
+- Next action: T-04.
 - Verification: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
+
+T-03 named `Asia/Dhaka` on the two zone-less formatters. The wider search found one more zone-dependent display: the dashboard's "today's classes" took the weekday from the server clock (`new Date().getDay()`). On a UTC server that shows the previous day's classes between 00:00 and 06:00 Dhaka time. It now uses `todayIndex()` (`src/lib/teacher-routine-data.ts`), and the unused `jsDayToAcademic` was removed. Every other instant formatter already names a zone, and `fmtDate` formats date-only strings.
+
+Under `TZ=UTC` (Node on Windows honours it), 02:30 on Saturday 3 October in Dhaka formerly displayed as "2 Oct 2026, 20:30" with Friday's classes. It now displays "3 Oct 2026, 02:30" with Saturday's. `typecheck`, `eslint` and `test:domain` pass.
+
+**Never start the dev server against the institutional database.** It migrates its target, so before T-08 the browser check (T-06) uses a disposable `ux:review` copy only.
 - Blockers/capabilities: T-08 needs the owner's go-ahead. The PostgreSQL checks need `SAFE01_PG_BIN`; the tools are installed outside the repo.

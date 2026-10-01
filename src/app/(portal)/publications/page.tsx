@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { INSTITUTION } from "@/lib/constants";
 import { getPortalData } from "@/lib/data";
 import { analyzeSchedule } from "@/lib/conflicts";
 import { fmtDate } from "@/lib/time";
@@ -68,7 +69,7 @@ export default async function PublicationsPage() {
                     <td className="py-2 font-mono">{v.meetingCount || "—"}</td>
                     <td className="py-2 text-[11px] text-muted">
                       {v.publishedBy ?? "—"}
-                      {v.publishedAt && <span className="block text-[10px] text-muted">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>}
+                      {v.publishedAt && <span className="block text-[10px] text-muted">{new Date(v.publishedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: INSTITUTION.timeZone })}</span>}
                     </td>
                     <td className="max-w-[220px] py-2 text-[11px] leading-snug text-muted">{v.changeSummary}</td>
                   </tr>

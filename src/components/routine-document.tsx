@@ -69,7 +69,7 @@ export function RoutineDocument({
               <p>* Exact/custom times are authoritative even when they differ from a display column.</p>
               <p>Shared labels denote one canonical physical class serving multiple audiences.</p>
               <p>Validation: {projection.issueCount.blockers} blockers · {projection.issueCount.warnings} advisories.</p>
-              <p>Generated {new Date(source.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}.</p>
+              <p>Generated {new Date(source.generatedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: INSTITUTION.timeZone })}.</p>
             </div>
             <div className="mt-7 grid grid-cols-3 gap-6 text-center text-[10px] text-ink-2">
               {["Course Coordinator, CSE", "Head, Dept. of CSE", "Registrar"].map((role) => <div key={role} className="min-w-0"><div className="mx-auto mb-1 h-px w-full max-w-36 bg-[#9a947e]" /><p className="font-semibold">{role}</p></div>)}

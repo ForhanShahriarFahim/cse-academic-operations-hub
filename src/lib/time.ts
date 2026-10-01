@@ -88,8 +88,3 @@ export function fmtDate(iso: string | null | undefined): string {
   if (!y || !mo || !d) return iso;
   return `${d} ${MONTHS[mo - 1]} ${y}`;
 }
-
-/** JS getDay() (0=Sun … 6=Sat) → our academic day index (0=Sat … 6=Fri). */
-export function jsDayToAcademic(jsDay: number): number {
-  return (jsDay + 1) % 7;
-}
