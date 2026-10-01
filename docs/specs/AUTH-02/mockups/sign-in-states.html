@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign-in states — AUTH-02 mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../UX-01/mockups/mockup.css">
+<link rel="stylesheet" href="auth.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/><path d="M4 4l16 16"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+</svg>
+<main class="states" id="main">
+  <h1>Sign-in and setup states</h1>
+  <p>The card content of the sign-in and set-password pages in their other states. The department panel on the left stays the same.</p>
+
+  <div class="state-grid">
+    <section class="st-card" aria-labelledby="s1">
+      <header><b>Sign in without Google configured</b><span>/login</span></header>
+      <h2 id="s1">Sign in</h2>
+      <p>Use the email address your administrator set up for you.</p>
+      <form>
+        <label class="field"><span>Email</span><input type="email" autocomplete="username" placeholder="name@pundra.example"></label>
+        <label class="field"><span>Password</span><span class="pw"><input type="password" autocomplete="current-password"><button type="button">Show</button></span></label>
+        <button class="btn primary block" type="submit">Sign in</button>
+      </form>
+      <p class="hint" style="margin:12px 0 0">No Google button, because Google sign-in is not set up on this server. Nothing else changes.</p>
+    </section>
+
+    <section class="st-card" aria-labelledby="s2">
+      <header><b>Link can no longer be used</b><span>/set-password</span></header>
+      <div class="notice block" role="alert"><svg><use href="#i-link"/></svg><span>This link can no longer be used. Ask the portal administrator for a new one.</span></div>
+      <p>The same message appears whether the link was already used, expired, replaced by a newer one, revoked, mistyped or belongs to a suspended account. It never says which.</p>
+      <a class="btn" href="sign-in.html">Go to sign in</a>
+    </section>
+
+    <section class="st-card" aria-labelledby="s3">
+      <header><b>Someone else is signed in on this device</b><span>/set-password</span></header>
+      <h2 id="s3">Choose your password</h2>
+      <div class="notice warn" role="status"><svg><use href="#i-user"/></svg><span class="grow"><b>Nasrin Akter</b> is signed in on this browser. To set up <b>Tanvir Ahmed Sarker</b>’s account, sign Nasrin out first.</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button">Sign out and continue</button><a class="btn" href="#">Keep me signed in</a></div>
+    </section>
+
+    <section class="st-card" aria-labelledby="s4">
+      <header><b>Password refused, explained at the field</b><span>/set-password</span></header>
+      <h2 id="s4">Choose your password</h2>
+      <form>
+        <div class="field invalid">
+          <span>New password</span>
+          <span class="pw"><input type="password" autocomplete="new-password" value="••••••••••" aria-invalid="true" aria-describedby="e4 r4"><button type="button">Show</button></span>
+          <p class="err" id="e4"><svg><use href="#i-alert"/></svg><span>Use at least 12 characters. This one has 10.</span></p>
+          <ul class="rules" id="r4">
+            <li class="todo"><svg><use href="#i-x"/></svg>At least 12 characters. Spaces are fine.</li>
+            <li class="met"><svg><use href="#i-ok"/></svg>Not a commonly used password</li>
+            <li class="met"><svg><use href="#i-ok"/></svg>Does not contain “tanvir.sarker”</li>
+          </ul>
+        </div>
+        <button class="btn primary block" type="submit">Save password and sign in</button>
+      </form>
+    </section>
+  </div>
+</main>
+</body>
+</html>

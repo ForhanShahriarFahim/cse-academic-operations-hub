@@ -1,7 +1,7 @@
 # AUTH-02 — Email/password sign-in and account administration
 
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
-Status: Proposed. Owner decisions D-1–D-7 are needed before the plan is approved.
+Status: Proposed. The owner accepted every recommended decision (D-1–D-7) on 1 October 2026. Plan approval is pending; see the [plan](plan.md).
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline
@@ -133,11 +133,11 @@ All screens work by keyboard, label every control, connect errors to their field
 | AC-18 | The login, set-password, My account and People & Access screens work on a phone and by keyboard, without page-wide horizontal scroll. | Browser review at 375 px and keyboard pass |
 | AC-19 | Typecheck, lint, domain tests, safety tests and build pass. A security review of the branch has no open high findings. | Command output and review record |
 
-## Decisions for the owner
+## Decisions
 
-Each has a recommendation. The plan uses the recommendation unless the owner decides otherwise.
+The owner accepted every recommendation on 1 October 2026, in the Claude Code session ("Accept all recommendations, write the plan and mockups"). The plan builds on these answers.
 
-| ID | Question | Recommendation |
+| ID | Question | Decision (as recommended) |
 |---|---|---|
 | D-1 | How does a new person get their first password? | **One-time setup link** that the administrator copies and sends by hand (for example by WhatsApp or in person). The alternative is a temporary password that must be changed at first sign-in, but then the administrator knows a working password. |
 | D-2 | Which sign-in methods does a new account get? Do all teachers have university Google accounts? | The administrator ticks **Password**, **Google** or both. **Password** is the default, because Google accounts are not confirmed for every teacher. |
