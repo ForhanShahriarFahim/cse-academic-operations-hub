@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 1 October 2026: [#29 / BUG-29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29) approved, implementation not started** on branch `codex/bug-29`. Database-stamped times are 6 hours ahead, so new roles take effect late. The owner approved the [spec](specs/BUG-29/spec.md) with recommended D-1–D-3 on 1 October 2026. Next: T-01 in the [plan](specs/BUG-29/plan.md). Migrating the institutional database (T-08) needs a separate owner go-ahead.
+**State on 1 October 2026: [#29 / BUG-29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29) in progress** on branch `codex/bug-29`. Database-stamped times are 6 hours ahead, so new roles take effect late. The owner approved the [spec](specs/BUG-29/spec.md) with recommended D-1–D-3 on 1 October 2026. T-01 (schema and migration) is done; progress and the next task are in the [plan](specs/BUG-29/plan.md#current-checkpoint--handoff). Migrating the institutional database (T-08) needs a separate owner go-ahead.
 
 - **Last completed:** [TCH-02 / #35](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35), the individual teacher routine: My routine, each teacher's routine, a phone agenda, an A4 portrait print in the department's template, and bulk print. The owner accepted it on 1 October 2026.
   - Records: [spec](specs/TCH-02/spec.md), [plan](specs/TCH-02/plan.md), [verification/acceptance](specs/TCH-02/verification.md). Review published views with `npm run ux:review -- --fresh --publishable`. That clears the 13 room blockers in the disposable copy only, then publishes. The real blockers remain for the owner.
