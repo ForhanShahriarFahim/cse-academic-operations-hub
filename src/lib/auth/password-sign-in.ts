@@ -54,8 +54,10 @@ export async function recordFailedSignIn(userId: number, now: Date): Promise<boo
     const [row] = await tx.update(portalUsers).set({
       failedSignIns: sql`case when ${portalUsers.failedSignIns} + 1 >= ${MAX_FAILED_SIGN_INS} then 0 else ${portalUsers.failedSignIns} + 1 end`,
       lockedUntil: sql`case when ${portalUsers.failedSignIns} + 1 >= ${MAX_FAILED_SIGN_INS} then ${until.toISOString()}::timestamptz else ${portalUsers.lockedUntil} end`,
-    }).where(eq(portalUsers.id, userId)).returning({ lockedUntil: portalUsers.lockedUntil, displayName: portalUsers.displayName });
-    const locked = row?.lockedUntil?.getTime() === until.getTime();
+    }).where(eq(portalUsers.id, userId)).returning({ failedSignIns: portalUsers.failedSignIns });
+    // Only the failure that locks resets the count to 0; comparing lock times would also
+    // match a concurrent failure in the same millisecond and audit the lock twice.
+    const locked = row?.failedSignIns === 0;
     if (row && locked) {
       await tx.insert(auditEvents).values({
         actor: "sign-in lockout", actorDisplayName: "Sign-in lockout (automatic)", actorKind: "system",

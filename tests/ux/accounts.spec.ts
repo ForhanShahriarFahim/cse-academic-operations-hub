@@ -219,6 +219,34 @@ test("changing my password keeps this device and signs out the others (AC-09)", 
   await admin.close();
 });
 
+test("keyboard: sign-in order, and confirmations focus Cancel and return focus (AC-18)", async ({ browser, page }) => {
+  await page.goto("/login", { waitUntil: "networkidle" });
+  const order: string[] = [];
+  for (let step = 0; step < 6; step++) {
+    await page.keyboard.press("Tab");
+    order.push(await page.evaluate(() => {
+      const element = document.activeElement as HTMLElement;
+      return element.getAttribute("aria-label") ?? (element.labels?.[0]?.textContent ?? element.textContent ?? "").trim();
+    }));
+  }
+  expect(order).toEqual(["Skip to content", "View the published routine", "Email", "Password", "Show password", "Sign in"]);
+
+  const admin = await asAdmin(browser);
+  const adminPage = await admin.newPage();
+  const id = unique();
+  const { accountUrl } = await createAccount(adminPage, `Keys Person ${id}`, `keys-${id}@example.test`);
+  await adminPage.goto(accountUrl, { waitUntil: "networkidle" });
+  const suspend = adminPage.getByRole("button", { name: "Suspend account…" });
+  await suspend.focus();
+  await adminPage.keyboard.press("Enter");
+  const dialog = adminPage.getByRole("dialog");
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await adminPage.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(suspend).toBeFocused();
+  await admin.close();
+});
+
 test("account screens: no axe violations and no page-wide overflow (AC-14, AC-18)", async ({ browser }) => {
   const admin = await asAdmin(browser);
   const page = await admin.newPage();

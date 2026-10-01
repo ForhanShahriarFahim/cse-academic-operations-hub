@@ -83,6 +83,12 @@ export const auth = betterAuth({
           if (!signInMethod) return false;
           return { data: { ...session, signInMethod } };
         },
+        // "Last signed in" for Google; password sign-in records it with the lockout reset.
+        after: async (session) => {
+          if ((session as { signInMethod?: string }).signInMethod !== "google") return;
+          await db.update(portalUsers).set({ lastLoginAt: new Date() })
+            .where(eq(sql`lower(${portalUsers.email})`, sql`(select lower(${authUser.email}) from ${authUser} where ${authUser.id} = ${session.userId})`));
+        },
       },
     },
   },
