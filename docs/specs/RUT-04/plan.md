@@ -104,5 +104,5 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
   - Multi-period classes are merged cells; breaks are a grey column; OD bookings are a plain italic row; the minutes caption row is removed.
   - Courses: four year columns (1st/2nd semester stacked). Contacts: teachers in two tables with separate Mobile and Email columns, class representatives per program, three query boxes. No source-review note in print.
   - A fit check (body overflow, cells outside the frame, clipped text) passes on all 5 pages on screen and in print.
-  - Owner feedback, 1 October 2026: the lab-block row now shows each time above its classes (not beside them); the "Head, Department of CSE" signature line is dropped; the serif/condensed-sans type pairing is accepted. Overall design approval is still pending.
+  - Owner feedback, 1 October 2026: the lab-block row now shows each time above its classes (not beside them), with a thin rule under the time; the "Head, Department of CSE" signature line is dropped; the serif/condensed-sans type pairing is accepted. Overall design approval is still pending.
 - Blockers/capabilities: none.
