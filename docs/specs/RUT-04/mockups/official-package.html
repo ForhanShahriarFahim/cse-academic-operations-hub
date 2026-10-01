@@ -141,7 +141,7 @@ function dayTable(d) {
     for (const cell of r.cells) {
       const span = cell?.span ?? 1;
       if (cell?.own) html += `<td class="own" colspan="${span + breaks.length}"><div class="own-row">${cell.own.map((seg) =>
-        `<div class="seg"><span class="seg-time">${esc(seg.time)}</span>${seg.items.map(classHtml).join("")}</div>`).join("")}</div></td>`;
+        `<div class="seg"><span class="seg-time">${esc(seg.time)}</span><div class="seg-classes">${seg.items.map(classHtml).join("")}</div></div>`).join("")}</div></td>`;
       else html += `<td${span > 1 ? ` colspan="${span}"` : ""}>${cell ? cell.items.map(classHtml).join("") : ""}</td>`;
       col += span;
       if (ri === 0) for (const b of breaks.filter((b) => b.after === col - 1)) html += `<td class="brk" rowspan="${bodyRows}"><span>${esc(b.name)}</span></td>`;
@@ -248,8 +248,8 @@ function directoryAppendix() {
 const dayTitle = (days) => `Weekly Class Routine: ${days.length > 2 ? `${days[0]} to ${days[days.length - 1]}` : days.join(" and ")}`;
 
 document.fonts.ready.then(() => {
-  const hsc = flow(HSC.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (HSC)", label: "Program", foot: LEGEND, sign: true }, dayTitle);
-  const dip = flow(DIPLOMA.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (Diploma)", label: "Program", foot: LEGEND, sign: true }, dayTitle);
+  const hsc = flow(HSC.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (HSC)", label: "Program", foot: LEGEND, sign: false }, dayTitle);
+  const dip = flow(DIPLOMA.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (Diploma)", label: "Program", foot: LEGEND, sign: false }, dayTitle);
   courseAppendix();
   directoryAppendix();
   const all = [...document.querySelectorAll(".sheet")];

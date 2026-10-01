@@ -80,9 +80,10 @@ table { width: 100%; border-collapse: collapse; table-layout: fixed; font-varian
 /* A batch on its own periods that day: its times are written into the row. */
 .routine td.own { padding: 0; }
 .own-row { display: flex; align-items: stretch; }
-.seg { flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 4mm; padding: .55mm 1mm; }
+.seg { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3mm; padding: .55mm 1mm; }
+.seg-classes { display: flex; justify-content: center; gap: 5mm; }
 .seg + .seg { border-left: .6pt solid var(--rule); }
-.seg-time { font-size: 6.8pt; font-weight: 600; border: .5pt solid var(--rule); padding: .3mm 1.2mm; white-space: nowrap; }
+.seg-time { font-size: 6.8pt; font-weight: 700; font-style: italic; white-space: nowrap; }
 .seg .cls + .cls { border-top: 0; margin-top: 0; padding-top: 0; }
 .routine .brk { background: var(--day-fill); padding: 0; }
 .routine .brk span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 6.8pt; font-weight: 600; letter-spacing: .08em; white-space: nowrap; }
