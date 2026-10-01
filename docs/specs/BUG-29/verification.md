@@ -2,7 +2,7 @@
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Delivered for the owner's acceptance. AC-01–AC-10 pass. T-08 (migrating the institutional database) awaits the owner's go-ahead.
+Status: Accepted by the owner on 1 October 2026 ("I accept #29, merge it and go ahead with T-08"). AC-01–AC-10 pass. T-08 is authorized in the same message.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
@@ -92,5 +92,5 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
 
 - Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2`, `a4b44fb`, `31ed49e` and the T-07 documentation commit. A pull request is open without closing keywords.
 - Remaining gates: the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead. **Until T-08, do not run `dev` or `start` against `.data/`:** `predev`/`prestart` would apply 0006 and 0007 without the backup step.
-- Owner acceptance: Pending.
+- Owner acceptance: **Accepted** on 1 October 2026 in the Claude Code session, after reviewing the T-07 delivery and PR #46: "I accept #29, merge it and go ahead with T-08". The same message authorized T-08.
 - Merge / closure: Pending.
