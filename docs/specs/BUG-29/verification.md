@@ -2,7 +2,7 @@
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: Accepted by the owner on 1 October 2026 ("I accept #29, merge it and go ahead with T-08"). AC-01–AC-10 pass. T-08 is authorized in the same message.
+Status: Accepted by the owner on 1 October 2026 ("I accept #29, merge it and go ahead with T-08"). AC-01–AC-10 pass, and T-08 migrated the institutional database the same day.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
@@ -80,6 +80,33 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
   - The migration is forward-only and runs inside Drizzle's single migration transaction.
   - Screenshots show only the disposable review data and synthetic `@example.test` accounts. Backups and copies stayed under the ignored `.tmp/` and were removed.
 
+## T-08 — institutional migration (1 October 2026)
+
+The owner's go-ahead came in the acceptance message. T-08 ran on `0962b77`, the same code as PR #46.
+
+1. **No writer.**
+   - No Node process belonged to this project, and ports 3000 and 3100 were free.
+   - The newest file in `.data/pglite-summer-2026` was dated 25 September, 20:22.
+2. **Cold backup, per the runbook.**
+   - The backup is at `F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-BUG-29-20261001-1646`, outside the repository, with the hash manifest `….sha256.csv` beside it.
+   - It holds 1,204 files (57.0 MB), each identical to the source by SHA-256, with no missing or extra files.
+   - The backup was never opened. It keeps the 25 September `postmaster.pid`.
+3. **Migration.** `npm run db:migrate`, with no `DATABASE_URL` or `PGLITE_DATA_DIR`, applied 0006 and 0007 in 7 s and printed "Term grids created for 1 existing term(s)."
+4. **Before/after comparison.** A throwaway copy of the backup under `.tmp`, removed afterwards, was compared with the migrated database:
+   - The session zone is `Etc/GMT-6`, and 8 migrations are applied.
+   - All 34 time columns are `timestamp with time zone`.
+   - All 217 stored values moved by exactly their class's correction: 202 default-stamped values by −6 h, and 15 application values unchanged.
+   - Non-time data is identical in all 36 pre-existing tables.
+   - The grid backfill wrote 5 `period_patterns` and 6 `day_plans` rows.
+   - The administrator's `system_administrator` role is in force. It now reads from 25 September, 20:04 in Dhaka, and the first audit event reads 23 September, 17:17 in Dhaka.
+   - PGlite recovery removed the stale `postmaster.pid`, as T-05 predicted.
+5. **Running app.**
+   - `npm run dev` (preview, port 3000): `predev` reported "Database ready (pglite); existing academic data preserved."
+   - `/api/health` returned `{"ok":true,"database":"pglite"}`.
+   - `/public/routine` and `/login` returned 200, and the server logged no errors.
+   - `/access` and `/routine/periods` redirect to `/login`, because Google sign-in is not configured on this machine and internal pages stay closed by design. Their data (the administrator role and the term grids) was checked directly in step 4.
+   - The server was then stopped.
+
 ## Review findings
 
 | Finding | Correction / disposition | Reverification |
@@ -90,7 +117,7 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
 
 ## Delivery and acceptance
 
-- Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2`, `a4b44fb`, `31ed49e` and the T-07 documentation commit. A pull request is open without closing keywords.
-- Remaining gates: the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead. **Until T-08, do not run `dev` or `start` against `.data/`:** `predev`/`prestart` would apply 0006 and 0007 without the backup step.
+- Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2`, `a4b44fb`, `31ed49e`, `55f2247`, `0962b77` and the T-08 record. Merged through [PR #46](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/pull/46).
+- Remaining gates: none. Hosted PostgreSQL has no data yet; a hosted database created later starts at 0007 (DEP-01).
 - Owner acceptance: **Accepted** on 1 October 2026 in the Claude Code session, after reviewing the T-07 delivery and PR #46: "I accept #29, merge it and go ahead with T-08". The same message authorized T-08.
-- Merge / closure: Pending.
+- Merge / closure: PR #46 merged into `main` after the owner's acceptance, and #29 closed, on 1 October 2026.

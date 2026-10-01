@@ -3,7 +3,7 @@
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Approved 1 October 2026 (see [approval record](#approval-record)); implemented and verified (T-01–T-07); awaiting owner acceptance and the T-08 go-ahead
+Status: Approved 1 October 2026 (see [approval record](#approval-record)); complete (T-01–T-08); accepted by the owner and merged on 1 October 2026
 Branch / base: `codex/bug-29` from `d68b2b7` (main after TCH-02)
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -82,7 +82,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
   - Write `verification.md` with results per AC and the T-05 report.
   - Update the README and recovery runbook where they describe time handling or rehearsal status, and the brief and roadmap pointers.
   - Covers AC-10.
-- [ ] T-08 — **Migrate the institutional database (owner go-ahead).**
+- [x] T-08 — **Migrate the institutional database (owner go-ahead).**
   - Stop every writer and take the cold backup and hash manifest per the runbook.
   - Run `npm run db:migrate`, which applies 0006, 0007 and the backfill.
   - Expect the first open to run PGlite's crash recovery and remove the `postmaster.pid` left on 25 September (seen in T-05). The backup is taken before that open, so it keeps the file.
@@ -106,9 +106,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md) at `ca9e788` with D-1–D-3 as recommended.
-- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 pushed as checkpoint `df11ed2`; T-05 `a4b44fb`, T-06 `31ed49e`, and the T-07 documentation commit, all pushed; PR open without closing keywords.
-- Completed tasks: T-01–T-07.
-- Next action: the owner's acceptance. After that, with the owner's explicit go-ahead, T-08. Until then, do not start `dev` or `start` against `.data/`.
+- Commits and uncommitted changes: spec `ca9e788`, approved plan `2a3cca5` (pushed). T-01–T-04 pushed as checkpoint `df11ed2`; T-05 `a4b44fb`, T-06 `31ed49e`, T-07 `55f2247`, acceptance `0962b77`, and the T-08 record; merged through PR #46.
+- Completed tasks: T-01–T-08.
+- Next action: none for BUG-29. The institutional database was migrated on 1 October 2026 ([T-08 record](verification.md#t-08--institutional-migration-1-october-2026)). The pre-migration backup is at `F:\AI\backups\academic-operations-portal\`.
 - Verification: [verification.md](verification.md) holds results per AC, including the T-05 report. The notes below record each task.
 - Task notes: T-01 smoke test, run in memory and not committed (T-04 adds the permanent check). Migrated to 0006, stamped rows in `Etc/GMT-6`, then applied 0007. Default-stamped, mixed (`portal_users.updated_at` both ways) and application-written values all read back at the true instant, and all 34 columns became `timestamptz`. The same data migrated under `UTC` failed with the guard's error, and all 34 columns stayed `timestamp`. `typecheck` and `eslint` pass. T-02 moved the query unchanged to `src/lib/auth/assignments.ts`, which has no request or provider imports. An in-memory smoke test migrated to 0007 under `Etc/GMT-6`, then granted a role with the column default and revoked another with `active_to = new Date()`. `selectActiveAssignments` returned only the granted role, immediately (`active_from` 14 ms before now). `typecheck` and `eslint` pass.
 
@@ -121,4 +121,4 @@ Under `TZ=UTC` (Node on Windows honours it), 02:30 on Saturday 3 October in Dhak
 T-04 added the two groups and gave the shared harness `setTimeZone` and `migrateFrom` (`scripts/safety/database.ts`, `pglite.ts`), and `factoryFor` is now exported from `postgres.check.ts`. Both groups pass: PGlite in about 1 min 45 s, and PostgreSQL 17.11 in about 38 s with `SAFE01_PG_BIN`. The full `npm run test:safety` with `SAFE01_PG_BIN` then passed every group in 11 min 23 s: SAFE-01 T-01–T-04 and T-06, and both BUG-29 groups. The default PGlite directory was never opened.
 
 The check was also shown to fail on the pre-fix code. With the `d68b2b7` schema and migration list it first fails the catalog assertion. With that assertion disabled it fails on the time value itself: under `Etc/GMT-6` a default-stamped audit time read back at 16:06 UTC, against a true time of 10:06.
-- Blockers/capabilities: T-08 needs the owner's go-ahead. The PostgreSQL checks need `SAFE01_PG_BIN`; the tools are installed outside the repo.
+- Blockers/capabilities: none. The PostgreSQL checks need `SAFE01_PG_BIN`; the tools are installed outside the repo.
