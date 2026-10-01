@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 1 October 2026: TCH-02 ([#35](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)) proposed, awaiting owner approval.** It covers the individual teacher routine: My routine, an A4 print in the department's template and bulk print. Branch `codex/tch-02`. Records: [spec](specs/TCH-02/spec.md) with decisions D-1–D-6, [plan](specs/TCH-02/plan.md) and [mockups](specs/TCH-02/mockups/) ([renders](specs/TCH-02/mockups/renders/)). The next step is to record the owner's approval in the plan, commit it and start T-01.
+**State on 1 October 2026: TCH-02 ([#35](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)) approved 1 October 2026 with the recommended decisions; implementation in progress.** It covers the individual teacher routine: My routine, an A4 print in the department's template and bulk print. Branch `codex/tch-02`. Records: [spec](specs/TCH-02/spec.md) with decisions D-1–D-6, [plan](specs/TCH-02/plan.md) and [mockups](specs/TCH-02/mockups/) ([renders](specs/TCH-02/mockups/renders/)). Next: the task list in the plan, starting at T-01.
 
 - **Last completed:** [RUT-04 / #34](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34), term time grids (Days & periods) and the redesigned black-and-white official routine package ([amendment B](specs/RUT-04/mockups/official-package.html)). The owner accepted it on 1 October 2026.
   - Records: [spec](specs/RUT-04/spec.md), [plan](specs/RUT-04/plan.md), [verification/acceptance](specs/RUT-04/verification.md). Review with `npm run ux:review`, then open `/routine/periods` and `/routine/official`.

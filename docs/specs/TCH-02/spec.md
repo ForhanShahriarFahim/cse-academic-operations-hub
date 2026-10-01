@@ -1,7 +1,7 @@
 # TCH-02 — Individual teacher routine: view, print and bulk print
 
 Issue: [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)
-Status: Proposed, awaiting owner approval
+Status: Approved 1 October 2026 with recommended decisions D-1–D-6 (see [plan approval record](plan.md#approval-record))
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline

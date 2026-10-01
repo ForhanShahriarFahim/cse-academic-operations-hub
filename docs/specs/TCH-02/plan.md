@@ -3,7 +3,7 @@
 Issue: [#35 TCH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/35)
 Specification: [spec.md](spec.md)
 Verification: verification.md (created during T-07)
-Status: Proposed, awaiting owner approval
+Status: Approved 1 October 2026 (see Approval record); implementation in progress
 Branch / base: `codex/tch-02` from main `4237c0d`
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -44,9 +44,15 @@ Read the installed Next.js docs on routing, `searchParams` and dynamic rendering
 
 ## Approval record
 
-- Owner authorization: Pending
-- Date and evidence: `actual owner message`
-- Approved scope: `spec.md as committed, with decisions D-1–D-6`
+- Owner authorization: Approved.
+- Date and evidence: 1 October 2026, in the Claude Code session. After reviewing the spec, plan and mockup renders (commit `8fa5942`), the owner replied "Approve TCH-02 with the recommendations".
+- Approved scope: [spec.md](spec.md) as committed in `8fa5942`, with the recommended decisions:
+  - D-1: Total Credit Hours is the Workload page total, including other-department units.
+  - D-2: print and Save as PDF only; .docx is a possible follow-up.
+  - D-3: no logo for now.
+  - D-4: every internal user can view any teacher's routine.
+  - D-5: one row per batch combination, counted once.
+  - D-6: active term only.
 - Material amendments: none
 
 Commit the approved plan before implementation. Unchanged approved scope survives agent handoff; do not infer acceptance or expanded authorization from it.
@@ -70,9 +76,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Current checkpoint / handoff
 
-- Approved scope: pending owner approval.
-- Commits: proposal (spec, plan, mockups) on `codex/tch-02`.
+- Approved scope: see Approval record (1 October 2026, recommended D-1–D-6).
+- Commits: `8fa5942` (proposal) and the approval record, on `codex/tch-02`.
 - Completed tasks: none; inspection and mockups done.
-- Next action: owner reviews the mockups and decisions D-1–D-6, then the approval is recorded and committed before T-01.
+- Next action: T-01, the `teacher-routine` projection and its domain test.
 - Verification: mockup renders have 0 px page overflow and no clipped sheets.
 - Blockers/capabilities: none for the recommended scope. The logo (D-3) and .docx (D-2) are excluded unless the owner chooses otherwise.
