@@ -3,7 +3,7 @@
 Issue: [#34 RUT-04](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/34)
 Specification: [spec.md](spec.md)
 Verification: [verification.md](verification.md)
-Status: Implemented and verified 1 October 2026; owner acceptance pending
+Status: Implemented and verified 1 October 2026; owner review returned a print redesign request (see checkpoint). Acceptance pending.
 Branch / base: `codex/rut-04` from main `39a39b3`
 Updated: 30 September 2026, Asia/Dhaka
 
@@ -92,5 +92,10 @@ Focused checks per task (`test:domain`, `test:routine`). Final checks: `typechec
 - Completed tasks: T-01–T-10.
 - Implementation notes beyond the plan text: the backfill is a one-time conversion (it runs only while no term has patterns), so a future term starts empty and is set up or copied; the official HSC print page continues extra groups and extra days on a following sheet; the old class-window editor and its two actions were removed from Settings.
 - Verification: all AC pass; see [verification](verification.md). AC-01 byte parity used the Summer 2026 source dataset (not the institutional database); AC-09 is verified at domain level.
-- Next action: owner reviews Days & periods on the review server (`npm run ux:review`, then `/routine/periods`), then PR, merge and close #34.
+- **Owner review, 1 October 2026: not accepted yet.** The owner is "not happy" with the official routine package (`/routine/official`, `src/components/official-routine-package.tsx`, `.official-*` styles in `src/app/globals.css`) and asked for a redesign before accepting RUT-04:
+  1. **Red marks here and there:** blocker cells are tinted pink (`official-cell-blocker`) and booking rows are orange. An official printout should not carry validation colour; keep status out of print, or at most a subtle marker on drafts only.
+  2. **Pages 1–2 look poor:** the top of the HSC sheet (header block, very small 5–6 px type, crowded tables) and the new "(continued)" sheet need a better, more readable design. See [official-package.pdf](screenshots/official-package.pdf) and [official-hsc-page.png](screenshots/official-hsc-page.png) for the version the owner rejected.
+  3. **Content overlaps the border:** tables run into or past the page border and footer (fixed A4 height with `overflow: hidden` and proportional rows).
+- **Next action (agreed workflow):** design mockups first (as in UX-01: static HTML under `docs/specs/RUT-04/mockups/`, rendered desktop and A4 print to PNG/PDF, 0 overflow, no clipping), show them to the owner and get approval; then implement, keeping screen, print and CSV agreeing and Summer 2026 data unchanged; re-run `test:ux`, the print checks and the AC-01 parity; then ask for acceptance. Treat this as amendment B of RUT-04 (print redesign), recorded here when approved. Useful reference: the owner's A4 portrait individual-routine template (black-and-white, clear bold headers, grey header cells, day cells merged down, course and room per cell), as summarised in #35.
+- After acceptance: PR, merge and close #34.
 - Blockers/capabilities: none.
