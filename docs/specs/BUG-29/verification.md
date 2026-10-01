@@ -2,12 +2,12 @@
 
 Issue: [#29](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/29)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md)
-Status: In progress. T-04–T-06 evidence is recorded; T-07 (final checks) is pending, and T-08 awaits the owner's go-ahead.
+Status: Delivered for the owner's acceptance. AC-01–AC-10 pass. T-08 (migrating the institutional database) awaits the owner's go-ahead.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Environment
 
-- Branch `codex/bug-29`. Approved plan `2a3cca5`; T-01–T-04 checkpoint `df11ed2` (pushed). The T-05 rehearsal script is added in the T-05 commit.
+- Branch `codex/bug-29`. Approved plan `2a3cca5`; T-01–T-04 checkpoint `df11ed2`; T-05 `a4b44fb`; T-06 `31ed49e`; final checks on `31ed49e`. The T-07 commit changes documentation only.
 - **Databases:**
   - Disposable PGlite runs and a disposable PostgreSQL 17.11 cluster under `.tmp/safe-01`. The client tools come from `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`.
   - The institutional `.data/pglite-summer-2026` was only copied, for T-05; it was never opened. Its newest file is still dated 25 September 2026, 20:22.
@@ -29,7 +29,7 @@ Updated: 1 October 2026, Asia/Dhaka
 | AC-07 | **Pass** | T-05: a SAFE-01 cold backup of the pre-migration copy restored into a separate run with an identical fingerprint (schema, sequences, every table's rows): 6 migrations and 30 legacy time columns. The migrated copy's fingerprint differs from it. |
 | AC-08 | **Pass** | Same groups: a token round-trips exactly after the upgrade and changes on save. The existing SAFE-01 T-03 check ("a stale edit refused with no change") passes on PGlite and PostgreSQL with the new column types. **Browser (T-06):** two tabs opened Days & periods.<ul><li>The first saved Diploma Friday unchanged: "Periods saved: Diploma Friday."</li><li>The second, opened before that save, was refused with "Someone else changed these periods since you opened them. Reload the page to see the latest version." ([screenshot](screenshots/days-periods-stale-edit.jpg)).</li></ul> |
 | AC-09 | **Pass** | Browser, server under `TZ=UTC` (T-06). The machine clock read 10:29 UTC, which is 16:29 in Dhaka.<ul><li>`/publications` shows v2 published "1 Oct 2026, 16:25" ([screenshot](screenshots/publications-utc-server.jpg)). The version was published at about 10:25 UTC, which the old code would have shown as 10:25.</li><li>The routine page's document reads "Generated 1 Oct 2026, 16:29." That line is in the print-only document, so it was read from the page text.</li><li>No console errors in either tab, and no errors or hydration warnings in the server log.</li></ul> |
-| AC-10 | Partial | `test:safety` with PostgreSQL passed all groups (11 min 23 s) on `df11ed2`. `typecheck`, `lint` and `test:domain` passed per task; the final run and `build` are T-07. |
+| AC-10 | **Pass** | On `31ed49e`: `typecheck`, `lint` (whole repository) and `test:domain` (all eight suites) pass.<ul><li>`build` passes (exit 0, 2 min 10 s).</li><li>The first `build` run compiled, generated every page and printed the route table, then exited 1 with `uncaughtException Error: kill EPERM` while stopping its workers. That is a Windows process-teardown failure after the build had finished. The identical rerun passed; this is recorded rather than waived.</li><li>`test:safety` with `SAFE01_PG_BIN` passed every group on `df11ed2` (11 min 23 s). Later commits add only the standalone rehearsal script and documentation, which the suite does not load.</li></ul> |
 
 ## T-05 rehearsal report
 
@@ -72,6 +72,13 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
   - Both groups pass: PGlite in about 1 min 45 s, and PostgreSQL in about 38 s.
   - **Shown to fail on the pre-fix code** (`d68b2b7` schema and migration list). The catalog assertion fails first. With that assertion disabled, the test fails on the value itself: under `Etc/GMT-6` a default-stamped time read back at 16:06 UTC, against a true time of 10:06.
 - **Full `npm run test:safety` with `SAFE01_PG_BIN` on `df11ed2`.** Passed: SAFE-01 T-01–T-04 and T-06, and both BUG-29 groups. The default PGlite directory was never opened.
+- **T-07 final checks on `31ed49e`:** `typecheck`, `lint` and `test:domain` pass. `build` failed once during worker teardown (`kill EPERM`, after the route table was printed) and passed on an identical rerun.
+- **T-07 diff review against `main`.**
+  - Migration 0007 converts each of the 34 schema columns exactly once (statement parse), and the BUG-29 catalog assertion matches them to the schema.
+  - No `now()` comparison remains in `src`. The only raw SQL there is the health check's `select 1` and the seed's setup statement, and neither reads a time.
+  - Instant formatters name a zone, or format date-only strings.
+  - The migration is forward-only and runs inside Drizzle's single migration transaction.
+  - Screenshots show only the disposable review data and synthetic `@example.test` accounts. Backups and copies stayed under the ignored `.tmp/` and were removed.
 
 ## Review findings
 
@@ -83,7 +90,7 @@ The administrator's invitation and role (`portal_users`, `role_assignments`) now
 
 ## Delivery and acceptance
 
-- Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2` and the T-05 commit.
-- Remaining gates: T-07 final checks, the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead.
+- Commits: `ca9e788`, `2a3cca5`, `14b665c`, `4f89852`, `e38d7fc`, `a11691a`, `df11ed2`, `a4b44fb`, `31ed49e` and the T-07 documentation commit. A pull request is open without closing keywords.
+- Remaining gates: the owner's acceptance, and the T-08 institutional migration with the owner's go-ahead. **Until T-08, do not run `dev` or `start` against `.data/`:** `predev`/`prestart` would apply 0006 and 0007 without the backup step.
 - Owner acceptance: Pending.
 - Merge / closure: Pending.

@@ -150,6 +150,10 @@ No public sign-up is enabled. An invited address must be verified by Google befo
 
 > Important: run only one database-using project process against `.data/pglite` at a time. Stop the development server before running a separate migration, preparation, or reset command.
 
+> **Stored times.** Every database time is `timestamp with time zone`, so it is one exact instant whatever the server or session time zone ([BUG-29](docs/specs/BUG-29/spec.md)). Screens and prints show instants in Asia/Dhaka.
+>
+> Migration 0007 converts the times in an existing database by how each was written. Back up first, and migrate from a session in the zone that stamped the data: the migration refuses, and changes nothing, if old times would land in the future. A PGlite data folder keeps the time zone it was created with (in its `postgresql.conf`).
+
 ### PostgreSQL setup
 
 Create `.env.local` from `.env.example` and provide a real connection string:
