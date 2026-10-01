@@ -1,62 +1,21 @@
 /**
- * Owned, on-disk PGlite fixtures for SAFE-01. Every run directory carries an
- * ownership marker, and a writer lock records the one open writer so backup and
- * cleanup can refuse to act while it is active.
+ * Owned, on-disk PGlite fixtures for SAFE-01, opened inside owned runs
+ * (see ./owned-run) under the run's single writer lock.
  */
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, rmSync, writeFileSync, writeSync } from "node:fs";
-import { randomBytes } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { backfillTimeGrids, type GridDb } from "../../src/db/time-grid-backfill";
 import * as schema from "../../src/db/schema";
-import { REPO_ROOT, SCRATCH_ROOT, UnsafeTargetError, isWithin, resolvePgliteTarget } from "./targets";
+import { REPO_ROOT, UnsafeTargetError } from "./targets";
+import { assertOwnedRun, isWriterActive, withWriterLock, type OwnedRun } from "./owned-run";
 
-const OWNER_FILE = "safe-01-owner.json";
-const LOCK_FILE = "writer.lock";
+// The owned-run primitives live in ./owned-run (BUG-48); existing importers keep using this module.
+export { assertOwnedRun, createOwnedRun, isWriterActive, removeOwnedRun, withWriterLock, type OwnedRun } from "./owned-run";
+
 export const MIGRATIONS_FOLDER = path.join(REPO_ROOT, "drizzle");
-
-export interface OwnedRun {
-  root: string;
-  dataDir: string;
-}
-
-export function createOwnedRun(purpose: string): OwnedRun {
-  const slug = purpose.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
-  const root = resolvePgliteTarget(path.join(SCRATCH_ROOT, "runs", `${Date.now()}-${slug}-${randomBytes(3).toString("hex")}`));
-  mkdirSync(root, { recursive: true });
-  const marker = { tool: "SAFE-01", purpose, createdAt: new Date().toISOString(), pid: process.pid };
-  const fd = openSync(path.join(root, OWNER_FILE), "wx");
-  try { writeSync(fd, JSON.stringify(marker, null, 2)); } finally { closeSync(fd); }
-  return { root, dataDir: path.join(root, "pgdata") };
-}
-
-export function assertOwnedRun(run: OwnedRun): void {
-  resolvePgliteTarget(run.root);
-  resolvePgliteTarget(run.dataDir);
-  if (!isWithin(run.dataDir, run.root)) throw new UnsafeTargetError("The data directory must be inside its owned run.");
-  let marker: { tool?: string } | null = null;
-  try { marker = JSON.parse(readFileSync(path.join(run.root, OWNER_FILE), "utf8")); } catch { marker = null; }
-  if (marker?.tool !== "SAFE-01") throw new UnsafeTargetError("Refusing a directory without a SAFE-01 ownership marker.");
-}
-
-export const isWriterActive = (run: OwnedRun) => existsSync(path.join(run.root, LOCK_FILE));
-
-/** Hold the run's exclusive writer lock while `work` runs (in-process or as a child). */
-export async function withWriterLock<T>(run: OwnedRun, work: () => Promise<T>): Promise<T> {
-  assertOwnedRun(run);
-  const lockPath = path.join(run.root, LOCK_FILE);
-  let fd: number;
-  try {
-    fd = openSync(lockPath, "wx");
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new UnsafeTargetError("A writer is already active for this run.");
-    throw error;
-  }
-  try { writeSync(fd, JSON.stringify({ pid: process.pid, openedAt: new Date().toISOString() })); } finally { closeSync(fd); }
-  try { return await work(); } finally { rmSync(lockPath, { force: true }); }
-}
 
 export interface OwnedPglite {
   run: OwnedRun;
@@ -128,10 +87,4 @@ export function setPgliteTimeZone(run: OwnedRun, zone: string): void {
   const pattern = /^timezone = .*$/gm;
   if ((text.match(pattern) ?? []).length !== 1) throw new Error("Expected exactly one timezone line in postgresql.conf.");
   writeFileSync(conf, text.replace(pattern, `timezone = '${zone}'`));
-}
-
-export function removeOwnedRun(run: OwnedRun): void {
-  assertOwnedRun(run);
-  if (isWriterActive(run)) throw new UnsafeTargetError("Refusing to remove a run with an active writer.");
-  rmSync(run.root, { recursive: true, force: true });
 }

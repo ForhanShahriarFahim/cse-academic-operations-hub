@@ -14,6 +14,7 @@ import { checkAudit } from "./safety/audit.check";
 import { checkPostgres } from "./safety/postgres.check";
 import { checkTimeZones, checkTimeZonesPostgres } from "./safety/time-zone.check";
 import { checkAuth, checkAuthPostgres } from "./safety/auth.check";
+import { checkClusterCleanup } from "./safety/cluster.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -45,6 +46,7 @@ async function main() {
     ["BUG-29 time zones (PostgreSQL)", () => checkTimeZonesPostgres(process.env.SAFE01_PG_BIN), true],
     ["AUTH-02 accounts (PGlite)", () => checkAuth()],
     ["AUTH-02 accounts (PostgreSQL)", () => checkAuthPostgres(process.env.SAFE01_PG_BIN), true],
+    ["BUG-48 cluster cleanup (PostgreSQL)", () => checkClusterCleanup(process.env.SAFE01_PG_BIN), true],
   ];
   // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
   const only = process.argv[2];

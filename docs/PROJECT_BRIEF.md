@@ -8,7 +8,9 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 **State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage).
 
-- **Last completed:** [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36), email/password sign-in with administrator setup and reset links, lockout, session revocation, dated roles and the rebuilt People & Access (also closes #31).
+- **Last completed:** [BUG-48 / #48](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/48) (SAFE-01 follow-up F-10). A disposable PostgreSQL cluster from `test:safety` is now stopped even when the run is killed: in-process stop, a detached watchdog, and a sweep of stale cluster runs. Accepted by the owner on 2 October 2026 and merged. Records: [spec/plan](specs/BUG-48/spec.md), [verification](specs/BUG-48/verification.md).
+
+- **Earlier completed:** [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36), email/password sign-in with administrator setup and reset links, lockout, session revocation, dated roles and the rebuilt People & Access (also closes #31).
   - **Accepted** by the owner on 2 October 2026 and merged. The institutional database was cold-backed-up (`F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-AUTH-02-20261002-0119`, with its SHA-256 manifest) and migrated to 0008; all 38 existing tables are unchanged.
   - **To sign in with a password here:** set `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET` in `.env.local`, then `npm run auth:bootstrap -- --reset-link <administrator email>` (README, Sign-in). The administrator account is still invited.
   - **Records:** [spec](specs/AUTH-02/spec.md), [plan](specs/AUTH-02/plan.md), [verification/acceptance](specs/AUTH-02/verification.md), [screenshots](specs/AUTH-02/screenshots/). The adversarial account checks run in `npm run test:safety`.

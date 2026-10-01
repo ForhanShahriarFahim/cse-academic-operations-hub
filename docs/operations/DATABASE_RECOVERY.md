@@ -63,7 +63,7 @@ Run these from the repository folder in PowerShell, after following the rules ab
 `npm run test:safety` runs the whole exercise on synthetic data under the ignored folder `.tmp/safe-01/`:
 
 - **Targets** ([targets.ts](../../scripts/safety/targets.ts)). Paths are accepted only inside `.tmp/safe-01`. The default directory, `.data`, any configured `PGLITE_DATA_DIR`, relative paths and link escapes are refused. PostgreSQL targets must be explicit `safe01_*` databases confirmed by name.
-- **Owned runs** ([pglite.ts](../../scripts/safety/pglite.ts)). Each run folder carries an ownership marker and a single-writer lock. The tooling refuses to back up or remove a run while its writer is active.
+- **Owned runs** ([owned-run.ts](../../scripts/safety/owned-run.ts)), used by [pglite.ts](../../scripts/safety/pglite.ts). Each run folder carries an ownership marker and a single-writer lock. The tooling refuses to back up or remove a run while its writer is active.
 - **Backup** ([pglite-backup.ts](../../scripts/safety/pglite-backup.ts)), format `safe-01-pglite-cold-v1`. The tool holds the lock, fingerprints the database, closes it, then copies it to `pgdata/`. It writes `manifest.json` (every file's size and SHA-256, plus the database fingerprint) and `manifest.sha256`.
 - **Verify and restore.** Before copying, the tool checks the manifest's digest, the format and every file, rejecting missing or extra files. It restores only into the empty data directory of a separate owned run, then reopens the database and compares fingerprints. Any mismatch removes the partial restore.
 - **Fingerprint** ([fingerprint.ts](../../scripts/safety/fingerprint.ts)). It covers columns, constraints, indexes, sequence positions, the Drizzle migration journal, and an order-independent digest of every table's rows. It holds only counts and hashes.
@@ -82,6 +82,13 @@ The tooling copies closed databases only. It cannot establish that some other pr
   ```
 
 - The harness creates its own cluster under `.tmp/safe-01`. It listens on 127.0.0.1 only, with a random SCRAM password, creates only `safe01_*` databases, and stops and deletes the cluster afterwards.
+- **Stopping the cluster ([BUG-48](../specs/BUG-48/spec.md), [cluster-control.ts](../../scripts/safety/cluster-control.ts)).** On Windows, `pg_ctl start` hands the server to `cmd.exe` and exits, so the server is not a child of the test run. A run that is killed (by `timeout`, `taskkill /F`, a closed terminal or an agent's tool timeout) runs no cleanup code. Three layers stop the cluster anyway, always with `pg_ctl stop` on the owned data directory:
+  - The run stops it on success, on errors, on a failed start, on Ctrl+C and on early exit. If the stop cannot be confirmed, the run directory is kept and the error names it.
+  - A detached watchdog notices within about a second that a killed run has ended, stops its cluster and removes the run.
+  - Before each new cluster, a sweep stops and removes cluster runs whose owning process is gone. It skips any run whose owner is still running.
+
+  Watchdog and sweep actions are logged in `.tmp/safe-01/cluster-cleanup.log`. The whole suite takes more than ten minutes, so run it in the background, or one group at a time (`npm run test:safety -- T-06`), rather than under a short `timeout`.
+- **If a cluster is still running anyway:** find its data directory in the `postgres.exe -D` command line (it must be under `.tmp/safe-01/runs/`). Then run `& "$env:SAFE01_PG_BIN\pg_ctl.exe" stop -D <that pgdata> -m fast`. Never stop a server by process ID, and never point `pg_ctl` at `.data/`.
 - `pg_dump` and `pg_restore` must match the server's major version (checked).
 
 **Backup format `safe-01-pg-dump-aes256gcm-v1`** ([pg-backup.ts](../../scripts/safety/pg-backup.ts)):
