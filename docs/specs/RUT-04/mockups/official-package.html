@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Official routine package — RUT-04 mockup B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="official-package.css">
+</head>
+<body>
+<div class="review">
+  <b>RUT-04 amendment B: official routine package</b>
+  <span>Mockup with made-up data. A4 landscape, black and white.</span>
+  <span class="sep">|</span>
+  <a href="#official" id="link-official">Published version</a>
+  <a href="#draft" id="link-draft">Draft version</a>
+  <span id="fit-report"></span>
+</div>
+<main class="package" id="package" aria-label="Routine package preview"></main>
+
+<script>
+/* ---------- Made-up data (no real names, codes or contact details) ---------- */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rng = mulberry32(20260814);
+const pick = (list) => list[Math.floor(rng() * list.length)];
+
+const TEACHERS = [
+  ["KAH", "Prof. Dr. Kamrul Ahsan", "Professor"], ["AKB", "Dr. Anwarul Kabir", "Associate Professor"],
+  ["NJM", "Nusrat Jahan Mitu", "Assistant Professor"], ["THR", "Tanvir Hasan Rony", "Assistant Professor"],
+  ["SYN", "Sabrina Yeasmin", "Lecturer"], ["ARS", "Arifur Rahman Sohel", "Lecturer"],
+  ["FHL", "Farzana Haque Lima", "Lecturer"], ["MRB", "Md. Rakibul Bari", "Lecturer"],
+  ["SPV", "Shahnaz Parvin", "Lecturer"], ["IMK", "Imtiaz Karim", "Lecturer"],
+  ["RAF", "Rumana Afroz", "Lecturer"], ["SJH", "Sajid Hossain", "Lecturer"],
+  ["TSL", "Tahmina Sultana", "Lecturer"], ["MHS", "Mehedi Hasan Shuvo", "Lecturer"],
+  ["LRM", "Lamia Rahman", "Lecturer"], ["ASM", "Ashik Mahmud", "Lecturer"],
+  ["SPZ", "Dr. Selina Parvez", "Associate Professor (Mathematics)"], ["ABN", "Abu Naser", "Lecturer (Mathematics)"],
+  ["MOI", "Dr. Moinul Islam", "Assistant Professor (Physics)"], ["RKK", "Rokeya Khatun", "Lecturer (English)"],
+  ["HSA", "Hasibul Alam", "Lecturer (EEE)"], ["JSA", "Jesmin Ara", "Lecturer (EEE)"],
+  ["KWA", "Kawsar Ahmed", "Lecturer (Business)"], ["NZH", "Nazmul Huda", "Lecturer (Law & Humanities)"],
+  ["SMA", "Sharmin Akter", "Lecturer (Bangla)"], ["RFB", "Rafiqul Bari", "Lecturer (Chemistry)"],
+];
+const CSE_POOL = TEACHERS.slice(0, 16).map((t) => t[0]);
+const BY_PREFIX = { MTH: ["SPZ", "ABN"], STA: ["ABN"], PHY: ["MOI"], ENG: ["RKK"], EEE: ["HSA", "JSA"], BUS: ["KWA"], HUM: ["NZH"], LAW: ["NZH"], BAN: ["SMA"], CHM: ["RFB"] };
+
+// [code, title, credits]
+const SEMESTERS = {
+  1: [["CSE-1101", "Structured Programming", 3], ["CSE-1102", "Structured Programming Lab", 1.5], ["MTH-1101", "Differential and Integral Calculus", 3], ["PHY-1101", "Physics I: Mechanics and Waves", 3], ["EEE-1101", "Basic Electrical Engineering", 3], ["EEE-1102", "Basic Electrical Engineering Lab", 1], ["ENG-1101", "English Language Skills", 2], ["CHM-1101", "Engineering Chemistry", 3]],
+  2: [["CSE-1201", "Discrete Mathematics", 3], ["CSE-1203", "Object Oriented Programming", 3], ["CSE-1204", "Object Oriented Programming Lab", 1.5], ["MTH-1201", "Linear Algebra", 3], ["PHY-1201", "Physics II: Electricity and Optics", 3], ["PHY-1202", "Physics Lab", 1], ["EEE-1201", "Electronic Devices and Circuits", 3], ["EEE-1202", "Electronic Devices Lab", 1], ["BAN-1201", "Bangla Language and Literature", 2]],
+  3: [["CSE-2101", "Data Structures", 3], ["CSE-2102", "Data Structures Lab", 1.5], ["CSE-2103", "Digital Logic Design", 3], ["CSE-2104", "Digital Logic Design Lab", 1.5], ["MTH-2101", "Vector Analysis and Differential Equations", 3], ["STA-2101", "Probability and Statistics", 3], ["BUS-2101", "Accounting for Engineers", 2]],
+  4: [["CSE-2201", "Design and Analysis of Algorithms", 3], ["CSE-2202", "Algorithms Lab", 1.5], ["CSE-2203", "Database Systems", 3], ["CSE-2204", "Database Systems Lab", 1.5], ["CSE-2205", "Numerical Methods", 2], ["CSE-2206", "Software Development Project I", 1], ["MTH-2201", "Complex Variables and Transforms", 3], ["HUM-2201", "Bangladesh Studies", 2]],
+  5: [["CSE-3101", "Operating Systems", 3], ["CSE-3102", "Operating Systems Lab", 1.5], ["CSE-3103", "Computer Networks", 3], ["CSE-3104", "Computer Networks Lab", 1.5], ["CSE-3105", "Microprocessors and Interfacing", 3], ["CSE-3106", "Microprocessors Lab", 1], ["CSE-3107", "Software Engineering", 3], ["HUM-3101", "Professional Ethics", 2], ["LAW-3101", "Cyber and Intellectual Property Law", 2]],
+  6: [["CSE-3201", "Compiler Design", 3], ["CSE-3202", "Compiler Design Lab", 1], ["CSE-3203", "Computer Graphics", 3], ["CSE-3204", "Computer Graphics Lab", 1], ["CSE-3205", "Artificial Intelligence", 3], ["CSE-3206", "Artificial Intelligence Lab", 1], ["CSE-3207", "Web Engineering", 3], ["CSE-3208", "Web Engineering Lab", 1], ["BUS-3201", "Engineering Economics", 2]],
+  7: [["CSE-4101", "Machine Learning", 3], ["CSE-4102", "Machine Learning Lab", 1], ["CSE-4103", "Computer and Network Security", 3], ["CSE-4104", "Security Lab", 1], ["CSE-4105", "Digital Image Processing", 3], ["CSE-4106", "Image Processing Lab", 1], ["CSE-4107", "Distributed Systems", 3], ["CSE-4000", "Thesis / Project (Part A)", 2]],
+  8: [["CSE-4201", "Cloud Computing", 3], ["CSE-4202", "Cloud Computing Lab", 1], ["CSE-4203", "Data Mining", 3], ["CSE-4204", "Data Mining Lab", 1], ["CSE-4205", "Natural Language Processing", 3], ["CSE-4206", "NLP Lab", 1], ["CSE-4207", "Technical Writing and Presentation", 1], ["CSE-4000", "Thesis / Project (Part B)", 4]],
+};
+const isLab = (course) => /Lab$/.test(course[1]);
+const COURSE = {};
+let cseTurn = 0;
+for (const sem of Object.values(SEMESTERS)) for (const c of sem) {
+  if (COURSE[c[0]]) continue;
+  const prefix = c[0].slice(0, 3);
+  const theory = isLab(c) && COURSE[c[0].replace(/\d$/, (d) => String(+d - 1))];
+  const teacher = theory ? theory.teacher : prefix === "CSE" ? CSE_POOL[cseTurn++ % CSE_POOL.length] : pick(BY_PREFIX[prefix]);
+  const room = isLab(c) ? `NB-${pick([601, 602, 603, 604, 605, 606])}` : `NB-${pick([401, 402, 403, 404, 405, 406, 407, 408, 501, 502, 503, 504, 505, 506])}`;
+  const note = prefix === "CSE" ? "" : prefix === "HUM" || prefix === "LAW" ? "HSC + Diploma" : pick(["CSE + EEE", "CSE + EEE + CE", ""]);
+  COURSE[c[0]] = { code: c[0], teacher, room, note, lab: isLab(c), thesis: c[0] === "CSE-4000" };
+}
+
+const HSC_BATCHES = [["29 B", 1], ["28 B", 2], ["27 B", 3], ["26 B", 4], ["25 B", 5], ["24 B", 6], ["23 B", 7], ["22 B", 8]];
+const DIP_BATCHES = [["23 B", 1], ["22 B", 2], ["21 B", 3], ["20 B", 4], ["19 B", 5], ["18 B", 6], ["17 B", 7], ["16 B", 8]];
+
+const PATTERNS = {
+  hscSat: { slots: ["9:30 – 10:45 AM", "10:45 AM – 12:00 PM", "12:00 – 1:15 PM", "2:30 – 3:45 PM"], breaks: [{ after: 2, name: "Lunch & prayer 1:15 – 2:30" }] },
+  hscStd: { slots: ["9:00 – 10:00 AM", "10:00 – 11:00 AM", "11:00 AM – 12:00 PM", "12:00 – 1:15 PM"], breaks: [] },
+  hscTue: { slots: ["9:00 – 10:00 AM", "10:00 – 11:00 AM", "11:00 AM – 12:00 PM", "12:00 – 1:15 PM", "1:30 – 2:45 PM"], breaks: [] },
+  labBlock: { slots: ["9:00 – 11:30 AM", "11:30 AM – 2:00 PM"], breaks: [] },
+  dipFri: { slots: ["9:00 – 10:00 AM", "10:00 – 11:00 AM", "11:00 AM – 12:00 PM", "12:00 – 1:00 PM", "2:00 – 3:00 PM", "3:00 – 4:00 PM"], breaks: [{ after: 3, name: "Jumu'ah break 1:00 – 2:00" }] },
+  dipSat: { slots: ["12:00 – 1:00 PM", "1:00 – 2:00 PM", "2:00 – 3:00 PM", "3:00 – 4:00 PM"], breaks: [] },
+};
+
+/** One day table: rows of cells; a cell is null or { items: [course], span }. */
+function buildDay(day, pattern, batches, emptyRate) {
+  const busy = new Set();
+  const rows = batches.map(([batch, sem]) => {
+    const courses = SEMESTERS[sem].map((c) => COURSE[c[0]]).filter((c) => !c.thesis).sort(() => rng() - .5);
+    const cells = []; let i = 0;
+    while (i < pattern.slots.length) {
+      if (rng() < emptyRate) { cells.push(null); i++; continue; }
+      const course = courses.find((c) => !busy.has(`${c.teacher}@${i}`) && !busy.has(`${c.room}@${i}`) && !(c.lab && busy.has(`${c.teacher}@${i + 1}`)));
+      if (!course) { cells.push(null); i++; continue; }
+      courses.splice(courses.indexOf(course), 1);
+      const span = course.lab && i + 1 < pattern.slots.length && !pattern.breaks.some((b) => b.after === i) ? 2 : 1;
+      for (let k = 0; k < span; k++) { busy.add(`${course.teacher}@${i + k}`); busy.add(`${course.room}@${i + k}`); }
+      cells.push({ items: [{ ...course }], span }); i += span;
+    }
+    return { batch, cells };
+  });
+  const od = pattern.slots.map(() => rng() < .3 ? [`NB-${pick([403, 405, 407])} (${pick(["EEE", "CE", "BA"])})`] : []);
+  return { day, pattern, rows, od };
+}
+
+const HSC = [
+  buildDay("Saturday", PATTERNS.hscSat, HSC_BATCHES, .16),
+  buildDay("Sunday", PATTERNS.hscStd, HSC_BATCHES, .12),
+  buildDay("Monday", PATTERNS.hscStd, HSC_BATCHES, .14),
+  buildDay("Tuesday", PATTERNS.hscTue, HSC_BATCHES, .3),
+];
+const DIPLOMA = [
+  buildDay("Friday", PATTERNS.dipFri, DIP_BATCHES, .12),
+  buildDay("Saturday", PATTERNS.dipSat, DIP_BATCHES, .14),
+];
+// Cases the print has to handle.
+(() => {
+  const sat24 = HSC[0].rows[5].cells; sat24[sat24.length - 1] = { items: [{ ...COURSE["CSE-3207"], time: "2:00 – 3:15 PM" }], span: 1 };
+  const mon25 = HSC[2].rows[4].cells; mon25[1] = { items: [{ ...COURSE["CSE-3104"], room: "NB-603 / NB-605", note: "Two groups" }], span: 1 };
+  HSC[1].od[3] = ["NB-405 (EEE)", "NB-407 (BA)"];
+  // 24 B follows its own lab-block periods on Tuesday: one row, with each time written in.
+  HSC[3].rows[5].cells = [{ span: PATTERNS.hscTue.slots.length, own: [
+    { time: PATTERNS.labBlock.slots[0], items: [{ ...COURSE["CSE-3202"], note: "Group A" }, { ...COURSE["CSE-3204"], note: "Group B" }] },
+    { time: PATTERNS.labBlock.slots[1], items: [{ ...COURSE["CSE-3206"], note: "Groups A + B" }] },
+  ] }];
+})();
+
+/* ---------- Rendering ---------- */
+const DRAFT = location.hash === "#draft";
+document.body.classList.toggle("is-draft", DRAFT);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function classHtml(c) {
+  return `<div class="cls"><span class="code">${esc(c.code)}</span> (${esc(c.teacher)})<span class="meta">${esc(c.room)}${c.note ? ` <span class="note">· ${esc(c.note)}</span>` : ""}</span>${c.time ? `<span class="time">${esc(c.time)}</span>` : ""}</div>`;
+}
+
+function dayTable(d) {
+  const { slots, breaks } = d.pattern;
+  const bodyRows = d.rows.length + (d.od ? 1 : 0);
+  const head = slots.map((s, i) => `<th scope="col">${esc(s)}</th>` + breaks.filter((b) => b.after === i).map(() => `<th class="col-break brk"><span>Break</span></th>`).join("")).join("");
+  const rows = d.rows.map((r, ri) => {
+    let col = 0; let html = "";
+    for (const cell of r.cells) {
+      const span = cell?.span ?? 1;
+      if (cell?.own) html += `<td class="own" colspan="${span + breaks.length}"><div class="own-row">${cell.own.map((seg) =>
+        `<div class="seg"><span class="seg-time">${esc(seg.time)}</span>${seg.items.map(classHtml).join("")}</div>`).join("")}</div></td>`;
+      else html += `<td${span > 1 ? ` colspan="${span}"` : ""}>${cell ? cell.items.map(classHtml).join("") : ""}</td>`;
+      col += span;
+      if (ri === 0) for (const b of breaks.filter((b) => b.after === col - 1)) html += `<td class="brk" rowspan="${bodyRows}"><span>${esc(b.name)}</span></td>`;
+    }
+    return `<tr>${ri === 0 ? `<th class="day" rowspan="${bodyRows}" scope="rowgroup"><span>${d.day}</span></th>` : ""}<th class="batch" scope="row">${r.batch}</th>${html}</tr>`;
+  }).join("");
+  const od = d.od ? `<tr class="od"><th scope="row">OD</th>${d.od.map((x) => `<td>${x.map(esc).join("<br>")}</td>`).join("")}</tr>` : "";
+  const caption = d.group ? `<caption>${d.day}, ${esc(d.group)} <span>(${esc(d.only)} only)</span></caption>` : "";
+  return `<table class="routine">${caption}<thead><tr><th class="col-day" scope="col">Day</th><th class="col-batch" scope="col">Batch</th>${head}</tr></thead><tbody>${rows}${od}</tbody></table>`;
+}
+
+function sheet({ program, label, foot, sign }) {
+  const el = document.createElement("section");
+  el.className = "sheet";
+  el.innerHTML = `
+    <div class="watermark" aria-hidden="true"><span>DRAFT</span></div>
+    <header class="sheet-head">
+      <div class="tag left"><small>${esc(label)}</small><strong>${esc(program)}</strong></div>
+      <div class="institution">
+        <div class="uni">Pundra University of Science &amp; Technology</div>
+        <div class="dept">Department of Computer Science &amp; Engineering</div>
+        <div class="doc">Class Routine · Summer 2026</div>
+      </div>
+      <div class="tag right"><small>Effective from</small><strong>14 August 2026</strong>
+        <span class="official-only">Publication v3</span><b class="draft-only">DRAFT: NOT OFFICIAL</b></div>
+    </header>
+    <div class="sheet-body-wrap" style="min-height:0;display:flex;flex-direction:column">
+      <div class="sheet-title"><h1></h1><span class="cont"></span></div>
+      <div class="sheet-body"></div>
+    </div>
+    <footer class="sheet-foot">
+      <div>${foot}</div>
+      ${sign ? `<div class="sign"><div class="line"></div>Head, Department of CSE</div>` : "<div></div>"}
+      <div class="page"><span class="official-only">Publication v3 · issued 1 October 2026</span><span class="draft-only">Draft printed 1 October 2026 · not for the notice board</span><b class="pageno"></b></div>
+    </footer>`;
+  document.getElementById("package").append(el);
+  return el;
+}
+
+const LEGEND = "NB = New Building · OD = rooms used by other departments<br>Teacher codes are listed on the last page.";
+
+/** Fill sheets with tables; a table that does not fit starts a new sheet. */
+function flow(tables, opts, titleFor) {
+  const sheets = [];
+  let current = null;
+  for (const t of tables) {
+    if (!current) { current = sheet(opts); current.days = []; sheets.push(current); }
+    const body = current.querySelector(".sheet-body");
+    const holder = document.createElement("div"); holder.innerHTML = t.html; const node = holder.firstElementChild;
+    body.append(node);
+    if (body.scrollHeight > body.clientHeight + 1 && body.children.length > 1) {
+      node.remove();
+      current = sheet(opts); current.days = []; sheets.push(current);
+      current.querySelector(".sheet-body").append(node);
+    }
+    if (!current.days.includes(t.day)) current.days.push(t.day);
+  }
+  sheets.forEach((s, i) => {
+    s.querySelector("h1").textContent = titleFor(s.days);
+    s.querySelector(".cont").textContent = sheets.length > 1
+      ? `Sheet ${i + 1} of ${sheets.length}${i + 1 < sheets.length ? " · continued on the next sheet" : " · continued from the previous sheet"}`
+      : "";
+  });
+  return sheets;
+}
+
+function courseAppendix() {
+  const s = sheet({ program: "B.Sc. in CSE (HSC and Diploma)", label: "Courses offered", foot: "Totals are credits per semester.", sign: false });
+  s.querySelector("h1").textContent = "Courses Offered in Summer 2026, by Year and Semester";
+  const years = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+  const table = (sem) => {
+    const list = SEMESTERS[sem];
+    const total = list.reduce((a, c) => a + c[2], 0);
+    return `<table class="plain"><colgroup><col style="width:15mm"><col><col style="width:12mm"></colgroup><thead><tr class="band"><th colspan="3">${years[Math.ceil(sem / 2) - 1]}, ${sem % 2 ? "1st" : "2nd"} Semester</th></tr><tr><th class="code">Code</th><th>Course title</th><th class="num">Credits</th></tr></thead>
+      <tbody>${list.map((c) => `<tr><td class="code">${c[0]}</td><td>${esc(c[1])}</td><td class="num">${c[2].toFixed(2)}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><th colspan="2">Total credits</th><th class="num">${total.toFixed(2)}</th></tr></tfoot></table>`;
+  };
+  s.querySelector(".sheet-body").innerHTML = `<div class="years">${[1, 3, 5, 7].map(table).join("")}${[2, 4, 6, 8].map(table).join("")}</div>`;
+  return s;
+}
+
+function directoryAppendix() {
+  const s = sheet({ program: "B.Sc. in CSE (HSC and Diploma)", label: "Contacts", foot: "Teacher codes match the routine pages.", sign: false });
+  s.querySelector("h1").textContent = "Teachers, Class Representatives and Query Contacts";
+  const half = Math.ceil(TEACHERS.length / 2);
+  const tTable = (list, offset) => `<table class="plain"><thead><tr><th class="sl">SL</th><th>Teacher</th><th style="width:11mm">Code</th><th style="width:19mm">Mobile</th><th style="width:29mm">Email</th></tr></thead><tbody>${
+    list.map((t, i) => `<tr><td class="sl">${offset + i + 1}</td><td>${esc(t[1])}, <span style="color:#333">${esc(t[2])}</span></td><td>${t[0]}</td><td>01700-0000${String(offset + i + 10).padStart(2, "0")}</td><td>${t[0].toLowerCase()}@pub.example</td></tr>`).join("")}</tbody></table>`;
+  const CR_NAMES = ["Rafi Ahmed", "Nabila Islam", "Sakib Hasan", "Tasnim Ara", "Fahad Kabir", "Mim Akter", "Rahat Chowdhury", "Jannat Ferdous", "Arnob Saha", "Sadia Noor", "Imran Hossain", "Puja Roy", "Nafis Iqbal", "Raisa Karim", "Tamim Rahman"];
+  let n = 0;
+  const crTable = (batches) => `<table class="plain"><thead><tr><th style="width:12mm">Batch</th><th>Class representative</th><th style="width:22mm">Mobile</th></tr></thead><tbody>${
+    batches.map(([b]) => { const name = n === 9 ? null : CR_NAMES[n % CR_NAMES.length]; n++; return `<tr><td>${b}</td><td>${name ?? "<i>Not yet nominated</i>"}</td><td>${name ? `01800-0000${String(n + 10).padStart(2, "0")}` : ""}</td></tr>`; }).join("")}</tbody></table>`;
+  s.querySelector(".sheet-body").innerHTML = `<div class="directory">
+    <div class="span"><p class="section-label">Teachers</p><div class="directory" style="row-gap:0">${tTable(TEACHERS.slice(0, half), 0)}${tTable(TEACHERS.slice(half), half)}</div></div>
+    <div><p class="section-label">Class representatives, B.Sc. in CSE (HSC)</p>${crTable(HSC_BATCHES)}</div>
+    <div><p class="section-label">Class representatives, B.Sc. in CSE (Diploma)</p>${crTable(DIP_BATCHES)}</div>
+    <div class="span"><p class="section-label">For any query</p><div class="contacts">
+      <div><b>Shahnaz Parvin</b>Lecturer and Course Coordinator, Dept. of CSE<br>Mobile 01700-000018</div>
+      <div><b>Imtiaz Karim</b>Lecturer and Course Coordinator, Dept. of CSE<br>Mobile 01700-000019</div>
+      <div><b>Dr. Anwarul Kabir</b>Associate Professor and Head, Dept. of CSE<br>Mobile 01700-000011</div>
+    </div></div></div>`;
+  return s;
+}
+
+const dayTitle = (days) => `Weekly Class Routine: ${days.length > 2 ? `${days[0]} to ${days[days.length - 1]}` : days.join(" and ")}`;
+
+document.fonts.ready.then(() => {
+  const hsc = flow(HSC.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (HSC)", label: "Program", foot: LEGEND, sign: true }, dayTitle);
+  const dip = flow(DIPLOMA.map((d) => ({ day: d.day, html: dayTable(d) })), { program: "B.Sc. in CSE (Diploma)", label: "Program", foot: LEGEND, sign: true }, dayTitle);
+  courseAppendix();
+  directoryAppendix();
+  const all = [...document.querySelectorAll(".sheet")];
+  all.forEach((s, i) => { s.querySelector(".pageno").textContent = ` · Page ${i + 1} of ${all.length}`; });
+
+  // Fit check: nothing may cross the sheet's inner box or run under the footer.
+  const problems = [];
+  all.forEach((s, i) => {
+    const body = s.querySelector(".sheet-body");
+    if (body.scrollHeight > body.clientHeight + 1) problems.push(`page ${i + 1}: body overflows by ${body.scrollHeight - body.clientHeight}px`);
+    const box = s.getBoundingClientRect(); const cs = getComputedStyle(s);
+    const inner = { left: box.left + parseFloat(cs.paddingLeft) - .5, right: box.right - parseFloat(cs.paddingRight) + .5, bottom: s.querySelector(".sheet-foot").getBoundingClientRect().top + .5 };
+    for (const el of body.querySelectorAll("table, td, th")) {
+      const r = el.getBoundingClientRect();
+      if (r.left < inner.left || r.right > inner.right || r.bottom > inner.bottom) { problems.push(`page ${i + 1}: ${el.tagName} outside the frame`); break; }
+      if (el.scrollWidth > el.clientWidth + 1 && el.tagName !== "TABLE") { problems.push(`page ${i + 1}: clipped text "${el.textContent.slice(0, 30)}"`); break; }
+    }
+  });
+  document.body.dataset.fit = problems.length ? "fail" : "pass";
+  document.body.dataset.problems = JSON.stringify(problems);
+  document.getElementById("fit-report").textContent = problems.length ? `Fit check: ${problems.length} problem(s)` : `Fit check: all ${all.length} pages inside the frame`;
+});
+window.addEventListener("hashchange", () => location.reload());
+</script>
+</body>
+</html>
