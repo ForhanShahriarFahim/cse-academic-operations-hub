@@ -3,7 +3,7 @@
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
 Specification: [spec.md](spec.md)
 Verification: verification.md (created during T-11)
-Status: Proposed. Waiting for owner approval of this plan and the [mockups](mockups/).
+Status: Approved 1 October 2026; implementation in progress.
 Branch / base: `codex/auth-02` from main `8821e91`
 Updated: 1 October 2026, Asia/Dhaka
 
@@ -128,8 +128,9 @@ Each run writes a system audit event. The link is printed only. The README opera
 ## Approval record
 
 - Owner decisions: D-1–D-7 accepted as recommended on 1 October 2026, in the Claude Code session ("Accept all recommendations, write the plan and mockups").
-- Owner authorization of this plan: **Pending.**
-- Approved scope: pending. It will be [spec.md](spec.md) as committed with this plan.
+- Owner authorization of this plan: **Approved.**
+- Date and evidence: 1 October 2026, in the Claude Code session. After reviewing the plan and mockup renders (commit `e03400d`), the owner replied "approve AUTH-02".
+- Approved scope: [spec.md](spec.md), this plan and the [mockups](mockups/) as committed in `e03400d`, with D-1–D-7 as recommended. Downloading the common-password list (T-03) still needs a separate go-ahead.
 - Material amendments: none.
 
 Commit the approved plan before implementation. Unchanged approved scope survives agent handoff; do not infer acceptance or expanded authorization from it.
@@ -168,9 +169,9 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Current checkpoint / handoff
 
-- Approved scope: pending owner approval of this plan.
+- Approved scope: see Approval record (1 October 2026).
 - Commits: `bf214b8` (proposed spec), then the plan, the recorded decisions and the mockups.
 - Completed tasks: none.
-- Next action: owner review of the plan and mockups. On approval, record it here, commit, and start T-01.
+- Next action: T-01 (migration 0008 and schema).
 - Verification: not started.
 - Blockers/capabilities: downloading the common-password list needs the owner's go-ahead (T-03). Google OAuth credentials are not available, so the real callback stays pending.

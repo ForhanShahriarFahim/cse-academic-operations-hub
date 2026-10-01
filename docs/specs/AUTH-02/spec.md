@@ -1,7 +1,7 @@
 # AUTH-02 — Email/password sign-in and account administration
 
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
-Status: Proposed. The owner accepted every recommended decision (D-1–D-7) on 1 October 2026. Plan approval is pending; see the [plan](plan.md).
+Status: Approved 1 October 2026 with the recommended decisions D-1–D-7 (see the [plan approval record](plan.md#approval-record)); implementation in progress.
 Updated: 1 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline
