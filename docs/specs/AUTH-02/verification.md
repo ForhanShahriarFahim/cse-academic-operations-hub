@@ -2,8 +2,8 @@
 
 Issue: [#36 AUTH-02](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36)
 Specification: [spec.md](spec.md) · Plan: [plan.md](plan.md) · Mockups: [mockups/](mockups/)
-Status: Verified; **owner acceptance pending**. The institutional database is not migrated yet.
-Updated: 1 October 2026, Asia/Dhaka
+Status: **Accepted by the owner on 2 October 2026** ("accept AUTH-02"). The institutional migration and the merge wait for the owner's separate go-ahead.
+Updated: 2 October 2026, Asia/Dhaka
 
 ## Environment
 
@@ -79,6 +79,6 @@ Fresh review copy, synthetic people, 1440 px desktop and 390 px phone.
 ## Delivery and acceptance
 
 - Commits: `bf214b8` (spec) … `13ee3e8` (T-10) on `codex/auth-02`, plus this record.
-- Remaining gates: owner acceptance; then, with the owner's go-ahead, a cold backup of the institutional database with a SHA-256 manifest and migration 0008 (BUG-29 T-08 pattern); merge; close #36 and #31.
-- Owner acceptance: **Pending.**
+- Remaining gates: with the owner's go-ahead, a cold backup of the institutional database with a SHA-256 manifest and migration 0008 (BUG-29 T-08 pattern); merge; close #36 and #31.
+- Owner acceptance: **Accepted** on 2 October 2026 in the Claude Code session, after reviewing this record, the screenshots and the delivery summary: "accept AUTH-02". The message did not authorize the institutional migration; that go-ahead is still requested separately, as agreed.
 - Merge / closure: Pending.
