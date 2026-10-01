@@ -183,4 +183,5 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 - Security review (T-10), 1 October 2026, at `69a2083`: no high- or medium-confidence findings. The one hardening item (`safeReturnPath` and control characters) is fixed in `13ee3e8`.
 - Verification, 1 October 2026: `typecheck`, `lint`, `test:domain`, `test:safety` (PGlite and PostgreSQL 17.11) and `build` pass; `test:ux` 77 passed (1 skipped by design). See [verification.md](verification.md).
 - Next action: get the owner's go-ahead for the institutional step (not given in the acceptance message). Then: cold backup of the institutional database with a SHA-256 manifest in the backup folder outside Git (as for BUG-29), migrate to 0008, compare counts (BUG-29 T-08 pattern); then merge, and close #36 and #31.
-- Blockers/capabilities: the SecLists common-password download still needs the owner's go-ahead (the 80-entry starter list is in use). Google OAuth credentials are not available, so the real callback stays pending under AUTH-01.
+- Common-password list: the owner approved the SecLists download on 2 October 2026; the derived NCSC list (1,188 entries) is in use with the 80 local additions.
+- Blockers/capabilities: Google OAuth credentials are not available, so the real callback stays pending under AUTH-01.

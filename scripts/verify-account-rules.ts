@@ -27,6 +27,9 @@ assert.equal(passwordProblem("নদীর ধারে বসে আছি", em
 assert.equal(passwordProblem("😀😀😀😀😀😀😀😀😀😀😀", email), "Use at least 12 characters. This one has 11.", "emoji count as one character each");
 assert.match(passwordProblem("Password1234", email) ?? "", /too common/);
 assert.match(passwordProblem("password 1234", email) ?? "", /too common/, "spaces do not dodge the common list");
+assert.match(passwordProblem("Manchester United", email) ?? "", /too common/, "entries from the SecLists NCSC list are refused");
+assert.match(passwordProblem("1qaz2wsx3edc4rfv", email) ?? "", /too common/);
+assert.match(passwordProblem("bangladesh1234", email) ?? "", /too common/, "local additions still apply");
 assert.match(passwordProblem("my Tanvir.Sarker phrase", email) ?? "", /tanvir\.sarker/);
 assert.equal(passwordProblem("bob is my uncle!", "bob@pundra.example"), null, "email names under 4 characters are not refused");
 assert.deepEqual(passwordChecks("river otter 7", email).map((check) => check.met), [true, true, true]);

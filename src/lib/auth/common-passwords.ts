@@ -3,10 +3,11 @@
  * more characters matter, because shorter ones fail the length rule anyway.
  * Matching ignores letter case and spaces.
  *
- * This is a hand-written starter list. The plan (T-03) replaces it with one
- * derived from SecLists' most-common-passwords file (MIT), once the owner
- * agrees to the download.
+ * Two sources: the SecLists NCSC list (MIT; generated, see common-passwords-seclists.ts)
+ * and the local additions below, which add the department's own likely choices.
  */
+import { SECLISTS_COMMON_PASSWORDS } from "./common-passwords-seclists";
+
 const LIST = `
 123456789012 1234567890123 12345678901234 123456789123 111111111111 000000000000 123123123123 121212121212
 112233445566 987654321098 098765432109 147258369147 123412341234 abcd12345678 abc123456789 a1b2c3d4e5f6
@@ -20,4 +21,7 @@ teacher123456 university123 university1234 student123456 lecturer1234 qwertyuiop
 aaaaaaaaaaaa zxcvbnm12345 zxcvbnmasdfg passw0rd1234 p@ssw0rd1234 p@ssword1234 pa55word1234 correcthorsebatterystaple
 `;
 
-export const COMMON_PASSWORDS: ReadonlySet<string> = new Set(LIST.trim().split(/\s+/).map((entry) => entry.toLowerCase()));
+export const COMMON_PASSWORDS: ReadonlySet<string> = new Set([
+  ...SECLISTS_COMMON_PASSWORDS,
+  ...LIST.trim().split(/\s+/).map((entry) => entry.toLowerCase()),
+]);

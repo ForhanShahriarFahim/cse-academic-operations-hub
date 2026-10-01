@@ -171,6 +171,8 @@ test("five wrong passwords lock sign-in; the administrator sees and clears the l
       login.getByRole("button", { name: "Sign in", exact: true }).click(),
     ]);
     await expect(login.getByRole("alert").filter({ hasText: REFUSED })).toBeVisible();
+    // React resets the form when the action settles; typing before that loses the next attempt's input.
+    await expect(login.getByLabel("Password", { exact: true })).toHaveValue("");
   }
   await adminPage.goto(accountUrl, { waitUntil: "networkidle" });
   await expect(adminPage.getByText(/Password sign-in is locked until/)).toBeVisible();
