@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 2 October 2026: no issue in progress.** Next: choose with the owner (see Other candidates and the brainstorm triage).
+**State on 2 October 2026: [BUG-48 / #48](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/48) is approved and in progress** on branch `claude/bug-48` (SAFE-01 follow-up F-10). It fixes the disposable PostgreSQL cluster that keeps running after a killed `test:safety` run. Resume from the [checkpoint](specs/BUG-48/spec.md#current-checkpoint--handoff).
 
 - **Last completed:** [AUTH-02 / #36](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/36), email/password sign-in with administrator setup and reset links, lockout, session revocation, dated roles and the rebuilt People & Access (also closes #31).
   - **Accepted** by the owner on 2 October 2026 and merged. The institutional database was cold-backed-up (`F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-AUTH-02-20261002-0119`, with its SHA-256 manifest) and migrated to 0008; all 38 existing tables are unchanged.
