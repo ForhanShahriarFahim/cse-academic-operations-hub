@@ -45,10 +45,20 @@ export const isLocked = (lockedUntil: Date | null | undefined, now: Date) => loc
 
 export const lockEndsAt = (now: Date) => new Date(now.getTime() + LOCK_MINUTES * 60_000);
 
-/** A same-site path to return to after sign-in; anything else returns home. */
+/**
+ * A same-site path to return to after sign-in; anything else returns home.
+ * Control characters are refused because browsers strip tabs and newlines,
+ * which would turn "/\t/evil.example" into "//evil.example".
+ */
 export function safeReturnPath(value: unknown): string {
   const path = typeof value === "string" ? value : "";
-  return path.startsWith("/") && !path.startsWith("//") && !path.includes("\\") ? path : "/";
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\") || /[\u0000-\u001f\u007f]/.test(path)) return "/";
+  const base = "http://portal.invalid";
+  try {
+    return new URL(path, base).origin === base ? path : "/";
+  } catch {
+    return "/";
+  }
 }
 
 export const linkExpiresAt =(purpose: LinkPurpose, now: Date) =>

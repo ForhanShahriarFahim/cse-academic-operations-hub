@@ -225,7 +225,7 @@ test("keyboard: sign-in order, and confirmations focus Cancel and return focus (
   for (let step = 0; step < 6; step++) {
     await page.keyboard.press("Tab");
     order.push(await page.evaluate(() => {
-      const element = document.activeElement as HTMLElement;
+      const element = document.activeElement as HTMLInputElement;
       return element.getAttribute("aria-label") ?? (element.labels?.[0]?.textContent ?? element.textContent ?? "").trim();
     }));
   }

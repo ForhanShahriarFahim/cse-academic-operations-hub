@@ -69,7 +69,10 @@ assert.equal(isLocked(null, failedAt), false);
 assert.match(SIGN_IN_REFUSED, /After 5 failed tries, wait 15 minutes/);
 
 // Return paths after sign-in stay on this site.
-for (const bad of ["https://evil.example", "//evil.example", "/\\evil.example", "", null, 42]) assert.equal(safeReturnPath(bad), "/");
+for (const bad of [
+  "https://evil.example", "//evil.example", "/\\evil.example", "/\t/evil.example", "/\n/evil.example", "/\r\n/evil.example",
+  "/\u0000/evil.example", "/\u007f/evil.example", "", null, 42,
+]) assert.equal(safeReturnPath(bad), "/");
 assert.equal(safeReturnPath("/my-routine?x=1"), "/my-routine?x=1");
 
 // Throttle: 10 sign-in attempts a minute per client, separate per client and bucket.
