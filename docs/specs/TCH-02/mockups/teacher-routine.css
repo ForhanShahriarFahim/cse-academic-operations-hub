@@ -1,0 +1,93 @@
+/* TCH-02 proposal mockup: My routine (screen) and bulk print. Static review artifact, not application code. */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; background: var(--sheet); padding: 2px; }
+.seg a { text-decoration: none; font: 500 13px var(--body); color: var(--ink-2); padding: 6px 12px; border-radius: 5px; white-space: nowrap; }
+.seg a[aria-current="true"] { background: var(--ink); color: #fff; }
+
+.notice.warn { background: var(--gold-tint); border-color: #e3c98f; color: var(--gold-text); }
+.notice.warn a { color: inherit; font-weight: 600; }
+.figures.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1023px) { .figures.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Week tables: same rows and columns as the print, in portal colours */
+.prog { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 18px 8px; }
+.prog h2 { font: 600 16px/1.3 var(--display); margin: 0; }
+.prog span { font-size: 12.5px; color: var(--muted); }
+.wk-wrap { overflow-x: auto; padding: 0 18px 14px; }
+.wk-wrap + .wk-wrap { padding-top: 0; }
+table.wk { width: 100%; min-width: 640px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.wk th, .wk td { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 7px 8px; text-align: center; vertical-align: middle; }
+.wk tr > :last-child { border-right: 0; }
+.wk tbody tr:last-child > * { border-bottom: 0; }
+.wk tbody th.day[rowspan] { border-bottom: 0; }
+.wk tbody tr.last > * { border-bottom: 0; }
+.wk col.day { width: 104px; }
+.wk col.batch { width: 76px; }
+.wk thead th { background: #f3f0e6; font: 600 12px/1.3 var(--mono); color: var(--ink-2); }
+.wk thead th:nth-child(-n+2) { font-family: var(--body); }
+.wk tbody th { font-weight: 600; background: var(--sheet); }
+.wk tbody th.day { text-align: left; background: #faf7ee; border-bottom: 1px solid var(--line); }
+.wk tbody th.batch { font-family: var(--mono); font-size: 12.5px; }
+.wk tbody th.batch small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+.wk td.c { background: var(--pine-tint); }
+.wk td.c b { display: block; font: 600 12.5px var(--mono); color: var(--pine); }
+.wk td.c span { display: block; font-size: 12px; color: var(--ink-2); }
+.wk td.c i { display: block; font-size: 11.5px; font-style: normal; color: var(--gold-text); }
+.wk td.c em { font-style: normal; font-size: 11px; color: var(--muted); }
+
+/* Course key: how the credit hours add up */
+.key { width: 100%; border-collapse: collapse; font-size: 13px; }
+.key th, .key td { padding: 7px 18px; border-top: 1px solid var(--line-soft); text-align: left; }
+.key thead th { font-size: 12px; color: var(--ink-2); background: #f3f0e6; border-top: 0; font-weight: 600; }
+.key td.r, .key th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.key td b { font-family: var(--mono); font-size: 12.5px; }
+.key tfoot td { font-weight: 600; background: #f3f0e6; }
+
+.also-list { list-style: none; margin: 0; padding: 0 18px 12px; font-size: 13.5px; }
+.also-list li { padding: 8px 0; border-top: 1px solid var(--line-soft); display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.also-list li:first-child { border-top: 0; }
+.also-list b { font-family: var(--mono); font-size: 12.5px; }
+.also-list span { color: var(--muted); }
+
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; margin-top: 18px; align-items: start; }
+.section + .section { margin-top: 0; }
+.stack > .section + .section { margin-top: 18px; }
+
+/* Phone agenda (replaces the week tables below 640 px) */
+.agenda { display: none; }
+.agenda .dayh { display: flex; align-items: baseline; gap: 8px; padding: 12px 16px 6px; margin: 0; font: 600 15px/1.3 var(--display); border-top: 1px solid var(--line); }
+.agenda .dayh:first-child { border-top: 0; }
+.agenda .dayh small { font: 600 11.5px var(--body); color: var(--pine); background: var(--pine-tint); border-radius: 4px; padding: 1px 6px; }
+.agenda .none { padding: 0 16px 12px; margin: 0; font-size: 13px; color: var(--muted); }
+.agenda ol { list-style: none; margin: 0; padding: 0 16px 10px; }
+.agenda li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 2px 12px; padding: 8px 0; border-top: 1px solid var(--line-soft); }
+.agenda li:first-child { border-top: 0; }
+.agenda time { font: 500 12.5px/1.35 var(--mono); color: var(--ink-2); white-space: nowrap; }
+.agenda .what b { font: 600 13px var(--mono); color: var(--pine); }
+.agenda .what span { display: block; font-size: 13px; color: var(--ink-2); }
+.agenda .what i { display: block; font-size: 12px; font-style: normal; color: var(--gold-text); }
+
+/* Bulk print */
+.bulk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 18px; border-bottom: 1px solid var(--line-soft); }
+.bulk-bar .grow { flex: 1; }
+.bulk-bar label { font-size: 13px; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; }
+.bulk-bar input[type=search] { min-height: 34px; border: 1px solid var(--line); border-radius: 6px; padding: 0 10px; font: inherit; background: #fff; width: 220px; }
+.pick th:first-child, .pick td:first-child { width: 44px; padding-right: 0; }
+.pick input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--pine); }
+.pick td.dim, .pick tr.dim td { color: var(--muted); }
+.sticky-print { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 18px; background: var(--sheet); border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; }
+.sticky-print p { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+@media (max-width: 1023px) {
+  .grid2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .wk-wrap, .prog { display: none; }
+  .agenda { display: block; }
+  .page-head .actions { width: 100%; }
+  .page-head .actions .seg { width: 100%; }
+  .page-head .actions .seg a { flex: 1; text-align: center; }
+  .page-head .actions .btn { flex: 1; justify-content: center; }
+  .key th, .key td { padding: 7px 12px; }
+  .key .t { display: none; }
+  .bulk-bar input[type=search] { width: 100%; }
+}

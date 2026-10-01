@@ -35,7 +35,7 @@ try {
 }
 
 // Pinned child environment: .env files cannot redirect the target, because present keys are never overridden.
-const env = reviewEnvironment(inside, { secret: "s".repeat(64), token: "t", cookie: "c" });
+const env = reviewEnvironment(inside, { secret: "s".repeat(64), token: "t", cookie: "c", teacherToken: "u", teacherCookie: "d" });
 assert.equal(env.DATABASE_URL, "");
 assert.equal(env.PGLITE_DATA_DIR, inside);
 assert.equal(env.BETTER_AUTH_URL, "http://localhost:3100");

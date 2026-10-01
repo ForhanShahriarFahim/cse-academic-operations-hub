@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarDays,
+  CalendarCheck,
   Clock3,
   ShieldAlert,
   Users,
@@ -27,10 +28,18 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
   required?: string[];
+  /** Shown only to accounts linked to a teacher record. */
+  linkedTeacher?: boolean;
 }
 
 export const navGroups: { label: string | null; items: NavItem[] }[] = [
-  { label: null, items: [{ href: "/", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    label: null,
+    items: [
+      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/my-routine", label: "My routine", icon: CalendarCheck, linkedTeacher: true },
+    ],
+  },
   {
     label: "Routine",
     items: [
@@ -83,9 +92,10 @@ export function currentNavLabel(pathname: string): string {
   return "Academic Operations";
 }
 
-export function SidebarNav({ capabilities, onNavigate }: { capabilities: string[]; onNavigate?: () => void }) {
+export function SidebarNav({ capabilities, linkedTeacher = false, onNavigate }: { capabilities: string[]; linkedTeacher?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
-  const allowed = (item: NavItem) => !item.required || item.required.some((capability) => capabilities.includes(capability));
+  const allowed = (item: NavItem) => (!item.linkedTeacher || linkedTeacher)
+    && (!item.required || item.required.some((capability) => capabilities.includes(capability)));
   return (
     <nav aria-label="Main" className="flex-1 px-3 pb-3">
       {navGroups.map((group) => {

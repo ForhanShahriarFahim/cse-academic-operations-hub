@@ -242,10 +242,11 @@ export async function getPortalData(): Promise<PortalData> {
   return loadPortalData(privateContacts);
 }
 
-// This entry point exists only for the trusted first-run/seed CLI. It is not
-// used by pages, route handlers, or Server Actions.
+// This entry point exists only for the trusted first-run/seed CLI and the
+// review-data CLI (which refuses anything but the disposable review copy). It is
+// not used by pages, route handlers, or Server Actions.
 export async function getPortalDataForSeed(): Promise<PortalData> {
-  if (!/(?:^|[\\/])(?:prepare|seed)\.ts$/i.test(process.argv[1] ?? "")) {
+  if (!/(?:^|[\\/])(?:prepare|seed|review-publishable)\.ts$/i.test(process.argv[1] ?? "")) {
     throw new Error("Seed-only data access is unavailable outside the database CLI.");
   }
   return loadPortalData(true);

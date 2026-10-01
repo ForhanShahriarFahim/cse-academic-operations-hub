@@ -9,6 +9,12 @@
  *   npm run ux:review -- --role <role>      reviewer role (default system_administrator)
  *   npm run ux:review -- --prepare-only     prepare and seed, but do not start the server
  *   npm run ux:review -- --print-cookie     print a browser snippet that signs in the reviewer
+ *   npm run ux:review -- --publishable      review data only: move classes to free rooms so the 13 Summer 2026
+ *                                           room blockers clear, publish, and leave one draft change (TCH-02)
+ *
+ * A second account, ux-teacher@example.test, is signed in with the teacher role and linked to the
+ * teacher with the most classes, so "My routine" can be reviewed (TCH-02). Its cookie is in the
+ * session file as `teacherCookie`.
  *
  * Everything lives under .tmp/ux-review. DATABASE_URL is refused and every
  * variable that could redirect the database or auth provider is pinned for the
@@ -26,6 +32,7 @@ export const REVIEW_ROOT = path.join(REPO_ROOT, ".tmp", "ux-review");
 export const REVIEW_PORT = 3100;
 export const REVIEW_ORIGIN = `http://localhost:${REVIEW_PORT}`;
 export const REVIEW_EMAIL = "ux-reviewer@example.test";
+export const REVIEW_TEACHER_EMAIL = "ux-teacher@example.test";
 export const SESSION_COOKIE = "better-auth.session_token";
 const SESSION_FILE = path.join(REVIEW_ROOT, "session.local.json");
 const TSX_CLI = path.join(REPO_ROOT, "node_modules", "tsx", "dist", "cli.mjs");
@@ -57,14 +64,19 @@ export function resolveCopySource(input: string, target: string): string {
   return source;
 }
 
-interface ReviewSession { secret: string; token: string; cookie: string }
+interface ReviewSession { secret: string; token: string; cookie: string; teacherToken: string; teacherCookie: string }
+
+const signedCookie = (secret: string, token: string) =>
+  encodeURIComponent(`${token}.${createHmac("sha256", secret).update(token).digest("base64")}`);
 
 export function reviewSession(): ReviewSession {
-  if (existsSync(SESSION_FILE)) return JSON.parse(readFileSync(SESSION_FILE, "utf8")) as ReviewSession;
-  const secret = randomBytes(32).toString("hex");
-  const token = randomBytes(24).toString("base64url");
-  const signature = createHmac("sha256", secret).update(token).digest("base64");
-  const session = { secret, token, cookie: encodeURIComponent(`${token}.${signature}`) };
+  const saved = existsSync(SESSION_FILE) ? JSON.parse(readFileSync(SESSION_FILE, "utf8")) as Partial<ReviewSession> : null;
+  if (saved?.secret && saved.token && saved.cookie && saved.teacherToken && saved.teacherCookie) return saved as ReviewSession;
+  // Older session files have no teacher account; keep their reviewer session and add one.
+  const secret = saved?.secret ?? randomBytes(32).toString("hex");
+  const token = saved?.token ?? randomBytes(24).toString("base64url");
+  const teacherToken = randomBytes(24).toString("base64url");
+  const session = { secret, token, cookie: signedCookie(secret, token), teacherToken, teacherCookie: signedCookie(secret, teacherToken) };
   mkdirSync(REVIEW_ROOT, { recursive: true });
   writeFileSync(SESSION_FILE, JSON.stringify(session));
   return session;
@@ -100,6 +112,20 @@ async function seedReviewer(target: string, session: ReviewSession, role: string
       await tx.query(`delete from role_assignments where user_id = $1`, [userId]);
       // Backdated a day: database-stamped times are currently ahead of UTC on local PGlite (#29).
       await tx.query(`insert into role_assignments (user_id, role, active_from, granted_at) values ($1, $2, now() - interval '1 day', now() - interval '1 day')`, [userId, role]);
+
+      // A teacher account linked to the teacher with the most classes (TCH-02 "My routine").
+      const busiest = await tx.query<{ teacher_id: number }>(`select teacher_id from meeting_teachers group by teacher_id order by count(*) desc, teacher_id limit 1`);
+      const teacherId = busiest.rows[0]?.teacher_id ?? null;
+      await tx.query(`insert into auth_user (id, name, email, email_verified) values ('ux-teacher', 'UX Teacher', $1, true)
+        on conflict (id) do update set email_verified = true`, [REVIEW_TEACHER_EMAIL]);
+      await tx.query(`delete from auth_session where user_id = 'ux-teacher'`);
+      await tx.query(`insert into auth_session (id, expires_at, token, user_id) values ('ux-teacher-session', now() + interval '30 days', $1, 'ux-teacher')`, [session.teacherToken]);
+      const teacherUser = await tx.query<{ id: number }>(`insert into portal_users (email, display_name, status, teacher_id) values ($1, 'UX Teacher', 'active', $2)
+        on conflict (email) do update set status = 'active', teacher_id = excluded.teacher_id returning id`, [REVIEW_TEACHER_EMAIL, teacherId]);
+      await tx.query(`delete from role_assignments where user_id = $1`, [teacherUser.rows[0].id]);
+      if (teacherId != null) {
+        await tx.query(`insert into role_assignments (user_id, role, active_from, granted_at) values ($1, 'teacher', now() - interval '1 day', now() - interval '1 day')`, [teacherUser.rows[0].id]);
+      }
     });
   } finally {
     await db.close();
@@ -135,8 +161,12 @@ async function main(args: string[]) {
     // Embedded PGlite is not crash-safe: a hard-stopped server can leave the disposable copy unreadable.
     throw new Error("Preparing the review database failed. It is disposable; rebuild it with `npm run ux:review -- --fresh`.");
   }
+  if (args.includes("--publishable")) {
+    const result = spawnSync(process.execPath, [TSX_CLI, "src/db/review-publishable.ts"], { cwd: REPO_ROOT, env, stdio: "inherit" });
+    if (result.status !== 0) throw new Error("Making the review data publishable failed; see the message above.");
+  }
   await seedReviewer(target, session, role);
-  console.log(`Reviewer ${REVIEW_EMAIL} signed in as ${role.replaceAll("_", " ")}.`);
+  console.log(`Reviewer ${REVIEW_EMAIL} signed in as ${role.replaceAll("_", " ")}; ${REVIEW_TEACHER_EMAIL} signed in as a linked teacher.`);
 
   if (args.includes("--print-cookie")) {
     console.log(`\nIn the browser console on ${REVIEW_ORIGIN}:\n  document.cookie = "${SESSION_COOKIE}=${session.cookie}; path=/; SameSite=Lax"\n`);

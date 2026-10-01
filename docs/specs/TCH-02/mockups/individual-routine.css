@@ -1,0 +1,98 @@
+/* TCH-02 proposal mockup: individual teacher routine, A4 portrait, black and white.
+   Static review artifact, not application code. Structure follows the owner's
+   "Individual Class Routine" Word template; type and rules follow the accepted
+   RUT-04 official package (serif headings, condensed sans tables, two greys). */
+:root {
+  --ink: #000;
+  --ink-soft: #333;
+  --rule: #000;
+  --rule-soft: #8c8c8c;
+  --head-fill: #d9d9d9;
+  --day-fill: #efefef;
+  --paper: #fff;
+  --desk: #e7e8e6;
+  --serif: "Source Serif 4", "Times New Roman", Times, serif;
+  --sans: "IBM Plex Sans Condensed", "Arial Narrow", Arial, sans-serif;
+  --page-w: 210mm;
+  --page-h: 297mm;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--desk); color: var(--ink); font-family: var(--sans); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.review { max-width: var(--page-w); margin: 0 auto; padding: 18px 0 6px; font: 13px/1.45 var(--sans); color: #222; }
+.review b { font-size: 15px; }
+
+.package { display: flex; flex-direction: column; align-items: center; gap: 10mm; padding: 6mm 0 14mm; }
+
+.sheet {
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  padding: 11mm 12mm 9mm;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .18), 0 6px 22px rgb(0 0 0 / .10);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  row-gap: 4mm;
+  overflow: hidden;
+}
+
+/* Header: the template's centred block; an optional logo sits in the left gutter. */
+.head { position: relative; text-align: center; padding-bottom: 3mm; border-bottom: 1.6pt solid var(--rule); }
+.head::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2.4pt; border-bottom: .5pt solid var(--rule); }
+.head .dept { font: 700 15pt/1.15 var(--serif); }
+.head .uni { font: 600 11.5pt/1.25 var(--serif); margin-top: .6mm; }
+.head .title { display: inline-block; font: 700 12.5pt/1.2 var(--serif); margin-top: 3mm; text-decoration: underline; text-underline-offset: 2.5pt; text-decoration-thickness: .9pt; }
+.head .who { margin-top: 2.2mm; font: 600 10.5pt/1.35 var(--sans); }
+.head .who span { font-weight: 400; }
+.head .who b { font-weight: 700; }
+
+.mark { position: absolute; right: 0; bottom: 3.6mm; max-width: 48mm; text-align: right; border: .75pt solid var(--rule); padding: 1.2mm 2.2mm; font: 600 7.4pt/1.25 var(--sans); }
+.mark small { display: block; font-size: 6.4pt; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
+.mark.draft { border-width: 1.4pt; letter-spacing: .08em; text-transform: uppercase; font-size: 8pt; font-weight: 700; }
+.mark.draft small { letter-spacing: 0; text-transform: none; font-size: 6.8pt; font-weight: 400; }
+
+/* Body */
+.body { min-height: 0; }
+.program { font: 700 10.5pt/1.2 var(--serif); text-align: center; text-decoration: underline; text-underline-offset: 2.2pt; margin: 1mm 0 2.2mm; }
+.program + table, table + table { margin-bottom: 3.2mm; }
+
+table.r { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8.6pt; line-height: 1.22; }
+.r th, .r td { border: .75pt solid var(--rule); text-align: center; vertical-align: middle; padding: .8mm 1mm; }
+.r thead th { background: var(--head-fill); font-weight: 700; font-size: 8.2pt; height: 8.6mm; }
+.r thead th.t { font-size: 8pt; font-weight: 600; font-variant-numeric: tabular-nums; }
+.r col.day { width: 23mm; }
+.r col.batch { width: 19mm; }
+.r tbody th { font-weight: 700; }
+.r tbody th.day { background: var(--day-fill); letter-spacing: .06em; font-size: 8pt; }
+.r tbody th.batch { font-size: 8.6pt; }
+.r tbody th.batch small { display: block; font-size: 6.8pt; font-weight: 500; letter-spacing: 0; }
+.r tbody tr { height: 10.4mm; }
+.r td b { display: block; font-weight: 700; font-size: 8.8pt; }
+.r td span { display: block; }
+.r td i { display: block; font-size: 7.2pt; font-style: italic; }
+.r td em { font-style: normal; font-size: 7pt; }
+
+/* Below the tables */
+.also { margin-top: 1mm; border-top: .5pt solid var(--rule-soft); padding-top: 2.4mm; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm; font-size: 8.2pt; line-height: 1.35; }
+.also h3 { margin: 0 0 .8mm; font: 700 8.6pt/1.2 var(--serif); }
+.also ul { margin: 0; padding: 0; list-style: none; }
+.also li + li { margin-top: .6mm; }
+.also b { font-weight: 700; }
+
+/* Footer */
+.foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; border-top: .75pt solid var(--rule); padding-top: 1.8mm; font-size: 7.2pt; line-height: 1.35; color: var(--ink-soft); }
+.foot strong { color: var(--ink); }
+.foot .right { text-align: right; }
+
+.empty-note { border: .75pt dashed var(--rule-soft); padding: 4mm; text-align: center; font-size: 9pt; margin-top: 2mm; }
+
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  body { background: #fff; }
+  .review { display: none; }
+  .package { padding: 0; gap: 0; }
+  .sheet { box-shadow: none; break-after: page; }
+}

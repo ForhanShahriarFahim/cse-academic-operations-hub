@@ -344,6 +344,16 @@ This report answers both questions:
 
 Minimum fields: short code, full name, designation, employment type, home department, email, private phone, status and notes.
 
+### TCH-02 — Individual teacher routine
+
+Implemented on the TCH-02 branch (1 October 2026); see the [spec](specs/TCH-02/spec.md) for the full behaviour.
+
+- One projection drives the screen tables, the phone agenda and the A4 portrait print, so all three always show the same classes.
+- The layout follows the department's "Individual Class Routine" template: a section per program, DAY | BATCH | periods, only rows that have classes, and a new table whenever the period pattern changes.
+- Total Credit Hours is the Workload total, including other-department units.
+- Published is the default view, and draft prints are marked "Draft — not official".
+- There is no logo, and no .docx download yet.
+
 ## 9. Rooms and occupancy
 
 ### ROM-01 — Room CRUD and availability

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My routine — TCH-02 mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../UX-01/mockups/mockup.css">
+<link rel="stylesheet" href="teacher-routine.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></symbol>
+  <symbol id="i-me" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="2"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="M12 8v5M12 16h.01"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3.5 3 3.5 6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 0 0 6 0zM19 7l-3 7a4 4 0 0 0 6 0zM8 21h8"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24"><path d="M4 21h16M6 21V4h9l3 2v15M13 12h.01"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3"/><rect x="7" y="14" width="10" height="7"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
+  <header class="topbar">
+    <button type="button" aria-label="Open navigation"><svg><use href="#i-menu"/></svg></button>
+    <b>My routine</b>
+    <span class="state">Summer 2026</span>
+  </header>
+  <aside class="rail" aria-label="Portal">
+    <a class="brand" href="#"><b>Pundra Academic Operations</b><span>Department of CSE</span></a>
+    <div class="term"><strong>Summer 2026</strong><span class="state">Published v3</span></div>
+    <nav class="nav" aria-label="Main">
+      <a href="#"><svg><use href="#i-home"/></svg>Dashboard</a>
+      <a href="#" aria-current="page"><svg><use href="#i-me"/></svg>My routine</a>
+      <h2>Routine</h2>
+      <a href="#"><svg><use href="#i-cal"/></svg>Routine builder</a>
+      <a href="#"><svg><use href="#i-clock"/></svg>Days &amp; periods</a>
+      <a href="#"><svg><use href="#i-shield"/></svg>Validation</a>
+      <h2>Planning records</h2>
+      <a href="#"><svg><use href="#i-users"/></svg>Teachers</a>
+      <a href="#"><svg><use href="#i-scale"/></svg>Workload</a>
+      <a href="#"><svg><use href="#i-book"/></svg>Courses &amp; offerings</a>
+      <a href="#"><svg><use href="#i-cap"/></svg>Batches</a>
+      <a href="#"><svg><use href="#i-door"/></svg>Rooms</a>
+      <h2>Classes</h2>
+      <a href="#"><svg><use href="#i-check"/></svg>Attendance</a>
+      <a href="#"><svg><use href="#i-receipt"/></svg>Extra class load</a>
+    </nav>
+    <div class="account"><strong>Tanvir Ahmed Sarker</strong>Teacher<br><button type="button">Sign out</button></div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <p class="crumb">My routine · Summer 2026</p>
+          <h1>Tanvir Ahmed Sarker</h1>
+          <p>Lecturer · TAS. Your classes from the published routine, effective 14 August 2026.</p>
+        </div>
+        <div class="actions">
+          <nav class="seg" aria-label="Which routine"><a href="#" aria-current="true">Published v3</a><a href="#">Working draft</a></nav>
+          <a class="btn primary" href="individual-routine-print.html"><svg><use href="#i-print"/></svg>Print or save as PDF</a>
+        </div>
+      </div>
+
+      <p class="notice warn" role="status"><svg><use href="#i-warn"/></svg><span>The working draft changes 2 of your classes. They take effect only when a new version is published. <a href="#">See the working draft</a></span></p>
+
+      <dl class="figures four">
+        <div><dt>Total credit hours</dt><dd class="num">30</dd><small>Theory 3, one-credit lab 2</small></div>
+        <div><dt>Classes a week</dt><dd class="num">13</dd><small>Across 4 days</small></div>
+        <div><dt>Teaching time</dt><dd class="num">16 h 15 m</dd><small>Scheduled classes only</small></div>
+        <div><dt>Courses</dt><dd class="num">10</dd><small>Plus 1 with no fixed time</small></div>
+      </dl>
+
+      <section class="section" aria-labelledby="week">
+        <h2 id="week" style="position:absolute;left:-9999px">Weekly routine</h2>
+
+        <div class="prog"><h2>B.Sc. in CSE (HSC)</h2><span>8 classes</span></div>
+        <div class="wk-wrap" role="region" aria-label="HSC Saturday" tabindex="0">
+          <table class="wk"><colgroup><col class="day"><col class="batch"><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Day</th><th scope="col">Batch</th><th scope="col">9:30 – 10:45</th><th scope="col">10:45 – 12:00</th><th scope="col">12:00 – 1:15</th><th scope="col">2:30 – 3:45</th></tr></thead>
+            <tbody>
+              <tr><th class="day" scope="rowgroup" rowspan="2">Saturday</th><th class="batch" scope="row">25 B</th><td class="c" colspan="2"><b>CSE-3102</b><span>NB-604</span></td><td></td><td></td></tr>
+              <tr class="last"><th class="batch" scope="row">22 B</th><td></td><td></td><td class="c"><b>CSE-4201</b><span>NB-408</span></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="wk-wrap" role="region" aria-label="HSC Sunday and Monday" tabindex="0">
+          <table class="wk"><colgroup><col class="day"><col class="batch"><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Day</th><th scope="col">Batch</th><th scope="col">9:00 – 10:00</th><th scope="col">10:00 – 11:00</th><th scope="col">11:00 – 12:00</th><th scope="col">12:00 – 1:15</th></tr></thead>
+            <tbody>
+              <tr><th class="day" scope="rowgroup" rowspan="3">Sunday</th><th class="batch" scope="row">25 B</th><td class="c"><b>CSE-3103</b><span>NB-402</span></td><td></td><td></td><td></td></tr>
+              <tr><th class="batch" scope="row">23 B</th><td></td><td></td><td class="c"><b>CSE-4105</b><span>NB-406</span><i>with THR</i></td><td></td></tr>
+              <tr><th class="batch" scope="row">27 B</th><td></td><td></td><td></td><td class="c"><b>CSE-2104</b><span>NB-603 <em>· CSE + EEE</em></span></td></tr>
+              <tr><th class="day" scope="rowgroup" rowspan="3">Monday</th><th class="batch" scope="row">25 B<small>+ 26 B</small></th><td class="c"><b>CSE-3100</b><span>NB-602</span></td><td></td><td></td><td></td></tr>
+              <tr><th class="batch" scope="row">25 B</th><td></td><td class="c"><b>CSE-3103</b><span>NB-402</span></td><td></td><td></td></tr>
+              <tr class="last"><th class="batch" scope="row">22 B</th><td></td><td></td><td></td><td class="c"><b>CSE-4201</b><span>NB-408</span><i>12:30 – 1:45</i></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prog"><h2>B.Sc. in CSE (Diploma)</h2><span>5 classes</span></div>
+        <div class="wk-wrap" role="region" aria-label="Diploma Friday" tabindex="0">
+          <table class="wk"><colgroup><col class="day"><col class="batch"><col><col><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Day</th><th scope="col">Batch</th><th scope="col">9:00 – 10:00</th><th scope="col">10:00 – 11:00</th><th scope="col">11:00 – 12:00</th><th scope="col">12:00 – 1:00</th><th scope="col">2:00 – 3:00</th><th scope="col">3:00 – 4:00</th></tr></thead>
+            <tbody>
+              <tr><th class="day" scope="rowgroup" rowspan="2">Friday</th><th class="batch" scope="row">16 B</th><td class="c"><b>CSE-4124</b><span>NB-408</span></td><td></td><td></td><td></td><td class="c"><b>CSE-4123</b><span>NB-502</span></td><td></td></tr>
+              <tr class="last"><th class="batch" scope="row">22 B</th><td></td><td></td><td></td><td class="c"><b>CSE-1101</b><span>NB-508</span></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="wk-wrap" role="region" aria-label="Diploma Saturday" tabindex="0">
+          <table class="wk"><colgroup><col class="day"><col class="batch"><col><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Day</th><th scope="col">Batch</th><th scope="col">12:00 – 1:00</th><th scope="col">1:00 – 2:00</th><th scope="col">2:00 – 3:00</th><th scope="col">3:00 – 4:00</th><th scope="col">4:00 – 5:00</th></tr></thead>
+            <tbody>
+              <tr><th class="day" scope="rowgroup" rowspan="2">Saturday</th><th class="batch" scope="row">17 B</th><td></td><td></td><td class="c"><b>CSE-3102</b><span>NB-408</span></td><td></td><td></td></tr>
+              <tr class="last"><th class="batch" scope="row">22 B</th><td></td><td></td><td></td><td class="c" colspan="2"><b>CSE-1102</b><span>NB-407</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phone: the same classes as a day-by-day agenda, starting today -->
+        <div class="agenda">
+          <h3 class="dayh">Thursday <small>Today</small></h3>
+          <p class="none">No classes.</p>
+          <h3 class="dayh">Friday</h3>
+          <ol>
+            <li><time>9:00 – 10:00</time><div class="what"><b>CSE-4124</b> · Diploma 16 B<span>NB-408</span></div></li>
+            <li><time>12:00 – 1:00</time><div class="what"><b>CSE-1101</b> · Diploma 22 B<span>NB-508</span></div></li>
+            <li><time>2:00 – 3:00</time><div class="what"><b>CSE-4123</b> · Diploma 16 B<span>NB-502</span></div></li>
+          </ol>
+          <h3 class="dayh">Saturday</h3>
+          <ol>
+            <li><time>9:30 – 12:00</time><div class="what"><b>CSE-3102</b> · HSC 25 B<span>NB-604</span></div></li>
+            <li><time>12:00 – 1:15</time><div class="what"><b>CSE-4201</b> · HSC 22 B<span>NB-408</span></div></li>
+            <li><time>2:00 – 3:00</time><div class="what"><b>CSE-3102</b> · Diploma 17 B<span>NB-408</span></div></li>
+            <li><time>3:00 – 5:00</time><div class="what"><b>CSE-1102</b> · Diploma 22 B<span>NB-407</span></div></li>
+          </ol>
+          <h3 class="dayh">Sunday</h3>
+          <ol>
+            <li><time>9:00 – 10:00</time><div class="what"><b>CSE-3103</b> · HSC 25 B<span>NB-402</span></div></li>
+            <li><time>11:00 – 12:00</time><div class="what"><b>CSE-4105</b> · HSC 23 B<span>NB-406</span><i>with THR</i></div></li>
+            <li><time>12:00 – 1:15</time><div class="what"><b>CSE-2104</b> · HSC 27 B + EEE<span>NB-603</span></div></li>
+            <li><time>2:30 – 3:45</time><div class="what"><b>EEE-1101</b> · Department of EEE<span>NB-405 · other department</span></div></li>
+          </ol>
+          <h3 class="dayh">Monday</h3>
+          <ol>
+            <li><time>9:00 – 10:00</time><div class="what"><b>CSE-3100</b> · HSC 25 B + 26 B<span>NB-602</span></div></li>
+            <li><time>10:00 – 11:00</time><div class="what"><b>CSE-3103</b> · HSC 25 B<span>NB-402</span></div></li>
+            <li><time>12:30 – 1:45</time><div class="what"><b>CSE-4201</b> · HSC 22 B<span>NB-408</span></div></li>
+          </ol>
+          <h3 class="dayh">Tuesday</h3>
+          <p class="none">No classes.</p>
+        </div>
+      </section>
+
+      <div class="grid2">
+        <section class="section" aria-labelledby="hours">
+          <header><h2 id="hours">How the 30 credit hours add up</h2><a href="#">Workload</a></header>
+          <div class="table-region" role="region" aria-label="Credit hours by course" tabindex="0" style="overflow-x:auto">
+          <table class="key">
+            <thead><tr><th scope="col">Course</th><th scope="col">Batch</th><th scope="col" class="t">Type</th><th scope="col" class="r">Credit hours</th></tr></thead>
+            <tbody>
+              <tr><td><b>CSE-3103</b></td><td>HSC 25 B</td><td class="t">Theory</td><td class="r">3</td></tr>
+              <tr><td><b>CSE-3102</b></td><td>HSC 25 B</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>CSE-3100</b></td><td>HSC 25 B + 26 B</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>CSE-4201</b></td><td>HSC 22 B</td><td class="t">Theory</td><td class="r">3</td></tr>
+              <tr><td><b>CSE-4105</b></td><td>HSC 23 B</td><td class="t">Theory, shared with THR</td><td class="r">1.5</td></tr>
+              <tr><td><b>CSE-2104</b></td><td>HSC 27 B + EEE</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>CSE-4000</b></td><td>HSC 22 B</td><td class="t">Project / thesis</td><td class="r">1.5</td></tr>
+              <tr><td><b>CSE-4123</b></td><td>Diploma 16 B</td><td class="t">Theory</td><td class="r">3</td></tr>
+              <tr><td><b>CSE-4124</b></td><td>Diploma 16 B</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>CSE-1101</b></td><td>Diploma 22 B</td><td class="t">Theory</td><td class="r">3</td></tr>
+              <tr><td><b>CSE-1102</b></td><td>Diploma 22 B</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>CSE-3102</b></td><td>Diploma 17 B</td><td class="t">Lab</td><td class="r">2</td></tr>
+              <tr><td><b>EEE-1101</b></td><td>Department of EEE</td><td class="t">Other department</td><td class="r">3</td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="2">Total</td><td class="t"></td><td class="r">30</td></tr></tfoot>
+          </table>
+          </div>
+        </section>
+
+        <div class="stack">
+          <section class="section" aria-labelledby="nofix">
+            <header><h2 id="nofix">No fixed time</h2></header>
+            <ul class="also-list"><li><b>CSE-4000</b> Project / Thesis · HSC 22 B <span>Arranged by you with the students.</span></li></ul>
+          </section>
+          <section class="section" aria-labelledby="other">
+            <header><h2 id="other">Other departments</h2></header>
+            <ul class="also-list"><li><b>EEE-1101</b> Department of EEE · Sunday 2:30 – 3:45 · NB-405 <span>Verified.</span></li></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -8,6 +8,8 @@ import { SidebarNav, currentNavLabel } from "@/components/nav";
 
 interface PortalShellProps {
   capabilities: string[];
+  /** The account is linked to a teacher record, so it has a "My routine". */
+  linkedTeacher: boolean;
   termName: string;
   publishedVersion: number | null;
   displayName: string;
@@ -20,7 +22,7 @@ interface PortalShellProps {
  * Portal chrome. At 1024px and wider the sidebar is always visible; below it
  * becomes a drawer opened from the top bar, with the page behind made inert.
  */
-export function PortalShell({ capabilities, termName, publishedVersion, displayName, roleLabel, account, children }: PortalShellProps) {
+export function PortalShell({ capabilities, linkedTeacher, termName, publishedVersion, displayName, roleLabel, account, children }: PortalShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -104,7 +106,7 @@ export function PortalShell({ capabilities, termName, publishedVersion, displayN
             {termState}
           </span>
         </div>
-        <SidebarNav capabilities={capabilities} onNavigate={() => close(false)} />
+        <SidebarNav capabilities={capabilities} linkedTeacher={linkedTeacher} onNavigate={() => close(false)} />
         <div className="border-t border-white/10 px-4 py-3 text-[12.5px] text-[#aeb7b1]">
           <span className="block truncate font-semibold text-white">{displayName}</span>
           <span className="block truncate">{roleLabel}</span>

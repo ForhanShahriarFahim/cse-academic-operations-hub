@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowLeftRight, Clock3, GraduationCap } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, CalendarDays, Clock3, GraduationCap } from "lucide-react";
 import { getPortalData } from "@/lib/data";
 import { computeWorkloads } from "@/lib/workload";
 import { fmtRange, DAY_NAMES } from "@/lib/time";
@@ -42,6 +42,9 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
           t.homeDepartmentCode !== "CSE" ? "Incoming teacher — only verified CSE-facing load is shown; university-wide totals may be incomplete." : null,
           t.notes,
         ].filter(Boolean).join(" ")}
+        actions={<Link href={`/teachers/${t.id}/routine`} className="inline-flex min-h-9 items-center gap-1.5 rounded-md bg-[var(--color-pine)] px-3.5 text-[13.5px] font-medium text-white hover:bg-[var(--color-pine-2)]">
+          <CalendarDays size={15} strokeWidth={1.8} aria-hidden="true" /> Individual routine
+        </Link>}
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
