@@ -2,7 +2,7 @@
 
 Issue: [#27](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/27). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `claude/bug-27` (base `75ed28e`), in a Claude Code cloud session: Linux, Node 22.22.0, the preinstalled Chromium, no PostgreSQL tools (the container runs as root, which `initdb` refuses).
-Status: **Verified in the cloud session. Awaiting owner acceptance**, which includes the [pending](#pending) PostgreSQL group and a local Edge run.
+Status: **Verified in the cloud session. Accepted by the owner on 2 October 2026** ("merge #55 and #58", in the cloud session) and merged through PR #58. The PostgreSQL group and the local Edge run under [Pending](#pending) were not reported as done before acceptance.
 
 ## What changed
 

@@ -1,7 +1,7 @@
 # BUG-27 (SAFE-01 F-08): blocked deletes explain what still uses the record
 
 Issue: [#27](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/27), "SAFE-01 follow-up (F-08): explain blocked deletes instead of raw foreign-key errors"
-Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified in the cloud session ([verification](verification.md)); awaiting owner acceptance.
+Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified in the cloud session ([verification](verification.md)). Accepted by the owner and merged on 2 October 2026.
 Branch / base: `claude/bug-27` from `75ed28e` (main after the cloud hook, #56)
 Updated: 2 October 2026, Asia/Dhaka
 
