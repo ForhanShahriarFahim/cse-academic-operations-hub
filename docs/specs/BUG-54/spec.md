@@ -1,7 +1,7 @@
 # BUG-54 (RUT-04 follow-up): the official package's contacts sheet fits however many teachers are listed
 
 Issue: [#54](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/54), "RUT-04 follow-up: official package contacts sheet clips when more or longer teacher names are listed"
-Status: **Proposed, awaiting owner approval.** Nothing is implemented.
+Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implementation in progress.
 Branch / base: `claude/cranky-hofstadter-4674b1` (the desktop app's worktree for this session) from `1cedf4c` (main after TCH-01)
 Updated: 2 October 2026, Asia/Dhaka
 
@@ -158,6 +158,7 @@ No schema migration and no institutional data change. Every check runs against `
 
 ## Approval record
 
-- Owner authorization: pending
-- Date and evidence: pending
-- Approved scope: pending
+- Owner authorization: Approved
+- Date and evidence: 2 October 2026 (Asia/Dhaka), owner's chat reply "approve as recommended"
+- Approved scope: this record as written, with D-1 (normal rows, then one compact step, then continued sheets) and D-2 ("Teacher codes are listed on page N") as recommended
+- Branch: kept on this session's worktree branch `claude/cranky-hofstadter-4674b1`; the owner did not ask to move it
