@@ -9,6 +9,7 @@ import { buildSnapshot } from "../lib/serialize";
 import { analyzeSchedule } from "../lib/conflicts";
 import { getPortalDataForSeed } from "../lib/data";
 import { backfillTimeGrids } from "./time-grid-backfill";
+import { clearAcademicData, restoreTeacherLinks, type ResetCommand } from "./reset-access";
 
 const SOURCE_LABEL = "CSE Summer-2026 Class Routine v1.6";
 const SOURCE_PATH = path.join(process.cwd(), "docs", "source", "CSE_SUMMER_2026_ROUTINE_V1_6.md");
@@ -44,24 +45,15 @@ function roomValue(code: string, cseId: number) {
   };
 }
 
-export async function seedSummer2026Database() {
+export async function seedSummer2026Database(command: ResetCommand = "db:reset") {
   const source = parseSummer2026Routine(readFileSync(SOURCE_PATH, "utf8"));
-  console.log("Replacing development data with the Summer-2026 source routine...");
-  await db.execute(sql`
-    TRUNCATE TABLE
-      audit_events, schedule_versions, attendance_records, attendance_sessions,
-      course_enrollments, extra_load_classes, extra_load_manual_summaries, students,
-      class_representatives, department_contacts, routine_source_reconciliations,
-      academic_policies, workload_allocations, meeting_rooms, meeting_teachers, meetings,
-      teaching_requirements, teaching_group_offerings, teaching_groups,
-      course_offerings, batch_term_placements, courses, batches,
-      day_plans, period_patterns, permitted_windows, break_rules, external_commitments,
-      academic_terms, rooms, teachers, departments RESTART IDENTITY CASCADE
-  `);
+  console.log("Replacing development data with the Summer-2026 source routine (portal access is kept)...");
+  const resetEventId = await clearAcademicData(db, command);
 
+  // Departments a role is scoped to were kept; refresh them by code.
   const departmentRows = await db.insert(schema.departments).values(
     Object.entries(DEPARTMENTS).map(([code, name]) => ({ code, name })),
-  ).returning();
+  ).onConflictDoUpdate({ target: schema.departments.code, set: { name: sql`excluded.name` } }).returning();
   const dept = Object.fromEntries(departmentRows.map((row) => [row.code, row.id]));
 
   const listedCodes = new Set(source.teachers.map((teacher) => teacher.shortCode));
@@ -251,4 +243,8 @@ export async function seedSummer2026Database() {
     detail: { source: SOURCE_LABEL, teachers: teacherRows.length, courses: courseRows.length, meetings: data.meetings.length, blockers: blockers.length },
   });
   console.log(`Summer-2026 source imported: ${teacherRows.length} teachers, ${courseRows.length} courses, ${data.meetings.length} meetings, ${blockers.length} blockers.`);
+
+  const { relinked, unlinked } = await restoreTeacherLinks(db, resetEventId);
+  console.log(`Portal access kept; ${relinked} account${relinked === 1 ? "" : "s"} re-linked to ${relinked === 1 ? "its teacher" : "their teachers"}.`);
+  for (const link of unlinked) console.log(`  Not re-linked: ${link.email} (teacher ${link.teacherShortCode} is not in the reloaded data).`);
 }

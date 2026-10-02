@@ -1,7 +1,7 @@
 # BUG-26 (SAFE-01 F-07): `db:reset` keeps portal users and roles, and names its target before it runs
 
 Issue: [#26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26), "SAFE-01 follow-up (F-07): db:reset silently erases portal users and roles"
-Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implementation in progress.
+Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); awaiting owner acceptance.
 Branch / base: `codex/bug-26` from `281718f` (main after BUG-49)
 Updated: 2 October 2026, Asia/Dhaka
 
@@ -71,3 +71,4 @@ No schema migration is needed. The institutional database is never opened by the
 - Owner authorization: Approved
 - Date and evidence: 2 October 2026 (Asia/Dhaka), owner's chat reply "approve as recommended"
 - Approved scope: this record as written, with D-1, D-2 and D-3 as recommended
+- Implementation note (2 October 2026, within the approved outcome): departments are **kept and refreshed by code** instead of deleted and re-linked (behaviour steps 4 and 6, AC-04). A role without a department covers every department, so clearing role departments during the reset would have widened access had the reload failed. Roles therefore never lose their department, and a non-seed department that a role uses survives the reset. Teacher links are recorded and restored as specified.
