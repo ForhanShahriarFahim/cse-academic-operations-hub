@@ -1,10 +1,11 @@
 import { Fragment } from "react";
 import { INSTITUTION } from "@/lib/constants";
 import type { OfficialAppendixPage, OfficialRoutinePackage as Package } from "@/lib/official-routine-package";
+import { contactsSheets, type ContactsBlock, type ContactsSheet } from "@/lib/official-contacts-sheets";
 import { routineSheets, type SheetCell, type SheetClass, type SheetTable } from "@/lib/official-routine-sheets";
 import { DAY_NAMES } from "@/lib/time";
 
-const LEGEND = <>NB = New Building · OD = rooms used by other departments<br />Teacher codes are listed on the last page.</>;
+const legend = (contactsPage: number) => <>NB = New Building · OD = rooms used by other departments<br />Teacher codes are listed on page {contactsPage}.</>;
 const STREAM_NAME = { HSC: "B.Sc. in CSE (HSC)", DIPLOMA: "B.Sc. in CSE (Diploma)" } as const;
 
 /** "14 August 2026" for a date, or the Asia/Dhaka date of a timestamp. */
@@ -21,27 +22,44 @@ function dayRange(days: number[]): string {
   return names.length > 2 ? `${names[0]} to ${names[names.length - 1]}` : names.join(" and ");
 }
 
-interface SheetSpec { key: string; label: string; program: string; title: string; note?: string; foot: React.ReactNode; body: React.ReactNode }
+interface SheetSpec { key: string; label: string; program: string; title: string; note?: string; foot: React.ReactNode; body: React.ReactNode; compact?: boolean }
+
+const continuedNote = (index: number, count: number) => count > 1
+  ? `Sheet ${index + 1} of ${count} · ${index + 1 < count ? "continued on the next sheet" : "continued from the previous sheet"}`
+  : undefined;
 
 export function OfficialRoutinePackage({ document }: { document: Package }) {
-  const specs: SheetSpec[] = document.routinePages.flatMap((page) => {
-    const sheets = routineSheets(page.days);
+  const routine = document.routinePages.map((page) => ({ page, sheets: routineSheets(page.days) }));
+  const appendix = document.appendixPages.map((page) => ({ page, contacts: page.kind === "directory" ? contactsSheets(page) : null }));
+  // Page of the first contacts sheet, for the routine sheets' legend (BUG-54 D-2).
+  let contactsPage = routine.reduce((sum, item) => sum + item.sheets.length, 0) + 1;
+  for (const item of appendix) {
+    if (item.contacts) break;
+    contactsPage += 1;
+  }
+
+  const specs: SheetSpec[] = routine.flatMap(({ page, sheets }) => {
     return sheets.map((sheet, index) => ({
       key: `${page.stream}-${index}`,
       label: "Program",
       program: STREAM_NAME[page.stream],
       title: sheet.days.length ? `Weekly Class Routine: ${dayRange(sheet.days)}` : "Weekly Class Routine",
-      note: sheets.length > 1 ? `Sheet ${index + 1} of ${sheets.length} · ${index + 1 < sheets.length ? "continued on the next sheet" : "continued from the previous sheet"}` : undefined,
-      foot: LEGEND,
+      note: continuedNote(index, sheets.length),
+      foot: legend(contactsPage),
       body: sheet.tables.length
         ? sheet.tables.map((table) => <DayTable key={`${table.dayOfWeek}-${table.continued ? table.rows[0]?.batchLabel : "main"}`} table={table} />)
         : <p className="official-empty">No classes are planned for this program.</p>,
     }));
   });
-  for (const page of document.appendixPages) {
-    specs.push(page.kind === "courses"
-      ? { key: page.kind, label: "Courses offered", program: "B.Sc. in CSE (HSC and Diploma)", title: `Courses Offered in ${document.source.termName}, by Year and Semester`, foot: "Totals are credits per semester.", body: <CourseAppendix page={page} /> }
-      : { key: page.kind, label: "Contacts", program: "B.Sc. in CSE (HSC and Diploma)", title: "Teachers, Class Representatives and Query Contacts", foot: "Teacher codes match the routine pages.", body: <DirectoryAppendix page={page} /> });
+  for (const { page, contacts } of appendix) {
+    if (page.kind === "courses") {
+      specs.push({ key: page.kind, label: "Courses offered", program: "B.Sc. in CSE (HSC and Diploma)", title: `Courses Offered in ${document.source.termName}, by Year and Semester`, foot: "Totals are credits per semester.", body: <CourseAppendix page={page} /> });
+      continue;
+    }
+    (contacts ?? []).forEach((sheet, index, sheets) => specs.push({
+      key: `${page.kind}-${index}`, label: "Contacts", program: "B.Sc. in CSE (HSC and Diploma)", title: "Teachers, Class Representatives and Query Contacts",
+      note: continuedNote(index, sheets.length), foot: "Teacher codes match the routine pages.", body: <ContactsAppendix sheet={sheet} />, compact: sheet.compact,
+    }));
   }
   return (
     <div className="official-package" role="region" aria-label="Official routine package, A4 sheets" tabIndex={0}>
@@ -57,7 +75,7 @@ function OfficialSheet({ document, spec, page, totalPages }: { document: Package
   const draft = source.kind === "draft";
   const issued = longDate(source.publishedAt ?? source.generatedAt);
   return (
-    <section className="official-sheet" aria-label={`${spec.program}: ${spec.title}, page ${page} of ${totalPages}`}>
+    <section className={spec.compact ? "official-sheet official-compact" : "official-sheet"} aria-label={`${spec.program}: ${spec.title}, page ${page} of ${totalPages}`}>
       {draft && <div className="official-watermark" aria-hidden="true" />}
       <header className="official-sheet-head">
         <div className="official-tag official-tag-left"><small>{spec.label}</small><strong>{spec.program}</strong></div>
@@ -194,21 +212,23 @@ function CourseAppendix({ page }: { page: Extract<OfficialAppendixPage, { kind: 
   );
 }
 
-function DirectoryAppendix({ page }: { page: Extract<OfficialAppendixPage, { kind: "directory" }> }) {
-  const midpoint = Math.ceil(page.teachers.length / 2);
-  const teacherColumns = [page.teachers.slice(0, midpoint), page.teachers.slice(midpoint)];
-  return (
-    <div className="official-directory">
+function ContactsAppendix({ sheet }: { sheet: ContactsSheet }) {
+  return <div className="official-directory">{sheet.blocks.map((block, index) => <ContactsPart key={`${block.kind}-${index}`} block={block} />)}</div>;
+}
+
+function ContactsPart({ block }: { block: ContactsBlock }) {
+  if (block.kind === "teachers") {
+    return (
       <div className="official-span">
-        <p className="official-section-label">Teachers</p>
-        <div className="official-directory">
-          {teacherColumns.map((teachers, column) => (
-            <table key={column} className="official-plain">
+        <p className="official-section-label">{block.continued ? "Teachers (continued)" : "Teachers"}</p>
+        <div className="official-directory official-teacher-columns">
+          {block.columns.map((column, index) => (
+            <table key={index} className="official-plain" data-estimate-mm={column.height.toFixed(1)}>
               <colgroup><col style={{ width: "6mm" }} /><col /><col style={{ width: "11mm" }} /><col style={{ width: "19mm" }} /><col style={{ width: "41mm" }} /></colgroup>
               <thead><tr><th scope="col" className="official-num">SL</th><th scope="col">Teacher</th><th scope="col">Code</th><th scope="col">Mobile</th><th scope="col">Email</th></tr></thead>
-              <tbody>{teachers.map((teacher, index) => (
+              <tbody>{column.teachers.map((teacher) => (
                 <tr key={teacher.shortCode}>
-                  <td className="official-num">{column * midpoint + index + 1}</td>
+                  <td className="official-num">{teacher.sl}</td>
                   <td>{teacher.fullName}{teacher.designation && <small>, {teacher.designation}</small>}</td>
                   <td>{teacher.shortCode}</td><td>{teacher.phone ?? "-"}</td><td>{teacher.email ?? ""}</td>
                 </tr>
@@ -217,28 +237,30 @@ function DirectoryAppendix({ page }: { page: Extract<OfficialAppendixPage, { kin
           ))}
         </div>
       </div>
-      {(["HSC", "DIPLOMA"] as const).map((stream) => (
-        <div key={stream}>
-          <p className="official-section-label">Class representatives, {STREAM_NAME[stream]}</p>
-          <table className="official-plain">
-            <colgroup><col style={{ width: "12mm" }} /><col /><col style={{ width: "22mm" }} /></colgroup>
-            <thead><tr><th scope="col">Batch</th><th scope="col">Class representative</th><th scope="col">Mobile</th></tr></thead>
-            <tbody>{page.classRepresentatives.filter((item) => item.stream === stream).map((item) => (
-              <tr key={item.batchLabel}><td>{item.batchLabel.replace(/B$/, " B")}</td><td>{item.fullName ?? <i>Not listed</i>}</td><td>{item.phone ?? ""}</td></tr>
-            ))}</tbody>
-          </table>
-        </div>
-      ))}
-      {page.queryContacts.length > 0 && (
-        <div className="official-span">
-          <p className="official-section-label">For any query</p>
-          <div className="official-contacts">
-            {page.queryContacts.map((contact) => (
-              <div key={contact.fullName}><b>{contact.fullName}</b>{contact.designation}<br />Mobile {contact.phone}{contact.email && <><br />{contact.email}</>}</div>
-            ))}
-          </div>
-        </div>
-      )}
+    );
+  }
+  if (block.kind === "representatives") {
+    return block.tables.map((table) => (
+      <div key={table.stream}>
+        <p className="official-section-label">Class representatives, {STREAM_NAME[table.stream]}</p>
+        <table className="official-plain" data-estimate-mm={table.height.toFixed(1)}>
+          <colgroup><col style={{ width: "12mm" }} /><col /><col style={{ width: "22mm" }} /></colgroup>
+          <thead><tr><th scope="col">Batch</th><th scope="col">Class representative</th><th scope="col">Mobile</th></tr></thead>
+          <tbody>{table.rows.map((item) => (
+            <tr key={item.batchLabel}><td>{item.batchLabel.replace(/B$/, " B")}</td><td>{item.fullName ?? <i>Not listed</i>}</td><td>{item.phone ?? ""}</td></tr>
+          ))}</tbody>
+        </table>
+      </div>
+    ));
+  }
+  return (
+    <div className="official-span">
+      <p className="official-section-label">For any query</p>
+      <div className="official-contacts" data-estimate-mm={block.boxesHeight.toFixed(1)}>
+        {block.contacts.map((contact) => (
+          <div key={contact.fullName}><b>{contact.fullName}</b>{contact.designation}<br />Mobile {contact.phone}{contact.email && <><br />{contact.email}</>}</div>
+        ))}
+      </div>
     </div>
   );
 }

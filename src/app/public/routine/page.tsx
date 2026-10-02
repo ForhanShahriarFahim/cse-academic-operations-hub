@@ -21,7 +21,7 @@ export default async function PublicRoutinePage({
     <div className="paper-grain min-h-screen">
       <header className="no-print border-b border-[var(--color-line)] bg-[var(--color-ink)]">
         <div className="mx-auto max-w-7xl px-4 py-3">
-          <div className="mb-3 flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${source ? "mb-3" : ""}`}>
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--color-gold)]/15 text-[var(--color-gold)]"><Landmark size={16} /></span>
             <div>
               <p className="font-display text-[15px] font-semibold text-white">Official Class Routine</p>
@@ -29,7 +29,7 @@ export default async function PublicRoutinePage({
             </div>
             {source?.versionNumber && <span className="ml-auto rounded-md border border-white/15 px-2.5 py-1 text-[10.5px] text-white/60">v{source.versionNumber}</span>}
           </div>
-          <RoutineViewControls selection={selection} days={teachingDays(selectionSource.timeGrid)} batches={selectionSource.batches.filter((batch) => batch.stream === selection.stream)} exportPath="/public/routine/export" officialPath="/public/routine/official" dark />
+          {source && <RoutineViewControls selection={selection} days={teachingDays(selectionSource.timeGrid)} batches={selectionSource.batches.filter((batch) => batch.stream === selection.stream)} exportPath="/public/routine/export" officialPath="/public/routine/official" dark />}
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
@@ -37,7 +37,7 @@ export default async function PublicRoutinePage({
           <div className="rounded-lg border border-dashed border-[var(--color-line)] bg-white/60 p-10 text-center">
             <AlertTriangle size={22} className="mx-auto text-[var(--color-gold)]" />
             <h2 className="font-display mt-2 text-[19px] font-semibold">No published routine</h2>
-            <p className="mt-1 text-[12.5px] text-muted">The public viewer only displays approved, published versions. Draft data is never exposed here.</p>
+            <p className="mt-1 text-[12.5px] text-muted">The department posts the class routine here once it has been reviewed and approved. Draft schedules are never shown here.</p>
           </div>
         ) : (
           <RoutineDocument projection={projectRoutine({ source, selection })} />

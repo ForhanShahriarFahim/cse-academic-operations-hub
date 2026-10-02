@@ -13,9 +13,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:domain": "tsx scripts/verify-domain.ts && tsx scripts/verify-time-grid.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-official-sheets.ts && tsx scripts/verify-teacher-routine.ts && tsx scripts/verify-source-routine.ts && tsx scripts/verify-auth-policy.ts && tsx scripts/verify-account-rules.ts && tsx scripts/verify-action-result.ts && tsx scripts/verify-teacher-records.ts",
+    "test:domain": "tsx scripts/verify-domain.ts && tsx scripts/verify-time-grid.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-official-sheets.ts && tsx scripts/verify-official-contacts.ts && tsx scripts/verify-teacher-routine.ts && tsx scripts/verify-source-routine.ts && tsx scripts/verify-auth-policy.ts && tsx scripts/verify-account-rules.ts && tsx scripts/verify-action-result.ts && tsx scripts/verify-teacher-records.ts",
     "test:safety": "tsx scripts/verify-safety.ts",
-    "test:routine": "tsx scripts/verify-time-grid.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-official-sheets.ts && tsx scripts/verify-teacher-routine.ts && tsx scripts/verify-source-routine.ts",
+    "test:routine": "tsx scripts/verify-time-grid.ts && tsx scripts/verify-routine-projection.ts && tsx scripts/verify-official-sheets.ts && tsx scripts/verify-official-contacts.ts && tsx scripts/verify-teacher-routine.ts && tsx scripts/verify-source-routine.ts",
     "test:ui": "playwright test",
     "ux:review": "tsx scripts/ux-review.ts",
     "test:ux": "tsx scripts/verify-ux-review.ts && playwright test --config playwright.ux.config.ts"
