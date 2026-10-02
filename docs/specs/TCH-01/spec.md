@@ -2,7 +2,7 @@
 
 Issue: [#4 TCH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4). Requirements: [PRODUCT_REQUIREMENTS §8](../../PRODUCT_REQUIREMENTS.md#8-teacher-management).
 Plan: [plan.md](plan.md). Mockups: [mockups/](mockups/).
-Status: Approved by the owner on 2 October 2026 (spec, plan and mockups as written; D-1 to D-4 as answered). Implemented and verified on disposable data ([verification](verification.md)); awaiting owner acceptance.
+Status: Approved by the owner on 2 October 2026 (spec, plan and mockups as written; D-1 to D-4 as answered). Implemented, verified ([verification](verification.md)) and accepted by the owner on 2 October 2026, with implementation notes N-1 to N-4. The institutional database is migrated to 0009.
 Updated: 2 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline

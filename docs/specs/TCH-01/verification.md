@@ -2,7 +2,7 @@
 
 Issue: [#4](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4). Records: [spec](spec.md), [plan and approval](plan.md), [mockups](mockups/).
 Verified: 2 October 2026, Asia/Dhaka, on branch `codex/tch-01`, Windows 11, Node 22.11.0, Edge (Playwright channel), PostgreSQL 17.11 tools (`SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`).
-Status: **Verified on disposable data. Awaiting owner acceptance.** The institutional database is not migrated yet (see [Acceptance steps](#acceptance-steps)).
+Status: **Accepted by the owner on 2 October 2026** ("accepted, nothing is running on .data"). The institutional database was backed up and migrated to 0009 the same day (see [Institutional migration](#institutional-migration-2-october-2026)).
 
 ## What changed
 
@@ -41,7 +41,7 @@ Status: **Verified on disposable data. Awaiting owner acceptance.** The institut
 | AC-09 | Pass | The domain test covers the effective limit. The screens show "own limit" and "x over limit" on Teachers, the teacher page and Workload (screenshots). |
 | AC-10 | Pass | The Changes list shows when, who and before → after, newest first, with the reason and "Private phone: changed" (UX spec, screenshot). |
 | AC-11 | Pass | Published `schedule_versions` rows are byte-identical after every teacher action (safety). Live screens show the new values. |
-| AC-12 | Pass (disposable) | Upgrade 0008 → 0009 on a populated database: every teacher field is unchanged, placeholders lose only the pseudo employment type, and the new checks and the case-twin index are enforced (PGlite and PostgreSQL). T-06 backup and restore reproduce the 0009 schema exactly. **The institutional migration is pending owner acceptance.** |
+| AC-12 | Pass | Upgrade 0008 → 0009 on a populated database: every teacher field is unchanged, placeholders lose only the pseudo employment type, and the new checks and the case-twin index are enforced (PGlite and PostgreSQL). T-06 backup and restore reproduce the 0009 schema exactly. The institutional database was migrated after acceptance, as described below. |
 | AC-13 | Pass | No page-wide overflow at 1440 and 390 px on 10 routes. axe WCAG 2 A/AA on the six new routes is in the UX baseline. The phone list is stacked; labelled fields, a linked error summary, visible focus, and status in words with icons. |
 
 ## Required checks
@@ -67,12 +67,29 @@ Status: **Verified on disposable data. Awaiting owner acceptance.** The institut
 - The 0009 limit check now uses a flat AND. A BETWEEN failed T-06's exact schema comparison after dump and restore.
 - A dev-server stylesheet went stale after the CSS change; it was fixed by restarting the review server. This was not a code defect.
 
-## Acceptance steps
+## Acceptance steps (done)
 
 1. The owner reviews the screens on the disposable review server, `npm run ux:review`. Rebuild it with `-- --fresh` for clean data.
 2. With every writer stopped, take a cold backup of `.data/pglite-summer-2026` to `F:\AI\backups\academic-operations-portal` with a SHA-256 manifest.
 3. Rehearse 0009 on a copy (`npm run ux:review -- --from-copy <backup copy>`) and check that every teacher is unchanged.
 4. Then run the migration on the institutional database (`npm run db:migrate`).
+
+## Institutional migration (2 October 2026)
+
+The owner accepted TCH-01 and confirmed that nothing was running on `.data`.
+
+1. **No writer.** No process referred to the repository, and ports 3000 and 3100 were free. The newest file in `.data/pglite-summer-2026` was dated 2:57 am. `.env.local` sets only `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET`, and `.env` is absent, so the target was the default folder.
+2. **Cold backup.**
+   - It is at `F:\AIackupscademic-operations-portal\pglite-summer-2026-pre-TCH-01-20261002-1437`, outside the repository, with `….sha256.csv` beside it (manifest SHA-256 `BB406560…A632C2`).
+   - It holds 1,226 files (57.6 MB). Every file is identical to the source by SHA-256.
+3. **Rehearsal.** Two throwaway copies of the backup were made under `.tmp`, and 0009 was applied to one of them. Then every table of the two copies was compared (counts and digests only).
+   - All 42 teachers are unchanged in every existing field, and all 39 tables are otherwise identical.
+   - The only change is the employment type of the 5 placeholders (UT and the four unresolved codes), which moved from `vacancy`/`unresolved` to null.
+   - The copies were then deleted.
+4. **Migration.** `npm run db:migrate`, with no `DATABASE_URL` or `PGLITE_DATA_DIR`, applied 0009 to `.data/pglite-summer-2026`. The migration count went from 9 to 10.
+5. **After.** The same comparison against the pre-migration copy matched the rehearsal exactly: 42 teachers unchanged, statuses unchanged, 37 full-time, 5 placeholders with no employment type, and no other table changed.
+
+The local review screenshots that showed real contact details (`.tmp/tch01-review`, not committed) were deleted.
 
 ## Notes
 

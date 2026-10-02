@@ -3,7 +3,7 @@
 Issue: [#4 TCH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4)
 Specification: [spec.md](spec.md)
 Verification: verification.md (created during delivery)
-Status: Approved 2 October 2026; implementation in progress
+Status: Accepted by the owner 2 October 2026; institutional database migrated to 0009
 Branch / base: `codex/tch-01` from main `c2eff15`
 Updated: 2 October 2026, Asia/Dhaka
 
@@ -62,7 +62,7 @@ The Summer 2026 seed is updated to match. The migration is rehearsed on a popula
 - [x] T-05: Inactive teachers left out of pickers; per-teacher limit in Teachers, the teacher page and Workload. Covers AC-06 and AC-09.
 - [x] T-06: `test:safety` group "TCH-01 teacher records" for PGlite and PostgreSQL: the migration on a populated copy, permission denials, stale edits, blockers, delete and snapshot checks, the phone never in audit or denied output. Covers AC-02 to AC-08 and AC-11 to AC-12.
 - [x] T-07: UI review on desktop, phone and print (`ux:review`, `test:ux`) with screenshots; README and brief. Covers AC-13.
-- [ ] T-08: `typecheck`, `lint`, `test:domain`, `build`, full `test:safety` with PostgreSQL, the verification record and owner acceptance. Then the institutional cold backup and migration.
+- [x] T-08: `typecheck`, `lint`, `test:domain`, `build`, full `test:safety` with PostgreSQL, the verification record and owner acceptance. Then the institutional cold backup and migration.
 
 ## Verification and delivery
 
@@ -73,8 +73,5 @@ The Summer 2026 seed is updated to match. The migration is rehearsed on a popula
 
 ## Current checkpoint / handoff
 
-- Approved scope: this plan (approved 2 October 2026), with the spec's implementation notes N-1 to N-4 for the owner at acceptance
-- Commits: the approved plan `1d37fd6`, the checkpoint `bc02eef`, then review fixes and tests on `codex/tch-01`
-- Completed tasks: T-01 to T-07. T-08's checks pass ([verification](verification.md)); owner acceptance and the institutional migration remain.
-- Next action: record the final check results in [verification.md](verification.md), push, open the PR and ask for owner acceptance. At acceptance: cold backup, rehearse 0009 on a copy, then `db:migrate` the institutional database.
-- Blockers/capabilities: none
+- Done: accepted 2 October 2026. The institutional database was backed up (`pre-TCH-01-20261002-1437`) and migrated to 0009. Merged through PR #53.
+- Follow-up suggested: the official package teacher list fits tightly with long names (see verification Notes).
