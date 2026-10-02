@@ -1,7 +1,7 @@
 export const ROLE_CAPABILITIES = {
-  system_administrator: ["view_internal_portal", "view_private_contacts", "manage_users", "manage_policy", "manage_routine", "approve_publication", "manage_external_commitments", "run_auto_schedule", "manage_rosters", "take_attendance", "submit_extra_load", "review_extra_load", "view_payment_reports"],
-  academic_administrator: ["view_internal_portal", "view_private_contacts", "manage_policy", "manage_rosters", "take_attendance", "review_extra_load", "view_payment_reports"],
-  routine_coordinator: ["view_internal_portal", "view_private_contacts", "manage_routine", "manage_external_commitments", "run_auto_schedule"],
+  system_administrator: ["view_internal_portal", "view_private_contacts", "manage_teachers", "manage_users", "manage_policy", "manage_routine", "approve_publication", "manage_external_commitments", "run_auto_schedule", "manage_rosters", "take_attendance", "submit_extra_load", "review_extra_load", "view_payment_reports"],
+  academic_administrator: ["view_internal_portal", "view_private_contacts", "manage_teachers", "manage_policy", "manage_rosters", "take_attendance", "review_extra_load", "view_payment_reports"],
+  routine_coordinator: ["view_internal_portal", "view_private_contacts", "manage_teachers", "manage_routine", "manage_external_commitments", "run_auto_schedule"],
   department_approver: ["view_internal_portal", "view_private_contacts", "approve_publication"],
   teacher: ["view_internal_portal", "take_attendance", "submit_extra_load"],
   accounts_officer: ["view_internal_portal", "review_extra_load", "view_payment_reports"],

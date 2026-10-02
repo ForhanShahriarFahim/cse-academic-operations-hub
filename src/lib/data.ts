@@ -2,6 +2,7 @@
  * Server-side data access. All queries are plain Drizzle selects assembled
  * into serialized views — safe to hand to client components.
  */
+import { effectiveLimit } from "./teacher-records";
 import { db } from "@/db";
 import {
   academicTerms,
@@ -57,7 +58,7 @@ export interface TeacherRow {
   shortCode: string;
   fullName: string;
   designation: string | null;
-  employmentType: string;
+  employmentType: string | null;
   homeDepartmentId: number | null;
   homeDepartmentCode: string | null;
   homeDepartmentName: string | null;
@@ -65,6 +66,10 @@ export interface TeacherRow {
   phone: string | null;
   status: string;
   notes: string | null;
+  /** The teacher's own advisory limit (TCH-01); null means the department default. */
+  advisoryLoadUnits: number | null;
+  /** The limit that applies: their own, or the department default. */
+  loadLimit: number;
 }
 
 export interface RoomRow {
@@ -508,6 +513,8 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       phone: privateContacts ? t.phonePrivate : null,
       status: t.status,
       notes: t.notes,
+      advisoryLoadUnits: t.advisoryLoadUnits == null ? null : Number(t.advisoryLoadUnits),
+      loadLimit: effectiveLimit(t.advisoryLoadUnits),
     })),
     rooms: roomRows.map((r) => ({
       id: r.id,

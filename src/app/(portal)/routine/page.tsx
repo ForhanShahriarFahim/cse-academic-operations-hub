@@ -84,7 +84,7 @@ export default async function RoutinePage({
         projection={projection}
         groups={groups}
         teachers={data.teachers.map((t) => ({
-          id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode, designation: t.designation,
+          id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode, designation: t.designation, status: t.status,
         }))}
         rooms={data.rooms.filter((r) => r.isActive).map((r) => ({
           id: r.id, code: r.code, building: r.building, roomType: r.roomType, capabilities: r.capabilities, capacity: r.capacity,

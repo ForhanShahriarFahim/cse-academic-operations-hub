@@ -1,3 +1,4 @@
+import { isAssignable } from "../teacher-records";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accountLinks, auditEvents, authAccount, authSession, authUser, departments, portalUsers, roleAssignments, teachers } from "@/db/schema";
@@ -152,6 +153,8 @@ export async function loadAccountDetail(userId: number, options: { now?: Date; c
   };
 }
 
-export async function teacherOptions() {
-  return db.select({ id: teachers.id, code: teachers.shortCode, name: teachers.fullName }).from(teachers).orderBy(teachers.shortCode);
+/** Teachers an account can be linked to: active or on leave, never placeholders (TCH-01), plus the current link. */
+export async function teacherOptions(keepId: number | null = null) {
+  const rows = await db.select({ id: teachers.id, code: teachers.shortCode, name: teachers.fullName, status: teachers.status }).from(teachers).orderBy(teachers.shortCode);
+  return rows.filter((row) => isAssignable(row.status) || row.id === keepId).map(({ id, code, name }) => ({ id, code, name }));
 }

@@ -63,14 +63,25 @@ export const teachers = pgTable(
     shortCode: text("short_code").notNull().unique(),
     fullName: text("full_name").notNull(),
     designation: text("designation"),
-    employmentType: text("employment_type").notNull().default("full_time"),
+    // full_time | part_time | guest; null only for placeholders (TCH-01)
+    employmentType: text("employment_type").default("full_time"),
     homeDepartmentId: integer("home_department_id").references(() => departments.id),
     email: text("email"),
     phonePrivate: text("phone_private"), // restricted visibility
+    // active | on_leave | inactive, or a placeholder: vacancy (UT) | unresolved (TCH-01)
     status: text("status").notNull().default("active"),
     notes: text("notes"),
+    // Advisory workload limit in units; null means the department default (TCH-01).
+    advisoryLoadUnits: numeric("advisory_load_units", { precision: 3, scale: 1 }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("teachers_dept_idx").on(t.homeDepartmentId)],
+  (t) => [
+    index("teachers_dept_idx").on(t.homeDepartmentId),
+    uniqueIndex("teachers_short_code_upper_uq").on(sql`upper(${t.shortCode})`),
+    check("teachers_status_ck", sql`${t.status} in ('active', 'on_leave', 'inactive', 'vacancy', 'unresolved')`),
+    check("teachers_employment_type_ck", sql`(${t.status} in ('vacancy', 'unresolved') and ${t.employmentType} is null) or (${t.status} not in ('vacancy', 'unresolved') and ${t.employmentType} in ('full_time', 'part_time', 'guest'))`),
+    check("teachers_advisory_load_units_ck", sql`${t.advisoryLoadUnits} is null or (${t.advisoryLoadUnits} between 1 and 40 and ${t.advisoryLoadUnits} * 2 = trunc(${t.advisoryLoadUnits} * 2))`),
+  ],
 );
 
 // Portal authorization is deliberately separate from academic teacher records.

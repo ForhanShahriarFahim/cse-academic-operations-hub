@@ -29,6 +29,7 @@ const SLACK_MS = 2000; // database and harness share one clock; this only absorb
 const ADDED_AFTER_BUG29 = new Set([
   "portal_users.password_changed_at", "portal_users.locked_until", // 0008 (AUTH-02)
   "account_links.expires_at", "account_links.issued_at", "account_links.used_at", "account_links.revoked_at",
+  "teachers.updated_at", // 0009 (TCH-01)
 ]);
 const JOURNAL_LENGTH = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
 

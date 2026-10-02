@@ -28,6 +28,8 @@ export function computeWorkloads(
   meetings: MeetingView[],
   allocations: AllocationView[],
   externalsPendingFor: (teacherId: number) => boolean,
+  /** The teacher's advisory limit (TCH-01); the department default when omitted. */
+  limitFor: (teacherId: number) => number = () => WORKLOAD_ADVISORY_UNITS,
 ): Map<number, TeacherWorkload> {
   const out = new Map<number, TeacherWorkload>();
 
@@ -102,8 +104,11 @@ export function computeWorkloads(
   for (const [tid, w] of out) {
     w.distinctCourses = coursesByTeacher.get(tid)?.size ?? 0;
     w.hasUnverifiedExternal = externalsPendingFor(tid);
-    if (w.workloadUnits > WORKLOAD_ADVISORY_UNITS) {
-      w.alerts.push(`Workload ${w.workloadUnits} units exceeds the advisory threshold of ${WORKLOAD_ADVISORY_UNITS}.`);
+    const limit = limitFor(tid);
+    if (w.workloadUnits > limit) {
+      w.alerts.push(limit === WORKLOAD_ADVISORY_UNITS
+        ? `Workload ${w.workloadUnits} units exceeds the advisory threshold of ${limit}.`
+        : `Workload ${w.workloadUnits} units exceeds this teacher's own advisory limit of ${limit}.`);
     }
     if (w.hasUnverifiedExternal) {
       w.alerts.push("External commitments pending verification — known total is a lower bound, not a full university-wide figure.");

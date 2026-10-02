@@ -222,6 +222,8 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
   const teachers = data.teachers.filter((t) => teacherIds.includes(t.id));
   const rooms = data.rooms.filter((r) => roomIds.includes(r.id) && r.isActive);
   if (teachers.length !== teacherIds.length) return { ok: false, message: "One of the selected teachers no longer exists. Reload and try again." };
+  const inactive = teachers.filter((t) => t.status === "inactive" && !existing.teachers.some((current) => current.id === t.id));
+  if (inactive.length) return { ok: false, message: `${inactive.map((t) => t.shortCode).join(", ")} ${inactive.length === 1 ? "is" : "are"} inactive. Reactivate on the teacher page before assigning new classes.` };
   if (rooms.length !== roomIds.length) return { ok: false, message: "One of the selected rooms is not available. Reload and try again." };
 
   const roleOf = new Map(existing.teachers.map((t) => [t.id, t.role]));

@@ -108,8 +108,9 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
   const exceptId = existing?.id ?? -1;
   const size = base ? knownAudienceSize(base) : null;
 
-  const teacherOptions = teachers.map((t) => ({
-    id: t.id, code: t.shortCode, label: `${t.fullName}${t.homeDepartmentCode && t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}`,
+  // TCH-01: inactive teachers are offered only where they are already assigned.
+  const teacherOptions = teachers.filter((t) => t.status !== "inactive" || initial.teacherIds.includes(t.id)).map((t) => ({
+    id: t.id, code: t.shortCode, label: `${t.fullName}${t.homeDepartmentCode && t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}${t.status === "on_leave" ? " · on leave" : t.status === "inactive" ? " · inactive" : ""}`,
     availability: timesValid ? teacherAvailability(t.id, day, placement.startMinutes, placement.endMinutes, context, exceptId) : { state: "free" as const },
   }));
   const roomChoices = base ? suitableRooms(rooms, base.requiredRoomCapability, base.courseType) : rooms;

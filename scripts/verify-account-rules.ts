@@ -154,7 +154,7 @@ assert.deepEqual(tanvir.now.map((line) => [line.label, line.detail]), [
 assert.equal(tanvir.later.length, 1);
 assert.equal(tanvir.later[0].from.toISOString(), "2026-10-05T00:00:00.000Z");
 assert.deepEqual(tanvir.later[0].lines.map((line) => line.capability),
-  ["view_private_contacts", "manage_routine", "manage_external_commitments", "run_auto_schedule"]);
+  ["view_private_contacts", "manage_teachers", "manage_routine", "manage_external_commitments", "run_auto_schedule"]);
 
 // A privileged role widens a teacher's attendance to all groups.
 const both2 = summarizeAccess([

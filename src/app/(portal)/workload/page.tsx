@@ -18,6 +18,7 @@ export default async function WorkloadPage() {
     data.meetings,
     data.allocations,
     (tid) => data.externals.some((e) => e.teacherId === tid && e.verificationStatus === "pending"),
+    (tid) => data.teachers.find((t) => t.id === tid)?.loadLimit ?? WORKLOAD_ADVISORY_UNITS,
   );
 
   const rows = data.teachers
@@ -25,8 +26,9 @@ export default async function WorkloadPage() {
     .filter((r) => r.w && (r.w.workloadUnits > 0 || r.w.weeklyContactMinutes > 0))
     .sort((a, b) => (b.w.workloadUnits - a.w.workloadUnits));
 
-  const scale = Math.max(...rows.map((r) => r.w.workloadUnits), WORKLOAD_ADVISORY_UNITS, 1);
-  const overCount = rows.filter((r) => r.w.workloadUnits > WORKLOAD_ADVISORY_UNITS).length;
+  const scale = Math.max(...rows.map((r) => Math.max(r.w.workloadUnits, r.t.loadLimit)), WORKLOAD_ADVISORY_UNITS, 1);
+  const overCount = rows.filter((r) => r.w.workloadUnits > r.t.loadLimit).length;
+  const ownLimits = rows.filter((r) => r.t.advisoryLoadUnits != null).length;
   const publishedVersion = data.versions.find((v) => v.state === "published")?.versionNumber ?? null;
 
   return (
@@ -35,13 +37,13 @@ export default async function WorkloadPage() {
       <PageHeader
         context="Planning records"
         title="Teacher workload"
-        description={`Workload units from assigned offerings, compared with the ${WORKLOAD_ADVISORY_UNITS}-unit advisory limit, next to weekly contact time and catalog credits. A merged class counts once per teacher.`}
+        description={`Workload units from assigned offerings, compared with each teacher's advisory limit (the department default is ${WORKLOAD_ADVISORY_UNITS} units), next to weekly contact time and catalog credits. A merged class counts once per teacher.`}
         actions={<PrintButton />}
       />
 
       <Panel
         title="Department summary"
-        sub={`${rows.length} teachers with teaching this term · ${overCount} above the advisory limit of ${WORKLOAD_ADVISORY_UNITS} units`}
+        sub={`${rows.length} teachers with teaching this term · ${overCount} above their limit${ownLimits ? ` · ${ownLimits} with their own limit` : ""}`}
         flush
       >
         <TableRegion label="Teacher workload" maxHeight="72vh">
@@ -61,7 +63,8 @@ export default async function WorkloadPage() {
             </thead>
             <tbody>
               {rows.map(({ t, w }) => {
-                const over = w.workloadUnits > WORKLOAD_ADVISORY_UNITS;
+                const limit = t.loadLimit;
+                const over = w.workloadUnits > limit;
                 const externalPending = w.alerts.some((alert) => alert.startsWith("External"));
                 return (
                   <tr key={t.id}>
@@ -72,15 +75,16 @@ export default async function WorkloadPage() {
                     <td className="num">
                       <span className={`load-bar mr-2.5 ${over ? "over" : ""}`} aria-hidden="true">
                         <i style={{ width: `${Math.min(100, (w.workloadUnits / scale) * 100)}%` }} />
-                        <b style={{ left: `${(WORKLOAD_ADVISORY_UNITS / scale) * 100}%` }} />
+                        <b style={{ left: `${(limit / scale) * 100}%` }} />
                       </span>
                       <span className="font-semibold">{w.workloadUnits.toFixed(1)}</span>
                     </td>
                     <td>
                       <span className="flex flex-col gap-0.5">
                         {over
-                          ? <StatusText tone="warn">Over by {(w.workloadUnits - WORKLOAD_ADVISORY_UNITS).toFixed(1)}</StatusText>
-                          : <StatusText tone="muted">{w.workloadUnits === WORKLOAD_ADVISORY_UNITS ? "At limit" : "Within limit"}</StatusText>}
+                          ? <StatusText tone="warn">Over by {(w.workloadUnits - limit).toFixed(1)}</StatusText>
+                          : <StatusText tone="muted">{w.workloadUnits === limit ? "At limit" : "Within limit"}</StatusText>}
+                        {t.advisoryLoadUnits != null ? <span className="text-[12px] text-muted">Own limit {limit.toFixed(1)}</span> : null}
                         {externalPending ? <StatusText tone="pending">External teaching not yet confirmed</StatusText> : null}
                       </span>
                     </td>

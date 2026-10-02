@@ -16,6 +16,7 @@ export const CAPABILITY_LABELS: Record<Capability, string> = {
   view_internal_portal: "Open the internal portal",
   view_private_contacts: "See private teacher contacts",
   manage_users: "Manage accounts, sign-in and roles",
+  manage_teachers: "Add and edit teacher records",
   manage_policy: "Change academic policies and settings",
   manage_routine: "Edit the routine",
   approve_publication: "Approve and publish the routine",

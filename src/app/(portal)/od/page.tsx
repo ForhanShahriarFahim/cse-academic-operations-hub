@@ -1,3 +1,4 @@
+import { isAssignable } from "@/lib/teacher-records";
 import { getPortalData } from "@/lib/data";
 import { fmtRange, DAY_NAMES } from "@/lib/time";
 import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
@@ -27,7 +28,7 @@ export default async function OdPage() {
         description="Rooms and teachers committed to other departments. These records produce the OD row on the printed routine; entries that still need confirming are marked for review."
         actions={
           <OdManager
-            teachers={data.teachers.map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode }))}
+            teachers={data.teachers.filter((t) => isAssignable(t.status)).map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode }))}
             rooms={data.rooms.map((r) => ({ id: r.id, code: r.code }))}
           />
         }
