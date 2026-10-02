@@ -2,7 +2,7 @@
 
 Issue: [#32](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/32). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `claude/bug-32` (base `1cedf4c`), in a Claude Code cloud session: Linux, Node 22.22.0, the preinstalled Chromium.
-Status: **Verified in the cloud session. Accepted by the owner on 2 October 2026** ("merge #55 and #58", in the cloud session) and merged through PR #55. The local Edge run under [Pending](#pending) was not reported as done before acceptance.
+Status: **Verified in the cloud session. Accepted by the owner on 2 October 2026** ("merge #55 and #58", in the cloud session) and merged through PR #55. The local Edge run was not reported as done before acceptance. It passed afterwards on the owner's machine (see [Local checks after merge](#local-checks-after-merge)).
 
 ## What changed
 
@@ -37,7 +37,12 @@ Playwright's expected browser build is not installed in the cloud container. The
 | After, unpublished | [desktop](screenshots/after-unpublished-viewer-desktop.png) | [phone](screenshots/after-unpublished-viewer-mobile.png) | [desktop](screenshots/after-unpublished-official-desktop.png) |
 | After, published | [desktop](screenshots/after-published-viewer-desktop.png) | [phone](screenshots/after-published-viewer-mobile.png) | [desktop](screenshots/after-published-official-desktop.png) |
 
-## Pending
+## Local checks after merge
 
-- **Local browser run (owner's machine, Edge):** `npm run ux:review -- --fresh`, then `npx playwright test --config playwright.ux.config.ts tests/ux/public-viewer.spec.ts`. Repeat with `npm run ux:review -- --fresh --publishable`. This confirms the checks with the repository's own configs.
+Run on 2 October 2026, Asia/Dhaka, on `main` at `34ef847`, on the owner's machine: Windows 11, Node 22.11.0, Microsoft Edge 154.0.4258.48, Playwright 1.63.0. These runs used the repository's own `playwright.ux.config.ts`, with no temporary config.
+
+- **Unpublished (`npm run ux:review -- --fresh`):** the full UX suite gave 96 passed and 2 skipped (two tests that need a publication). This includes all of `public-viewer.spec.ts` and the `/public/routine` baseline checks.
+- **Published (`npm run ux:review -- --fresh --publishable`):** `public-viewer.spec.ts`, `official-package.spec.ts` and `teacher-routine.spec.ts` gave 9 passed and 1 skipped (the test for the unpublished state).
+- Earlier attempts of both runs failed only because the review server was not ready yet (the first compile takes about 2 minutes on this drive). Both were rerun after the server answered.
+- `tests/routine-view.spec.ts` was not run locally: it runs under `npm run test:ui`, which prepares the configured database.
 - **Institutional database:** no migration and no data change, so nothing needs applying. `/public/routine` on the real database shows the new empty state until RUT-03 (#3) publishes a routine.
