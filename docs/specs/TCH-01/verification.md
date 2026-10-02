@@ -80,7 +80,7 @@ The owner accepted TCH-01 and confirmed that nothing was running on `.data`.
 
 1. **No writer.** No process referred to the repository, and ports 3000 and 3100 were free. The newest file in `.data/pglite-summer-2026` was dated 2:57 am. `.env.local` sets only `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET`, and `.env` is absent, so the target was the default folder.
 2. **Cold backup.**
-   - It is at `F:\AIackupscademic-operations-portal\pglite-summer-2026-pre-TCH-01-20261002-1437`, outside the repository, with `….sha256.csv` beside it (manifest SHA-256 `BB406560…A632C2`).
+   - It is at `F:\AI\backups\academic-operations-portal\pglite-summer-2026-pre-TCH-01-20261002-1437`, outside the repository, with `….sha256.csv` beside it (manifest SHA-256 `BB406560…A632C2`).
    - It holds 1,226 files (57.6 MB). Every file is identical to the source by SHA-256.
 3. **Rehearsal.** Two throwaway copies of the backup were made under `.tmp`, and 0009 was applied to one of them. Then every table of the two copies was compared (counts and digests only).
    - All 42 teachers are unchanged in every existing field, and all 39 tables are otherwise identical.
