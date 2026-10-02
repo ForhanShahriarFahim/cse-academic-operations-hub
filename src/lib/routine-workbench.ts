@@ -14,6 +14,8 @@ export type GroupTemplate = Omit<MeetingView, "id" | "dayOfWeek" | "startMinutes
 
 export interface WorkbenchTeacher {
   id: number; shortCode: string; fullName: string; homeDepartmentCode: string | null; designation: string | null;
+  /** TCH-01: active, on_leave, inactive or a placeholder; inactive teachers are not offered for new classes. */
+  status?: string;
 }
 export interface WorkbenchRoom {
   id: number; code: string; building: string; roomType: string; capabilities: string[]; capacity: number | null;

@@ -14,6 +14,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 
 - Exact-time Day and Week routine views for HSC and Diploma streams, with optional batch filtering.
 - Term-specific days and periods per stream (Days & periods), with batch exceptions: an extra day such as Friday, its own periods, or no classes on a day.
+- Teacher records with a safe lifecycle: add, edit, on leave, deactivate and reactivate, delete only an unused record, resolve placeholder routine codes, a per-teacher workload limit, and a change log on every record.
 - Individual teacher routines in the department's "Individual Class Routine" layout: My routine for a signed-in teacher, any teacher's routine, a phone agenda, A4 portrait print or PDF, and bulk print for many teachers.
 - Deterministic automatic scheduler for safe initial placements.
 - Conflict detection for teachers, rooms, audiences, breaks, capacity, external commitments, and room capabilities.
@@ -283,7 +284,10 @@ cse-academic-operations-hub/
 | `/conflicts` | Blockers and advisory warnings |
 | `/attendance` | Roster, CSV import, attendance, and summaries |
 | `/extra-load` | Extra-class ledger, honorarium, and print center |
-| `/teachers` | Teacher directory and operational overview |
+| `/teachers` | Teacher directory: Active, On leave, Inactive and Placeholder codes, with load against each teacher's limit |
+| `/teachers/new`, `/teachers/[id]/edit` | Add or edit a teacher record; `?resolve=1` records who an unresolved routine code is (coordinators and administrators) |
+| `/teachers/[id]` | One teacher: profile, workload, schedule, allocations and, for editors, the Changes list and status actions |
+| `/teachers/[id]/deactivate`, `/teachers/[id]/delete` | Confirmation pages that list the active-term work to reassign, or why a used record cannot be deleted |
 | `/teachers/[id]/routine` | One teacher's individual routine: published or working draft, phone agenda, A4 print |
 | `/teachers/routines` | Choose teachers and print their individual routines in one run (`/teachers/routines/print`) |
 | `/workload` | Credits, workload units, and contact minutes |

@@ -1,5 +1,6 @@
 "use server";
 
+import { isAssignable } from "../teacher-records";
 import { revalidatePath } from "next/cache";
 import { and, eq, gt, isNull, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -89,11 +90,13 @@ const linkFor = (issued: { token: string; expiresAt: Date }, purpose: LinkPurpos
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function teacherFrom(tx: AccountDb, raw: FormDataEntryValue | null): Promise<number | null> {
+/** A teacher record to link: active or on leave, never a placeholder (TCH-01). An existing link may stay. */
+async function teacherFrom(tx: AccountDb, raw: FormDataEntryValue | null, currentId: number | null = null): Promise<number | null> {
   const value = String(raw ?? "").trim();
   if (!value) return null;
   const id = Number(value);
-  const [teacher] = Number.isInteger(id) ? await tx.select({ id: teachers.id }).from(teachers).where(eq(teachers.id, id)).limit(1) : [];
+  const [teacher] = Number.isInteger(id) ? await tx.select({ id: teachers.id, status: teachers.status }).from(teachers).where(eq(teachers.id, id)).limit(1) : [];
+  if (teacher && !isAssignable(teacher.status) && teacher.id !== currentId) refuse("That teacher record is inactive or a placeholder code. Choose an active teacher.", "teacherId");
   return teacher?.id ?? refuse("Choose a teacher record from the list.", "teacherId");
 }
 
@@ -158,7 +161,7 @@ export async function updateDetailsAction(_previous: AccountActionResult | null,
     const now = new Date();
     return db.transaction(async (tx) => {
       const user = await loadUser(tx, userIdFrom(formData));
-      const teacherId = await teacherFrom(tx, formData.get("teacherId"));
+      const teacherId = await teacherFrom(tx, formData.get("teacherId"), user.teacherId);
       const emailChanged = email !== normalizeEmail(user.email);
       if (user.teacherId != null && teacherId == null) {
         const teacherRoles = await openAssignments(tx, user.id, ["teacher"], now);

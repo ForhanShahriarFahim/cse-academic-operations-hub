@@ -357,6 +357,17 @@ body {
 .ledger thead th:first-child { left: 0; z-index: 3; }
 .ledger .num { text-align: right; font-variant-numeric: tabular-nums; }
 .ledger tbody tr:hover > * { background: #faf7ee; }
+.ledger td.wrap { white-space: normal; min-width: 120px; }
+/* TCH-01: ledgers marked .stack become labelled rows on phones, so the page never scrolls sideways. */
+@media screen and (max-width: 720px) {
+  .ledger.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ledger.stack, .ledger.stack tbody, .ledger.stack tr, .ledger.stack tbody th, .ledger.stack td { display: block; width: 100%; }
+  .ledger.stack tr { padding: 10px 14px; border-bottom: 1px solid var(--color-line-soft); }
+  .ledger.stack tbody th, .ledger.stack td { position: static; border: 0; padding: 2px 0; white-space: normal; background: transparent; text-align: left; }
+  .ledger.stack td[data-label]::before { content: attr(data-label) " · "; color: var(--color-muted); font-size: 12px; }
+  .ledger.stack td.hide-sm, .ledger.stack td.empty-sm { display: none; }
+  .table-region:has(> .ledger.stack) { max-height: none !important; }
+}
 .load-bar { position: relative; display: inline-block; width: 96px; height: 6px; border-radius: 3px; background: var(--color-line-soft); vertical-align: middle; overflow: visible; }
 .load-bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--color-pine); }
 .load-bar.over > i { background: var(--color-gold); }

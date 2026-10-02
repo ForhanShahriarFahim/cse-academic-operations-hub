@@ -14,10 +14,8 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
   const userId = Number(id);
   if (!Number.isInteger(userId) || userId <= 0) notFound();
   const isSelf = userId === actor.id;
-  const [detail, teachers] = await Promise.all([
-    loadAccountDetail(userId, { currentToken: isSelf ? await getCurrentSessionToken() : null }),
-    teacherOptions(),
-  ]);
+  const detail = await loadAccountDetail(userId, { currentToken: isSelf ? await getCurrentSessionToken() : null });
   if (!detail) notFound();
+  const teachers = await teacherOptions(detail.teacherId);
   return <AccountManager detail={detail} teachers={teachers} viewerId={actor.id} googleConfigured={googleAuthConfigured} />;
 }

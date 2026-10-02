@@ -14,6 +14,8 @@ const internalRoutes = [
   "/", "/routine", "/routine?view=week", "/attendance", "/extra-load", "/conflicts", "/teachers", "/workload",
   "/rooms", "/batches", "/courses", "/od", "/publications", "/settings", "/access", "/routine/official", "/routine/periods",
   "/my-routine", "/teachers/routines", "/teachers/1/routine", "/access/new", "/account",
+  // TCH-01 teacher records
+  "/teachers?show=placeholders", "/teachers/1", "/teachers/new", "/teachers/1/edit", "/teachers/1/deactivate", "/teachers/1/delete",
 ];
 const publicRoutes = ["/public/routine", "/public/routine?view=week"];
 /** Known violations with an owner or a recorded reason: route → axe rule ids. */
