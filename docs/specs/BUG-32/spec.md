@@ -1,8 +1,8 @@
 # BUG-32 (UX-01 B4): the public viewer offers no dead-end actions when nothing is published
 
 Issue: [#32](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/32), "UX-01 finding (B4): public viewer offers print/CSV/package actions with nothing published"
-Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). In progress.
-Branch / base: `claude/bug-32` from `c2eff15` (main after BUG-26)
+Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified in the cloud session ([verification](verification.md)); awaiting owner acceptance.
+Branch / base: `claude/bug-32` from `1cedf4c` (main after TCH-01); inspected at `c2eff15`, and the public viewer files are identical at both
 Updated: 2 October 2026, Asia/Dhaka
 
 This is a small bug, so the spec and the plan are combined in this one record (see [WORKFLOW](../../WORKFLOW.md#issue-lifecycle)).

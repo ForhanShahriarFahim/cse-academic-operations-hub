@@ -4,9 +4,20 @@ test("public routine is anonymous and never substitutes a draft", async ({ page 
   await page.goto("/public/routine?stream=HSC&view=day&day=0&batch=all");
   await expect(page.getByText("Official Class Routine")).toBeVisible();
   const unpublished = page.getByRole("heading", { name: "No published routine" });
+  const controls = page.getByLabel("Routine view controls");
   if (await unpublished.isVisible()) {
-    await expect(page.getByText("Draft data is never exposed here.", { exact: false })).toBeVisible();
+    await expect(page.getByText("once it has been reviewed and approved", { exact: false })).toBeVisible();
+    await expect(page.getByText("Draft schedules are never shown here.", { exact: false })).toBeVisible();
+    // BUG-32: nothing to print, export or filter, so no dead-end controls.
+    await expect(controls).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Print / PDF" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "CSV" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Official package" })).toHaveCount(0);
   } else {
+    await expect(controls).toBeVisible();
+    await expect(page.getByRole("button", { name: "Print / PDF" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "CSV" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Official package" })).toBeVisible();
     await expect(page.getByRole("heading", { name: /Class Routine/ }).first()).toBeVisible();
     await page.getByRole("button", { name: "Week", exact: true }).click();
     await expect(page).toHaveURL(/view=week/);
