@@ -23,7 +23,9 @@ const DHAKA = "Etc/GMT-6"; // what PGlite records for Asia/Dhaka (UTC+06, no day
 const DHAKA_OFFSET_MS = 6 * 3600_000;
 const ZONES = ["UTC", DHAKA, "America/New_York"];
 const LAST_LEGACY_MIGRATION = 6; // 0006_term-time-grids, the last migration before BUG-29
-const SLACK_MS = 2000; // database and harness share one clock; this only absorbs statement latency
+// Absorbs statement latency, and the offset between a PostgreSQL server's clock and the harness
+// clock (a few ms locally, #59). PGlite runs in-process and shares the harness clock.
+const SLACK_MS = 2000;
 // Time columns added by migrations after 0007. A database stopped before BUG-29 predates them,
 // and so does any write to it: legacy rows in their tables are inserted with explicit SQL.
 const ADDED_AFTER_BUG29 = new Set([
@@ -71,6 +73,23 @@ async function assertCatalog(client: Queryable, state: "current" | "legacy"): Pr
 async function sessionZone(client: Queryable): Promise<string> {
   const { rows } = await client.query<{ zone: string }>("select current_setting('TimeZone') as zone");
   return rows[0].zone;
+}
+
+/**
+ * The database's own current instant, rounded up to the next whole millisecond. Use it to ask
+ * whether a value the database stamped is in force: a PostgreSQL server's clock can read ahead of
+ * the harness clock (#59), and a JS Date has no microseconds, so rounding down could land before
+ * a now() stamped in the same millisecond.
+ */
+async function databaseNow(client: Queryable): Promise<Date> {
+  const { rows } = await client.query<{ us: string }>("select (extract(epoch from clock_timestamp()) * 1000000)::bigint::text as us");
+  return new Date(Math.ceil(Number(rows[0].us) / 1000));
+}
+
+/** Microseconds within the millisecond of a stored instant: 0 for values written from a JS Date. */
+async function subMillisecond(client: Queryable, table: string, column: string, id: number): Promise<number> {
+  const { rows } = await client.query<{ us: string }>(`select (extract(microseconds from ${column})::bigint % 1000)::text as us from ${table} where id = $1`, [id]);
+  return Number(rows[0].us);
 }
 
 async function appliedMigrations(client: Queryable): Promise<number> {
@@ -132,8 +151,20 @@ async function checkZone(factory: DatabaseFactory, zone: string): Promise<number
     const [granted] = await db.insert(roleAssignments).values({ userId: user.id, role: "teacher" }).returning();
     const [revoked] = await db.insert(roleAssignments).values({ userId: user.id, role: "read_only_viewer" }).returning();
     await db.update(roleAssignments).set({ activeTo: new Date() }).where(eq(roleAssignments.id, revoked.id));
-    const active = await selectActiveAssignments(db, user.id, new Date());
+    // The grant was stamped by the database clock and the revocation by the app clock, so ask at an
+    // instant that is now on both: whichever clock reads later (#59).
+    const bothNow = new Date(Math.max((await databaseNow(client)).getTime(), Date.now()));
+    const active = await selectActiveAssignments(db, user.id, bothNow);
     assert.deepEqual(active.map((row) => row.id), [granted.id], `${zone}: active assignments right after grant/revoke`);
+
+    // #59: an app clock 50 ms behind the database. A start written from the app clock is in force at
+    // the app's now; a start stamped by the database default at the same moment is not yet.
+    const [skewed] = await db.insert(portalUsers).values({ email: `zone-skew-${slug}@example.invalid`, displayName: "Clock probe", status: "active" }).returning();
+    const appNow = new Date((await databaseNow(client)).getTime() - 50);
+    const [appWritten] = await db.insert(roleAssignments).values({ userId: skewed.id, role: "teacher", activeFrom: appNow }).returning();
+    await db.insert(roleAssignments).values({ userId: skewed.id, role: "read_only_viewer" });
+    const inForce = await selectActiveAssignments(db, skewed.id, appNow);
+    assert.deepEqual(inForce.map((row) => row.id), [appWritten.id], `${zone}: with the app clock behind, only the app-written start is in force`);
     return instantColumns;
   }));
 }
@@ -146,11 +177,14 @@ async function checkBootstrap(factory: DatabaseFactory): Promise<void> {
     const result = await database.runChild(BOOTSTRAP, [], { PORTAL_BOOTSTRAP_ADMIN_EMAIL: email });
     const after = Date.now();
     assert.equal(result.status, 0, result.stderr.slice(-2000));
-    await withHandle(database, async ({ db }) => {
+    await withHandle(database, async ({ db, client }) => {
       const [user] = await db.select().from(portalUsers).where(eq(portalUsers.email, email));
       const active = await selectActiveAssignments(db, user.id, new Date());
       assert.deepEqual(active.map((row) => row.role), ["system_administrator"]);
       assertWithin(active[0].activeFrom, before, after, "bootstrap role start");
+      // #59: the start comes from the app clock that sign-in checks against, not the database default.
+      // A JS Date has whole milliseconds; a database now() carries microseconds.
+      assert.equal(await subMillisecond(client, "role_assignments", "active_from", active[0].id), 0, "bootstrap role start is written by the app clock");
       const [event] = await db.select().from(auditEvents).where(eq(auditEvents.action, "user.bootstrap_admin"));
       assertWithin(event.at, before, after, "bootstrap audit time");
     });
@@ -292,9 +326,9 @@ export async function checkTimeZones(factory: DatabaseFactory = pgliteFactory): 
   const lines: string[] = [];
   let instantColumns = 0;
   for (const zone of ZONES) instantColumns = await checkZone(factory, zone);
-  lines.push(`Fresh migration in ${ZONES.join(", ")}: all ${instantColumns} instant columns are timestamptz and date columns unchanged; a default-stamped and an application-written time read back equal; a role granted now is in force at once and one revoked now is not`);
+  lines.push(`Fresh migration in ${ZONES.join(", ")}: all ${instantColumns} instant columns are timestamptz and date columns unchanged; a default-stamped and an application-written time read back equal; a role granted now is in force at once and one revoked now is not; with the app clock 50 ms behind the database, an app-written start is in force and a default-stamped one is not yet (#59)`);
   await checkBootstrap(factory);
-  lines.push(`auth:bootstrap child in ${DHAKA}: the administrator role and its audit event carry the true time and the role is in force at once`);
+  lines.push(`auth:bootstrap child in ${DHAKA}: the administrator role and its audit event carry the true time, the role starts on the app clock and is in force at once`);
   const scratch = createOwnedRun("bug29 legacy migrations");
   try {
     const legacyFolder = legacyMigrations(scratch.root);

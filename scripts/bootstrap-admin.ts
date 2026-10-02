@@ -55,7 +55,8 @@ async function bootstrap(email: string, withPassword: boolean) {
     if (existingUser && withPassword && !existingUser.passwordEnabled) {
       await tx.update(portalUsers).set({ passwordEnabled: true, updatedAt: now }).where(eq(portalUsers.id, existingUser.id));
     }
-    await tx.insert(roleAssignments).values({ userId: user.id, role: "system_administrator" });
+    // Start the role on the app clock that sign-in checks it against, not the database's (#59).
+    await tx.insert(roleAssignments).values({ userId: user.id, role: "system_administrator", activeFrom: now, grantedAt: now });
     await tx.insert(auditEvents).values({
       actor: "bootstrap-admin",
       actorDisplayName: "First-administrator bootstrap (operator command)",
