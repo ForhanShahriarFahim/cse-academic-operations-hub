@@ -2,7 +2,7 @@
 
 Issue: [#59](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/59). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `claude/bug-59` (base `7d2f1ac`), on the owner's machine: Windows 11, Node 22.11.0, PostgreSQL 17.11 tools (`SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`).
-Status: **Verified locally; awaiting owner acceptance.**
+Status: **Verified locally. Accepted by the owner on 2 October 2026** ("Accepted", in the Claude Code session) and merged through PR #60.
 
 ## What changed
 

@@ -1,7 +1,7 @@
 # BUG-59: the BUG-29 time-zone safety check fails intermittently on PostgreSQL
 
 Issue: [#59](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/59), "BUG-29 follow-up: time-zone safety check fails intermittently (role granted now not yet active)"
-Status: **Approved 2 October 2026 with D-1 to D-3 as recommended** (see [approval record](#approval-record)). Implemented and verified locally ([verification](verification.md)); awaiting owner acceptance.
+Status: **Approved 2 October 2026 with D-1 to D-3 as recommended** (see [approval record](#approval-record)). Implemented and verified locally ([verification](verification.md)). Accepted by the owner and merged on 2 October 2026 (PR #60).
 Branch / base: `claude/bug-59` from `7d2f1ac` (main)
 Updated: 2 October 2026, Asia/Dhaka
 
