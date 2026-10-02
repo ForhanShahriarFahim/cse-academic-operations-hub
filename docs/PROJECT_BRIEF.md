@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**State on 2 October 2026: no issue in progress.** Next: [TCH-01 / #4](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4) (teacher records), chosen by the owner: inspect, then spec, plan and mockups for approval. The last fix was [BUG-26 / #26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26): `db:reset` keeps portal access, names its target, needs `--confirm` and refuses the institutional directory ([spec/plan](specs/BUG-26/spec.md), [verification](specs/BUG-26/verification.md)); accepted and merged 2 October 2026.
+**State on 2 October 2026: [TCH-01 / #4](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4) (teacher records) is approved and in progress** on `codex/tch-01`: [spec](specs/TCH-01/spec.md), [plan with checklist and handoff](specs/TCH-01/plan.md), [mockups](specs/TCH-01/mockups/). The last fix was [BUG-26 / #26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26): `db:reset` keeps portal access, names its target, needs `--confirm` and refuses the institutional directory ([spec/plan](specs/BUG-26/spec.md), [verification](specs/BUG-26/verification.md)); accepted and merged 2 October 2026.
 
 - **Last completed:** [BUG-49 / #49](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/49): sign out without Google, and no tokens in the dev log ([record](specs/BUG-49/verification.md)); accepted and merged 2 October 2026.
 
