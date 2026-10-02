@@ -200,7 +200,7 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run db:migrate` | Apply checked-in migrations |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
 | `npm run auth:bootstrap` | Create the first administrator (explicit email required; `-- --password` prints a setup link; `-- --reset-link <email>` recovers a system administrator) |
-| `npm run db:reset` | Destructively replace current data with the development seed; this also erases portal users and roles. Never run it on institutional data. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |
+| `npm run db:reset` | Replace a development database's academic data with the Summer-2026 seed, keeping portal users, passwords, roles and setup links. It prints its target and runs only with `npm run db:reset -- --confirm "<target>"`. It refuses the default `.data/pglite-summer-2026` directory (the institutional database): point `PGLITE_DATA_DIR` at a disposable copy. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |
 | `npm run typecheck` | Run TypeScript validation |
 | `npm run lint` | Run ESLint |
 | `npm run test:domain` | Verify academic rules, routine projection, source data, role policy, and the action result contract |

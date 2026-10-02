@@ -22,7 +22,7 @@ PGlite is local development storage. Production and staging need hosted PostgreS
 2. **Proving that no writer is active is the operator's job.** Embedded PGlite writes no lock or PID file that another process could check. Two processes can open the same directory and corrupt it. If you cannot confirm that every writer has stopped, **do not take the backup.**
 3. **Store backups outside the repository, in protected storage.** A copy of the institutional database contains private student data. Backups must never enter Git, issue or PR text, or unencrypted shared folders.
 4. **Never restore over the only copy.** Move the current directory aside under a new name; do not delete it.
-5. **`db:reset` is not a recovery tool.** It truncates all academic tables and, through foreign-key cascades, every portal user and role assignment ([F-07](SAFE-01-mutation-inventory.md#findings-for-follow-up-not-safe-01-fixes-unless-stated)). After an accidental reset, restore from a backup. Do not re-seed.
+5. **`db:reset` is not a recovery tool.** It replaces every academic table with the Summer 2026 development seed. Since [BUG-26](../specs/BUG-26/spec.md) it keeps portal users, passwords, sessions, roles, setup links and the access audit history, and it refuses the default institutional directory. It runs only with `--confirm` naming its target. After an accidental reset of real academic data, restore from a backup. Do not re-seed.
 
 ## Institutional PGlite: cold backup (manual, not yet exercised)
 

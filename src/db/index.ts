@@ -5,15 +5,15 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { config as loadDotEnv } from "dotenv";
 import * as schema from "./schema";
+import { databaseTarget, loadDatabaseEnvironment } from "./target";
 
 // CLI migration/seed commands do not inherit Next.js's .env.local loading.
 // Existing process variables (including Vercel secrets) always take priority.
-loadDotEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
-loadDotEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
+loadDatabaseEnvironment();
 
-const databaseUrl = process.env.DATABASE_URL;
+const target = databaseTarget();
+const databaseUrl = target.mode === "postgresql" ? target.url : undefined;
 if (process.env.VERCEL && !databaseUrl) {
   throw new Error("DATABASE_URL is required on Vercel; embedded PGlite storage is for local development only.");
 }
@@ -45,8 +45,8 @@ if (databaseUrl) {
   const isBuild = process.env.npm_lifecycle_event === "build";
   const dataDirectory = isBuild
     ? "memory://"
-    : process.env.PGLITE_DATA_DIR ?? path.join(process.cwd(), ".data", "pglite-summer-2026");
-  if (!isBuild) mkdirSync(path.dirname(dataDirectory), { recursive: true });
+    : (target as Extract<typeof target, { mode: "pglite" }>).directory;
+  if (!isBuild && !dataDirectory.startsWith("memory://")) mkdirSync(path.dirname(dataDirectory), { recursive: true });
   const client = globalForDb.__pundraPglite ?? new PGlite(dataDirectory);
 
   if (process.env.NODE_ENV !== "production") {
