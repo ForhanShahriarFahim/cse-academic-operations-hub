@@ -1,7 +1,7 @@
 # BUG-26 (SAFE-01 F-07): `db:reset` keeps portal users and roles, and names its target before it runs
 
 Issue: [#26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26), "SAFE-01 follow-up (F-07): db:reset silently erases portal users and roles"
-Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); awaiting owner acceptance.
+Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented, verified ([verification](verification.md)) and accepted by the owner on 2 October 2026.
 Branch / base: `codex/bug-26` from `281718f` (main after BUG-49)
 Updated: 2 October 2026, Asia/Dhaka
 

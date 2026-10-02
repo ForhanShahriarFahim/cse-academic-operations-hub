@@ -2,7 +2,7 @@
 
 Issue: [#26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `codex/bug-26`, Windows 11, Node 22.11.0, PostgreSQL 17.11 tools (`SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`).
-Status: **Verified. Awaiting owner acceptance.**
+Status: **Verified. Accepted by the owner on 2 October 2026** ("accepted", in chat).
 
 ## What changed
 
@@ -34,7 +34,7 @@ All checks ran the real `src/db/seed.ts` and `src/db/prepare.ts` commands as chi
 
 - `npm run typecheck`: pass.
 - `npx eslint src scripts`: pass, no problems.
-- `npm run lint` (whole folder): fails with 34 errors and 8 warnings, **all** inside `.claude/worktrees/brave-driscoll-459392/.next/`. That is the build output of a leftover agent worktree, which is excluded from Git but not ignored by ESLint. None of the problems are in project files, and this change does not cause them. Removing that worktree is a separate decision for the owner.
+- `npm run lint` (whole folder): fails with 34 errors and 8 warnings, **all** inside `.claude/worktrees/brave-driscoll-459392/.next/`. That is the build output of a leftover agent worktree, which is excluded from Git but not ignored by ESLint. None of the problems are in project files, and this change does not cause them. The owner then had that worktree removed (clean, nothing unmerged).
 - `npm run test:domain`: pass (all nine verifiers).
 - `npm run build`: pass.
 - `npm run test:safety` with `SAFE01_PG_BIN`: pass, exit 0. All 12 groups passed: T-01 to T-04, T-06, BUG-29 (PGlite and PostgreSQL), AUTH-02 (both), BUG-48, and BUG-26 (both). The default PGlite directory's metadata is unchanged; it was never opened.
