@@ -17,6 +17,7 @@ import { checkAuth, checkAuthPostgres } from "./safety/auth.check";
 import { checkClusterCleanup } from "./safety/cluster.check";
 import { checkReset, checkResetPostgres } from "./safety/reset.check";
 import { checkTeachers, checkTeachersPostgres } from "./safety/teacher.check";
+import { checkDeletes, checkDeletesPostgres } from "./safety/delete.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -53,6 +54,8 @@ async function main() {
     ["BUG-26 reset keeps access (PostgreSQL)", () => checkResetPostgres(process.env.SAFE01_PG_BIN), true],
     ["TCH-01 teacher records (PGlite)", () => checkTeachers()],
     ["TCH-01 teacher records (PostgreSQL)", () => checkTeachersPostgres(process.env.SAFE01_PG_BIN), true],
+    ["BUG-27 blocked deletes (PGlite)", () => checkDeletes()],
+    ["BUG-27 blocked deletes (PostgreSQL)", () => checkDeletesPostgres(process.env.SAFE01_PG_BIN), true],
   ];
   // Optional task filter for focused runs, e.g. `npm run test:safety -- T-03`.
   const only = process.argv[2];

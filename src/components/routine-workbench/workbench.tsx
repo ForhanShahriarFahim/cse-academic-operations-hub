@@ -325,8 +325,9 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
             ) : null}
           </div>
           {!docked ? (
-            <dialog ref={dialog} aria-labelledby={headingId} onCancel={(event) => { event.preventDefault(); closePanel(); dialog.current?.close(); }}
-              onClose={() => { if (panel) closePanel(); }}
+            // React passes a nested confirmation dialog's cancel/close events up to here; only the drawer's own close the panel (BUG-27).
+            <dialog ref={dialog} aria-labelledby={headingId} onCancel={(event) => { if (event.target !== dialog.current) return; event.preventDefault(); closePanel(); dialog.current?.close(); }}
+              onClose={(event) => { if (event.target === dialog.current && panel) closePanel(); }}
               className="no-print m-0 ml-auto h-full max-h-none w-full max-w-[420px] border-0 border-l border-[var(--color-line)] bg-sheet p-0 text-[var(--color-ink)] shadow-2xl backdrop:bg-[rgba(16,29,22,0.35)] max-sm:max-w-none">
               <div className="flex justify-end border-b border-[var(--color-line-soft)] px-2 py-1.5">
                 <button type="button" onClick={() => { dialog.current?.close(); closePanel(); }} className="rounded px-2 py-1 text-[13px] font-medium">Close</button>

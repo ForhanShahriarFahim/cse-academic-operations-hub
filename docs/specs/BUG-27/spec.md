@@ -1,7 +1,7 @@
 # BUG-27 (SAFE-01 F-08): blocked deletes explain what still uses the record
 
 Issue: [#27](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/27), "SAFE-01 follow-up (F-08): explain blocked deletes instead of raw foreign-key errors"
-Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). In progress.
+Status: Approved 2 October 2026 with D-1 to D-3 as recommended (see [approval record](#approval-record)). Implemented and verified in the cloud session ([verification](verification.md)); awaiting owner acceptance.
 Branch / base: `claude/bug-27` from `75ed28e` (main after the cloud hook, #56)
 Updated: 2 October 2026, Asia/Dhaka
 
@@ -24,7 +24,7 @@ Inspected on 2 October 2026 at `75ed28e`, in a Claude Code cloud session, from t
 
 **Outcome.** Trying to delete a class or an external commitment that other records still use is refused with a plain explanation of what uses it, and nothing changes. The routine builder and the OD screen both show that explanation where the action was taken.
 
-**In scope:** the two delete actions, a fallback for a reference that appears between the check and the delete, the OD row's feedback, tests in `npm run test:safety`, and the SAFE-01 inventory entry F-08.
+**In scope:** the two delete actions, a fallback for a reference that appears between the check and the delete, the OD row's feedback, tests in `npm run test:safety`, and the SAFE-01 inventory entry F-08. Added during implementation (needed for AC-05): the routine builder's class drawer no longer closes when its own confirmation dialog closes (see [verification](verification.md#implementation-finding)).
 
 **Out of scope:** archiving instead of deleting (see D-1), any schema change, other delete actions, and editing workload allocations.
 
@@ -41,7 +41,7 @@ Inspected on 2 October 2026 at `75ed28e`, in a Claude Code cloud session, from t
 
 1. `deleteMeetingAction`, after the existing permission and active-term checks, looks for attendance sessions linked to the class **inside the transaction**. If there are any, it returns a `conflict` result. The message is "This class can't be removed: attendance is recorded against it." Each blocker gives the session dates. Nothing is deleted and no audit event is written.
 2. `deleteExternalAction` does the same with workload allocations. The message is "This commitment can't be removed: it counts toward teaching workload." Each blocker names the teacher and units.
-3. If a linked row appears between the check and the delete, the database's foreign-key error (code `23503`) is caught in these two actions and returned as the same kind of `conflict` result, with a generic reason. Any other error still throws.
+3. If a linked row appears between the check and the delete, the database's foreign-key error (code `23503`) is caught in these two actions and returned as a `conflict` result with a generic message ("… can't be removed: another record uses it."). Any other error still throws.
 4. With no linked rows, both deletes behave exactly as today, including their audit events.
 5. The routine builder shows the conflict in its existing issue list. The OD row shows the message and the blockers under its buttons, and clears them on the next action.
 

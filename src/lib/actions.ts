@@ -18,16 +18,19 @@ import {
   externalCommitments,
   scheduleVersions,
   auditEvents,
+  attendanceSessions,
+  workloadAllocations,
 } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
 import { getPortalData } from "./data";
 import { analyzeSchedule } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
-import { parseTimeToMinutes } from "./time";
+import { fmtDate, parseTimeToMinutes } from "./time";
 import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
-import type { ActionResult } from "./action-result";
+import { conflicted, type ActionResult, type ResultIssue } from "./action-result";
+import { isForeignKeyViolation } from "./db-errors";
 
 // The shared contract lives in ./action-result; this type-only re-export keeps
 // existing `import type { ActionResult } from "@/lib/actions"` consumers working.
@@ -281,13 +284,30 @@ export async function deleteMeetingAction(meetingId: number): Promise<ActionResu
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
   if (!await isInActiveTerm("meeting", meetingId)) return { ...OUTSIDE_ACTIVE_TERM };
-  await auditedChange("meeting.delete", "meeting", async (tx) => {
-    const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
-    await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
-    await tx.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
-    await tx.delete(meetings).where(eq(meetings.id, meetingId));
-    return { result: null, entityId: meetingId, before: previous ?? null };
-  });
+  try {
+    await auditedChange("meeting.delete", "meeting", async (tx) => {
+      const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
+      const sessions = await tx.select({ classDate: attendanceSessions.classDate }).from(attendanceSessions)
+        .where(eq(attendanceSessions.meetingId, meetingId)).orderBy(attendanceSessions.classDate);
+      if (sessions.length) {
+        const dates = [...new Set(sessions.map((session) => session.classDate))];
+        const listed = dates.slice(0, 5).map(fmtDate).join(", ") + (dates.length > 5 ? ` and ${dates.length - 5} more` : "");
+        throw new DeleteBlocked(MEETING_IN_USE, [{
+          severity: "blocker",
+          title: "Attendance recorded",
+          detail: `Attendance was taken in this class on ${listed}. Keep the class, or change its time instead.`,
+        }]);
+      }
+      await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
+      await tx.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+      await tx.delete(meetings).where(eq(meetings.id, meetingId));
+      return { result: null, entityId: meetingId, before: previous ?? null };
+    });
+  } catch (error) {
+    const blocked = blockedDelete(error, "class");
+    if (blocked) return blocked;
+    throw error;
+  }
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting removed from the working draft." };
 }
@@ -368,12 +388,46 @@ export async function deleteExternalAction(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
-  await auditedChange("external.delete", "external_commitment", async (tx) => {
-    const [previous] = await tx.delete(externalCommitments).where(eq(externalCommitments.id, id)).returning();
-    return { result: null, entityId: id, before: previous ?? null };
-  });
+  try {
+    await auditedChange("external.delete", "external_commitment", async (tx) => {
+      const allocations = await tx.select({ shortCode: teachers.shortCode, units: workloadAllocations.units })
+        .from(workloadAllocations).innerJoin(teachers, eq(teachers.id, workloadAllocations.teacherId))
+        .where(eq(workloadAllocations.externalCommitmentId, id)).orderBy(teachers.shortCode);
+      if (allocations.length) {
+        throw new DeleteBlocked(EXTERNAL_IN_USE, allocations.map((allocation) => ({
+          severity: "blocker" as const,
+          title: "Counts toward workload",
+          detail: `${allocation.shortCode}'s workload counts this commitment (${allocation.units} units).`,
+        })));
+      }
+      const [previous] = await tx.delete(externalCommitments).where(eq(externalCommitments.id, id)).returning();
+      return { result: null, entityId: id, before: previous ?? null };
+    });
+  } catch (error) {
+    const blocked = blockedDelete(error, "commitment");
+    if (blocked) return blocked;
+    throw error;
+  }
   revalidatePath("/", "layout");
   return { ok: true, message: "Commitment removed." };
+}
+
+// A delete refused because other records still use the row (BUG-27). Thrown inside
+// the audited transaction so nothing is deleted and no audit event is written.
+const MEETING_IN_USE = "This class can't be removed: attendance is recorded against it.";
+const EXTERNAL_IN_USE = "This commitment can't be removed: it counts toward teaching workload.";
+
+class DeleteBlocked extends Error {
+  constructor(message: string, readonly issues: ResultIssue[]) { super(message); }
+}
+
+/** The conflict result for a blocked delete, including a reference that appeared after the check. */
+function blockedDelete(error: unknown, what: "class" | "commitment"): ActionResult | null {
+  if (error instanceof DeleteBlocked) return conflicted(error.message, error.issues);
+  if (isForeignKeyViolation(error)) {
+    return conflicted(`This ${what} can't be removed: another record uses it.`, [{ severity: "blocker", title: "In use", detail: "Another record started using it just now. Reload the page to see what." }]);
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
