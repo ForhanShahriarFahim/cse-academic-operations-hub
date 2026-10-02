@@ -10,6 +10,8 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 - **Completed:** [BUG-32 / #32](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/32), accepted and merged on 2 October 2026 (PR #55). While nothing is published, the public viewer hides its controls and dead-end actions, and both public pages explain when the routine appears ([spec/plan](specs/BUG-32/spec.md), [verification](specs/BUG-32/verification.md)). It was built and verified in a Claude Code cloud session; a local Edge run was not reported before acceptance.
 
+- **Completed:** [BUG-27 / #27](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/27), accepted and merged on 2 October 2026 (PR #58). Deleting a class with attendance, or an OD commitment counted in workload, is refused with an explanation instead of a raw foreign-key error. The OD row now shows refused results, and the class drawer stays open after its confirmation ([spec/plan](specs/BUG-27/spec.md), [verification](specs/BUG-27/verification.md)). It was built in a Claude Code cloud session; the PostgreSQL group and a local Edge run were not reported before acceptance.
+
 - **Earlier completed:** [BUG-26 / #26](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/26): `db:reset` keeps portal access, names its target and refuses the institutional directory ([record](specs/BUG-26/verification.md)); merged 2 October 2026.
 
 - **Earlier completed:** [BUG-49 / #49](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/49): sign out without Google, and no tokens in the dev log ([record](specs/BUG-49/verification.md)); accepted and merged 2 October 2026.

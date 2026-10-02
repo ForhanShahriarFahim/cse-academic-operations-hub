@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { BadgeCheck, CirclePlus, Trash2, X } from "lucide-react";
+import { BadgeCheck, CirclePlus, Trash2, X, XCircle } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
 import type { ExternalCommitmentView } from "@/lib/serialize";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -146,30 +146,52 @@ export function OdManager({
 export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
   const [ask, confirmDialog] = useConfirm();
   const [pending, startTransition] = useTransition();
+  const [failed, setFailed] = useState<ActionResult | null>(null);
+  // Keep a refused result next to the row that was acted on (BUG-27); a success needs no note.
+  function run(action: () => Promise<ActionResult>) {
+    setFailed(null);
+    startTransition(async () => {
+      const result = await action();
+      setFailed(result.ok ? null : result);
+    });
+  }
   return (
-    <span className="flex items-center justify-end gap-1">{confirmDialog}
-      {e.verificationStatus !== "verified" && (
+    <span className="block">
+      <span className="flex items-center justify-end gap-1">{confirmDialog}
+        {e.verificationStatus !== "verified" && (
+          <button
+            disabled={pending}
+            title="Mark verified"
+            onClick={() => run(() => verifyExternalAction(e.id))}
+            className="rounded p-1 text-[var(--color-pine)] hover:bg-[var(--color-pine)]/10 disabled:opacity-50"
+          >
+            <BadgeCheck size={14} />
+          </button>
+        )}
         <button
           disabled={pending}
-          title="Mark verified"
-          onClick={() => startTransition(async () => { await verifyExternalAction(e.id); })}
-          className="rounded p-1 text-[var(--color-pine)] hover:bg-[var(--color-pine)]/10 disabled:opacity-50"
+          title="Remove"
+          aria-label="Remove this external commitment"
+          onClick={async () => {
+            if (!await ask({ title: "Remove this external commitment?", body: "The booking will disappear from the OD row and will no longer block the room or teacher at that time.", confirmLabel: "Remove commitment" })) return;
+            run(() => deleteExternalAction(e.id));
+          }}
+          className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10 disabled:opacity-50"
         >
-          <BadgeCheck size={14} />
+          <Trash2 size={14} />
         </button>
-      )}
-      <button
-        disabled={pending}
-        title="Remove"
-        aria-label="Remove this external commitment"
-        onClick={async () => {
-          if (!await ask({ title: "Remove this external commitment?", body: "The booking will disappear from the OD row and will no longer block the room or teacher at that time.", confirmLabel: "Remove commitment" })) return;
-          startTransition(async () => { await deleteExternalAction(e.id); });
-        }}
-        className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10 disabled:opacity-50"
-      >
-        <Trash2 size={14} />
-      </button>
+      </span>
+      {failed ? (
+        <span role="alert" className="mt-1 block w-[230px] rounded-md border border-[var(--color-clay)]/35 bg-clay-tint px-2 py-1.5 text-left text-[11.5px] leading-snug text-[var(--color-clay)]">
+          <span className="block font-semibold">{failed.message}</span>
+          {failed.issues?.map((issue, index) => (
+            <span key={index} className="mt-0.5 flex items-start gap-1">
+              <XCircle size={12} aria-hidden="true" className="mt-0.5 shrink-0" />
+              <span className="text-[#7c2a17]">{issue.detail}</span>
+            </span>
+          ))}
+        </span>
+      ) : null}
     </span>
   );
 }

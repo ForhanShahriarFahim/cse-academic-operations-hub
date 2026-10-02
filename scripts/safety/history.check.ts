@@ -197,6 +197,8 @@ export async function checkHistory(factory: DatabaseFactory = pgliteFactory): Pr
     const wronglyRefused = Object.entries(sameTerm).filter(([, result]) => outside.test(result.message)).map(([name]) => name);
     assert.deepEqual(wronglyRefused, []);
     assert.ok(sameTerm.saveAttendance.ok && sameTerm.deleteExtraLoadClass.ok && sameTerm.verifyExternal.ok, JSON.stringify(sameTerm));
+    // BUG-27: Spring's commitment counts toward workload, so its delete is a conflict, not a foreign-key error.
+    assert.ok(!sameTerm.deleteExternal.threw && (sameTerm.deleteExternal.outcome as { kind?: string } | undefined)?.kind === "conflict", JSON.stringify(sameTerm.deleteExternal));
     lines.push(`Cross-term writes refused: ${Object.keys(crossTerm).length} id-based actions against Summer rows while Spring is active (Summer history unchanged); the same actions on Spring rows are not blocked`);
 
     // RUT-04: Days & periods actions change only the active term, with guards, stale checks and audit.
