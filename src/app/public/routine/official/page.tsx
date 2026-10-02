@@ -10,7 +10,11 @@ export default async function PublishedOfficialRoutinePage() {
   const data = await getPublicRoutineData();
   const source = data?.source ?? null;
   if (!source || !data) {
-    return <main className="mx-auto max-w-3xl p-8"><h1 className="font-display text-2xl font-bold">No published routine</h1><p className="mt-2">Publish a validated routine before generating the official package.</p></main>;
+    return <main className="mx-auto max-w-3xl p-8">
+      <h1 className="font-display text-2xl font-bold">No published routine</h1>
+      <p className="mt-2">The department posts the class routine here once it has been reviewed and approved. Draft schedules are never shown here.</p>
+      <Link href="/public/routine" className="mt-4 inline-block rounded-md border border-[var(--color-line)] bg-white px-3 py-2 text-xs font-semibold">Back to viewer</Link>
+    </main>;
   }
   const document = buildOfficialRoutinePackage({ source, metadata: data.metadata });
   return <div className="paper-grain min-h-screen py-5 print:bg-white print:py-0">
