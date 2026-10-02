@@ -2,7 +2,7 @@
 
 Issue: [#32](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/32). Records: [spec, plan and approval](spec.md).
 Verified: 2 October 2026, Asia/Dhaka, on branch `claude/bug-32` (base `1cedf4c`), in a Claude Code cloud session: Linux, Node 22.22.0, the preinstalled Chromium.
-Status: **Verified in the cloud session. Awaiting owner acceptance**, which includes a local run of the browser checks (see [Pending](#pending)).
+Status: **Verified in the cloud session. Accepted by the owner on 2 October 2026** ("merge #55 and #58", in the cloud session) and merged through PR #55. The local Edge run under [Pending](#pending) was not reported as done before acceptance.
 
 ## What changed
 
