@@ -3,7 +3,8 @@
 Issue: [#54](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/54)
 Spec and plan: [spec.md](spec.md), approved 2 October 2026 with D-1 and D-2 as recommended
 Branch: `claude/cranky-hofstadter-4674b1` from `1cedf4c`
-Verified: 2 October 2026, Asia/Dhaka. **Owner acceptance is pending.**
+Verified: 2 October 2026, Asia/Dhaka.
+Accepted: 2 October 2026, owner's chat reply "accepted, merge and close #54".
 
 Every check ran on the disposable review copy (`.tmp/ux-review/pglite`) or on pure inputs. `.data` does not exist in this worktree and was never opened. `db:reset` was never run. `next dev` ran only through `npm run ux:review` on the review copy. No schema change and no migration.
 

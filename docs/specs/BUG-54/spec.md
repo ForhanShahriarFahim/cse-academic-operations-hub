@@ -1,7 +1,7 @@
 # BUG-54 (RUT-04 follow-up): the official package's contacts sheet fits however many teachers are listed
 
 Issue: [#54](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/54), "RUT-04 follow-up: official package contacts sheet clips when more or longer teacher names are listed"
-Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); owner acceptance pending.
+Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); accepted by the owner on 2 October 2026 and merged.
 Branch / base: `claude/cranky-hofstadter-4674b1` (the desktop app's worktree for this session) from `1cedf4c` (main after TCH-01)
 Updated: 2 October 2026, Asia/Dhaka
 
