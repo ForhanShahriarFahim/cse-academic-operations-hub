@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import type { ActionResult } from "@/lib/action-result";
 import { setTeacherStatusAction } from "@/lib/teacher-actions";
@@ -16,10 +16,12 @@ export function StatusButton({ teacherId, expectedUpdatedAt, action, label, hint
   teacherId: number; expectedUpdatedAt: string; action: StatusAction; label: string; hint?: string; className?: string;
 }) {
   const router = useRouter();
-  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(setTeacherStatusAction, null);
-  useEffect(() => {
-    if (result?.ok) router.replace(`/teachers/${teacherId}?done=${action}`);
-  }, [result, router, teacherId, action]);
+  // Navigate from the submit itself: on success this button may unmount (its status no longer applies).
+  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {
+    const outcome = await setTeacherStatusAction(previous, formData);
+    if (outcome.ok) router.replace(`/teachers/${teacherId}?done=${action}`);
+    return outcome;
+  }, null);
   return (
     <form action={submit} className="contents">
       <input type="hidden" name="teacherId" value={teacherId} />

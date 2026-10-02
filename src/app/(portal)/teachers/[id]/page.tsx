@@ -8,7 +8,7 @@ import { computeWorkloads } from "@/lib/workload";
 import { fmtRange, DAY_NAMES } from "@/lib/time";
 import { sharingLabel, knownAudienceSize } from "@/lib/serialize";
 import { WORKLOAD_ADVISORY_UNITS } from "@/lib/constants";
-import { EMPLOYMENT_LABELS, FIELD_LABELS, STATUS_LABELS, employmentLabel, isPlaceholder, statusLabel, type TeacherField } from "@/lib/teacher-records";
+import { EMPLOYMENT_LABELS, FIELD_LABELS, STATUS_LABELS, TEACHER_FIELDS, employmentLabel, isPlaceholder, statusLabel, type TeacherField } from "@/lib/teacher-records";
 import { getTeacherChanges, getTeacherRecord, type TeacherChange } from "@/lib/teacher-data";
 import { PageHeader, Badge, Panel, StatCard, EmptyNote, Notice, StatusText, type Tone } from "@/components/ui";
 import { StatusButton, TeacherActionsMenu } from "@/components/teachers/teacher-actions-menu";
@@ -70,7 +70,7 @@ export default async function TeacherDetailPage({ params, searchParams }: { para
           {!placeholder ? <Link href={`/teachers/${t.id}/routine`} className={buttonClass.secondary}><CalendarDays size={15} strokeWidth={1.8} aria-hidden="true" /> Individual routine</Link> : null}
           {canEdit && t.status === "unresolved" ? <Link href={`/teachers/${t.id}/edit?resolve=1`} className={buttonClass.primary}>Resolve {t.shortCode}</Link> : null}
           {canEdit && !placeholder ? <Link href={`/teachers/${t.id}/edit`} className={buttonClass.primary}><Pencil size={14} aria-hidden="true" /> Edit</Link> : null}
-          {canEdit && t.status !== "vacancy" ? <TeacherActionsMenu teacherId={t.id} code={t.shortCode} status={t.status} expectedUpdatedAt={updatedAt} /> : null}
+          {canEdit && t.status !== "vacancy" ? <TeacherActionsMenu key={updatedAt} teacherId={t.id} code={t.shortCode} status={t.status} expectedUpdatedAt={updatedAt} /> : null}
         </>}
       />
 
@@ -240,8 +240,10 @@ function ChangeList({ changes, departmentName }: { changes: TeacherChange[]; dep
   return (
     <ol className="divide-y divide-[var(--color-line-soft)]">
       {rows.map((change) => {
+        const order = (field: string) => { const index = (TEACHER_FIELDS as readonly string[]).indexOf(field); return index < 0 ? 99 : index; };
         const fields = Object.keys({ ...(change.before ?? {}), ...(change.after ?? {}) })
-          .filter((field) => change.action !== "teacher.create" || (change.after?.[field] ?? null) !== null);
+          .filter((field) => change.action !== "teacher.create" || (change.after?.[field] ?? null) !== null)
+          .sort((a, b) => order(a) - order(b));
         const label = change.action === "summer_2026_imported" ? "Imported from the Summer-2026 routine source" : ACTION_LABELS[change.action] ?? change.action;
         return (
           <li key={change.id} className="grid gap-x-4 gap-y-1 py-2.5 sm:grid-cols-[112px_minmax(0,1fr)]">

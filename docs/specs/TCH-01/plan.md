@@ -55,13 +55,13 @@ The Summer 2026 seed is updated to match. The migration is rehearsed on a popula
 
 ## Tasks
 
-- [ ] T-01: Migration 0009, schema, seed update, and the `manage_teachers` capability with its role grants. Covers AC-02, AC-08 and AC-12.
-- [ ] T-02: `teacher-records.ts` domain rules and their `test:domain` verifier. Covers AC-03, AC-05, AC-06 to AC-09.
-- [ ] T-03: Server actions with guards, stale checks, reference checks and audits. Covers AC-01 to AC-08 and AC-10.
-- [ ] T-04: Teachers list, form pages, teacher page, Changes list and confirmation pages, built to the mockups. Covers AC-01, AC-06 to AC-11 and AC-13.
-- [ ] T-05: Inactive teachers left out of pickers; per-teacher limit in Teachers, the teacher page and Workload. Covers AC-06 and AC-09.
-- [ ] T-06: `test:safety` group "TCH-01 teacher records" for PGlite and PostgreSQL: the migration on a populated copy, permission denials, stale edits, blockers, delete and snapshot checks, the phone never in audit or denied output. Covers AC-02 to AC-08 and AC-11 to AC-12.
-- [ ] T-07: UI review on desktop, phone and print (`ux:review`, `test:ux`) with screenshots; README and brief. Covers AC-13.
+- [x] T-01: Migration 0009, schema, seed update, and the `manage_teachers` capability with its role grants. Covers AC-02, AC-08 and AC-12.
+- [x] T-02: `teacher-records.ts` domain rules and their `test:domain` verifier. Covers AC-03, AC-05, AC-06 to AC-09.
+- [x] T-03: Server actions with guards, stale checks, reference checks and audits. Covers AC-01 to AC-08 and AC-10.
+- [x] T-04: Teachers list, form pages, teacher page, Changes list and confirmation pages, built to the mockups. Covers AC-01, AC-06 to AC-11 and AC-13.
+- [x] T-05: Inactive teachers left out of pickers; per-teacher limit in Teachers, the teacher page and Workload. Covers AC-06 and AC-09.
+- [x] T-06: `test:safety` group "TCH-01 teacher records" for PGlite and PostgreSQL: the migration on a populated copy, permission denials, stale edits, blockers, delete and snapshot checks, the phone never in audit or denied output. Covers AC-02 to AC-08 and AC-11 to AC-12.
+- [x] T-07: UI review on desktop, phone and print (`ux:review`, `test:ux`) with screenshots; README and brief. Covers AC-13.
 - [ ] T-08: `typecheck`, `lint`, `test:domain`, `build`, full `test:safety` with PostgreSQL, the verification record and owner acceptance. Then the institutional cold backup and migration.
 
 ## Verification and delivery
@@ -73,8 +73,8 @@ The Summer 2026 seed is updated to match. The migration is rehearsed on a popula
 
 ## Current checkpoint / handoff
 
-- Approved scope: this plan (approved 2 October 2026)
-- Commits and uncommitted changes: the approved spec, plan and mockups committed on `codex/tch-01`
-- Completed tasks: none
-- Next action: T-01 (migration 0009, schema, seed, capability)
+- Approved scope: this plan (approved 2 October 2026), with the spec's implementation notes N-1 to N-4 for the owner at acceptance
+- Commits: the approved plan `1d37fd6`, the checkpoint `bc02eef`, then review fixes and tests on `codex/tch-01`
+- Completed tasks: T-01 to T-07. T-08's checks pass ([verification](verification.md)); owner acceptance and the institutional migration remain.
+- Next action: record the final check results in [verification.md](verification.md), push, open the PR and ask for owner acceptance. At acceptance: cold backup, rehearse 0009 on a copy, then `db:migrate` the institutional database.
 - Blockers/capabilities: none

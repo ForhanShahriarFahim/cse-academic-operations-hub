@@ -45,18 +45,21 @@ export function TeacherForm(props: TeacherFormProps) {
   const [draft, setDraft] = useState<TeacherFormValues>(initial);
   const [code, setCode] = useState(initial.shortCode);
   const [department, setDepartment] = useState(initial.homeDepartmentId);
+  // Navigate from the submit itself: a resolved code's page re-renders without this form.
   const [result, action, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {
     setDraft(Object.fromEntries(ORDER.map((name) => [name, String(formData.get(name) ?? "")])) as unknown as TeacherFormValues);
-    return saveTeacherAction(previous, formData);
+    const outcome = await saveTeacherAction(previous, formData);
+    if (outcome.ok) {
+      const id = outcome.outcome?.kind === "success" ? outcome.outcome.entityId : teacherId;
+      router.push(`/teachers/${id}?done=${mode === "create" ? "added" : mode === "resolve" ? "resolved" : "saved"}`);
+    }
+    return outcome;
   }, null);
   const summary = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (result?.ok) {
-      const id = result.outcome?.kind === "success" ? result.outcome.entityId : teacherId;
-      router.push(`/teachers/${id}?done=${mode === "create" ? "added" : mode === "resolve" ? "resolved" : "saved"}`);
-    } else if (result) summary.current?.focus();
-  }, [result, router, mode, teacherId]);
+    if (result && !result.ok) summary.current?.focus();
+  }, [result]);
 
   const errors = (name: TeacherField) => fieldErrors(result, name);
   const invalidFields = ORDER.filter((name) => errors(name).length);

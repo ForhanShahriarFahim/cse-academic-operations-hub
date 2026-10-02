@@ -178,7 +178,7 @@ function Placeholders({ teachers, data, canEdit }: { teachers: TeacherRow[]; dat
                 <td data-label="Classes" className="num">{classes}</td>
                 <td data-label="What to do" className="wrap text-ink-2">
                   {vacancy
-                    ? "Upcoming teacher. Assign a real teacher to these classes in Courses; the code then has no classes."
+                    ? classes ? "Upcoming teacher. Assign a real teacher to these classes in Courses; the code then has no classes." : "Upcoming teacher. No class uses this code now."
                     : `The routine uses this code, but the teacher list does not name it${t.homeDepartmentName ? ` (imported as ${t.homeDepartmentName})` : ""}. Record who it is.`}
                 </td>
                 <td>

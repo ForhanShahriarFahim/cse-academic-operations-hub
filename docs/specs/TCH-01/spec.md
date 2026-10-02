@@ -2,7 +2,7 @@
 
 Issue: [#4 TCH-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/4). Requirements: [PRODUCT_REQUIREMENTS §8](../../PRODUCT_REQUIREMENTS.md#8-teacher-management).
 Plan: [plan.md](plan.md). Mockups: [mockups/](mockups/).
-Status: Approved by the owner on 2 October 2026 (spec, plan and mockups as written; D-1 to D-4 as answered). Implementation in progress.
+Status: Approved by the owner on 2 October 2026 (spec, plan and mockups as written; D-1 to D-4 as answered). Implemented and verified on disposable data ([verification](verification.md)); awaiting owner acceptance.
 Updated: 2 October 2026, Asia/Dhaka
 
 ## Problem and inspected baseline
@@ -119,6 +119,15 @@ The teacher page shows "Changes", newest first. Each entry gives the date and ti
 - **AC-11** Published routines are unchanged by any edit. The current routine, attendance and workload screens show the new values.
 - **AC-12** The migration upgrades a populated copy of the database (PGlite and PostgreSQL) with every existing teacher unchanged, except that placeholders' employment type is moved to their status. The institutional database is migrated only after a verified cold backup, at owner acceptance.
 - **AC-13** The screens pass the UI review on desktop, phone and print. Every field is labelled, errors are announced and linked to their fields, focus is visible, contrast is readable, and status is never shown by colour alone.
+
+## Implementation notes (2 October 2026)
+
+These are within the approved outcome and are raised for the owner at acceptance.
+
+- **N-1, extra-load classes do not block deactivation.** The spec listed "extra-load classes not yet included in a top sheet" as a blocker. The portal has no record of inclusion: a top sheet is a printout for a date range. So active-term extra-load classes are shown on the Deactivate page as information ("… stay on their sheets"), not as a blocker. They stay on the teacher's sheet and on top sheets either way. If an inclusion state is wanted, it belongs to the extra-load workflow (GOV-01 #15).
+- **N-2, picker rule on the server.** Creating a class, editing a class and recording an external commitment refuse a newly added inactive teacher, as well as hiding them in the pickers. A teacher already on a class can stay on it.
+- **N-3, account links.** People & Access offers only active or on-leave teachers when linking an account, and never a placeholder code (UT or an unresolved code). An existing link to a teacher who later became inactive is kept.
+- **N-4, migration text.** The workload-limit check is written as a flat AND rather than with BETWEEN. PostgreSQL rewrites a nested condition after dump and restore, which made the SAFE-01 backup check (T-06) report a schema difference. The rule enforced is the same.
 
 ## Edge cases
 

@@ -20,10 +20,11 @@ ALTER TABLE "teachers"
   );
 --> statement-breakpoint
 -- Advisory limit in half units from 1 to 40; null means the department default.
+-- A flat AND (not BETWEEN), so pg_dump/pg_restore reproduce the definition exactly (SAFE-01 T-06).
 ALTER TABLE "teachers"
   ADD CONSTRAINT "teachers_advisory_load_units_ck" CHECK (
     "advisory_load_units" IS NULL
-    OR ("advisory_load_units" BETWEEN 1 AND 40 AND "advisory_load_units" * 2 = trunc("advisory_load_units" * 2))
+    OR ("advisory_load_units" >= 1 AND "advisory_load_units" <= 40 AND "advisory_load_units" * 2 = trunc("advisory_load_units" * 2))
   );
 --> statement-breakpoint
 -- Short codes are exact identifiers, but two may not differ only in case.

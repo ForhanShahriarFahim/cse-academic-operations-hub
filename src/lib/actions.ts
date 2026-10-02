@@ -10,6 +10,7 @@ import { db } from "@/db";
 import {
   meetings,
   meetingTeachers,
+  teachers,
   meetingRooms,
   teachingGroups,
   teachingGroupOfferings,
@@ -102,6 +103,8 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
   if (roomIds.length === 0) return { ok: false, message: "Reserve at least one room." };
 
   const data = await getPortalData();
+  const inactive = data.teachers.filter((t) => teacherIds.includes(t.id) && t.status === "inactive");
+  if (inactive.length) return { ok: false, message: `${inactive.map((t) => t.shortCode).join(", ")} ${inactive.length === 1 ? "is" : "are"} inactive. Reactivate on the teacher page before assigning new classes.` };
   const candidate = await buildCandidateView(groupId);
   if (!candidate) return { ok: false, message: "Teaching group not found." };
   candidate.dayOfWeek = dayOfWeek;
@@ -299,6 +302,10 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
   const kind = String(formData.get("kind") ?? "");
   const counterpartDepartment = String(formData.get("counterpartDepartment") ?? "").trim();
   const teacherId = Number(formData.get("teacherId")) || null;
+  if (teacherId) {
+    const [teacher] = await db.select({ status: teachers.status, shortCode: teachers.shortCode }).from(teachers).where(eq(teachers.id, teacherId)).limit(1);
+    if (teacher && teacher.status === "inactive") return { ok: false, message: `${teacher.shortCode} is inactive. Reactivate on the teacher page before recording new work.` };
+  }
   const roomId = Number(formData.get("roomId")) || null;
   const dayRaw = formData.get("dayOfWeek");
   const dayOfWeek = dayRaw === "" || dayRaw == null ? null : Number(dayRaw);

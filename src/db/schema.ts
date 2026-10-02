@@ -80,7 +80,7 @@ export const teachers = pgTable(
     uniqueIndex("teachers_short_code_upper_uq").on(sql`upper(${t.shortCode})`),
     check("teachers_status_ck", sql`${t.status} in ('active', 'on_leave', 'inactive', 'vacancy', 'unresolved')`),
     check("teachers_employment_type_ck", sql`(${t.status} in ('vacancy', 'unresolved') and ${t.employmentType} is null) or (${t.status} not in ('vacancy', 'unresolved') and ${t.employmentType} in ('full_time', 'part_time', 'guest'))`),
-    check("teachers_advisory_load_units_ck", sql`${t.advisoryLoadUnits} is null or (${t.advisoryLoadUnits} between 1 and 40 and ${t.advisoryLoadUnits} * 2 = trunc(${t.advisoryLoadUnits} * 2))`),
+    check("teachers_advisory_load_units_ck", sql`${t.advisoryLoadUnits} is null or (${t.advisoryLoadUnits} >= 1 and ${t.advisoryLoadUnits} <= 40 and ${t.advisoryLoadUnits} * 2 = trunc(${t.advisoryLoadUnits} * 2))`),
   ],
 );
 

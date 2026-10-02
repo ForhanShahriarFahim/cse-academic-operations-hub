@@ -10,7 +10,7 @@ import { requireTeacherEditor } from "@/lib/teacher-pages";
 
 export const dynamic = "force-dynamic";
 
-const OPEN_LABEL = { classes: "Open Routine builder", allocations: "Open Workload", externals: "Open Other departments", extra_load: "Open Extra class load" } as const;
+const OPEN_LABEL = { classes: "Open Routine builder", allocations: "Open Workload", externals: "Open External commitments", extra_load: "Open Extra class load" } as const;
 
 export default async function DeactivateTeacherPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

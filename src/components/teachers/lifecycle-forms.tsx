@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useId } from "react";
+import { useActionState, useId } from "react";
 import type { ActionResult } from "@/lib/action-result";
 import { deleteTeacherAction, setTeacherStatusAction } from "@/lib/teacher-actions";
 import { FieldError, ResultNotice, fieldErrors } from "@/components/account/form-bits";
@@ -25,8 +25,11 @@ function Refusal({ result }: { result: ActionResult | null }) {
 export function DeactivateForm({ teacherId, code, expectedUpdatedAt }: { teacherId: number; code: string; expectedUpdatedAt: string }) {
   const router = useRouter();
   const reasonId = useId();
-  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(setTeacherStatusAction, null);
-  useEffect(() => { if (result?.ok) router.replace(`/teachers/${teacherId}?done=deactivate`); }, [result, router, teacherId]);
+  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {
+    const outcome = await setTeacherStatusAction(previous, formData);
+    if (outcome.ok) router.replace(`/teachers/${teacherId}?done=deactivate`);
+    return outcome;
+  }, null);
   return (
     <form action={submit}>
       <input type="hidden" name="teacherId" value={teacherId} />
@@ -49,8 +52,11 @@ export function DeactivateForm({ teacherId, code, expectedUpdatedAt }: { teacher
 export function DeleteForm({ teacherId, code, expectedUpdatedAt }: { teacherId: number; code: string; expectedUpdatedAt: string }) {
   const router = useRouter();
   const inputId = useId();
-  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(deleteTeacherAction, null);
-  useEffect(() => { if (result?.ok) router.replace(`/teachers?deleted=${encodeURIComponent(code)}`); }, [result, router, code]);
+  const [result, submit, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {
+    const outcome = await deleteTeacherAction(previous, formData);
+    if (outcome.ok) router.replace(`/teachers?deleted=${encodeURIComponent(code)}`);
+    return outcome;
+  }, null);
   const errors = fieldErrors(result, "confirmCode");
   return (
     <form action={submit}>

@@ -19,7 +19,7 @@ import {
   NEXT_STATUS, allowedFrom, deactivationBlockers, deletionRefusals, isPlaceholder, normalizeTeacher, shortCodeClash,
   teacherChanges, transitionRefusal, type LifecycleAction,
 } from "./teacher-records";
-import { getTeacherRecord, getTeacherReferences } from "./teacher-data";
+import { getShortCodes, getTeacherRecord, getTeacherReferences } from "./teacher-data";
 
 const CHANGED = "Someone else changed this teacher while you were editing. Reload the page to see their change, then try again.";
 const MISSING = "This teacher no longer exists. Go back to the Teachers list.";
@@ -66,7 +66,14 @@ export async function saveTeacherAction(_previous: ActionResult | null, formData
   if (resolving && existing) raw.shortCode = existing.shortCode;
   const departmentIds = new Set((await db.select({ id: departments.id }).from(departments)).map((row) => row.id));
   const parsed = normalizeTeacher(raw, { departmentIds, includePhone: who.privateContacts });
-  if (!parsed.ok) return invalid("Check the highlighted fields.", parsed.errors as Record<string, string[]>);
+  // Report a taken code with the other field errors; the transaction checks again before writing.
+  const code = String(raw.shortCode ?? "").trim().toUpperCase();
+  const taken = code ? shortCodeClash(code, await getShortCodes(), existing?.id ?? null) : null;
+  if (!parsed.ok || taken) {
+    const errors = { ...(parsed.ok ? {} : parsed.errors) } as Record<string, string[]>;
+    if (taken && !errors.shortCode) errors.shortCode = [`${taken.shortCode} is already used by ${taken.fullName}.`];
+    return invalid("Check the highlighted fields.", errors);
+  }
   const values = parsed.fields;
   if (existing && !resolving && !teacherChanges(existing, values).fields.length) return succeeded("Nothing changed.", { entityId: existing.id });
 

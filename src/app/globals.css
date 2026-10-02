@@ -366,6 +366,7 @@ body {
   .ledger.stack tbody th, .ledger.stack td { position: static; border: 0; padding: 2px 0; white-space: normal; background: transparent; text-align: left; }
   .ledger.stack td[data-label]::before { content: attr(data-label) " · "; color: var(--color-muted); font-size: 12px; }
   .ledger.stack td.hide-sm, .ledger.stack td.empty-sm { display: none; }
+  .table-region:has(> .ledger.stack) { max-height: none !important; }
 }
 .load-bar { position: relative; display: inline-block; width: 96px; height: 6px; border-radius: 3px; background: var(--color-line-soft); vertical-align: middle; overflow: visible; }
 .load-bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--color-pine); }
