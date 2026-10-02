@@ -11,6 +11,9 @@
  *   npm run ux:review -- --print-cookie     print a browser snippet that signs in the reviewer
  *   npm run ux:review -- --publishable      review data only: move classes to free rooms so the 13 Summer 2026
  *                                           room blockers clear, publish, and leave one draft change (TCH-02)
+ *   npm run ux:review -- --long-teacher-list review data only: resolve the four placeholder codes (two with long
+ *                                           names) and add synthetic teachers, so the official package's
+ *                                           contacts appendix continues over sheets (BUG-54)
  *
  * A second account, ux-teacher@example.test, is signed in with the teacher role and linked to the
  * teacher with the most classes, so "My routine" can be reviewed (TCH-02). Its cookie is in the
@@ -98,6 +101,51 @@ export function reviewEnvironment(target: string, session: ReviewSession): NodeJ
   };
 }
 
+/** Teachers the official package lists once --long-teacher-list has run (BUG-54 AC-03 needs at least 70). */
+export const LONG_TEACHER_LIST_SIZE = 72;
+
+/**
+ * Review data only (BUG-54): a teacher list long enough to continue the official package's contacts
+ * appendix. Resolves the four Summer 2026 placeholder codes, two with long names, and adds synthetic
+ * teachers with long names, designations and emails. Runs before the server starts, on the review copy.
+ */
+async function seedLongTeacherList(target: string): Promise<number> {
+  const db = new PGlite(target);
+  try {
+    return await db.transaction(async (tx) => {
+      const department = await tx.query<{ id: number }>(`select id from departments where code = 'CSE'`);
+      const cse = department.rows[0]?.id ?? null;
+      const resolved: Array<[string, string, string | null]> = [
+        ["SI", "Synthetic Placeholder SI", null],
+        ["AS", "Synthetic Resolved Teacher Alpha Long", "Assistant Professor"],
+        ["MNI", "Synthetic Placeholder MNI", "Lecturer"],
+        ["HUH", "Synthetic Resolved Teacher Hotel Long", "Assistant Professor"],
+      ];
+      for (const [code, name, designation] of resolved) {
+        await tx.query(`update teachers set full_name = $2, designation = $3, status = 'active', employment_type = 'full_time',
+          home_department_id = $4, email = lower($1) || '.synthetic@example.test', updated_at = now() where short_code = $1 and status = 'unresolved'`,
+          [code, name, designation, cse]);
+      }
+      const listed = async () => (await tx.query<{ count: number }>(`select count(*)::int as count from teachers where status <> 'unresolved'`)).rows[0].count;
+      for (let index = 1; (await listed()) < LONG_TEACHER_LIST_SIZE; index += 1) {
+        const long = index % 3 === 0;
+        await tx.query(`insert into teachers (short_code, full_name, designation, employment_type, home_department_id, email, phone_private, status)
+          values ($1, $2, $3, 'full_time', $4, $5, $6, 'active') on conflict do nothing`, [
+          `SYN${String(index).padStart(2, "0")}`,
+          long ? `Synthetic Teacher ${index} With A Deliberately Long Family Name` : `Synthetic Teacher ${index}`,
+          index % 2 === 0 ? "Assistant Professor" : null,
+          cse,
+          long ? `synthetic.teacher.${index}.with.a.long.mailbox@example.test` : `synthetic${index}@example.test`,
+          index % 4 === 0 ? null : `0170000${String(index).padStart(4, "0")}`,
+        ]);
+      }
+      return listed();
+    });
+  } finally {
+    await db.close();
+  }
+}
+
 async function seedReviewer(target: string, session: ReviewSession, role: string): Promise<void> {
   const db = new PGlite(target);
   try {
@@ -160,6 +208,9 @@ async function main(args: string[]) {
   if (prepared.status !== 0) {
     // Embedded PGlite is not crash-safe: a hard-stopped server can leave the disposable copy unreadable.
     throw new Error("Preparing the review database failed. It is disposable; rebuild it with `npm run ux:review -- --fresh`.");
+  }
+  if (args.includes("--long-teacher-list")) {
+    console.log(`Long teacher list: ${await seedLongTeacherList(target)} teachers listed (review data only).`);
   }
   if (args.includes("--publishable")) {
     const result = spawnSync(process.execPath, [TSX_CLI, "src/db/review-publishable.ts"], { cwd: REPO_ROOT, env, stdio: "inherit" });

@@ -223,6 +223,11 @@ body {
 .official-plain td small { color: #333; font-size: 6.9pt; }
 .official-directory { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 5mm; row-gap: 3.5mm; align-content: start; }
 .official-directory .official-span { grid-column: 1 / -1; }
+/* Teacher columns keep their own row heights (BUG-54). */
+.official-teacher-columns { align-items: start; }
+/* One compact step for a contacts sheet that is just over: same type, tighter rows (BUG-54 D-1). */
+.official-compact .official-plain th, .official-compact .official-plain td { padding-top: .2mm; padding-bottom: .2mm; }
+.official-compact .official-directory { row-gap: 2.6mm; }
 .official-section-label { margin: 0 0 1.2mm; font: 700 8.6pt/1.2 var(--official-serif); }
 .official-contacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3mm; }
 .official-contacts div { border: .6pt solid #000; padding: 1.6mm 2mm; text-align: center; font-size: 7pt; line-height: 1.3; }

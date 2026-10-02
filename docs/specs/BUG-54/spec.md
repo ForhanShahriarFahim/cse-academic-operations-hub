@@ -1,7 +1,7 @@
 # BUG-54 (RUT-04 follow-up): the official package's contacts sheet fits however many teachers are listed
 
 Issue: [#54](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/54), "RUT-04 follow-up: official package contacts sheet clips when more or longer teacher names are listed"
-Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implementation in progress.
+Status: Approved 2 October 2026 with D-1 and D-2 as recommended (see [approval record](#approval-record)). Implemented and verified ([verification](verification.md)); owner acceptance pending.
 Branch / base: `claude/cranky-hofstadter-4674b1` (the desktop app's worktree for this session) from `1cedf4c` (main after TCH-01)
 Updated: 2 October 2026, Asia/Dhaka
 
@@ -131,9 +131,9 @@ Mockups were rendered from the review copy with all four placeholders resolved a
 
 ## Tasks
 
-- [ ] T-01: `src/lib/official-contacts-sheets.ts`. Estimates (calibrated against the measured 4.0 mm row, 2.9 mm line and 159.5 mm body), balanced columns, and the D-1 fit order. Covers AC-06 and AC-07.
-- [ ] T-02: `scripts/verify-official-contacts.ts`, added to `test:domain`. Covers AC-07.
-- [ ] T-03: Render the contacts sheets from the layout in `official-routine-package.tsx`:
+- [x] T-01: `src/lib/official-contacts-sheets.ts`. Estimates (calibrated against the measured 4.0 mm row, 2.9 mm line and 159.5 mm body), balanced columns, and the D-1 fit order. Covers AC-06 and AC-07.
+- [x] T-02: `scripts/verify-official-contacts.ts`, added to `test:domain`. Covers AC-07.
+- [x] T-03: Render the contacts sheets from the layout in `official-routine-package.tsx`:
   - continued notes;
   - page numbers;
   - the legend's page reference;
@@ -141,9 +141,9 @@ Mockups were rendered from the review copy with all four placeholders resolved a
   - a compact class and top-aligned teacher columns in `globals.css`.
 
   Covers AC-01 to AC-06.
-- [ ] T-04: `npm run ux:review -- --long-teacher-list`. In the disposable review copy only, it resolves the four placeholders (two with long synthetic names) and adds synthetic teachers with long names and emails, up to at least 70 listed. This follows `--publishable`, keeps its path and target checks, and does nothing outside `.tmp/ux-review`.
-- [ ] T-05: Extend `official-package.spec.ts` with the estimate check for contacts blocks, the legend page check, and continued-sheet structure checks that apply when there is more than one contacts sheet. Covers AC-01 to AC-05 and AC-08.
-- [ ] T-06: Verification:
+- [x] T-04: `npm run ux:review -- --long-teacher-list`. In the disposable review copy only, it resolves the four placeholders (two with long synthetic names) and adds synthetic teachers with long names and emails, up to at least 70 listed. This follows `--publishable`, keeps its path and target checks, and does nothing outside `.tmp/ux-review`.
+- [x] T-05: Extend `official-package.spec.ts` with the estimate check for contacts blocks, the legend page check, and continued-sheet structure checks that apply when there is more than one contacts sheet. Covers AC-01 to AC-05 and AC-08.
+- [x] T-06: Verification:
   - `typecheck`, `lint`, `test:domain` and `build`;
   - `test:ux` on a fresh copy;
   - `official-package.spec.ts` on the 42-teacher copy (scripted resolve), the `--long-teacher-list` copy and a `--publishable` copy (public route);
