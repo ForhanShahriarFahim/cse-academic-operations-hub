@@ -2,7 +2,7 @@
 
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24).
 Specification: [spec.md](spec.md). Verification: [verification.md](verification.md).
-Status: T-01–T-03 implemented; T-04 validation in progress. Owner inspection/acceptance and local merge pending.
+Status: T-01–T-03 implemented at `c9b564a`; validation recorded. T-04 remains open for the failed default Turbopack build. CLI inspection is ready; owner acceptance and local merge pending.
 Branch/base: `codex/bug-24` from `main` at `0b1e055`.
 Updated: 26 October 2026, Asia/Dhaka.
 
@@ -36,6 +36,8 @@ Replace T-01's assertion of divergent supported entry paths with assertions of p
 
 T-01–T-04 are technical chunks of one bounded delivery; they are not separate branches or independently accepted features. They may continue across sessions on the same branch. One checklist lives here.
 
+T-04 checkpoint: required checks have been run and the diff/operator documentation reviewed. Typecheck, lint, domain, all 17 safety groups (PostgreSQL enabled), UX harness and the Webpack production build pass. The default `npm run build` remains failed at Turbopack CSS-worker IPC startup on both tested Node runtimes. Leave T-04/AC-08 open for that limitation; do not report a clean default build or silently change the bundler. The safe owner inspection block was exercised successfully.
+
 ## Verification and delivery
 
 - Focused: new environment/preview regression checks, T-01 isolation, BUG-26 reset and relevant bootstrap/account safety children. Use synthetic `.env*` files in owned scratch; never edit the real files to reproduce precedence.
@@ -50,7 +52,8 @@ T-01–T-04 are technical chunks of one bounded delivery; they are not separate 
 - Scope: approved as presented at `960d5d3`; approval checkpoint `e0d823e` precedes implementation. No material amendment.
 - Branch/base: `codex/bug-24` / `0b1e055`. One checkout/writer, no worktree, no schema or institutional data operation.
 - Implemented: shared Next environment loader/mode validation and redacted target validation; four CLI banners/previews before database import; lazy callable migration/prepare/seed helpers; bootstrap implementation behind an entry wrapper; direct matching `@next/env` dependency, unused direct dotenv removed; synthetic regression group and operator documentation.
-- Evidence: [verification](verification.md). BUG-24 environment (80 matrix/preview cases plus guards), SAFE-01 isolation/recovery, typecheck, lint, domain and UX harness checks pass. Full PGlite/PostgreSQL suite continues. Default Turbopack build fails at CSS worker IPC startup on both Node 22.11 and bundled Node 24.22.1; documented Webpack check is in progress. No change to the build script or runtime installation.
-- Next action: finish T-04, inspect the final diff, commit remaining verification/handoff evidence, and present the safe preview block for owner inspection. T-05 merge waits for actual acceptance; do not infer it from implementation authorization.
+- Checkpoints: implementation `c9b564a`; final evidence/handoff in a local documentation commit titled `docs(BUG-24): record validation and owner inspection handoff (#24)` (inspect `git log` for its hash). Local `main` remains `0b1e055`.
+- Evidence: [verification](verification.md). BUG-24 environment (80 matrix/preview cases plus guards), typecheck, lint, domain, UX harness and all 17 safety groups pass, including PostgreSQL 17.11. Institutional PGlite metadata is unchanged and it was never opened. Webpack production build passes. Default Turbopack fails at CSS worker IPC startup on Node 22.11 and bundled Node 24.22.1. No change to the build script or runtime installation.
+- Next action: owner can inspect the [database-free previews and reset refusal](verification.md#owner-inspection). T-04 remains open for the default-build limitation; investigate that recorded failure or return material build-policy/configuration changes for an owner decision. Do not repeat successful full suites merely for handoff. T-05 merge waits for actual acceptance; implementation authorization is not acceptance.
 - Blockers/limitations: default Turbopack build failure is unresolved; do not mark it passed. No remote synchronization due. Reuse the dated GitHub snapshot unless new uncertainty or an owner request warrants another read.
 - Next suggested feature after accepted merge: ROM-01A inspection/specification and mockups, not automatic room implementation.

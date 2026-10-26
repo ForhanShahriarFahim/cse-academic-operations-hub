@@ -3,7 +3,7 @@
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24). [Spec](spec.md) · [Plan/checklist](plan.md).
 Date: 26 October 2026, Asia/Dhaka. Windows PowerShell, Node 22.11.0, installed Next.js / `@next/env` 16.3.4.
 Revision: implementation on `codex/bug-24`, based on `0b1e055`; approval committed at `e0d823e` before application changes.
-Status: implementation and validation in progress; owner acceptance and local merge pending.
+Status: implementation and validation recorded; default Turbopack build remains failed. Owner inspection/acceptance and local merge pending.
 
 ## Inspection evidence
 
@@ -25,7 +25,27 @@ The first diagnostic attempt needed the CommonJS default-export interop correcte
 
 The new `BUG-24 environment` safety group uses synthetic root files and fresh Node processes. It compares both adapters across development/production/test with the installed `@next/env`, then exercises all four real CLI previews. An armed ESM/CommonJS import tripwire rejects database imports and confirms ordinary execution prints the same banner before reaching that boundary. The first CommonJS-only tripwire missed dynamic ESM imports; it was corrected and explicitly armed against real migration execution before preview checks. Its failed diagnostic used only an owned scratch target.
 
-Final acceptance mapping/check results will be recorded after the running checks finish. AC-09 remains pending actual owner acceptance.
+| Criterion | Result and evidence |
+| --- | --- |
+| AC-01 | **Pass.** Fresh-process Next/app-boundary parity and all four real CLI previews agree under conflicting synthetic root files. |
+| AC-02 | **Pass.** Development/production/test file tiers for both adapters, test omission of `.env.local`, expansion/escaping, non-empty process overrides, empty pins, default directory and `memory://` verified. |
+| AC-03 | **Pass.** Lifecycle children select development/production; contradictory and invalid modes fail before the armed import boundary. Actual `npm.cmd run predev/prestart -- --show-target` also selected the expected modes. |
+| AC-04 | **Pass.** All previews pass with database imports forbidden; real execution reaches the armed tripwire only after the identical banner. Helper imports open nothing. Synthetic target directories remain absent. |
+| AC-05 | **Pass.** Encoded credentials, query/password/token markers, auth secrets and invalid URL/mode input are absent from banners/errors; bootstrap preview needs no email or link setup. |
+| AC-06 | **Pass.** Import-tripwire tests cover preview/refusal before client import. Existing BUG-26 groups pass on both adapters: protected directory refusal, exact confirmation, access preservation, interrupted-reset recovery and prepare-on-empty behavior. |
+| AC-07 | **Pass.** All 17 safety groups pass with PostgreSQL 17.11 enabled, including poisoned environment isolation, recovery/history/audit, time zones, accounts/bootstrap, cluster cleanup, reset, teacher records and blocked deletes. |
+| AC-08 | **Partial.** Typecheck, lint, domain, full safety, UX harness and Webpack production build pass. Default Turbopack build fails as detailed below. Institutional directory metadata is unchanged; it was never opened. |
+| AC-09 | **Pending owner acceptance.** The exact inspection block below was executed successfully; four previews and an unconfirmed reset left its target absent. No merge. |
+
+## Code checks and build limitation
+
+- Passed: `npm run typecheck`, `npm run lint`, `npm run test:domain`, `npx tsx scripts/verify-ux-review.ts`; matching installed direct `@next/env` 16.3.4 confirmed.
+- Passed: full `npm run test:safety` with `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`, exit 0. All 17 groups passed; no adapter group was skipped. The final harness report was `Default PGlite directory metadata unchanged (present); it was never opened.` All application mutations used synthetic owned PGlite runs or disposable `safe01_*` PostgreSQL databases.
+- Passed: `node node_modules/next/dist/bin/next build --webpack` with `npm_lifecycle_event=build`, production mode, `DATABASE_URL=''`, `PGLITE_DATA_DIR=memory://`, empty Vercel/Google values and synthetic auth origin/secret. Compilation, TypeScript, static generation, traces and all routes completed. No app server was started.
+- **Failed/unresolved:** default `npm run build` (Turbopack). Its CSS worker exits before IPC connection while compiling unchanged `src/app/globals.css` for `/_not-found`. The same failure occurred outside the sandbox and with bundled Node 24.22.1 in addition to system Node 22.11.0. This is an observed build-tool failure, not a passing default build or proof of its root cause. The build script/configuration and installed runtime were not changed.
+- The installed Next CLI guide documents `--webpack`. On this machine `npm.ps1` drops forwarded option flags; an attempted `npm run build -- --webpack` repeated Turbopack. Direct Node invocation selected Webpack correctly. PowerShell operators should use `npm.cmd` for forwarded flags; its migration and lifecycle previews were exercised successfully. The owner inspection below avoids the wrapper entirely.
+- The restricted sandbox refused the existing synthetic junction-escape check. The full safety suite was restarted outside that restriction with `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin`; the isolation group then passed. This was a tooling retry, not a weakened target guard.
+- Static review: extracted administrator account behavior matches baseline exactly except removed early loader, exported entry name and CLI wrapper extraction. No schema/source-fixture change. Generated `next-env.d.ts` build-path churn was restored to the committed baseline. `git diff --check`, 120 local documentation file links and 7 heading anchors pass across the seven delivery documents.
 
 ## Owner inspection
 
@@ -65,19 +85,20 @@ npm.cmd run test:safety -- 'BUG-24 environment'
 
 This CLI-only change has no new browser flow or screenshot requirement. UX review target/pinning checks are included in final validation; the app server is not started on institutional storage.
 
-## Planning-document checks
+## Planning-document checks (before implementation)
 
 - Passed: 11 changed/new Markdown files checked; 124 local links and 5 heading anchors resolve. Required spec/plan sections, pending approval and shared entry instructions are present.
 - Passed: `git diff --check` and new-file trailing-whitespace checks. Diff review confirms local-first changes are limited to workflow, status pointers, templates and the proposed planning package.
 - Passed: D-01/D-02/D-04–D-07 institutional sections are unchanged byte-for-byte after newline normalization; only D-03's outdated progress statement is clarified. The generated Next.js instruction block is unchanged. No source, application, dependency or schema change.
-- Not run: code/domain/build/database/browser suites, because this checkpoint changes documentation only. Feature criteria remain pending.
+- Not run during planning: code/domain/build/database/browser suites, because that checkpoint changed documentation only. Feature criteria were pending at that point; current results are above.
 - Static instruction checks do not prove a fresh agent session loaded the files. Model/effort selection was not changed by this documentation update.
 
 ## Delivery and acceptance
 
 - Planning: owner-authorized; local checkpoint only. See the plan's checkpoint for the commit title.
 - Implementation approval: granted 26 October 2026 for the presented contract at `960d5d3`; exact owner wording is in the plan's approval record. Recorded/committed before application changes.
-- Implementation/code checks: in progress; final results pending.
+- Implementation checkpoint: `c9b564a` (`fix(BUG-24): unify database environments and add safe CLI previews (#24)`). Final validation/handoff is a separate local documentation checkpoint.
+- Implementation/code checks: recorded above; AC-08 remains partial because the default Turbopack build failed. Webpack production build and all other required code/safety checks passed.
 - Owner inspection/acceptance: pending.
 - Local merge: pending acceptance and verification.
 - GitHub synchronization: intentionally deferred under the owner's local-first agreement; #24 remains open.

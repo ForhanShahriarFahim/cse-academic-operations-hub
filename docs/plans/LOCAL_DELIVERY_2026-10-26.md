@@ -86,15 +86,15 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- Current issue: **BUG-24 #24, approved for implementation next session; T-01 next**.
+- Current issue: **BUG-24 #24, implementation checkpoint `c9b564a`; CLI inspection ready; T-04 default-build limitation open**.
 - Branch/base: `codex/bug-24` from `main` at `0b1e055`.
 - Primary checklist and approval gate: [BUG-24 plan](../specs/BUG-24/plan.md).
-- Prepared: local-first workflow amendment, this reconciled sequence, detailed BUG-24 spec/plan, and inspection evidence. No application/dependency/schema change.
-- Next action: resume the approved BUG-24 contract and start T-01 in the next session. Planning checkpoint `960d5d3` and a separate approval/handoff commit precede application changes. Do not repeat unchanged scope approval.
+- Prepared: local-first sequence and approved BUG-24 contract, followed by the environment/CLI fix, controlled-child regression group and operator documentation. No schema or institutional data operation.
+- Next action: owner inspects the pinned CLI previews and validation. T-04 remains open for default Turbopack CSS-worker IPC failure; see the primary verification record before further investigation or an owner decision on material build changes. T-05 local merge requires actual acceptance. Approval checkpoint `e0d823e` preceded implementation; do not repeat unchanged scope approval.
 - Subsequent task after accepted BUG-24: inspect/specify ROM-01A; choose room-edit decisions and show mockups before building.
 - GitHub: no writes; no routine synchronization due. Last checked 26 October 2026.
-- Checks: documentation and diagnostic results are in [verification](../specs/BUG-24/verification.md); feature checks remain pending.
+- Checks: typecheck, lint, domain, UX harness, all 17 safety groups (PostgreSQL 17.11 included) and Webpack production build pass. Default Turbopack build failed; full results and safe review commands are in [verification](../specs/BUG-24/verification.md). Institutional storage was never opened; metadata unchanged.
 
 Suggested next-session prompt:
 
-> Implement the approved BUG-24 contract. Read AGENTS.md, docs/PROJECT_BRIEF.md, docs/WORKFLOW.md and docs/specs/BUG-24/{spec,plan,verification}.md. Continue on the existing codex/bug-24 branch. Inspect actual Git/code state and the recorded 26 October approval; do not ask for unchanged scope approval again. Start T-01 and proceed through implementation and validation. Work locally and preserve institutional data. Present database-free target previews and verification for my inspection. Merge locally only after my acceptance; then suggest ROM-01A for a new session. Do not push or update GitHub unless I request it.
+> Continue BUG-24 on the existing codex/bug-24 branch. Read the brief and BUG-24 plan/verification first. Implementation is at c9b564a; T-01–T-03 are complete and all safety groups passed. Do not restart those tasks or repeat successful suites merely for handoff. Review my inspection findings and the unresolved T-04 default Turbopack build failure; Webpack production build passes. Return material build-policy/configuration changes for my decision. Merge locally only after my actual acceptance, then suggest ROM-01A for a new session. Preserve institutional data; do not push, update GitHub or start another issue unless I request it.
