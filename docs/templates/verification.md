@@ -26,7 +26,8 @@ Record commands or manual flows, results and relevant limitations. Code changes 
 
 ## Delivery and acceptance
 
-- Commits / PR: `references`
+- Local commits / branch / PR if applicable: `references`
 - Remaining gates: `external checks/decisions; keep issue open when required`
 - Owner acceptance: Pending; `actual authorization and date when received`
-- Merge / closure: Pending; `actual references after acceptance`
+- Local merge: Pending; `actual reference after acceptance`
+- GitHub synchronization / parent issue status: `last checked date, intentionally deferred or actual update; partial delivery does not close the parent`
