@@ -178,6 +178,16 @@ npm run dev
 
 Do not commit database credentials.
 
+### Database environment and target preview
+
+The app and operator commands use Next's environment precedence from the project root: process values, `.env.<mode>.local`, `.env.local`, `.env.<mode>`, then `.env`. Test mode skips `.env.local`. Expansion (`$NAME`) and escaping (`\$`) follow Next. Explicit process values, including empty values used by disposable checks, take precedence. Files under `src/` are not loaded.
+
+Standalone `db:prepare`, `db:migrate`, `db:reset` and `auth:bootstrap` default to **development** when `NODE_ENV` is absent; set it explicitly to `production` for production files or `test` for test files. `npm run dev` preparation uses development and `npm start` preparation uses production; a contradictory explicit `NODE_ENV` is refused before opening a database. Next manages environment loading within its runtime.
+
+Each operator command prints its command, environment, adapter and safe target before loading database code. PostgreSQL banners show only host, port and database. Add `-- --show-target` to preview without opening a database, migrating, seeding or changing accounts; bootstrap preview needs no email and prints no setup link. For example, `npm run db:migrate -- --show-target`. A preview does not check connectivity or authorize reset. Reset still requires an exact `--confirm` and refuses the institutional directory, including aliases, parents and children. Safe, pinned inspection commands are in [BUG-24 verification](docs/specs/BUG-24/verification.md#owner-inspection).
+
+In PowerShell, use **`npm.cmd` when forwarding flags**, for example `npm.cmd run db:migrate -- --show-target`. The installed `npm.ps1` wrapper can consume the `--` separator and drop the preview flag. The linked pinned inspection block uses Node directly to avoid that wrapper.
+
 ### Vercel deployment path
 
 The Next.js application can run on Vercel, but **the local PGlite file cannot be the production database**. Set up a persistent PostgreSQL service (for example a [Vercel Marketplace Postgres integration](https://vercel.com/docs/marketplace-storage)), then set `DATABASE_URL` in Vercel. The app intentionally refuses to start on Vercel without it. Use a pooled Postgres connection string and place the database near the Functions region.

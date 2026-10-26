@@ -1,8 +1,8 @@
 /**
  * Production modules open the database singleton in `src/db/index.ts`, which
- * reads DATABASE_URL/PGLITE_DATA_DIR from the process and from .env/.env.local.
+ * reads DATABASE_URL/PGLITE_DATA_DIR using Next's environment-file policy.
  * SAFE-01 therefore runs them only in child processes whose environment pins an
- * owned PGlite run. Keys that exist (even empty) are never overridden by dotenv.
+ * owned PGlite run. Keys that exist (even empty) are never overridden by files.
  */
 import { spawnSync } from "node:child_process";
 import path from "node:path";

@@ -2,8 +2,8 @@
 
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24). [Spec](spec.md) · [Plan/checklist](plan.md).
 Date: 26 October 2026, Asia/Dhaka. Windows PowerShell, Node 22.11.0, installed Next.js / `@next/env` 16.3.4.
-Revision: application baseline `0b1e055`; only documentation changes in the planning checkpoint.
-Status: defect reproduced; implementation approved for the next session on 26 October 2026. Fix is not implemented or accepted.
+Revision: implementation on `codex/bug-24`, based on `0b1e055`; approval committed at `e0d823e` before application changes.
+Status: implementation and validation in progress; owner acceptance and local merge pending.
 
 ## Inspection evidence
 
@@ -23,7 +23,47 @@ The first diagnostic attempt needed the CommonJS default-export interop correcte
 
 ## Acceptance evidence
 
-AC-01–AC-09: **Pending**. A reproduction of the old behavior is not acceptance evidence for a fix. Fill the result matrix when implementation reaches T-04; do not copy old checks as proof.
+The new `BUG-24 environment` safety group uses synthetic root files and fresh Node processes. It compares both adapters across development/production/test with the installed `@next/env`, then exercises all four real CLI previews. An armed ESM/CommonJS import tripwire rejects database imports and confirms ordinary execution prints the same banner before reaching that boundary. The first CommonJS-only tripwire missed dynamic ESM imports; it was corrected and explicitly armed against real migration execution before preview checks. Its failed diagnostic used only an owned scratch target.
+
+Final acceptance mapping/check results will be recorded after the running checks finish. AC-09 remains pending actual owner acceptance.
+
+## Owner inspection
+
+From the repository root, this PowerShell block starts children with explicitly pinned values, previews all four commands, and demonstrates reset refusal without confirmation. The JavaScript child environment preserves empty pins even on older PowerShell versions. It leaves the caller's environment unchanged. None of these commands opens a database or prints a setup/reset link.
+
+```powershell
+@'
+const assert = require("node:assert/strict");
+const { spawnSync } = require("node:child_process");
+const { existsSync } = require("node:fs");
+const path = require("node:path");
+const directory = path.resolve(".tmp/bug-24-owner-preview/not-created");
+const env = {
+  ...process.env, DATABASE_URL: "", PGLITE_DATA_DIR: directory,
+  NODE_ENV: "development", VERCEL: "", npm_lifecycle_event: "",
+  __NEXT_PROCESSED_ENV: "", NEXT_RUNTIME: "",
+};
+const entries = ["src/db/prepare.ts", "src/db/migrate.ts", "src/db/seed.ts", "scripts/bootstrap-admin.ts"];
+for (const file of entries) {
+  const result = spawnSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", file, "--show-target"], { env, stdio: "inherit" });
+  assert.equal(result.status, 0, `Preview failed: ${file}`);
+}
+const refused = spawnSync(process.execPath, ["node_modules/tsx/dist/cli.mjs", "src/db/seed.ts"], { env, stdio: "inherit" });
+assert.equal(refused.status, 1, "Expected unconfirmed reset refusal.");
+assert.equal(existsSync(directory), false, "Preview/refusal must create nothing.");
+console.log("Preview target remains absent.");
+'@ | node
+```
+
+Each preview prints the command name, `Environment: development`, `Mode: pglite`, the resolved `.tmp/bug-24-owner-preview/not-created` path, and `Preview only; no database opened.` The unconfirmed reset prints the same selection and exits 1 with `Nothing was changed.` Do not add `--confirm` for this inspection.
+
+To reproduce the synthetic precedence, redaction, lifecycle, no-open and pinning matrix:
+
+```powershell
+npm.cmd run test:safety -- 'BUG-24 environment'
+```
+
+This CLI-only change has no new browser flow or screenshot requirement. UX review target/pinning checks are included in final validation; the app server is not started on institutional storage.
 
 ## Planning-document checks
 
@@ -37,7 +77,7 @@ AC-01–AC-09: **Pending**. A reproduction of the old behavior is not acceptance
 
 - Planning: owner-authorized; local checkpoint only. See the plan's checkpoint for the commit title.
 - Implementation approval: granted 26 October 2026 for the presented contract at `960d5d3`; exact owner wording is in the plan's approval record. Recorded/committed before application changes.
-- Implementation/code checks: pending.
+- Implementation/code checks: in progress; final results pending.
 - Owner inspection/acceptance: pending.
 - Local merge: pending acceptance and verification.
 - GitHub synchronization: intentionally deferred under the owner's local-first agreement; #24 remains open.

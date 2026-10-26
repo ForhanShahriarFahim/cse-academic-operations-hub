@@ -2,7 +2,7 @@
 
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24).
 Specification: [spec.md](spec.md). Verification: [verification.md](verification.md).
-Status: Approved for implementation in the next session; no application implementation yet.
+Status: T-01–T-03 implemented; T-04 validation in progress. Owner inspection/acceptance and local merge pending.
 Branch/base: `codex/bug-24` from `main` at `0b1e055`.
 Updated: 26 October 2026, Asia/Dhaka.
 
@@ -28,9 +28,9 @@ Replace T-01's assertion of divergent supported entry paths with assertions of p
 - [x] P-01 — Inspect prior plans, GitHub and current code; reproduce target divergence without opening a database. Record the local-first agreement and delivery sequence.
 - [x] P-02 — Prepare detailed specification, implementation breakdown and inspection evidence for owner review.
 - [x] G-01 — Owner approved the presented BUG-24 scope on 26 October 2026; approval is recorded in this documentation-only checkpoint before application changes.
-- [ ] T-01 — Implement the database-free mode/environment/target boundary using the supported Next loader; direct dependency and focused precedence/pinning tests. Covers AC-01–AC-03, AC-05. Depends on G-01.
-- [ ] T-02 — Refactor the four CLI entry paths to preview/banner before client import; remove conflicting helper imports and preserve imported migration/seed contracts. Covers AC-01, AC-03–AC-06. Depends on T-01.
-- [ ] T-03 — Add controlled-child regression checks across entry paths and modes; prove no-open preview/refusal, redaction and hostile-file isolation. Retain BUG-26 and auth/bootstrap regressions. Covers AC-01–AC-07. Depends on T-02.
+- [x] T-01 — Implement the database-free mode/environment/target boundary using the supported Next loader; direct dependency and focused precedence/pinning tests. Covers AC-01–AC-03, AC-05. Depends on G-01.
+- [x] T-02 — Refactor the four CLI entry paths to preview/banner before client import; remove conflicting helper imports and preserve imported migration/seed contracts. Covers AC-01, AC-03–AC-06. Depends on T-01.
+- [x] T-03 — Add controlled-child regression checks across entry paths and modes; prove no-open preview/refusal, redaction and hostile-file isolation. Retain BUG-26 and auth/bootstrap regressions. Covers AC-01–AC-07. Depends on T-02.
 - [ ] T-04 — Run required final checks on final code, inspect the diff and update README/runbook/brief where behavior changed. Record acceptance mapping and exact owner review commands. Covers AC-06–AC-08. Depends on T-03.
 - [ ] T-05 — Show the result for owner inspection, address findings, obtain acceptance, commit evidence and merge into local `main`. Suggest ROM-01A for a new session. No GitHub write/sync unless requested. Covers AC-09. Depends on T-04 and actual acceptance.
 
@@ -47,10 +47,10 @@ T-01–T-04 are technical chunks of one bounded delivery; they are not separate 
 
 ## Current checkpoint / handoff
 
-- Scope: approved as presented at `960d5d3`; P-01, P-02 and G-01 are complete. T-01 is next, in the owner's next session.
-- Branch/base: `codex/bug-24` / `0b1e055`. Application code, dependencies and schema unchanged.
-- Planning checkpoint: `960d5d3`. Approval/handoff checkpoint: local commit titled `docs(BUG-24): record owner approval and next-session handoff (#24)`; inspect `git log` and `git status` on resume.
-- Evidence: [verification](verification.md). Feature acceptance criteria remain pending; the diagnostic proves the current defect, not the fix.
-- Next session: inspect Git/code state and the approval record, then start T-01 without repeating unchanged scope approval. Reuse the dated GitHub snapshot unless uncertainty or a synchronization request justifies another read.
-- Blockers: none for starting T-01; external credentials are not needed for this slice. Implementation, validation, personal inspection and final acceptance are still pending.
+- Scope: approved as presented at `960d5d3`; approval checkpoint `e0d823e` precedes implementation. No material amendment.
+- Branch/base: `codex/bug-24` / `0b1e055`. One checkout/writer, no worktree, no schema or institutional data operation.
+- Implemented: shared Next environment loader/mode validation and redacted target validation; four CLI banners/previews before database import; lazy callable migration/prepare/seed helpers; bootstrap implementation behind an entry wrapper; direct matching `@next/env` dependency, unused direct dotenv removed; synthetic regression group and operator documentation.
+- Evidence: [verification](verification.md). BUG-24 environment (80 matrix/preview cases plus guards), SAFE-01 isolation/recovery, typecheck, lint, domain and UX harness checks pass. Full PGlite/PostgreSQL suite continues. Default Turbopack build fails at CSS worker IPC startup on both Node 22.11 and bundled Node 24.22.1; documented Webpack check is in progress. No change to the build script or runtime installation.
+- Next action: finish T-04, inspect the final diff, commit remaining verification/handoff evidence, and present the safe preview block for owner inspection. T-05 merge waits for actual acceptance; do not infer it from implementation authorization.
+- Blockers/limitations: default Turbopack build failure is unresolved; do not mark it passed. No remote synchronization due. Reuse the dated GitHub snapshot unless new uncertainty or an owner request warrants another read.
 - Next suggested feature after accepted merge: ROM-01A inspection/specification and mockups, not automatic room implementation.

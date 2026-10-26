@@ -5,7 +5,8 @@
  * development database and keeps portal access (BUG-26). It names its target
  * and refuses the default directory, which holds the institutional database.
  */
-import { confirmsTarget, databaseTarget, loadDatabaseEnvironment, overlapsDefaultPglite } from "./target";
+import { confirmsTarget, overlapsDefaultPglite } from "./target";
+import { databaseCommand, isCommand } from "./command";
 
 /** Used by db:prepare on a database with no academic term; no confirmation needed. */
 export async function seedDatabase() {
@@ -17,13 +18,11 @@ const KEPT = "portal users, passwords, sessions, roles, setup links and the acce
 
 /** Decide before any database module is imported, so a refused reset opens nothing. */
 async function resetCommand(args: string[]): Promise<number> {
-  loadDatabaseEnvironment();
-  const target = databaseTarget();
+  const { target, preview } = databaseCommand("db:reset", args);
+  if (preview) return 0;
   const flag = args.indexOf("--confirm");
   const confirmation = flag >= 0 ? args[flag + 1] : undefined;
 
-  console.log(`Target: ${target.label}`);
-  console.log(`Mode: ${target.mode}`);
   if (target.mode === "pglite" && overlapsDefaultPglite(target.directory)) {
     console.error("Refused: this is the default directory, which holds the institutional database. db:reset never runs on it.");
     console.error("Point PGLITE_DATA_DIR at a disposable copy (or set DATABASE_URL to a development database) and run it again.");
@@ -42,7 +41,7 @@ async function resetCommand(args: string[]): Promise<number> {
   return 0;
 }
 
-if (process.argv[1]?.replaceAll("\\", "/").endsWith("/src/db/seed.ts")) {
+if (isCommand("/src/db/seed.ts")) {
   resetCommand(process.argv.slice(2))
     .then((code) => process.exit(code))
     .catch((error) => {

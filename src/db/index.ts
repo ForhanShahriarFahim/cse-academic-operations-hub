@@ -8,15 +8,11 @@ import path from "node:path";
 import * as schema from "./schema";
 import { databaseTarget, loadDatabaseEnvironment } from "./target";
 
-// CLI migration/seed commands do not inherit Next.js's .env.local loading.
-// Existing process variables (including Vercel secrets) always take priority.
+// Standalone children use Next's supported loader; initialized Next runtimes keep their environment.
 loadDatabaseEnvironment();
 
 const target = databaseTarget();
 const databaseUrl = target.mode === "postgresql" ? target.url : undefined;
-if (process.env.VERCEL && !databaseUrl) {
-  throw new Error("DATABASE_URL is required on Vercel; embedded PGlite storage is for local development only.");
-}
 
 const globalForDb = globalThis as typeof globalThis & {
   __pundraPostgresqlPool?: Pool;

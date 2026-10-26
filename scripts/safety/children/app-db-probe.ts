@@ -4,7 +4,6 @@
  * a PostgreSQL selection is reported without connecting.
  */
 async function main() {
-  if (process.argv.includes("--dotenv-first")) await import("dotenv/config");
   const { databaseMode, db } = await import("../../../src/db");
   if (databaseMode === "pglite") {
     const { sql } = await import("drizzle-orm");
