@@ -2,7 +2,7 @@
 
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24).
 Specification: [spec.md](spec.md). Verification: [verification.md](verification.md).
-Status: Inspected and proposed; no application implementation.
+Status: Approved for implementation in the next session; no application implementation yet.
 Branch/base: `codex/bug-24` from `main` at `0b1e055`.
 Updated: 26 October 2026, Asia/Dhaka.
 
@@ -19,15 +19,15 @@ Replace T-01's assertion of divergent supported entry paths with assertions of p
 ## Approval record
 
 - Planning/workflow authorization: the owner's 26 October 2026 request to analyze prior plans/GitHub, create a concrete local-first plan, and prepare detailed small parts.
-- BUG-24 implementation authorization: **Pending**. The exact contract above was not available when that message was sent.
-- Scope for review: spec AC-01–AC-09, the mode/preview contract and T-01–T-05 below; no institutional database operation.
-- Material amendments: none approved. Record actual owner wording/date here, then commit the approved version before implementation.
+- BUG-24 implementation authorization: **Approved for the next session**, 26 October 2026 (Asia/Dhaka). After the concrete spec/plan at `960d5d3` were presented for approval, the owner instructed: "commit and then I will start a session and implement  BUG-24". This authorizes committing the presented contract and proceeding with BUG-24 in the next session; it does not request implementation in this session.
+- Approved scope: spec AC-01–AC-09, the mode/preview contract and T-01–T-05 below, as presented at `960d5d3`; no institutional database operation. Final implementation acceptance and local merge remain separate gates.
+- Material amendments: none. Approval of this unchanged scope persists into the next session; do not ask for it again.
 
 ## Primary task checklist
 
 - [x] P-01 — Inspect prior plans, GitHub and current code; reproduce target divergence without opening a database. Record the local-first agreement and delivery sequence.
 - [x] P-02 — Prepare detailed specification, implementation breakdown and inspection evidence for owner review.
-- [ ] G-01 — Owner approves the presented BUG-24 scope; record approval and commit the approved plan before application changes.
+- [x] G-01 — Owner approved the presented BUG-24 scope on 26 October 2026; approval is recorded in this documentation-only checkpoint before application changes.
 - [ ] T-01 — Implement the database-free mode/environment/target boundary using the supported Next loader; direct dependency and focused precedence/pinning tests. Covers AC-01–AC-03, AC-05. Depends on G-01.
 - [ ] T-02 — Refactor the four CLI entry paths to preview/banner before client import; remove conflicting helper imports and preserve imported migration/seed contracts. Covers AC-01, AC-03–AC-06. Depends on T-01.
 - [ ] T-03 — Add controlled-child regression checks across entry paths and modes; prove no-open preview/refusal, redaction and hostile-file isolation. Retain BUG-26 and auth/bootstrap regressions. Covers AC-01–AC-07. Depends on T-02.
@@ -47,10 +47,10 @@ T-01–T-04 are technical chunks of one bounded delivery; they are not separate 
 
 ## Current checkpoint / handoff
 
-- Scope: proposed only; G-01 is next. P-01 and P-02 are complete.
+- Scope: approved as presented at `960d5d3`; P-01, P-02 and G-01 are complete. T-01 is next, in the owner's next session.
 - Branch/base: `codex/bug-24` / `0b1e055`. Application code, dependencies and schema unchanged.
-- Planning checkpoint: identified by the local commit titled `docs(BUG-24): local-first delivery plan and proposed target contract (#24)`. This record cannot contain its own commit hash; use `git log -1` and `git status` at handoff.
+- Planning checkpoint: `960d5d3`. Approval/handoff checkpoint: local commit titled `docs(BUG-24): record owner approval and next-session handoff (#24)`; inspect `git log` and `git status` on resume.
 - Evidence: [verification](verification.md). Feature acceptance criteria remain pending; the diagnostic proves the current defect, not the fix.
-- Next session: inspect the actual approval record, record any new owner approval, commit it, then start T-01. Reuse the dated GitHub snapshot unless uncertainty or a synchronization request justifies another read.
-- Blockers: owner review/approval of the concrete contract; external credentials are not needed for this slice.
+- Next session: inspect Git/code state and the approval record, then start T-01 without repeating unchanged scope approval. Reuse the dated GitHub snapshot unless uncertainty or a synchronization request justifies another read.
+- Blockers: none for starting T-01; external credentials are not needed for this slice. Implementation, validation, personal inspection and final acceptance are still pending.
 - Next suggested feature after accepted merge: ROM-01A inspection/specification and mockups, not automatic room implementation.

@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized planning and local-first workflow; delivery order and new feature scopes proposed for review.
+Status: owner-authorized local-first workflow; BUG-24 scope approved for the next session on 26 October 2026. Remaining delivery order/scopes are proposals.
 Updated: 26 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
@@ -8,7 +8,7 @@ Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](.
 
 The owner requested a concrete plan, small parts, a detailed specification for the selected part, implementation and validation, personal inspection, and a branch merge into local `main`. After that, suggest the next task; the owner starts a new session. Keep GitHub activity infrequent. Use high reasoning effort for planning when the session supports it.
 
-This message authorizes this inspection/planning package and the local-first workflow amendment. It does not approve a specification that had not yet been presented. Actual implementation approval and later acceptance are recorded in the selected part's plan. Previously approved unchanged scopes remain valid.
+The initial message authorized the inspection/planning package and local-first workflow amendment. After the concrete package at `960d5d3` was presented, the owner instructed: "commit and then I will start a session and implement  BUG-24". BUG-24 is therefore approved for implementation in the next session; exact scope/evidence is in its plan. Later feature scopes and final implementation acceptance retain their own gates. Previously approved unchanged scopes remain valid.
 
 The agent cannot change its own active model/effort through the available tools. The owner selects a supported high-reasoning setting for planning sessions. Do not claim that a model switch occurred. No additional agents, sessions or external API billing are authorized by this plan.
 
@@ -43,7 +43,7 @@ Local suffixes below are planning labels under existing GitHub issues. No new Gi
 
 | Order | Part / parent | Reviewable outcome | Gate before building |
 | --- | --- | --- | --- |
-| 1 | BUG-24 / #24 | One environment/target contract for app and CLI; safe target preview and regression evidence | [Detailed spec](../specs/BUG-24/spec.md) and [plan](../specs/BUG-24/plan.md) approval |
+| 1 | BUG-24 / #24 | One environment/target contract for app and CLI; safe target preview and regression evidence | [Detailed spec](../specs/BUG-24/spec.md) and [plan](../specs/BUG-24/plan.md) approved 26 October; implementation starts next session |
 | 2 | ROM-01A / #5 | Add/edit room identity, capacity/type/capabilities, stale protection and change history; publications preserved | Mockups; editors and safety rules for changes affecting assigned classes |
 | 3 | ROM-01B / #5 | Deactivate/reactivate, unused-record deletion, guarded pickers and useful weekly occupancy/free-window view | Exact active/future reference rules; occupancy projection parity |
 | 4 | ROM-01C / #5 | Dated maintenance and conflict/placement enforcement | Date range/time zone/recurrence contract using existing term bounds; no claim of live date availability without it |
@@ -86,15 +86,15 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- Current issue: **BUG-24 #24, inspection/specification only**.
+- Current issue: **BUG-24 #24, approved for implementation next session; T-01 next**.
 - Branch/base: `codex/bug-24` from `main` at `0b1e055`.
 - Primary checklist and approval gate: [BUG-24 plan](../specs/BUG-24/plan.md).
 - Prepared: local-first workflow amendment, this reconciled sequence, detailed BUG-24 spec/plan, and inspection evidence. No application/dependency/schema change.
-- Next action: owner reviews the proposed order and BUG-24 contract. Record actual approval before T-01 implementation. Do not treat this planning session as implementation approval.
+- Next action: resume the approved BUG-24 contract and start T-01 in the next session. Planning checkpoint `960d5d3` and a separate approval/handoff commit precede application changes. Do not repeat unchanged scope approval.
 - Subsequent task after accepted BUG-24: inspect/specify ROM-01A; choose room-edit decisions and show mockups before building.
 - GitHub: no writes; no routine synchronization due. Last checked 26 October 2026.
 - Checks: documentation and diagnostic results are in [verification](../specs/BUG-24/verification.md); feature checks remain pending.
 
 Suggested next-session prompt:
 
-> Read AGENTS.md, docs/PROJECT_BRIEF.md, docs/WORKFLOW.md and docs/specs/BUG-24/{spec,plan,verification}.md. Continue on the existing codex/bug-24 branch. Review the actual approval record first; if I approve the presented contract, record that approval, commit the approved plan, then implement T-01 through T-05. Work locally and preserve institutional data. Present database-free target previews and verification for my inspection. Merge locally only after my acceptance; then suggest ROM-01A for a new session. Do not push or update GitHub unless I request it.
+> Implement the approved BUG-24 contract. Read AGENTS.md, docs/PROJECT_BRIEF.md, docs/WORKFLOW.md and docs/specs/BUG-24/{spec,plan,verification}.md. Continue on the existing codex/bug-24 branch. Inspect actual Git/code state and the recorded 26 October approval; do not ask for unchanged scope approval again. Start T-01 and proceed through implementation and validation. Work locally and preserve institutional data. Present database-free target previews and verification for my inspection. Merge locally only after my acceptance; then suggest ROM-01A for a new session. Do not push or update GitHub unless I request it.

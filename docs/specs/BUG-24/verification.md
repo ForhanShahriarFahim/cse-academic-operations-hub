@@ -3,7 +3,7 @@
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24). [Spec](spec.md) · [Plan/checklist](plan.md).
 Date: 26 October 2026, Asia/Dhaka. Windows PowerShell, Node 22.11.0, installed Next.js / `@next/env` 16.3.4.
 Revision: application baseline `0b1e055`; only documentation changes in the planning checkpoint.
-Status: defect reproduced; proposed fix is not implemented or accepted.
+Status: defect reproduced; implementation approved for the next session on 26 October 2026. Fix is not implemented or accepted.
 
 ## Inspection evidence
 
@@ -36,7 +36,7 @@ AC-01–AC-09: **Pending**. A reproduction of the old behavior is not acceptance
 ## Delivery and acceptance
 
 - Planning: owner-authorized; local checkpoint only. See the plan's checkpoint for the commit title.
-- Implementation approval: pending owner review of this concrete specification and plan.
+- Implementation approval: granted 26 October 2026 for the presented contract at `960d5d3`; exact owner wording is in the plan's approval record. Recorded/committed before application changes.
 - Implementation/code checks: pending.
 - Owner inspection/acceptance: pending.
 - Local merge: pending acceptance and verification.
