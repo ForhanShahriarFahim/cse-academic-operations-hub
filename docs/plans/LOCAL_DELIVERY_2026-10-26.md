@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 scope approved for the next session on 26 October 2026. Remaining delivery order/scopes are proposals.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. Remaining delivery order/scopes are proposals.
 Updated: 26 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
@@ -43,7 +43,7 @@ Local suffixes below are planning labels under existing GitHub issues. No new Gi
 
 | Order | Part / parent | Reviewable outcome | Gate before building |
 | --- | --- | --- | --- |
-| 1 | BUG-24 / #24 | One environment/target contract for app and CLI; safe target preview and regression evidence | [Detailed spec](../specs/BUG-24/spec.md) and [plan](../specs/BUG-24/plan.md) approved 26 October; implementation starts next session |
+| Done locally | BUG-24 / #24 | One environment/target contract for app and CLI; safe target preview and regression evidence | Accepted/merged 27 October at `84964e2`; default-build exception retained in [verification](../specs/BUG-24/verification.md); GitHub sync deferred |
 | 2 | ROM-01A / #5 | Add/edit room identity, capacity/type/capabilities, stale protection and change history; publications preserved | Mockups; editors and safety rules for changes affecting assigned classes |
 | 3 | ROM-01B / #5 | Deactivate/reactivate, unused-record deletion, guarded pickers and useful weekly occupancy/free-window view | Exact active/future reference rules; occupancy projection parity |
 | 4 | ROM-01C / #5 | Dated maintenance and conflict/placement enforcement | Date range/time zone/recurrence contract using existing term bounds; no claim of live date availability without it |
@@ -86,15 +86,15 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- Current issue: **BUG-24 #24, implementation checkpoint `c9b564a`; CLI inspection ready; T-04 default-build limitation open**.
-- Branch/base: `codex/bug-24` from `main` at `0b1e055`.
+- Current issue: **None in implementation. BUG-24 accepted and merged locally at `84964e2` on 27 October**.
+- Checkout: local `main`; `codex/bug-24` retained with its accepted commits. No remote synchronization.
 - Primary checklist and approval gate: [BUG-24 plan](../specs/BUG-24/plan.md).
 - Prepared: local-first sequence and approved BUG-24 contract, followed by the environment/CLI fix, controlled-child regression group and operator documentation. No schema or institutional data operation.
-- Next action: owner inspects the pinned CLI previews and validation. T-04 remains open for default Turbopack CSS-worker IPC failure; see the primary verification record before further investigation or an owner decision on material build changes. T-05 local merge requires actual acceptance. Approval checkpoint `e0d823e` preceded implementation; do not repeat unchanged scope approval.
-- Subsequent task after accepted BUG-24: inspect/specify ROM-01A; choose room-edit decisions and show mockups before building.
+- Acceptance/merge: owner replied "Looks good move forward" on 27 October after disclosure of the default-build failure; acceptance `27bc0b4` precedes merge `84964e2`. AC-08 remains partial with an accepted delivery exception; default Turbopack is not a passed check.
+- Next action: owner starts a new session to inspect/specify ROM-01A under #5; choose room-edit decisions and show mockups before building. No implementation authorization for rooms yet. Carry the unresolved build limitation forward; obtain a decision before material build-policy/configuration changes.
 - GitHub: no writes; no routine synchronization due. Last checked 26 October 2026.
 - Checks: typecheck, lint, domain, UX harness, all 17 safety groups (PostgreSQL 17.11 included) and Webpack production build pass. Default Turbopack build failed; full results and safe review commands are in [verification](../specs/BUG-24/verification.md). Institutional storage was never opened; metadata unchanged.
 
 Suggested next-session prompt:
 
-> Continue BUG-24 on the existing codex/bug-24 branch. Read the brief and BUG-24 plan/verification first. Implementation is at c9b564a; T-01–T-03 are complete and all safety groups passed. Do not restart those tasks or repeat successful suites merely for handoff. Review my inspection findings and the unresolved T-04 default Turbopack build failure; Webpack production build passes. Return material build-policy/configuration changes for my decision. Merge locally only after my actual acceptance, then suggest ROM-01A for a new session. Preserve institutional data; do not push, update GitHub or start another issue unless I request it.
+> Inspect and specify ROM-01A, the bounded room-directory editor slice under #5, from local main after accepted BUG-24 merge 84964e2. Read AGENTS.md, docs/PROJECT_BRIEF.md, docs/WORKFLOW.md and the local delivery plan. Inspect relevant room rules/source/code, prepare a detailed specification, one checklist and desktop/mobile mockups, and present them for my approval before implementation. Do not implement the broader room backlog. Preserve institutional data and keep work local. BUG-24's default Turbopack CSS-worker failure remains unresolved despite its accepted delivery; Webpack production build and all 17 safety groups passed. Do not silently change build policy or rerun successful suites merely for handoff.

@@ -3,7 +3,7 @@
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24). [Spec](spec.md) · [Plan/checklist](plan.md).
 Date: 26 October 2026, Asia/Dhaka. Windows PowerShell, Node 22.11.0, installed Next.js / `@next/env` 16.3.4.
 Revision: implementation on `codex/bug-24`, based on `0b1e055`; approval committed at `e0d823e` before application changes.
-Status: owner accepted delivery on 27 October 2026 with the disclosed default-build limitation. Default Turbopack remains failed; local merge authorized and pending. Check results below are from 26 October and were not rerun for acceptance-only documentation.
+Status: owner accepted delivery and merged locally on 27 October 2026 at `84964e2`, with the disclosed default-build limitation. Default Turbopack remains failed. Check results below are from 26 October and were not rerun for acceptance/merge-only documentation.
 
 ## Inspection evidence
 
@@ -35,7 +35,7 @@ The new `BUG-24 environment` safety group uses synthetic root files and fresh No
 | AC-06 | **Pass.** Import-tripwire tests cover preview/refusal before client import. Existing BUG-26 groups pass on both adapters: protected directory refusal, exact confirmation, access preservation, interrupted-reset recovery and prepare-on-empty behavior. |
 | AC-07 | **Pass.** All 17 safety groups pass with PostgreSQL 17.11 enabled, including poisoned environment isolation, recovery/history/audit, time zones, accounts/bootstrap, cluster cleanup, reset, teacher records and blocked deletes. |
 | AC-08 | **Partial; disclosed exception accepted with delivery on 27 October.** Typecheck, lint, domain, full safety, UX harness and Webpack production build pass. Default Turbopack build fails as detailed below. Institutional directory metadata is unchanged; it was never opened. |
-| AC-09 | **Owner accepted, 27 October.** After the result and build limitation were presented, the owner replied "Looks good move forward". The exact inspection block below was executed successfully; four previews and an unconfirmed reset left its target absent. Local merge authorized. |
+| AC-09 | **Pass, 27 October.** After the result and build limitation were presented, the owner replied "Looks good move forward". Acceptance was committed at `27bc0b4` before local merge `84964e2`. The exact inspection block below was executed successfully; four previews and an unconfirmed reset left its target absent. |
 
 ## Code checks and build limitation
 
@@ -100,5 +100,6 @@ This CLI-only change has no new browser flow or screenshot requirement. UX revie
 - Implementation checkpoint: `c9b564a` (`fix(BUG-24): unify database environments and add safe CLI previews (#24)`). Final validation/handoff is a separate local documentation checkpoint.
 - Implementation/code checks: recorded above; AC-08 remains partial because the default Turbopack build failed. Webpack production build and all other required code/safety checks passed.
 - Owner inspection/acceptance: granted 27 October 2026 after disclosure of the validation results and default-build failure; exact wording: "Looks good move forward". The limitation remains recorded, not reclassified as a pass.
-- Local merge: authorized; pending execution.
+- Local merge: completed 27 October at `84964e2`, using `--no-ff` from `codex/bug-24` into `main`; branch history retained. No application changes, database operations or repeated application checks during acceptance/merge.
+- Acceptance/merge checks, 27 October: clean checkout before merge; accepted branch is an ancestor of `main`; merged application source/dependencies match the accepted branch; `git diff --check`, 99 local file links and 2 heading anchors pass across the six acceptance/handoff documents.
 - GitHub synchronization: intentionally deferred under the owner's local-first agreement; #24 remains open.

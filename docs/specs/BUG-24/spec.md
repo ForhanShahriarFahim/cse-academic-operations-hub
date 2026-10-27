@@ -1,7 +1,7 @@
 # BUG-24 — App and CLI select the same database
 
 Issue: [#24](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/24).
-Status: Owner accepted delivery on 27 October 2026 with the disclosed default-build limitation (AC-08); local merge authorized. See the [acceptance record](plan.md#approval-record). The approved behavior below is unchanged.
+Status: Owner accepted delivery and merged locally on 27 October 2026 at `84964e2`, with the disclosed default-build limitation (AC-08). See the [acceptance record](plan.md#approval-record). The approved behavior below is unchanged; GitHub synchronization is deferred.
 Updated: 27 October 2026, Asia/Dhaka. [Plan](plan.md) · [Inspection/verification](verification.md).
 
 ## Problem and inspected baseline
