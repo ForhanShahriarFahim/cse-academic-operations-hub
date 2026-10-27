@@ -1,0 +1,221 @@
+[
+  {
+    "name": "index",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Room directory editor",
+    "errors": []
+  },
+  {
+    "name": "rooms",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Rooms & occupancy",
+    "errors": []
+  },
+  {
+    "name": "add",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Add room",
+    "firstFocus": "Skip to content",
+    "errors": []
+  },
+  {
+    "name": "edit",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit SX-506",
+    "errors": []
+  },
+  {
+    "name": "detail",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "NB-505",
+    "errors": []
+  },
+  {
+    "name": "sample",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "SX-506",
+    "errors": []
+  },
+  {
+    "name": "protected",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit NB-505",
+    "errors": []
+  },
+  {
+    "name": "states",
+    "device": "desktop",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Feedback & recovery",
+    "errors": []
+  },
+  {
+    "name": "index",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Room directory editor",
+    "errors": []
+  },
+  {
+    "name": "rooms",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Rooms & occupancy",
+    "errors": []
+  },
+  {
+    "name": "add",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Add room",
+    "firstFocus": "Skip to content",
+    "errors": []
+  },
+  {
+    "name": "edit",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit SX-506",
+    "errors": []
+  },
+  {
+    "name": "detail",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "NB-505",
+    "errors": []
+  },
+  {
+    "name": "sample",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "SX-506",
+    "errors": []
+  },
+  {
+    "name": "protected",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit NB-505",
+    "errors": []
+  },
+  {
+    "name": "states",
+    "device": "phone",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Feedback & recovery",
+    "errors": []
+  },
+  {
+    "name": "index",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Room directory editor",
+    "errors": []
+  },
+  {
+    "name": "rooms",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Rooms & occupancy",
+    "errors": []
+  },
+  {
+    "name": "add",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Add room",
+    "firstFocus": "Skip to content",
+    "errors": []
+  },
+  {
+    "name": "edit",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit SX-506",
+    "errors": []
+  },
+  {
+    "name": "detail",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "NB-505",
+    "errors": []
+  },
+  {
+    "name": "sample",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "SX-506",
+    "errors": []
+  },
+  {
+    "name": "protected",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Edit NB-505",
+    "errors": []
+  },
+  {
+    "name": "states",
+    "device": "narrow",
+    "overflow": false,
+    "unlabeled": [],
+    "impactBeforeSave": true,
+    "heading": "Feedback & recovery",
+    "errors": []
+  }
+]
