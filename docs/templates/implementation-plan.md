@@ -29,7 +29,7 @@ Commit the approved plan before implementation. Unchanged approved scope survive
 
 ## Verification and delivery
 
-Identify focused checks, required final checks, review criteria and external environments. Use the shared workflow's code/documentation requirements; record outcomes in verification. Commit coherent checkpoints, push verified milestones and keep pending criteria explicit. Merge/closure waits for required owner acceptance.
+Identify focused checks, required final checks, review criteria, the owner's inspection path and external environments. Use the shared workflow's code/documentation requirements; record outcomes in verification. Commit coherent local checkpoints and keep pending criteria explicit. Under the local-first agreement, owner acceptance precedes local merge; GitHub synchronization occurs only at an agreed boundary. Partial slices leave the parent issue open.
 
 ## Current checkpoint / handoff
 

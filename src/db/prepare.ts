@@ -1,10 +1,10 @@
-import "dotenv/config";
-import { academicTerms } from "./schema";
-import { db, databaseMode } from "./index";
-import { migrateDatabase } from "./migrate";
-import { seedDatabase } from "./seed";
+import { databaseCommand, isCommand } from "./command";
 
-async function prepareDatabase() {
+export async function prepareDatabase() {
+  const { academicTerms } = await import("./schema");
+  const { db, databaseMode } = await import("./index");
+  const { migrateDatabase } = await import("./migrate");
+  const { seedDatabase } = await import("./seed");
   await migrateDatabase();
   const existingTerms = await db.select({ id: academicTerms.id }).from(academicTerms).limit(1);
 
@@ -16,9 +16,13 @@ async function prepareDatabase() {
   }
 }
 
-prepareDatabase()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+if (isCommand("/src/db/prepare.ts")) {
+  Promise.resolve().then(async () => {
+    if (!databaseCommand("db:prepare", process.argv.slice(2)).preview) await prepareDatabase();
+  })
+    .then(() => process.exit(0))
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}

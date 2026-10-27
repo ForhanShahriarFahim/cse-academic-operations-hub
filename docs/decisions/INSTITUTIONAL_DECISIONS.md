@@ -1,6 +1,6 @@
 # Institutional decisions and open gates
 
-Reconciled: 30 September 2026 (Asia/Dhaka). This migrates approvals/questions recorded in the 26 September execution plan; it grants no new institutional approval.
+Reconciled initially: 30 September 2026 (Asia/Dhaka). Status clarification: 26 October 2026, D-03 updated to reflect the later recorded SAFE-01 acceptance. Other institutional gates retain their recorded scope; this planning pass grants no new institutional approval.
 
 Use the [roadmap](../ROADMAP.md) for order, [requirements](../PRODUCT_REQUIREMENTS.md) for behavior and [glossary](../../CONTEXT.md) for terms. Technical architecture choices remain in [ADRs](../architecture/ADR-001-academic-operations-boundaries.md). Record owner, actual evidence, status, effective term and affected modules when resolving a question. Unspecified owners/dates remain unknown. This repository register is distinct from the future SET-01 application feature.
 
@@ -16,7 +16,7 @@ the owner selected the checked-in Summer 2026 routine transcription as the publi
 
 ## D-03 — Next feature priority
 
-Status: decided. The owner selected SAFE-01 (#2) before master-data editing. WORKFLOW-01 is accepted/closed; SAFE-01 inspection produced a [proposed plan](../specs/SAFE-01/plan.md) that still needs its own implementation approval. Evidence: prior execution plan and subsequent workflow acceptance.
+Status: historical priority fulfilled. The owner selected SAFE-01 (#2) before master-data editing; it was subsequently approved, accepted and merged on 30 September 2026 ([acceptance](../specs/SAFE-01/verification.md)). This decision does not approve the next feature. The current proposed sequence and local-first agreement are in the [local delivery plan](../plans/LOCAL_DELIVERY_2026-10-26.md); each new slice still needs its own scope approval.
 
 ## D-04 — Missing specification and source sign-off
 

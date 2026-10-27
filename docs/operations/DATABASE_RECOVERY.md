@@ -24,6 +24,8 @@ PGlite is local development storage. Production and staging need hosted PostgreS
 4. **Never restore over the only copy.** Move the current directory aside under a new name; do not delete it.
 5. **`db:reset` is not a recovery tool.** It replaces every academic table with the Summer 2026 development seed. Since [BUG-26](../specs/BUG-26/spec.md) it keeps portal users, passwords, sessions, roles, setup links and the access audit history, and it refuses the default institutional directory. It runs only with `--confirm` naming its target. After an accidental reset of real academic data, restore from a backup. Do not re-seed.
 
+Before a database operation, inspect its selection with `npm run <command> -- --show-target`, where `<command>` is `db:prepare`, `db:migrate`, `db:reset` or `auth:bootstrap` ([BUG-24](../specs/BUG-24/spec.md)). Preview opens nothing and does not waive reset protections or prove connectivity. The banner identifies the environment and adapter; PostgreSQL output omits credentials and parameters. Direct commands default to development unless a valid `NODE_ENV` is set. Use `production` explicitly when preparing production configuration; automatic `prestart` preparation uses production and rejects a contradictory mode. All commands follow Next's root-file precedence, including test mode's omission of `.env.local`; process values win. See the [README](../../README.md#database-environment-and-target-preview) and [safe owner inspection](../specs/BUG-24/verification.md#owner-inspection).
+
 ## Institutional PGlite: cold backup (manual, not yet exercised)
 
 Run these from the repository folder in PowerShell, after following the rules above.

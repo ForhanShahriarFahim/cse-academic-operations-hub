@@ -8,6 +8,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { DEFAULT_PGLITE_DIR } from "./safety/targets";
 import { checkIsolation } from "./safety/isolation.check";
+import { checkDatabaseEnvironment } from "./safety/environment.check";
 import { checkRecovery } from "./safety/recovery.check";
 import { checkHistory } from "./safety/history.check";
 import { checkAudit } from "./safety/audit.check";
@@ -41,6 +42,7 @@ async function main() {
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
     ["T-01 isolation", checkIsolation],
+    ["BUG-24 environment", checkDatabaseEnvironment],
     ["T-02 PGlite recovery", checkRecovery],
     ["T-03 two-term history", () => checkHistory()],
     ["T-04 audit atomicity", () => checkAudit()],

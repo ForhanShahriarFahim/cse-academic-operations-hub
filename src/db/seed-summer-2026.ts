@@ -1,13 +1,10 @@
-import "dotenv/config";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { sql } from "drizzle-orm";
-import { db } from "./index";
 import * as schema from "./schema";
 import { parseSummer2026Routine } from "../lib/source-routine";
 import { buildSnapshot } from "../lib/serialize";
 import { analyzeSchedule } from "../lib/conflicts";
-import { getPortalDataForSeed } from "../lib/data";
 import { backfillTimeGrids } from "./time-grid-backfill";
 import { clearAcademicData, restoreTeacherLinks, type ResetCommand } from "./reset-access";
 
@@ -46,6 +43,8 @@ function roomValue(code: string, cseId: number) {
 }
 
 export async function seedSummer2026Database(command: ResetCommand = "db:reset") {
+  const { db } = await import("./index");
+  const { getPortalDataForSeed } = await import("../lib/data");
   const source = parseSummer2026Routine(readFileSync(SOURCE_PATH, "utf8"));
   console.log("Replacing development data with the Summer-2026 source routine (portal access is kept)...");
   const resetEventId = await clearAcademicData(db, command);

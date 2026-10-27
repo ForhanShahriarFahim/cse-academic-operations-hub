@@ -2,11 +2,13 @@
 
 Approved design: 30 September 2026. Established in [WORKFLOW-01 / #20](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/20); delivery progress is in [its plan](plans/WORKFLOW-01.md).
 
+Owner amendment: **26 October 2026 (Asia/Dhaka), local-first delivery.** The owner asked to keep development local, reduce GitHub activity, prepare a concrete sequence of small parts, specify each part in detail before building, validate it, show it for personal inspection, and merge its branch into local `main` after acceptance. The owner then opens another session for the suggested next task. This changes synchronization cadence, not the specification, data-safety or acceptance gates. The [local delivery plan](plans/LOCAL_DELIVERY_2026-10-26.md) records the inspected sequence and next-session handoff.
+
 ## Start and document ownership
 
 Read the [project brief](PROJECT_BRIEF.md), this workflow, the selected issue records and relevant code/source sections. [AGENTS.md](../AGENTS.md) provides shared entry instructions; [CLAUDE.md](../CLAUDE.md) imports them. Use the [glossary](../CONTEXT.md) for domain language and [architecture records](architecture/ADR-001-academic-operations-boundaries.md) for accepted boundaries.
 
-Read [product requirements](PRODUCT_REQUIREMENTS.md) for behavior/rationale, the [roadmap](ROADMAP.md) for priorities/dependencies and [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates. Existing feature proposals still need issue-specific approval. Link to primary records instead of duplicating them. GitHub owns issue discussion and open/closed state; the repository owns versioned specifications, task plans and evidence. Date status summaries when reconciled.
+Read [product requirements](PRODUCT_REQUIREMENTS.md) for behavior/rationale, the [roadmap](ROADMAP.md) for priorities/dependencies and [institutional decisions](decisions/INSTITUTIONAL_DECISIONS.md) for approved answers/open gates. Existing feature proposals still need issue-specific approval. Link to primary records instead of duplicating them. GitHub retains issue discussion and remote open/closed state; the repository owns specifications, task plans, local progress and evidence. During local-first work, record remote status as a dated snapshot; local acceptance/merge does not mean GitHub has been updated. Do not repeat GitHub reads/edits unless new uncertainty, changed dependencies or a synchronization boundary warrants them.
 
 ## Issue lifecycle
 
@@ -16,20 +18,21 @@ Read [product requirements](PRODUCT_REQUIREMENTS.md) for behavior/rationale, the
 4. **Approve:** present concrete specification and plan. Record the owner's actual authorization, date and scope; template status or elapsed time is not approval. Commit the approved plan before feature implementation.
 5. **Implement:** carry out approved tasks autonomously; record unrelated discoveries as separate backlog items. Obtain a decision on material scope/behavior changes or missing institutional facts before dependent work.
 6. **Verify and review:** map results to acceptance criteria, inspect the diff, exercise relevant user flows and fix findings. Record unavailable environments/checks as pending rather than passed.
-7. **Deliver and accept:** commit/push verified work, present evidence and limitations, and obtain required owner acceptance before merge/closure. Partial delivery can be pushed and reviewed while the issue remains open.
-8. **Resume or advance:** update the brief/current issue pointer at a meaningful boundary. After acceptance select the next ready issue from updated main; blocked work does not authorize an unrelated feature automatically.
+7. **Deliver and accept:** commit verified work locally, present a runnable review path or applicable CLI evidence, acceptance results and limitations, then let the owner inspect it. Obtain actual acceptance before merging into local `main`. A PR/push is not required for a local merge under the current agreement. Synchronize GitHub only when requested or agreed; partial slices keep their parent issue open.
+8. **Resume or advance:** update the brief/current issue pointer and the selected plan's handoff at a meaningful boundary. After acceptance suggest the next ready part from updated local `main`; the owner opens the next session. Do not silently start it. Blocked work does not authorize an unrelated feature automatically.
 
 Use the [specification](templates/feature-spec.md), [implementation plan](templates/implementation-plan.md) and [verification](templates/verification.md) templates. Create substantial issue records under `docs/specs/<ISSUE-ID>/` as `spec.md`, `plan.md` and `verification.md`. A small bug can combine their essential sections in one document or a versioned issue-linked record. Avoid empty future folders and mandatory paperwork unrelated to risk.
 
 ## Git and agent handoffs
 
 - One active implementation issue and one writer per checkout. Use branches in the existing folder; no additional worktrees under the current agreement.
-- Inspect local changes, fetch/reconcile main safely before starting an issue branch, and preserve unrelated work. Use the repository prefix, for example `codex/safe-01`; no branch per task or per agent switch.
+- Inspect local changes and local `main` before starting an issue branch; preserve unrelated work. Refresh/reconcile the remote when synchronizing or when remote changes could affect the selected scope. Record the last remote check rather than claim unqueried remote freshness. Use the repository prefix, for example `codex/safe-01`; no branch per technical task or per agent switch.
 - Keep issue specification, plan, implementation, tests and corrections together on its branch. Commit approved plans and coherent checkpoints with the issue ID; related code and tests may share a commit.
-- Check documentation before pushing its approved plan; push implementation milestones after relevant verification and final delivery after required checks. Explicitly label unfinished local checkpoints; never describe them as verified.
-- Push to the issue branch. A draft PR can expose pending work. Prefer preserving meaningful plan/implementation commits when merging after acceptance. Do not use automatic issue-closing keywords until full acceptance is satisfied.
+- Check documentation and commit the approved plan locally before implementation. Commit coherent implementation checkpoints after relevant checks; keep unfinished checkpoints explicit. No routine milestone pushes, PRs or issue comments under the local-first agreement.
+- After owner acceptance, merge the bounded delivery into local `main`, retaining meaningful plan/implementation commits. At an agreed remote synchronization boundary, push/reconcile preserved history and update the actual issue status concisely. Do not use automatic issue-closing keywords until the whole issue is accepted.
 - Remove finished merged branches only after checking that needed work is preserved. Branches and Git commits do not back up institutional databases.
 - Approval of unchanged scope persists when switching agents. Record scope/approval references, branch/base, commits/uncommitted changes, completed tasks, next action, checks and blockers in the primary plan. The receiving agent inspects actual Git/code state before resuming.
+- A large issue may have separately approved, usable slices. Give each slice a stable local suffix (for example ROM-01A under #5), its own criteria and acceptance; merge one accepted slice at a time and keep the parent open until all required slices pass. Technical subtasks of one approved slice stay on its branch. Do not invent GitHub issues just to mirror local subtasks.
 - Tool-specific memory, plugins and slash commands may help execution but are not required project records. Report missing capabilities and their affected checks. File instructions guide behavior; they do not replace permissions, tests or human acceptance.
 
 ## Verification and data rules
@@ -55,4 +58,5 @@ Production requires separate staging/production infrastructure, OAuth/permission
 - Maintain one task checklist and link evidence. Update on task completion, decisions, blockers or handoff rather than each edit.
 - Use compact tool output and progress summaries. Preserve meaningful evidence without copying full logs or transcripts.
 - Scale specs/tests/review to risk while retaining required checks. Additional agents need explicit authorization and a useful independent task.
+- Use high reasoning effort for planning, specification and material design changes when supported by the selected session. Model/effort selection is controlled by the session; do not claim a switch that did not occur or create extra agents/API calls merely to simulate it.
 - Do not reread docs, rerun passing checks or seek approval merely to repeat completed process steps.

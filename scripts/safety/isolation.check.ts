@@ -145,15 +145,17 @@ async function checkChildEnvironment(): Promise<void> {
     const unpinnedEnv = { ...process.env };
     delete unpinnedEnv.DATABASE_URL;
     delete unpinnedEnv.PGLITE_DATA_DIR;
+    // This characterization deliberately exercises development's .env.local.
+    unpinnedEnv.NODE_ENV = "development";
+    delete unpinnedEnv.__NEXT_PROCESSED_ENV;
+    delete unpinnedEnv.NEXT_RUNTIME;
     const hazard = runUnpinnedChild(PROBE, [], unpinnedEnv, cwd);
     assert.equal(hazard.status, 0, hazard.stderr);
     assert.equal(hazard.report?.databaseMode, "postgresql");
 
-    // B: CLI precedence — scripts importing dotenv/config before src/db load .env
-    // first, so .env beats .env.local; the Next-style module order is reversed.
+    // B: supported app loading uses Next precedence; CLI parity is checked by BUG-24.
     writeFileSync(path.join(cwd, ".env"), "DATABASE_URL=postgresql://u:p@from-dotenv.invalid/a\n");
     writeFileSync(path.join(cwd, ".env.local"), "DATABASE_URL=postgresql://u:p@from-local.invalid/b\n");
-    assert.equal(runUnpinnedChild(PROBE, ["--dotenv-first"], unpinnedEnv, cwd).report?.databaseHost, "from-dotenv.invalid");
     assert.equal(runUnpinnedChild(PROBE, [], unpinnedEnv, cwd).report?.databaseHost, "from-local.invalid");
 
     // C: pinned children ignore poisoned parent variables and dotenv files.
@@ -169,7 +171,7 @@ async function checkChildEnvironment(): Promise<void> {
     assert.equal(env.PGHOST, undefined);
     assert.equal(env.npm_lifecycle_event, "");
     for (const probeCwd of [cwd, REPO_ROOT]) {
-      const pinned = await runAppChild(run, PROBE, ["--dotenv-first"], { cwd: probeCwd });
+      const pinned = await runAppChild(run, PROBE, [], { cwd: probeCwd });
       assert.equal(pinned.status, 0, pinned.stderr);
       assert.equal(pinned.report?.databaseMode, "pglite");
       assert.equal(pinned.report?.pgliteDataDir, run.dataDir);
@@ -212,6 +214,6 @@ export async function checkIsolation(): Promise<string[]> {
     "PostgreSQL targets: implicit/configured/non-safe01/unconfirmed/redirecting URLs refused; credentials redacted",
     "Import boundary: safety modules do not import the app database singleton, preparation scripts or dotenv",
     "Owned runs: unmarked directories refused; single writer lock; idempotent migrations persist after cold reopen",
-    "Child env: unpinned .env.local hazard and .env-over-.env.local CLI precedence characterised; pinned children stay on the owned run",
+    "Child env: unpinned development .env.local hazard demonstrated; pinned children stay on the owned run (BUG-24 checks CLI parity)",
   ];
 }

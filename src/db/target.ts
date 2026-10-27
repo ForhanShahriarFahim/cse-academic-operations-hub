@@ -4,13 +4,8 @@
  */
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { config as loadDotEnv } from "dotenv";
-
-/** CLI commands do not inherit Next.js's .env.local loading. Existing process variables always win. */
-export function loadDatabaseEnvironment(): void {
-  loadDotEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
-  loadDotEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
-}
+import { DatabaseConfigurationError } from "./environment";
+export { loadDatabaseEnvironment } from "./environment";
 
 /** The default local directory. It holds the institutional database and is never reset. */
 export const defaultPgliteDirectory = () => path.join(process.cwd(), ".data", "pglite-summer-2026");
@@ -21,11 +16,22 @@ export type DatabaseTarget =
 
 export function databaseTarget(env: NodeJS.ProcessEnv = process.env): DatabaseTarget {
   if (env.DATABASE_URL) {
-    const url = new URL(env.DATABASE_URL);
+    let url: URL;
+    let database: string;
+    try {
+      url = new URL(env.DATABASE_URL);
+      database = decodeURIComponent(url.pathname.slice(1));
+      if (!["postgres:", "postgresql:"].includes(url.protocol) || !url.hostname || !database) throw new Error();
+    } catch {
+      throw new DatabaseConfigurationError("DATABASE_URL must be a valid PostgreSQL URL with a host and database name.");
+    }
     // host:port/database, never credentials or parameters.
-    return { mode: "postgresql", url: env.DATABASE_URL, label: `${url.hostname}:${url.port || "5432"}/${decodeURIComponent(url.pathname.slice(1))}` };
+    const safeDatabase = database.replace(/[\x00-\x1f\x7f]/g, (value) => encodeURIComponent(value));
+    return { mode: "postgresql", url: env.DATABASE_URL, label: `${url.hostname}:${url.port || "5432"}/${safeDatabase}` };
   }
+  if (env.VERCEL) throw new DatabaseConfigurationError("DATABASE_URL is required on Vercel; embedded PGlite storage is for local development only.");
   const configured = env.PGLITE_DATA_DIR || defaultPgliteDirectory();
+  if (configured.includes("\0")) throw new DatabaseConfigurationError("PGLITE_DATA_DIR must be a valid directory path or memory://.");
   // memory:// is PGlite's in-memory store, not a path.
   const directory = configured.startsWith("memory://") ? configured : path.resolve(configured);
   return { mode: "pglite", directory, label: directory };
