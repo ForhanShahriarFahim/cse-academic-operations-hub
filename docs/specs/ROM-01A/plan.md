@@ -1,7 +1,7 @@
 # ROM-01A — Implementation plan and sole checklist
 
 Parent: #5 ROM-01. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md).
-Status: **Implemented locally from approved checkpoint `d130cb1`; verification complete; ready for owner inspection. Default build gate failed; acceptance and local merge pending.**
+Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; authorized for local-main merge.**
 Branch / base: `codex/rom-01a` from clean local `main` `8c34c0e` (after BUG-24 merge `84964e2`).
 Updated: 28 October 2026, Asia/Dhaka.
 
@@ -22,7 +22,7 @@ Locking is necessary for the claimed room-edit safety: all room assignment and O
 - Approved scope: [spec.md](spec.md), D-1–D-6 and the [mockup package](mockups/index.html), limited to ROM-01A, including its narrowly necessary room-assignment/OD concurrency integration. No amendments requested.
 - Actual approval/date/evidence: the owner replied **“approve.”** in this chat on 27 October 2026 to the presented specification, checklist and desktop/mobile mockups and the explicit request to approve D-1–D-6. This approval persists across handoffs; do not ask again for unchanged scope. Check documentation and **commit the approved plan locally before application changes**.
 - Boundaries retained: no broader room backlog, institutional data operation, remote synchronization or material build-policy change authorized. BUG-24's default-build failure remains unresolved; its acceptance exception is not transferred to this implementation.
-- Implementation acceptance/local merge: pending after verification and personal inspection; do not merge the proposal into `main` as accepted delivery.
+- Implementation acceptance: granted on 28 October 2026; wording and disclosed build exception are recorded in the current handoff below. Local merge authorized.
 
 ## Tasks
 
@@ -35,7 +35,7 @@ Locking is necessary for the claimed room-edit safety: all room assignment and O
 - [x] T-07 — Build add/detail/edit UI and directory entry points with responsive impact/warning acknowledgement, standard results and preserved input. Covers AC-01/02/06/08/11; depends T-05/06.
 - [x] T-08 — Run meaningful focused permission/domain/adapter/concurrency/history/publication checks and desktop/mobile/print review; correct findings. Covers AC-01–AC-11; depends T-04–T-07.
 - [x] T-09 — Run required final checks once on final code, inspect diff and record each AC with evidence/limitations. Present safe runnable owner review and screenshots; no institutional migration. Covers AC-12; depends T-08.
-- [ ] T-10 — Obtain actual implementation acceptance, commit coherent local checkpoints with ROM-01A/#5, merge bounded delivery into local `main`, update handoff and leave parent #5 open. Suggest next slice only; owner starts the next session. Depends T-09 and acceptance.
+- [x] T-10 — Obtain actual implementation acceptance, commit coherent local checkpoints with ROM-01A/#5, merge bounded delivery into local `main`, update handoff and leave parent #5 open. Suggest next slice only; owner starts the next session. Depends T-09 and acceptance.
 
 ## Verification and delivery
 
@@ -49,11 +49,9 @@ Owner implementation review must use the existing guarded disposable review harn
 
 ## Current checkpoint / handoff
 
-- Scope: approved ROM-01A only, from `d130cb1`; T-04–T-09 complete. **Ready for owner inspection; T-10 pending actual acceptance.** Parent #5 stays open; ROM-01B/01C excluded.
-- Branch/base: `codex/rom-01a` / local `main` `8c34c0e`; implementation **`e996e39`**, verification `3e63051`, and owner-requested input-validation correction **`a38f2f3`**, followed by the completed audit record. One checkout/writer, no worktree or remote activity. No institutional database was opened or migrated.
-- Implemented: migration 0010/preflight; canonical/protected/legacy rules; CSE-scoped add/edit/history; room revisions and atomic audit; fresh warning fingerprints; sorted room locks and in-transaction revalidation for manual/automatic placement and OD reference writes; responsive directory/form/detail/history.
-- Passed: typecheck, lint, domain, all **19 safety groups including PostgreSQL 17.11**, room desktop/mobile/320px/axe/error/stale/warning/denied/print flows, production-bundle empty/loading/pending checks on a separate synthetic fixture, browser history 20+3 paging, saved publication screen/print/CSV parity, existing directory checks, and 11 applicable writer/teacher browser regressions (the previously skipped clash case also passed on an isolated fixture; temporary longer waits, unchanged assertions). Full evidence and diagnostic failures are in [verification.md](verification.md).
-- Carried limitation: fresh unchanged default build fails in the Turbopack CSS-worker IPC path. Separately labelled Webpack production build passes with memory-only storage. No package, runtime, bundler configuration or build-script policy changed. No ROM-01A implementation acceptance/build exception is assumed from BUG-24. Owner inspection uses the guarded development harness, not the discarded production-mode PGlite diagnostic.
-- Review: disposable development server `http://localhost:3100/rooms`, private synthetic session in ignored `.tmp/ux-review/session.local.json`; [capture index](../../../output/playwright/ROM-01A/implementation/index.html). The chat supplies a private loopback sign-in link. Keep credentials out of Git. Institutional preflight/backup/migration remains separately authorized.
-- Next action: owner personally inspects and accepts or requests bounded corrections. **Do not merge before actual acceptance.** If accepted, record the wording/date and disclosed build result, merge only ROM-01A into local `main`, update this handoff and leave #5 open. Do not start another part; the owner starts the next session.
-- Exact continuation: “Continue owner inspection/acceptance of ROM-01A on codex/rom-01a, implementation e996e39 plus validated correction a38f2f3 from approved d130cb1. Read the brief and sole plan/verification; inspect current Git state. D-1–D-6 remain approved. Preserve passing evidence unless changes/failure justify repeating checks. Default Turbopack build remains failed; alternate Webpack build passed. Do not assume acceptance or a build exception, migrate institutional data, merge main, start ROM-01B/01C, create worktrees or synchronize remotes without the applicable owner instruction.”
+- Actual owner acceptance: **28 October 2026 (Asia/Dhaka)**. In response to “Do you accept ROM-01A, including the disclosed default Turbopack build failure, and authorize merging it into local main while parent #5 stays open?”, the owner selected **“Accept ROM-01A and merge locally”**.
+- Focused final review inspected room normalization, save authorization, transaction locks, assignment validation, revision/audit/history paths and desktop/mobile implementation captures. No new actionable blocker was found. Recorded passing suites are reused because application code is unchanged.
+- The default Turbopack build remains failed in the CSS-worker IPC path; alternate Webpack production build passed separately. Acceptance includes this disclosed delivery exception; it neither fixes the build nor changes bundler/runtime/build policy. AC-12 remains partial.
+- Accepted history: approved `d130cb1`, implementation `e996e39`, validation `3e63051`, correction `a38f2f3`, completed audit `ab1a123`, followed by this acceptance record. T-01–T-10 complete; merge this bounded branch into local `main` retaining history.
+- Parent #5 remains open. No remote synchronization, institutional database operation or ROM-01B/01C implementation. The owner explicitly requested ROM-01B inspection/specification next in this session; its implementation needs separate approval.
+- Next action after local merge: create `codex/rom-01b` in this checkout, inspect lifecycle/reference/date/picker/occupancy seams, and present a proposed specification, sole checklist and responsive workflow sketches. ROM-01C follows separately.

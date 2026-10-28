@@ -1,7 +1,7 @@
 # ROM-01A — Planning and implementation verification
 
 Updated: 28 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: specification/plan/mockups approved at `d130cb1`; implementation verification below. Owner inspection, acceptance and local merge pending.
+Status: specification/plan/mockups approved at `d130cb1`; implementation verification below. Owner accepted on 28 October 2026 with the disclosed default-build exception; local merge authorized.
 
 ## Inspected baseline
 
@@ -101,3 +101,7 @@ Implementation checkpoint: **`e996e39`** (`feat(ROM-01A): add guarded room direc
 Final documentation review: seven handoff/review text files and 181 local links resolve; the sole ten-task checklist has T-01–T-09 complete and T-10 awaiting acceptance. The retained development regression log contains one PGlite `RuntimeError: Aborted()` line during the diagnostic load; subsequent requests and all 11 applicable assertions passed, but the disposable copy failed to reopen after stopping the server. No runtime repair is bundled. Only that review copy was rebuilt with the harness's documented `--fresh --publishable --prepare-only` path. The final loopback-only development preview's private sign-in link was checked in Edge: HTTP 200, Rooms & occupancy heading and Add room visible. Institutional storage was never targeted. If the disposable preview later becomes unreadable, rebuild it through the guarded harness rather than opening or resetting institutional storage.
 
 Inspect adding a room with blank seats/owner, duplicate validation, corrections and Changes, two-tab stale handling, protected room facts and assigned-use warnings. The [implementation captures](../../../output/playwright/ROM-01A/implementation/) preserve the reviewed states. No institutional migration is part of this delivery. Parent #5 remains open; ROM-01B/01C are excluded. Actual implementation acceptance, any decision on the disclosed default-build gate, and merging into local `main` remain with the owner.
+
+## Final acceptance — 28 October 2026
+
+The owner explicitly selected **“Accept ROM-01A and merge locally”** after the default Turbopack failure and open parent #5 were included in the acceptance question. Focused source/capture review found no new blocker. No application changes or repeat suites were needed for this documentation boundary. The default build remains failed and AC-12 partial under the accepted delivery exception; Webpack evidence stays separately labelled. Local-main merge is authorized; parent #5 stays open. ROM-01B inspection/specification is separately requested, with no implementation approval.

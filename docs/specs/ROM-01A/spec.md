@@ -1,7 +1,7 @@
 # ROM-01A — Room directory editor
 
 Parent: #5 ROM-01 (partially delivered only after this slice is accepted).
-Status: **Implemented locally from approved checkpoint `d130cb1`; verification complete; ready for owner inspection. Default build gate failed; acceptance and local merge pending.**
+Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; authorized for local-main merge.**
 Updated: 28 October 2026, Asia/Dhaka.
 Plan and sole checklist: [plan.md](plan.md). Inspection evidence: [verification.md](verification.md).
 Design review: [mockups/index.html](mockups/index.html).

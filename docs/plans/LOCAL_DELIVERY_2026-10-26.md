@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A implemented and verified; owner inspection/acceptance and local merge pending. Remaining delivery order/scopes are proposals.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; local merge authorized. Remaining delivery order/scopes are proposals.
 Updated: 28 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
@@ -86,8 +86,6 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- Current issue: **ROM-01A / #5, implemented and verified, owner inspection pending.** [Sole checklist/exact continuation](../specs/ROM-01A/plan.md), [verification and disclosed limitations](../specs/ROM-01A/verification.md), [capture index](../../output/playwright/ROM-01A/implementation/index.html).
-- Branch/base: `codex/rom-01a` / local `main` `8c34c0e`; unchanged D-1–D-6 approval at `d130cb1`, implementation `e996e39`, verification `3e63051`, and validated input correction `a38f2f3`, followed by the audit handoff. T-04–T-09 complete; T-10 needs actual acceptance. No worktree, remote synchronization or institutional operation.
-- Passed evidence: typecheck/lint/domain; all 19 safety groups including PostgreSQL 17.11 upgrade/recovery and real action races; room desktop/phone/320px/axe/print/stale/impact/history flows; published screen/print/CSV parity; all 12 existing writer/teacher browser cases across suitable fixtures with unchanged assertions and temporary longer waits. The owner-requested audit added malformed-input regressions, reran both room adapter groups, and passed PostgreSQL production-browser create/edit/history/stale checks. Do not repeat passing checks merely for handoff.
-- Default Turbopack production build still fails in the CSS-worker IPC path. Separately labelled Webpack production build passes; no bundler/runtime/build-script policy changed. BUG-24's accepted exception is not automatically a ROM-01A acceptance exception. Review uses the guarded development harness and a synthetic session.
-- Next action: present the runnable disposable review and let the owner inspect. Record actual acceptance before merging this bounded slice into local `main`. Keep #5 open, preserve the institutional database and saved publications, and do not start ROM-01B/01C or another backlog part. The owner starts the next session after this delivery is accepted.
+- ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merge locally preserving approved/implementation/correction history; parent #5 remains open.
+- Default Turbopack CSS-worker IPC failure remains unresolved; separately labelled Webpack build passes. Accepted delivery exception does not alter build policy or certify production.
+- The owner requested ROM-01B inspection/specification next in this session after the merge. Prepare lifecycle, unused deletion, guarded pickers and weekly occupancy/free-window rules and sketches for approval. No ROM-01B implementation, ROM-01C, institutional operation or remote synchronization authorized.
