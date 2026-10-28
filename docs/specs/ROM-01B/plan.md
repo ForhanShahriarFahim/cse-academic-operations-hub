@@ -37,7 +37,7 @@ Installed Next.js 16.3.4 mutation and `revalidatePath` guides were inspected for
 
 ## Verification and delivery
 
-Planning: inspect local links/anchors, required sections, pending approval, one checklist, synthetic-only mockups, responsive static renders/overflow/labels/focus/print and diff whitespace. No application server, database preparation or code suites needed for documentation-only changes. Store sketch captures under `output/playwright/ROM-01B`; optional capture helpers stay ignored in `.tmp`.
+Planning: inspect local links/anchors, required sections, actual approval evidence, one checklist, synthetic-only mockups, responsive static renders/overflow/labels/focus/print and diff whitespace. No application server, database preparation or code suites needed for documentation-only changes. Store sketch captures under `output/playwright/ROM-01B`; optional capture helpers stay ignored in `.tmp`.
 
 Implementation: pure date/time-zone/inclusive-bound/weekday cases; interval algebra, stream break/exception cases; all role scopes; malformed/stale/no-op/audit rollback; populated PGlite/PostgreSQL upgrade and exercised recovery; snapshots and old references; all actual room-reference writers with real two-connection PostgreSQL races in both commit orders. Include date-bound changes and first-use draft retention in the race inventory, not just the lifecycle form.
 
@@ -48,7 +48,7 @@ Final checks: typecheck, lint, domain, **default** build and relevant safety/UI 
 ## Current checkpoint / handoff
 
 - Approved scope: [spec.md](spec.md), D-1–D-6, this plan and sketches; owner replied “approved.” on 28 October 2026, no amendments. T-01–T-03 complete. ROM-01A accepted/merged, parent #5 open; ROM-01C follows separately.
-- Branch/base: `codex/rom-01b` / `3c4e7cc`. Proposal `19509b0`; this approval checkpoint must be committed before feature code. No feature changes yet, institutional operation, remote activity, worktree or extra writer.
+- Branch/base: `codex/rom-01b` / `3c4e7cc`. Proposal `19509b0`; approval checkpoint **`b713996`** is committed before feature code. No feature changes yet, institutional operation, remote activity, worktree or extra writer.
 - Verification: proposal's static/link/print evidence is preserved; approval-only documentation checks do not establish implemented ACs. No repeat application suites needed for recording approval.
-- Next action: after committing approval, implement T-04–T-08 within unchanged approved scope; record evidence and present guarded owner review before acceptance/local merge. Do not repeat the approval request unless material scope changes.
+- Next action for the implementation session: implement T-04–T-08 within unchanged approved scope; record evidence and present guarded owner review before acceptance/local merge. Do not repeat the approval request unless material scope changes.
 - Exact continuation: “Implement approved ROM-01B / #5 on codex/rom-01b from main 3c4e7cc (ROM-01A merge 2b363cb). Proposal 19509b0 and the subsequent approval checkpoint record the owner’s 28 October ‘approved.’ for spec/plan/sketches and D-1–D-6. Verify actual Git state and approval commit before code; T-04 is next. Preserve unchanged approval. Default Turbopack build remains failed; no automatic acceptance exception. Keep #5 open; no ROM-01C, institutional database operation, remote sync, worktrees or extra writers. Present verified implementation for actual owner acceptance before local-main merge.”

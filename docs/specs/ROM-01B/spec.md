@@ -35,7 +35,7 @@ Excluded: ROM-01C dated maintenance/unavailability and its placement/conflict in
 
 The owner replied **“approved.”** on 28 October 2026 after the specification, sole checklist and sketches were presented with an explicit request to approve D-1–D-6 before implementation. All six decisions, including conservative deletion eligibility, are approved without amendment. This authorization is limited to ROM-01B.
 
-| ID | Proposed decision | Practical consequence |
+| ID | Approved decision | Practical consequence |
 | --- | --- | --- |
 | D-1 Authority | Reuse CSE-scoped `manage_rooms` and ROM-01A view/history access. | System administrator, academic administrator and routine coordinator with qualifying CSE/global scope manage the directory, independent of owning department. Other internal roles view occupancy; lifecycle and Changes remain editor-only. No public occupancy endpoint. |
 | D-2 Future use | Deactivation checks today and later weekly occurrences in **every term**, using Asia/Dhaka and inclusive date bounds. | Even an ended class earlier today conservatively blocks until tomorrow. Old terms whose dates ended do not block. Ambiguous dates/partial non-expired OD use block with an explanation. No term-status shortcut. |
@@ -127,4 +127,4 @@ Reuse paper/ink/pine/gold and existing page/form/result components. Desktop has 
 
 ## Decisions and sources
 
-D-1–D-6 require the owner's approval, particularly conservative migration/deletion eligibility, today-inclusive future checks and the common-window reporting basis. No unknown source capacity/capability, calendar date or authority is invented. If the owner wants preexisting unused records deletable, specify trustworthy provenance/backfill evidence as a material amendment before implementation. ROM-01C gets its own dated maintenance/conflict/placement specification after this accepted delivery; this document does not authorize it.
+D-1–D-6 are approved without amendment, including conservative migration/deletion eligibility, today-inclusive future checks and the common-window reporting basis. No unknown source capacity/capability, calendar date or authority is invented. If the owner wants preexisting unused records deletable, specify trustworthy provenance/backfill evidence as a material amendment before implementation. ROM-01C gets its own dated maintenance/conflict/placement specification after this accepted delivery; this document does not authorize it.
