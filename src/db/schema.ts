@@ -47,8 +47,17 @@ export const rooms = pgTable(
     owningDepartmentId: integer("owning_department_id").references(() => departments.id),
     isActive: boolean("is_active").notNull().default(true),
     notes: text("notes"),
+    revision: integer("revision").notNull().default(1),
   },
-  (t) => [index("rooms_building_idx").on(t.building)],
+  (t) => [
+    index("rooms_building_idx").on(t.building),
+    uniqueIndex("rooms_code_canonical_uq").on(sql`upper(btrim(${t.code}))`),
+    check("rooms_code_nonblank_ck", sql`btrim(${t.code}) <> ''`),
+    check("rooms_building_nonblank_ck", sql`btrim(${t.building}) <> ''`),
+    check("rooms_type_ck", sql`${t.roomType} in ('classroom', 'lab')`),
+    check("rooms_capacity_ck", sql`${t.capacity} is null or ${t.capacity} > 0`),
+    check("rooms_revision_ck", sql`${t.revision} > 0`),
+  ],
 );
 
 // ---------------------------------------------------------------------------

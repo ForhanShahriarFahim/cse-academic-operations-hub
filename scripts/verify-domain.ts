@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./verify-room-records";
 import { attendanceMark, parseStudentCsv } from "../src/lib/attendance";
 import { amountInWords, isExtraLoadEligible, paymentForClasses } from "../src/lib/extra-load";
 
