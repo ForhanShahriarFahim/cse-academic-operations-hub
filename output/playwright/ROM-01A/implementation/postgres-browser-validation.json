@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "adapter": "owned disposable PostgreSQL 17.11",
+  "runtime": "separate Webpack production bundle on loopback port 3102",
+  "clashTest": "1 passed, no skips",
+  "roomChecks": [
+    "create",
+    "edit",
+    "post-save read",
+    "history",
+    "two-tab stale input retention"
+  ],
+  "pageErrors": []
+}
