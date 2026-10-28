@@ -76,6 +76,22 @@ async function main() {
   const noOp = await saveRoomAction(null, form(row));
   assert.equal(noOp.message, "Nothing changed.");
   assert.equal((await events()).length, 1);
+  // Direct callers can submit File values even though the rendered controls are text.
+  // Invalid IDs must never turn an edit into a create; bad optional values must
+  // never silently become Unknown/not recorded.
+  const malformedBefore = JSON.stringify(await rooms());
+  for (const key of ["roomId", "revision", "capacity", "owningDepartmentId", "notes"] as const) {
+    const malformed = form(undefined, { code: `BAD-FILE-${key.toUpperCase()}` });
+    malformed.set(key, new File(["invalid"], "synthetic.txt", { type: "text/plain" }));
+    const result = await saveRoomAction(null, malformed);
+    assert.equal(result.outcome?.kind, "validation", `non-text ${key}: ${result.message}`);
+    assert.equal(result.ok, false);
+  }
+  assert.equal((await saveRoomAction(null, form(undefined, { code: "BAD-REVISION", revision: "not-a-revision" }))).outcome?.kind, "validation");
+  assert.equal(JSON.stringify(await rooms()), malformedBefore, "malformed forms write no room");
+  assert.equal((await events()).length, 1, "malformed forms write no audit");
+  await assert.rejects(loadRoomChangesAction([row.id] as unknown as number, 1), /Invalid room history request/);
+  await assert.rejects(loadRoomChangesAction(row.id, [1] as unknown as number), /Invalid room history request/);
   const saved = await saveRoomAction(null, form(row, { code: "TEST-901", notes: "Correction" }));
   assert.equal(saved.ok, true, saved.message);
   assert.equal((await saveRoomAction(null, form(row, { notes: "Lost update" }))).outcome?.kind, "stale");

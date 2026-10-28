@@ -83,10 +83,11 @@ export async function validateRoomAssignment(tx: RoomTransaction, groupId: numbe
 }
 
 export async function saveRoomInTransaction(tx: RoomTransaction, actor: Actor, raw: Record<string, unknown>): Promise<RoomResult> {
+  if (("roomId" in raw && typeof raw.roomId !== "string") || ("revision" in raw && typeof raw.revision !== "string")) return invalid("Invalid room or revision. Reload the room before saving.");
   const idText = typeof raw.roomId === "string" ? raw.roomId : "";
   const roomId = idText ? positiveInteger(idText) : null;
   const revision = positiveInteger(raw.revision);
-  if ((idText && roomId == null) || (roomId != null && revision == null)) return invalid("Invalid room or revision. Reload the room before saving.");
+  if ((idText && roomId == null) || (raw.revision && revision == null) || (roomId != null && revision == null)) return invalid("Invalid room or revision. Reload the room before saving.");
   const [existing] = roomId == null ? [] : await lockRooms(tx, [roomId]);
   if (roomId != null && !existing) return stale("This room no longer exists. Go back to Rooms.", "missing");
   if (existing && existing.revision !== revision) return stale("Someone else changed this room. Review the latest values before saving.");

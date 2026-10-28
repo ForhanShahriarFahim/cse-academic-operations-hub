@@ -28,6 +28,9 @@ export function normalizeRoom(raw: Record<string, unknown>, departmentIds: Reado
   { ok: true; fields: RoomFields } | { ok: false; errors: Record<string, string[]> } {
   const errors: Record<string, string[]> = {};
   const fail = (key: RoomField, message: string) => { (errors[key] ??= []).push(message); };
+  for (const key of ROOM_FIELDS) {
+    if (key !== "capabilities" && key in raw && typeof raw[key] !== "string") fail(key, `Submit ${ROOM_LABELS[key].toLowerCase()} as text.`);
+  }
   const text = (key: RoomField) => typeof raw[key] === "string" ? (raw[key] as string).trim() : "";
   const code = canonicalRoomCode(text("code"));
   if (code.length > 30 || !/^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(code)) fail("code", "Use 1–30 letters or digits, with single hyphens between segments.");

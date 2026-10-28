@@ -10,7 +10,7 @@ import { positiveInteger } from "./room-records";
 
 export async function loadRoomChangesAction(roomId: number, before: number) {
   // Loader enforces editor access before reading history; validate client cursor too.
-  if (!positiveInteger(String(roomId)) || !positiveInteger(String(before))) throw new Error("Invalid room history request.");
+  if (typeof roomId !== "number" || typeof before !== "number" || !positiveInteger(String(roomId)) || !positiveInteger(String(before))) throw new Error("Invalid room history request.");
   return getRoomChanges(roomId, before);
 }
 

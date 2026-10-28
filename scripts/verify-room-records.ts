@@ -18,6 +18,9 @@ assert.equal(parse({ owningDepartmentId: "3" }).ok, false);
 assert.equal(parse({ capabilities: ["invented"] }).ok, false);
 assert.equal(parse({ capabilities: ["Earlier Token"] }).ok, false, "legacy token cannot be submitted as a new choice");
 assert.equal(parse({ isActive: false }).ok, true);
+for (const key of ["code", "building", "roomType", "capacity", "owningDepartmentId", "notes"]) {
+  for (const value of [42, false, null, [], {}, new File(["invalid"], "synthetic.txt")]) assert.equal(parse({ [key]: value }).ok, false, `non-text ${key}`);
+}
 const imported = parse({ notes: "  Imported note\n  " }, { ...before, notes: "  Imported note\n  " });
 assert.ok(imported.ok && imported.fields.notes === "  Imported note\n  ", "untouched imported notes stay verbatim");
 for (const code of ["NB-406", "NB-407", "NB-408", "406", "407", "408", "NB-505", "505"]) {
