@@ -1,7 +1,7 @@
 # ROM-01A — Room directory editor
 
 Parent: #5 ROM-01 (partially delivered only after this slice is accepted).
-Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; authorized for local-main merge.**
+Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; merged into local `main` at `2b363cb`.**
 Updated: 28 October 2026, Asia/Dhaka.
 Plan and sole checklist: [plan.md](plan.md). Inspection evidence: [verification.md](verification.md).
 Design review: [mockups/index.html](mockups/index.html).

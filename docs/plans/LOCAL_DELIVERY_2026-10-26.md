@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; local merge authorized. Remaining delivery order/scopes are proposals.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. Remaining delivery order/scopes are proposals.
 Updated: 28 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
@@ -86,6 +86,6 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merge locally preserving approved/implementation/correction history; parent #5 remains open.
+- ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merged locally at `2b363cb`, preserving approved/implementation/correction history; parent #5 remains open.
 - Default Turbopack CSS-worker IPC failure remains unresolved; separately labelled Webpack build passes. Accepted delivery exception does not alter build policy or certify production.
 - The owner requested ROM-01B inspection/specification next in this session after the merge. Prepare lifecycle, unused deletion, guarded pickers and weekly occupancy/free-window rules and sketches for approval. No ROM-01B implementation, ROM-01C, institutional operation or remote synchronization authorized.

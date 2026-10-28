@@ -1,7 +1,7 @@
 # ROM-01A — Implementation plan and sole checklist
 
 Parent: #5 ROM-01. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md).
-Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; authorized for local-main merge.**
+Status: **Accepted by the owner on 28 October 2026 with the disclosed default Turbopack build failure; merged into local `main` at `2b363cb`.**
 Branch / base: `codex/rom-01a` from clean local `main` `8c34c0e` (after BUG-24 merge `84964e2`).
 Updated: 28 October 2026, Asia/Dhaka.
 
@@ -52,6 +52,6 @@ Owner implementation review must use the existing guarded disposable review harn
 - Actual owner acceptance: **28 October 2026 (Asia/Dhaka)**. In response to “Do you accept ROM-01A, including the disclosed default Turbopack build failure, and authorize merging it into local main while parent #5 stays open?”, the owner selected **“Accept ROM-01A and merge locally”**.
 - Focused final review inspected room normalization, save authorization, transaction locks, assignment validation, revision/audit/history paths and desktop/mobile implementation captures. No new actionable blocker was found. Recorded passing suites are reused because application code is unchanged.
 - The default Turbopack build remains failed in the CSS-worker IPC path; alternate Webpack production build passed separately. Acceptance includes this disclosed delivery exception; it neither fixes the build nor changes bundler/runtime/build policy. AC-12 remains partial.
-- Accepted history: approved `d130cb1`, implementation `e996e39`, validation `3e63051`, correction `a38f2f3`, completed audit `ab1a123`, followed by this acceptance record. T-01–T-10 complete; merge this bounded branch into local `main` retaining history.
+- Accepted history: approved `d130cb1`, implementation `e996e39`, validation `3e63051`, correction `a38f2f3`, completed audit `ab1a123`, followed by this acceptance record. T-01–T-10 complete; merged into local `main` at `2b363cb`, retaining history.
 - Parent #5 remains open. No remote synchronization, institutional database operation or ROM-01B/01C implementation. The owner explicitly requested ROM-01B inspection/specification next in this session; its implementation needs separate approval.
 - Next action after local merge: create `codex/rom-01b` in this checkout, inspect lifecycle/reference/date/picker/occupancy seams, and present a proposed specification, sole checklist and responsive workflow sketches. ROM-01C follows separately.

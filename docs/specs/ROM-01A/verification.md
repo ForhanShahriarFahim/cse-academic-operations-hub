@@ -1,7 +1,7 @@
 # ROM-01A — Planning and implementation verification
 
 Updated: 28 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: specification/plan/mockups approved at `d130cb1`; implementation verification below. Owner accepted on 28 October 2026 with the disclosed default-build exception; local merge authorized.
+Status: specification/plan/mockups approved at `d130cb1`; implementation verification below. Owner accepted on 28 October 2026 with the disclosed default-build exception; merged into local `main` at `2b363cb`.
 
 ## Inspected baseline
 
@@ -105,3 +105,5 @@ Inspect adding a room with blank seats/owner, duplicate validation, corrections 
 ## Final acceptance — 28 October 2026
 
 The owner explicitly selected **“Accept ROM-01A and merge locally”** after the default Turbopack failure and open parent #5 were included in the acceptance question. Focused source/capture review found no new blocker. No application changes or repeat suites were needed for this documentation boundary. The default build remains failed and AC-12 partial under the accepted delivery exception; Webpack evidence stays separately labelled. Local-main merge is authorized; parent #5 stays open. ROM-01B inspection/specification is separately requested, with no implementation approval.
+
+Local merge completed at **`2b363cb`** on 28 October 2026, with acceptance checkpoint `44753cb` preserved. No merge conflicts or application changes; no repeated passing suites. Parent #5 remains open and no remote updates were made.
