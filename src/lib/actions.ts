@@ -31,6 +31,7 @@ import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { conflicted, type ActionResult, type ResultIssue } from "./action-result";
 import { isForeignKeyViolation } from "./db-errors";
+import { lockRooms, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
 
 // The shared contract lives in ./action-result; this type-only re-export keeps
 // existing `import type { ActionResult } from "@/lib/actions"` consumers working.
@@ -138,7 +139,9 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     return { ok: false, message: `${blockers.length} blocking conflict(s) — placement rejected.`, issues };
   }
 
-  await auditedChange("meeting.create", "meeting", async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.create", "meeting", async (tx) => {
+    await lockRooms(tx, roomIds);
+    await validateRoomAssignment(tx, groupId, roomIds);
     const [m] = await tx.insert(meetings).values({
       teachingGroupId: groupId, dayOfWeek, startMinutes: start, endMinutes: end,
       isException, exceptionNote, customTimeLabel,
@@ -146,7 +149,8 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     await tx.insert(meetingTeachers).values(teacherIds.map((tid) => ({ meetingId: m.id, teacherId: tid })));
     await tx.insert(meetingRooms).values(roomIds.map((rid) => ({ meetingId: m.id, roomId: rid })));
     return { result: null, entityId: m.id, after: { groupId, dayOfWeek, start, end, teacherIds, roomIds } };
-  });
+  }); });
+  if (roomFailure) return roomFailure;
 
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting scheduled.", issues };
@@ -262,7 +266,11 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     teacherIds: existing.teachers.map((t) => t.id), roomIds: existing.rooms.map((r) => r.id),
     isException: existing.isException, exceptionNote: existing.exceptionNote ?? null,
   };
-  await auditedChange("meeting.update", "meeting", async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.update", "meeting", async (tx) => {
+    const [current] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).for("update");
+    const storedRooms = await tx.select({ roomId: meetingRooms.roomId }).from(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+    await lockRooms(tx, [...roomIds, ...storedRooms.map((row) => row.roomId)]);
+    await validateRoomAssignment(tx, current?.teachingGroupId ?? existing.teachingGroupId, roomIds);
     await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes, isException: update.isException, exceptionNote })
       .where(eq(meetings.id, meetingId));
     await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
@@ -275,7 +283,8 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     await tx.insert(meetingRooms).values(roomIds.map((roomId) => ({ meetingId, roomId, roomRole: roomRoleOf.get(roomId) ?? "primary" })));
     return { result: null, entityId: meetingId, before,
       after: { dayOfWeek, startMinutes, endMinutes, teacherIds, roomIds, isException: update.isException, exceptionNote } };
-  });
+  }); });
+  if (roomFailure) return roomFailure;
   revalidatePath("/", "layout");
   return { ok: true, message: `${existing.courseCode} updated.`, issues };
 }
@@ -286,7 +295,9 @@ export async function deleteMeetingAction(meetingId: number): Promise<ActionResu
   if (!await isInActiveTerm("meeting", meetingId)) return { ...OUTSIDE_ACTIVE_TERM };
   try {
     await auditedChange("meeting.delete", "meeting", async (tx) => {
-      const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).limit(1);
+      const [previous] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).for("update");
+      const referencedRooms = await tx.select({ roomId: meetingRooms.roomId }).from(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
+      await lockRooms(tx, referencedRooms.map((row) => row.roomId));
       const sessions = await tx.select({ classDate: attendanceSessions.classDate }).from(attendanceSessions)
         .where(eq(attendanceSessions.meetingId, meetingId)).orderBy(attendanceSessions.classDate);
       if (sessions.length) {
@@ -354,6 +365,7 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
 
   const term = (await getPortalData()).term;
   await auditedChange("external.create", "external_commitment", async (tx) => {
+    if (roomId) await lockRooms(tx, [roomId]);
     const [row] = await tx.insert(externalCommitments).values({
       termId: term.id, kind, completenessLevel: level, counterpartDepartment,
       teacherId, roomId, courseLabel, audienceLabel,
@@ -390,6 +402,8 @@ export async function deleteExternalAction(id: number): Promise<ActionResult> {
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
   try {
     await auditedChange("external.delete", "external_commitment", async (tx) => {
+      const [reference] = await tx.select({ roomId: externalCommitments.roomId }).from(externalCommitments).where(eq(externalCommitments.id, id)).for("update");
+      if (reference?.roomId) await lockRooms(tx, [reference.roomId]);
       const allocations = await tx.select({ shortCode: teachers.shortCode, units: workloadAllocations.units })
         .from(workloadAllocations).innerJoin(teachers, eq(teachers.id, workloadAllocations.teacherId))
         .where(eq(workloadAllocations.externalCommitmentId, id)).orderBy(teachers.shortCode);

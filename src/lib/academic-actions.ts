@@ -25,6 +25,7 @@ import { parseTimeToMinutes } from "./time";
 import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
 import { auditedChange } from "./auth/audit";
+import { lockRooms, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 
@@ -311,7 +312,9 @@ export async function applyAutoScheduleAction(): Promise<ActionResult> {
   // render are never trusted after the draft may have changed.
   const source = await buildAutoSchedulePlan();
   if (source.plan.suggestions.length === 0) return { ok: false, message: "There are no safe automatic placements to apply." };
-  await db.transaction(async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await db.transaction(async (tx) => {
+    await lockRooms(tx, source.plan.suggestions.map((suggestion) => suggestion.roomId));
+    for (const suggestion of source.plan.suggestions) await validateRoomAssignment(tx, suggestion.teachingGroupId, [suggestion.roomId]);
     for (const suggestion of source.plan.suggestions) {
       const [meeting] = await tx.insert(meetings).values({
         teachingGroupId: suggestion.teachingGroupId,
@@ -333,7 +336,8 @@ export async function applyAutoScheduleAction(): Promise<ActionResult> {
         detail: suggestion,
       });
     }
-  });
+  }); });
+  if (roomFailure) return roomFailure;
   refresh();
   return { ok: true, message: `${source.plan.suggestions.length} clash-free meeting(s) added to the working draft. Review Validation before publishing.` };
 }

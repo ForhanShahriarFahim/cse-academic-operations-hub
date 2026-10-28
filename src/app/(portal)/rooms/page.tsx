@@ -4,6 +4,9 @@ import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
 import { Building2, FlaskConical, Wrench } from "lucide-react";
 import { PrintHeader } from "@/components/print-header";
 import { PrintButton } from "@/components/print-button";
+import Link from "next/link";
+import { can, requireActor } from "@/lib/auth";
+import { buttonClass } from "@/components/account/styles";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +47,7 @@ function usableWindowMinutes(data: Awaited<ReturnType<typeof getPortalData>>) {
 
 export default async function RoomsPage() {
   const data = await getPortalData();
+  const editor = await can(await requireActor(), "manage_rooms");
   const windowMinutes = usableWindowMinutes(data);
 
   const rows = data.rooms.map((r) => {
@@ -66,25 +70,27 @@ export default async function RoomsPage() {
         context="Planning records"
         title="Rooms & occupancy"
         description={`How much of each room's usable time is booked, out of ${windowMinutes} minutes a week in the permitted class windows (breaks excluded). CSE classes and confirmed bookings by other departments count once per class.`}
-        actions={<PrintButton />}
+        actions={<><PrintButton />{editor && <Link className={`${buttonClass.primary} no-print`} href="/rooms/new">Add room</Link>}</>}
       />
 
+      {!rows.length && <EmptyNote>No rooms recorded yet. {editor ? <Link href="/rooms/new" className="underline">Add room</Link> : "An editor can add the room directory."}</EmptyNote>}
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {rows.map(({ r, reserved, extReserved, meetingCount, total }) => (
-          <div key={r.id} className="ruled rounded-lg p-4">
+          <div key={r.id} className="ruled min-w-0 break-words rounded-lg p-4">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="font-mono text-[15px] font-bold text-[var(--color-pine)]">{r.code}</p>
+              <div className="min-w-0 flex-1">
+                <p className="break-all font-mono text-[15px] font-bold text-[var(--color-pine)]"><Link className="hover:underline" href={`/rooms/${r.id}`}>{r.code}</Link></p>
                 <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
                   {r.roomType === "lab" ? <FlaskConical size={11} /> : <Building2 size={11} />}
                   {r.building} · {r.roomType} · seats {r.capacity ?? "unknown"}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex max-w-[55%] shrink-0 flex-col items-end gap-1">
                 <Badge tone={r.owningDepartmentCode === "CSE" ? "pine" : "gold"}>
                   {r.owningDepartmentCode === "CSE" ? "CSE" : r.owningDepartmentCode ? `${r.owningDepartmentCode} room` : "Owner not recorded"}
                 </Badge>
                 {!r.isActive && <Badge tone="clay"><Wrench size={9} /> closed</Badge>}
+                {editor && <Link href={`/rooms/${r.id}/edit`} className="no-print text-xs font-semibold underline">Edit <span className="sr-only">{r.code}</span></Link>}
               </div>
             </div>
             {r.capabilities.length > 0 && (

@@ -19,6 +19,7 @@ import { checkClusterCleanup } from "./safety/cluster.check";
 import { checkReset, checkResetPostgres } from "./safety/reset.check";
 import { checkTeachers, checkTeachersPostgres } from "./safety/teacher.check";
 import { checkDeletes, checkDeletesPostgres } from "./safety/delete.check";
+import { checkRooms, checkRoomsPostgres } from "./safety/room.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -41,6 +42,8 @@ async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
+    ["ROM-01A rooms (PGlite)", () => checkRooms()],
+    ["ROM-01A rooms (PostgreSQL)", () => checkRoomsPostgres(process.env.SAFE01_PG_BIN), true],
     ["T-01 isolation", checkIsolation],
     ["BUG-24 environment", checkDatabaseEnvironment],
     ["T-02 PGlite recovery", checkRecovery],

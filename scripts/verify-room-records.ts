@@ -1,0 +1,52 @@
+import assert from "node:assert/strict";
+import { assessRoomEdit, normalizeRoom, positiveInteger, roomChanges, type RoomFields, type RoomReferences } from "../src/lib/room-records";
+const before: RoomFields = { code: "SX-1", building: "Synthetic", roomType: "lab", capabilities: ["computer", "theory", "Earlier Token"], capacity: 30, owningDepartmentId: null, notes: null };
+const raw = { ...before, capabilities: ["theory", "computer", "computer"], capacity: "30", owningDepartmentId: "", notes: "" };
+const parse = (patch: Record<string, unknown> = {}, existing = before) => normalizeRoom({ ...raw, ...patch }, new Set([1, 2]), existing);
+const good = parse({ code: "  sx-2  " });
+assert.ok(good.ok);
+assert.deepEqual(good.fields, { ...before, code: "SX-2", capabilities: ["theory", "computer", "Earlier Token"] });
+assert.deepEqual(roomChanges(before, { ...before, capabilities: [...before.capabilities].reverse() }).fields, []);
+for (const code of ["", "A B", "A/B", "A--B", "-A", "A-", "é", "A".repeat(31)]) assert.equal(parse({ code }).ok, false, code);
+for (const capacity of ["0", "-1", "1.0", "2e2", "2147483648", "NaN", "Infinity"]) assert.equal(parse({ capacity }).ok, false, capacity);
+for (const capacity of ["1", "2147483647", "", " 42 "]) assert.equal(parse({ capacity }).ok, true, capacity);
+assert.equal(parse({ roomType: "lecture" }).ok, false);
+assert.equal(parse({ building: " " }).ok, false);
+assert.equal(parse({ building: "A".repeat(81) }).ok, false);
+assert.equal(parse({ notes: "A".repeat(1001) }).ok, false);
+assert.equal(parse({ owningDepartmentId: "3" }).ok, false);
+assert.equal(parse({ capabilities: ["invented"] }).ok, false);
+assert.equal(parse({ capabilities: ["Earlier Token"] }).ok, false, "legacy token cannot be submitted as a new choice");
+assert.equal(parse({ isActive: false }).ok, true);
+for (const key of ["code", "building", "roomType", "capacity", "owningDepartmentId", "notes"]) {
+  for (const value of [42, false, null, [], {}, new File(["invalid"], "synthetic.txt")]) assert.equal(parse({ [key]: value }).ok, false, `non-text ${key}`);
+}
+const imported = parse({ notes: "  Imported note\n  " }, { ...before, notes: "  Imported note\n  " });
+assert.ok(imported.ok && imported.fields.notes === "  Imported note\n  ", "untouched imported notes stay verbatim");
+for (const code of ["NB-406", "NB-407", "NB-408", "406", "407", "408", "NB-505", "505"]) {
+  const protectedRecord = { ...before, code };
+  assert.equal(parse({ code: "NEW" }, protectedRecord).ok, false);
+  assert.equal(parse({ code, roomType: "classroom" }, protectedRecord).ok, false);
+  assert.equal(parse({ code, capabilities: [] }, protectedRecord).ok, false);
+}
+for (const value of ["1x", "-1", "0", "1.0", "1e1", 1, null]) assert.equal(positiveInteger(value), null);
+const refs: RoomReferences = { meetings: [{ id: 1, teachingGroupId: 1, termName: "Older term", courseCode: "SYN-1", courseType: "sessional", requiredRoomCapability: "computer", audience: "Merged", audienceSize: 50, dayOfWeek: 1, startMinutes: 540, endMinutes: 600, roomRole: "alternative" }], externals: [] };
+const impact = (patch: Partial<RoomFields>, reference = refs, base = before) => assessRoomEdit(base, { ...base, ...patch }, reference);
+const blocked = (patch: Partial<RoomFields>, base = before) => impact(patch, refs, base).some((item) => item.severity === "blocker");
+assert.equal(blocked({ capacity: 40 }), false, "partial improvement allowed");
+assert.equal(blocked({ capacity: 20 }), true);
+assert.equal(blocked({ capacity: 50 }), false, "equal capacity allowed");
+assert.equal(blocked({ capacity: null }), true, "evidence loss blocked");
+assert.equal(blocked({ capacity: 40 }, { ...before, capacity: null }), true);
+assert.equal(blocked({ roomType: "classroom" }), true);
+assert.equal(blocked({ capabilities: ["theory", "Earlier Token"] }), true);
+assert.equal(blocked({ notes: "Useful correction" }), false);
+assert.equal(blocked({ notes: "Useful correction" }, { ...before, roomType: "classroom", capabilities: [] }), false);
+const unknownRefs = { ...refs, meetings: refs.meetings.map((use) => ({ ...use, audienceSize: null })) };
+assert.ok(impact({ capacity: 100 }, unknownRefs).some((item) => item.severity === "warning"));
+assert.equal(impact({ notes: "Only notes" }, unknownRefs).some((item) => item.severity === "warning"), false);
+const od = { meetings: [], externals: [{ id: 1, termName: "Older", counterpartDepartment: "EEE", courseLabel: null, kind: "unresolved_note" }] };
+assert.equal(impact({ capacity: null }, od).filter((item) => item.severity === "warning").length, 1);
+assert.equal(impact({ notes: "Only notes" }, od).length, 0);
+assert.equal(impact({ capacity: null }, { meetings: [], externals: [] }).length, 0);
+console.log("ROM-01A pure rules: normalization, bounds, legacy tokens, protected numeric/NB identities, stale tokens, differential capacity/type/capability impact and OD/unknown evidence passed.");
