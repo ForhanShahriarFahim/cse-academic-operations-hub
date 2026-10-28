@@ -1,7 +1,7 @@
 # ROM-01B — Implementation plan and sole checklist
 
 Parent: #5 ROM-01. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md). [Workflow sketches](mockups/index.html).
-Status: **Inspection/specification only; proposed scope awaiting owner approval.**
+Status: **Approved for implementation on 28 October 2026; approval checkpoint precedes feature code.**
 Branch / base: `codex/rom-01b` from local `main` `3c4e7cc`, after accepted ROM-01A merge `2b363cb`.
 Updated: 28 October 2026, Asia/Dhaka.
 
@@ -19,15 +19,15 @@ Installed Next.js 16.3.4 mutation and `revalidatePath` guides were inspected for
 
 - Inspection/design authorization: owner's 28 October 2026 request to proceed in order through ROM-01A acceptance/local merge, then **ROM-01B inspection and specification**, with approval before implementation.
 - Prerequisite acceptance: owner selected **“Accept ROM-01A and merge locally”**, explicitly including the disclosed default Turbopack failure; recorded at `44753cb`, merged `2b363cb`, local handoff `3c4e7cc`.
-- Implementation authorization: **Pending.** No approval inferred from “Go for the next task”, ROM-01A acceptance or this proposed checklist.
-- Proposed approval package: [spec.md](spec.md), D-1–D-6, this plan and [sketches](mockups/index.html). No material amendments approved.
-- Obtain actual wording/date, check the approved package and commit approval locally **before** application/schema/test implementation. Keep parent #5 open and work local.
+- Implementation authorization: **Granted on 28 October 2026 (Asia/Dhaka).** The owner replied **“approved.”** to the presented specification, sole checklist and desktop/mobile/print sketches and the explicit request to approve D-1–D-6 before implementation. No amendments.
+- Approved package: [spec.md](spec.md), D-1–D-6, this plan and [sketches](mockups/index.html). No material amendments approved.
+- This record captures actual wording/date and unchanged scope. Commit this approval checkpoint locally **before** application/schema/test implementation. Keep parent #5 open and work local.
 
 ## Tasks
 
 - [x] T-01 — Inspect accepted local baseline, lifecycle/reference/date/provenance, permissions, all visible picker/writer and occupancy/grid seams; record concrete findings and boundaries. Covers AC-01–AC-10 design.
 - [x] T-02 — Prepare bounded specification, D-1–D-6, responsive desktop/mobile/print workflow sketches, documentation verification and exact handoff. Design review only, not feature acceptance.
-- [ ] T-03 — Obtain actual approval of this package and decisions, record wording/date/amendments, verify docs and commit approved checkpoint before implementation.
+- [x] T-03 — Obtain actual approval of this package and decisions, record wording/date/amendments, verify docs and commit approved checkpoint before implementation.
 - [ ] T-04 — Implement pure future-occurrence, deletion-eligibility and interval/window/uncertainty rules; add monotonic draft marker with populated upgrade/recovery on both adapters. Covers AC-02/03/05/06/09/10; depends T-03.
 - [ ] T-05 — Add guarded lifecycle/deletion reads/actions, stale/reason/confirmation handling and atomic audits; integrate first-use retention and existence/activity rechecks in every reference writer. Prove actual races/rollback. Covers AC-01–AC-08; depends T-04.
 - [ ] T-06 — Build lifecycle confirmations/history/status filters; reconcile picker fit/inactive remediation and preserve entered class/OD values on cached-choice refusal. Covers AC-01/04/06/08/11; depends T-05.
@@ -47,9 +47,8 @@ Final checks: typecheck, lint, domain, **default** build and relevant safety/UI 
 
 ## Current checkpoint / handoff
 
-- Scope: ROM-01B proposal only. T-01/T-02 complete; T-03 pending actual approval. ROM-01A accepted/merged, parent #5 open; ROM-01C follows separately.
-- Branch/base: `codex/rom-01b` / `3c4e7cc`. Planning files and pointer updates only; no application/schema/dependency changes, worktree, extra agent, remote operation or institutional access.
-- Planning checkpoint: `docs(ROM-01B): propose safe room lifecycle and weekly occupancy (#5)`; verify its actual hash from Git on resume. Proposal only, approval pending; commit includes the spec, sole checklist, verification, sketches/captures and current-work pointers.
-- Verification: [verification.md](verification.md); static design checks do not establish implemented ACs. No repeat ROM-01A suites needed after its documentation-only merge.
-- Next action: owner reviews D-1–D-6, spec/plan/sketches. Record actual approval and commit it before T-04. Return material requested changes for decision; routine approved work may then proceed autonomously.
-- Exact continuation: “Continue ROM-01B / #5 on codex/rom-01b from local main 3c4e7cc (ROM-01A merge 2b363cb). Read brief, sole plan/spec/verification and actual Git state. The proposal covers lifecycle, conservative never-assigned draft deletion, guarded pickers and weekly occupancy/gaps. Check the actual approval record: if pending, obtain approval of D-1–D-6 and sketches before implementation; if approved, preserve unchanged approval and commit it before code. Default Turbopack build remains failed; no automatic acceptance exception. Keep #5 open; no ROM-01C implementation, institutional database operation, remote sync, worktrees or extra writers.”
+- Approved scope: [spec.md](spec.md), D-1–D-6, this plan and sketches; owner replied “approved.” on 28 October 2026, no amendments. T-01–T-03 complete. ROM-01A accepted/merged, parent #5 open; ROM-01C follows separately.
+- Branch/base: `codex/rom-01b` / `3c4e7cc`. Proposal `19509b0`; this approval checkpoint must be committed before feature code. No feature changes yet, institutional operation, remote activity, worktree or extra writer.
+- Verification: proposal's static/link/print evidence is preserved; approval-only documentation checks do not establish implemented ACs. No repeat application suites needed for recording approval.
+- Next action: after committing approval, implement T-04–T-08 within unchanged approved scope; record evidence and present guarded owner review before acceptance/local merge. Do not repeat the approval request unless material scope changes.
+- Exact continuation: “Implement approved ROM-01B / #5 on codex/rom-01b from main 3c4e7cc (ROM-01A merge 2b363cb). Proposal 19509b0 and the subsequent approval checkpoint record the owner’s 28 October ‘approved.’ for spec/plan/sketches and D-1–D-6. Verify actual Git state and approval commit before code; T-04 is next. Preserve unchanged approval. Default Turbopack build remains failed; no automatic acceptance exception. Keep #5 open; no ROM-01C, institutional database operation, remote sync, worktrees or extra writers. Present verified implementation for actual owner acceptance before local-main merge.”

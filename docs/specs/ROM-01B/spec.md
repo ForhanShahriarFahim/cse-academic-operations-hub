@@ -1,7 +1,7 @@
 # ROM-01B — Safe room lifecycle and weekly occupancy
 
 Parent: [#5 ROM-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/5).
-Status: **Proposed; owner approval required before implementation.**
+Status: **Approved by the owner on 28 October 2026; implementation authorized.**
 Updated: 28 October 2026, Asia/Dhaka.
 Sole checklist: [plan.md](plan.md). Inspection/checks: [verification.md](verification.md). Workflow sketches: [mockups/index.html](mockups/index.html).
 
@@ -31,9 +31,9 @@ Included: lifecycle controls on room details; all-term lifecycle/deletion eviden
 
 Excluded: ROM-01C dated maintenance/unavailability and its placement/conflict integration; real-date free-room promises, calendars/holidays/cancelled occurrences; broad scheduling/publication concurrency changes; term selection/activation; automatic reassignment; room merges/import/export; source reconciliation; historical directory versions; hosting and institutional migration. #5 stays open after this slice. No CSV export is added; existing routine CSV/official/public projections must remain unchanged.
 
-## Proposed owner decisions
+## Owner decisions approved on 28 October 2026
 
-All decisions below are **pending**, including the conservative deletion boundary. Approval applies to this proposal only; ROM-01A acceptance is not ROM-01B authorization.
+The owner replied **“approved.”** on 28 October 2026 after the specification, sole checklist and sketches were presented with an explicit request to approve D-1–D-6 before implementation. All six decisions, including conservative deletion eligibility, are approved without amendment. This authorization is limited to ROM-01B.
 
 | ID | Proposed decision | Practical consequence |
 | --- | --- | --- |

@@ -1,7 +1,7 @@
 # ROM-01B — Inspection and proposal verification
 
 Updated: 28 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: **Proposed; implementation and acceptance criteria remain pending.**
+Status: **Specification approved on 28 October 2026; implementation and acceptance criteria remain pending.**
 
 ## Inspected baseline
 
@@ -24,3 +24,7 @@ Inspected room schema/references/revisions/audits, term/meeting date bounds, OD 
 The default Turbopack production build remains failed in the CSS-worker IPC path. ROM-01A's separately labelled Webpack build and passing domain/adapter/browser checks remain historical evidence. No dependency/runtime/bundler/build-script policy was changed. ROM-01A acceptance includes its own delivery exception, not automatic ROM-01B acceptance.
 
 The owner must review D-1–D-6, especially deletion eligibility for existing rooms, all-term today-inclusive deactivation and the common weekly-window basis. Actual ROM-01B approval remains pending. Commit any eventual approved plan before feature code; retain #5 open. ROM-01C, institutional rollout and remote synchronization remain outside this planning delivery.
+
+## Actual owner approval — 28 October 2026
+
+The owner replied **“approved.”** to the concrete specification, sole checklist and responsive/print sketches, including the explicit request to approve D-1–D-6 before implementation. All six decisions are approved without amendments; no new institutional facts or build exception granted. Proposal checkpoint `19509b0` is preserved; commit this approval record before any feature implementation. Historical sketch banners retain “Approval pending” as review-time artifacts, not the current authorization state. Actual implementation acceptance/local merge remain pending. Approval-only changes use documentation checks and reuse unchanged static evidence.
