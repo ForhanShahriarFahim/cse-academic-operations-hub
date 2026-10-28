@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "changedLiveLabel": "NB-506 → QA-506 → NB-506 (disposable only)",
+  "hashes": {
+    "viewer": "b126d9edb2daa1078ee5fce48430df91febe1c5241bd6dc4047e30bf49845fba",
+    "official": "fc218c74bb1e76596e4acf77b37a85ce0791caa0e0da7b51a04c5260d8a27e73",
+    "print": "fc218c74bb1e76596e4acf77b37a85ce0791caa0e0da7b51a04c5260d8a27e73",
+    "csv": "e38af093d650e14dd36fad3487da12b203356be5dfe599f1fc78deeb7ed1750e"
+  },
+  "comparisons": [
+    "viewer text",
+    "official screen text",
+    "official print DOM text",
+    "CSV bytes"
+  ]
+}

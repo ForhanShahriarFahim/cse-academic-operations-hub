@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "initialEvents": 20,
+  "afterLoadOlder": 23,
+  "detail": "/rooms/34"
+}

@@ -1,7 +1,7 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A specification/plan/mockups approved on 27 October; implementation next. Remaining delivery order/scopes are proposals.
-Updated: 27 October 2026, Asia/Dhaka.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A implemented and verified; owner inspection/acceptance and local merge pending. Remaining delivery order/scopes are proposals.
+Updated: 28 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
 ## Owner working agreement
@@ -44,7 +44,7 @@ Local suffixes below are planning labels under existing GitHub issues. No new Gi
 | Order | Part / parent | Reviewable outcome | Gate before building |
 | --- | --- | --- | --- |
 | Done locally | BUG-24 / #24 | One environment/target contract for app and CLI; safe target preview and regression evidence | Accepted/merged 27 October at `84964e2`; default-build exception retained in [verification](../specs/BUG-24/verification.md); GitHub sync deferred |
-| 2 | ROM-01A / #5 | Add/edit room identity, capacity/type/capabilities, stale protection and change history; publications preserved | [Approved specification](../specs/ROM-01A/spec.md), [sole checklist/approval](../specs/ROM-01A/plan.md), [desktop/mobile mockups](../specs/ROM-01A/mockups/index.html); owner approved 27 October (“approve.”); implementation next |
+| 2 | ROM-01A / #5 | Add/edit room identity, capacity/type/capabilities, stale protection and change history; publications preserved | [Approved specification](../specs/ROM-01A/spec.md), [sole checklist/approval](../specs/ROM-01A/plan.md), [desktop/mobile mockups](../specs/ROM-01A/mockups/index.html); owner approved 27 October (“approve.”); implemented at `e996e39`, verified and awaiting personal inspection/acceptance |
 | 3 | ROM-01B / #5 | Deactivate/reactivate, unused-record deletion, guarded pickers and useful weekly occupancy/free-window view | Exact active/future reference rules; occupancy projection parity |
 | 4 | ROM-01C / #5 | Dated maintenance and conflict/placement enforcement | Date range/time zone/recurrence contract using existing term bounds; no claim of live date availability without it |
 | 5 | BUG-28 / #28 | At most one active term, with safe populated migration and concurrency evidence | Inspect existing statuses; owner-approved lifecycle and duplicate remediation; no automatic choice of an active term |
@@ -86,15 +86,8 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- Current issue: **ROM-01A approved for implementation; code not started.** [Specification](../specs/ROM-01A/spec.md), [sole checklist and exact handoff](../specs/ROM-01A/plan.md), [mockups](../specs/ROM-01A/mockups/index.html), [planning evidence](../specs/ROM-01A/verification.md).
-- Checkout: `codex/rom-01a` from clean local `main` `8c34c0e`; BUG-24 merge `84964e2` and its handoff are included. `codex/bug-24` retained. No extra worktree or remote synchronization.
-- Primary checklist and approval gate: [ROM-01A plan](../specs/ROM-01A/plan.md). Owner replied “approve.” on 27 October to the specification, sole checklist, desktop/mobile mockups and D-1–D-6, without amendments. Approval is preserved in the local planning checkpoint before code and persists across handoffs; no repeat approval for unchanged scope.
-- Prepared: ROM-01A specification, decision set, one checklist, desktop/mobile mockups and planning evidence. No application/schema or institutional data operation. BUG-24's accepted environment/CLI fix and operator documentation are prior baseline evidence.
-- Prior BUG-24 acceptance/merge: owner replied "Looks good move forward" on 27 October after disclosure of the default-build failure; acceptance `27bc0b4` precedes merge `84964e2`. Its AC-08 remains partial with an accepted delivery exception; default Turbopack is not a passed check.
-- Next action: implementation session follows T-04 onward on `codex/rom-01a` after inspecting Git/code state and the approved records. Do not start ROM-01B/01C. Carry the unresolved build limitation forward; obtain a decision before material build-policy/configuration changes. Institutional migration and final implementation acceptance/local merge remain separate gates.
-- GitHub: no writes; no routine synchronization due. Last checked 26 October 2026.
-- Checks: ROM-01A documentation links/sections/whitespace and static desktop/mobile mockup checks pass; see [planning evidence](../specs/ROM-01A/verification.md). Prior BUG-24 typecheck, lint, domain, UX harness, all 17 safety groups (PostgreSQL 17.11 included) and Webpack production build passed; none repeated for this handoff. Default Turbopack build failed; full results are in [BUG-24 verification](../specs/BUG-24/verification.md). Institutional storage was never opened in this planning session.
-
-Original inspection prompt (fulfilled by this proposal; continuation is in the ROM-01A plan):
-
-> Inspect and specify ROM-01A, the bounded room-directory editor slice under #5, from local main after accepted BUG-24 merge 84964e2. Read AGENTS.md, docs/PROJECT_BRIEF.md, docs/WORKFLOW.md and the local delivery plan. Inspect relevant room rules/source/code, prepare a detailed specification, one checklist and desktop/mobile mockups, and present them for my approval before implementation. Do not implement the broader room backlog. Preserve institutional data and keep work local. BUG-24's default Turbopack CSS-worker failure remains unresolved despite its accepted delivery; Webpack production build and all 17 safety groups passed. Do not silently change build policy or rerun successful suites merely for handoff.
+- Current issue: **ROM-01A / #5, implemented and verified, owner inspection pending.** [Sole checklist/exact continuation](../specs/ROM-01A/plan.md), [verification and disclosed limitations](../specs/ROM-01A/verification.md), [capture index](../../output/playwright/ROM-01A/implementation/index.html).
+- Branch/base: `codex/rom-01a` / local `main` `8c34c0e`; unchanged D-1–D-6 approval at `d130cb1`, implementation `e996e39`, followed by the local verification handoff. T-04–T-09 complete; T-10 needs actual acceptance. No worktree, remote synchronization or institutional operation.
+- Passed evidence: typecheck/lint/domain; all 19 safety groups including PostgreSQL 17.11 upgrade/recovery and real action races; room desktop/phone/320px/axe/print/stale/impact/history flows; published screen/print/CSV parity; 11 applicable existing writer/teacher browser regressions with unchanged assertions and temporary longer waits (one fixture-dependent clash test skipped). Do not repeat passing checks merely for handoff.
+- Default Turbopack production build still fails in the CSS-worker IPC path. Separately labelled Webpack production build passes; no bundler/runtime/build-script policy changed. BUG-24's accepted exception is not automatically a ROM-01A acceptance exception. Review uses the guarded development harness and a synthetic session.
+- Next action: present the runnable disposable review and let the owner inspect. Record actual acceptance before merging this bounded slice into local `main`. Keep #5 open, preserve the institutional database and saved publications, and do not start ROM-01B/01C or another backlog part. The owner starts the next session after this delivery is accepted.

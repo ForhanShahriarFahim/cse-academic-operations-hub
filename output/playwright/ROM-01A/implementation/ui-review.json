@@ -1,0 +1,154 @@
+{
+  "observations": [
+    {
+      "name": "add-desktop",
+      "route": "/rooms/new",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "validation-desktop",
+      "route": "/rooms/new",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "validation-phone",
+      "route": "/rooms/new",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "detail-history-desktop",
+      "route": "/rooms/45",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "duplicate-desktop",
+      "route": "/rooms/new",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "protected-desktop",
+      "route": "/rooms/1/edit",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "blocked-desktop",
+      "route": "/rooms/9/edit",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "blocked-phone",
+      "route": "/rooms/9/edit",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "warnings-desktop",
+      "route": "/rooms/1/edit",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "warnings-phone",
+      "route": "/rooms/1/edit",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "directory-1440",
+      "route": "/rooms",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "add-1440",
+      "route": "/rooms/new",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "edit-1440",
+      "route": "/rooms/45/edit",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "detail-history-1440",
+      "route": "/rooms/45",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "directory-390",
+      "route": "/rooms",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "add-390",
+      "route": "/rooms/new",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "edit-390",
+      "route": "/rooms/45/edit",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "detail-history-390",
+      "route": "/rooms/45",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "directory-320",
+      "route": "/rooms",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "name": "add-320",
+      "route": "/rooms/new",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "name": "edit-320",
+      "route": "/rooms/45/edit",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "name": "detail-history-320",
+      "route": "/rooms/45",
+      "width": 320,
+      "overflow": false
+    },
+    {
+      "name": "rooms-print",
+      "route": "/rooms",
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "flows": [
+    "validation/input/focus",
+    "create",
+    "duplicate",
+    "stale/reload",
+    "protected facts",
+    "warning/acknowledgement/history",
+    "viewer denied",
+    "missing",
+    "directory print"
+  ],
+  "pageErrors": []
+}

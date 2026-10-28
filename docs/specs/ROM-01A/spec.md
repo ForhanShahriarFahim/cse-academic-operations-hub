@@ -1,8 +1,8 @@
 # ROM-01A — Room directory editor
 
 Parent: #5 ROM-01 (partially delivered only after this slice is accepted).
-Status: **Approved for implementation by the owner on 27 October 2026. Application implementation has not started.**
-Updated: 27 October 2026, Asia/Dhaka.
+Status: **Implemented locally from approved checkpoint `d130cb1`; verification complete; ready for owner inspection. Default build gate failed; acceptance and local merge pending.**
+Updated: 28 October 2026, Asia/Dhaka.
 Plan and sole checklist: [plan.md](plan.md). Inspection evidence: [verification.md](verification.md).
 Design review: [mockups/index.html](mockups/index.html).
 

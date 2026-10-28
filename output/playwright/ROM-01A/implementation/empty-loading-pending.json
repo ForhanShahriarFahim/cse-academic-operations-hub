@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "runtime": "separately labelled Webpack production bundle",
+  "target": "separate guarded synthetic roomless fixture",
+  "checks": [
+    "empty directory",
+    "loading boundary with delayed route response",
+    "pending disables save with delayed POST",
+    "field errors after pending",
+    "phone overflow"
+  ]
+}
