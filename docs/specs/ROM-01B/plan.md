@@ -33,7 +33,7 @@ Installed Next.js 16.3.4 mutation and `revalidatePath` guides were inspected for
 - [x] T-06 — Build lifecycle confirmations/history/status filters; reconcile picker fit/inactive remediation and preserve entered class/OD values on cached-choice refusal. Covers AC-01/04/06/08/11; depends T-05.
 - [x] T-07 — Build shared weekly projection, occupancy agenda/gap filters/alerts and matching A4 print; label common windows, effective-date limits and uncertain bookings. Covers AC-09–AC-11; depends T-04/05.
 - [x] T-08 — Run focused domain/role/adapter/concurrency/UI/print/publication parity checks, correct findings and required final suites on final code; record AC evidence and limitations. Covers AC-01–AC-12; depends T-05–T-07.
-- [ ] T-09 — Present coherent local delivery and guarded runnable owner review, obtain actual acceptance, merge locally and update handoff; keep #5 open and suggest ROM-01C for a separate owner-started session. Depends T-08 and acceptance.
+- [x] T-09 — Present coherent local delivery and guarded runnable owner review, obtain actual acceptance, merge locally and update handoff; keep #5 open and suggest ROM-01C for a separate owner-started session. Depends T-08 and acceptance.
 
 ## Verification and delivery
 
@@ -47,13 +47,17 @@ Final checks: typecheck, lint, domain, **default** build and relevant safety/UI 
 
 ## Current checkpoint / handoff
 
-- Approved scope: [spec.md](spec.md), D-1–D-6; owner replied “approved.” on 28 October, no amendments. Approval `b713996` preceded application code. T-01–T-08 complete; T-09 owner acceptance received; local merge authorized and being recorded.
+- Approved scope: [spec.md](spec.md), D-1–D-6; owner replied “approved.” on 28 October, no amendments. Approval `b713996` preceded application code. T-01–T-08 complete; T-09 complete: owner accepted and local merge `850f42a` is recorded.
 - Branch/base: `codex/rom-01b` / local `main` `3c4e7cc`; ROM-01A merge `2b363cb`. Implementation checkpoint `3002bb2`; verified corrections, captures and evidence **`25e75d0`**. One writer/checkout; no worktree or remote sync. Parent #5 remains open.
 - Final verification: typecheck/lint/domain/default Turbopack build, all 21 safety groups including PostgreSQL, 17 production-browser observations and seven-page native A4 QA pass. Published screen/official/print text and CSV remain unchanged. See [verification.md](verification.md) and the [capture gallery](../../../output/playwright/ROM-01B/implementation/index.html). Earlier intermittent default-build failures remain historical evidence; no bundler policy change or exception is needed for the passing final default result.
 - Review: fresh synthetic PostgreSQL server on localhost:3102; private loopback review/capture link lives only in ignored `.tmp/rom01b-owner-review.json`. Local helper restart commands and boundaries are in verification.md. Institutional storage was never opened or migrated.
-- Next action: owner inspection and actual acceptance, then merge this bounded delivery into local main. Do not repeat passing checks or seek implementation approval again unless code/scope changes. Do not start ROM-01C, perform institutional operations, synchronize remotely or close parent #5 automatically.
+- Next action: the owner has explicitly authorized ROM-01C inspection/specification after acceptance/merge. Start that bounded design work on its own branch; implementation still requires approval. No institutional operation, remote synchronization or parent-issue closure.
 - Exact continuation: “Review implemented ROM-01B / #5 on codex/rom-01b. Approval b713996 precedes implementation 3002bb2 and verified correction/evidence commit 25e75d0. T-01–T-08 pass; read verification.md and the implemented capture gallery, preserve the unchanged approved scope and all institutional data. Await/record actual owner acceptance before local-main merge. Parent #5 stays open; no ROM-01C implementation, worktree or remote sync. After acceptance, suggest a separate owner-started ROM-01C inspection/specification session.”
 
 ## Owner acceptance — 29 October 2026
 
 The owner replied **“accept and merge. And go for the next task.”** after the verified delivery and review instructions. This accepts ROM-01B and authorizes its bounded merge into local `main`. The next-task instruction authorizes ROM-01C inspection/specification (the stated next step), not implementation before approval. No build exception is needed: final default builds pass. Parent #5 stays open; no institutional operation or remote synchronization is authorized. Merge receipt follows after Git completes.
+
+## Completed local merge receipt
+
+ROM-01B was accepted in the owner’s 29 October request above, recorded at `57471b3`, and merged with preserved history into local `main` at **`850f42a`**. Implementation `3002bb2`, correction/evidence `25e75d0` and review handoff `410faf5` remain in the merge. No conflict or application change was introduced by the merge, so unchanged passing checks are reused. T-09 is complete; #5 remains open. The owner explicitly requested the next task in this chat, authorizing ROM-01C inspection/specification now. This supersedes the earlier suggestion to wait for another owner-started session; it does not approve implementation.

@@ -1,7 +1,7 @@
 # ROM-01B — Implementation verification and inspection
 
 Updated: 29 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: **Verified delivery accepted by the owner on 29 October 2026; bounded local merge authorized.**
+Status: **Accepted and merged locally on 29 October 2026 at `850f42a`.**
 
 ## Implemented and verified — 29 October 2026
 
@@ -81,3 +81,5 @@ Approval checkpoint **`b713996`** is committed before application/schema/test ch
 ## Actual owner acceptance — 29 October 2026
 
 The owner replied **“accept and merge. And go for the next task.”** after the delivered review. ROM-01B is accepted with its passing final default build and recorded checks. The bounded local-main merge is authorized; parent #5 remains open. The follow-on authorization is ROM-01C inspection/specification, with implementation still requiring its own approved plan. No institutional migration/rollout, push, PR or GitHub update is included.
+
+Local merge receipt: acceptance `57471b3`, merge **`850f42a`**, no conflicts or additional application changes. Passing evidence is reused; no unnecessary database/code suite was rerun for this documentation/Git operation. Parent #5 remains open.
