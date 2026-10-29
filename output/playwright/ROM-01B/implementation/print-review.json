@@ -1,0 +1,51 @@
+{
+  "pages": [
+    {
+      "page": 1,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 2286
+    },
+    {
+      "page": 2,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 2139
+    },
+    {
+      "page": 3,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 1948
+    },
+    {
+      "page": 4,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 1675
+    },
+    {
+      "page": 5,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 1673
+    },
+    {
+      "page": 6,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 1741
+    },
+    {
+      "page": 7,
+      "a4Portrait": true,
+      "repeatedRoomTermDateTimezoneFilters": true,
+      "textLength": 760
+    }
+  ],
+  "pageCount": 7,
+  "allSevenWeekdays": true,
+  "browserHeadersFooters": false,
+  "applicationRunningHeaderAndPageCounters": true,
+  "visualReview": "All seven rendered pages inspected: repeated context/filter/date, page counters, complete rows, legible totals/gaps/alerts and no overlapping header."
+}

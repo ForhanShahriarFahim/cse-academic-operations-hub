@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-29",
+  "timeZone": "Asia/Dhaka",
+  "groups": [
+    {
+      "group": "ROM-01B lifecycle (PGlite)",
+      "result": "passed",
+      "phase": "final lifecycle run"
+    },
+    {
+      "group": "ROM-01B lifecycle (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "ROM-01A rooms (PGlite)",
+      "result": "passed",
+      "phase": "preserved initial full-suite run"
+    },
+    {
+      "group": "ROM-01A rooms (PostgreSQL)",
+      "result": "passed",
+      "phase": "preserved initial full-suite run"
+    },
+    {
+      "group": "T-01 isolation",
+      "result": "passed",
+      "phase": "preserved initial full-suite run"
+    },
+    {
+      "group": "BUG-24 environment",
+      "result": "passed",
+      "phase": "preserved initial full-suite run"
+    },
+    {
+      "group": "T-02 PGlite recovery",
+      "result": "passed",
+      "phase": "preserved initial full-suite run"
+    },
+    {
+      "group": "T-03 two-term history",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "T-04 audit atomicity",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "T-06 PostgreSQL",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-29 time zones (PGlite)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-29 time zones (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "AUTH-02 accounts (PGlite)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "AUTH-02 accounts (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-48 cluster cleanup (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-26 reset keeps access (PGlite)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-26 reset keeps access (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "TCH-01 teacher records (PGlite)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "TCH-01 teacher records (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-27 blocked deletes (PGlite)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    },
+    {
+      "group": "BUG-27 blocked deletes (PostgreSQL)",
+      "result": "passed",
+      "phase": "resumed focused group"
+    }
+  ],
+  "groupCount": 21,
+  "targets": "Owned synthetic PGlite and PostgreSQL 17.11 only",
+  "institutionalDatabaseOpened": false,
+  "sequence": "An interrupted full run was resumed by prefix. Passed groups were preserved; final lifecycle refinements were rechecked on both adapters."
+}

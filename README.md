@@ -108,7 +108,7 @@ Advisories include approved exceptions, unknown audience sizes, tight cross-buil
 - Room 505 is computer-capable and adds microprocessor and networking capabilities; it may also host theory.
 - Sessional courses still require a lab and any specialist capability declared by the course.
 
-The room directory supports add/edit and editor-only Changes history (ROM-01A). System and academic administrators and routine coordinators with global or CSE scope can edit, including shared/unknown-owner rooms. Blank seats and owner remain unknown; protected source facts and legacy capability tokens are retained. Edits assess active assignments in every term, preserve room IDs and saved publications, and refuse stale or newly unsafe changes. Status/maintenance/occupancy expansion remains outside this slice. See [ROM-01A verification and inspection](docs/specs/ROM-01A/verification.md); institutional migration is a separate authorized operation.
+The room directory supports add/edit and editor-only Changes history (ROM-01A). System and academic administrators and routine coordinators with global or CSE scope can edit, including shared/unknown-owner rooms. Blank seats and owner remain unknown; protected source facts and legacy capability tokens are retained. Edits assess active assignments in every term, preserve room IDs and saved publications, and refuse stale or newly unsafe changes. ROM-01B adds all-term, today-inclusive Dhaka lifecycle checks, reasoned deactivate/reactivate actions, conservative never-assigned-draft deletion, active-only assignment choices and weekly occupancy/gap reporting. Existing rooms become retained under migration 0011; first assignment permanently retains new portal drafts. Weekly gaps are planning information, with explicit OD/configuration uncertainty, and do not resolve actual dates or maintenance. Dated maintenance remains ROM-01C. ROM-01B is implemented and verified locally, awaiting owner inspection/acceptance. See [ROM-01A verification and inspection](docs/specs/ROM-01A/verification.md); institutional migration is a separate authorized operation.
 
 ## Technology
 
@@ -305,7 +305,8 @@ cse-academic-operations-hub/
 | `/workload` | Credits, workload units, and contact minutes |
 | `/rooms` | Room capabilities and occupancy |
 | `/rooms/new`, `/rooms/[id]/edit` | Add/edit directory fields with assigned-use checks (CSE-scoped room editors) |
-| `/rooms/[id]` | Current room details; editors also see paged Changes history |
+| `/rooms/[id]` | Current details; editors also see lifecycle/deletion controls, all-term evidence and paged Changes history |
+| `/rooms/[id]/occupancy` | Internal weekly agenda, interval-union utilization, potential-gap filters and A4 planning print |
 | `/batches` | Batch and term-semester placements |
 | `/courses` | Catalog, offerings, and coverage |
 | `/od` | External teaching and room commitments |

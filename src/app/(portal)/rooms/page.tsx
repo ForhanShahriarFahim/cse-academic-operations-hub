@@ -4,8 +4,7 @@ import { PageHeader, Badge, EmptyNote, Notice } from "@/components/ui";
 import { PrintButton } from "@/components/print-button";
 import { can, requireActor } from "@/lib/auth";
 import { buttonClass, inputClass } from "@/components/account/styles";
-import { projectRoomOccupancy } from "@/lib/room-occupancy";
-import { fmtInstant } from "@/lib/auth/display";
+import { projectRoomOccupancy, roomPlanningStamp } from "@/lib/room-occupancy";
 export const dynamic = "force-dynamic";
 export default async function RoomsPage({ searchParams }: { searchParams: Promise<{ status?: string | string[]; q?: string | string[]; done?: string }> }) {
   const data = await getPortalData();
@@ -18,7 +17,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   const rows = data.rooms.filter((r) => (status === "all" || r.isActive === (status === "active")) && `${r.code} ${r.building}`.toLowerCase().includes(q.trim().toLowerCase())).sort((a, b) => a.code.localeCompare(b.code, "en", { numeric: true }) || a.id - b.id);
   return <div className="min-w-0 break-words">
     <PageHeader context="Internal planning records" title="Rooms & occupancy" description={`Weekly planning pattern · ${data.term.name}. Recorded bookings use interval unions. Utilization is booked within common stream windows / common usable minutes, after each stream's blocking breaks.`} actions={<><PrintButton />{editor && <Link className={`${buttonClass.primary} no-print`} href="/rooms/new">Add room</Link>}</>} />
-    <p className="mb-4 text-sm text-muted">Filter: {status} · {q ? `Search: ${q} · ` : ""}{rows.length} of {data.rooms.length} rooms · Generated {fmtInstant(new Date().toISOString())}. Active weekly records combine effective ranges; potential gaps do not resolve actual dates, incomplete OD data or maintenance.</p>
+    <p className="mb-4 text-sm text-muted">Filter: {status} · {q ? `Search: ${q} · ` : ""}{rows.length} of {data.rooms.length} rooms · Generated {roomPlanningStamp()}. Active weekly records combine effective ranges; potential gaps do not resolve actual dates, incomplete OD data or maintenance.</p>
     {raw.done && <Notice tone="success">{raw.done}</Notice>}
     {raw.status && raw.status !== status && <Notice tone="warn">Unknown status filter. Showing Active rooms.</Notice>}
     <form className="no-print ruled mb-4 grid min-w-0 gap-3 rounded-lg p-4 sm:grid-cols-[1fr_2fr_auto]" action="/rooms"><div className="min-w-0"><label htmlFor="rooms-status" className="mb-1 block text-sm font-semibold">Status</label><select id="rooms-status" name="status" defaultValue={status} className={inputClass}><option value="active">Active ({counts.active})</option><option value="inactive">Inactive ({counts.inactive})</option><option value="all">All ({counts.all})</option></select></div><div className="min-w-0"><label htmlFor="rooms-search" className="mb-1 block text-sm font-semibold">Code or building</label><input id="rooms-search" name="q" defaultValue={q} className={inputClass} /></div><button type="submit" className={`${buttonClass.secondary} self-end`}>Apply filters</button></form>

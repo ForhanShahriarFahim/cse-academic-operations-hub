@@ -46,7 +46,7 @@ export default async function OdPage() {
             </thead>
             <tbody>
               {data.externals.map((e, i) => (
-                <tr key={e.id} className={`${i % 2 ? "bg-wash" : "bg-sheet"} ${e.kind === "unresolved_note" ? "opacity-90" : ""}`}>
+                <tr key={e.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
                   <td className="px-2.5 py-1.5"><Badge tone={levelTone[e.completenessLevel]}>Level {e.completenessLevel}</Badge></td>
                   <td className="px-2.5 py-1.5 font-medium">{kindLabel[e.kind] ?? e.kind}</td>
                   <td className="px-2.5 py-1.5 font-mono font-bold text-[var(--color-clay)]">{e.counterpartDepartment}</td>

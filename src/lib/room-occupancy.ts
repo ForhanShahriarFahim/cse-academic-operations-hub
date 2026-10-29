@@ -5,6 +5,7 @@ import { validInterval, validWeekday } from "./room-lifecycle";
 import { knownAudienceSize } from "./serialize";
 import { STREAMS, streamPlan } from "./time-grid";
 export type Interval = { start: number; end: number };
+export const roomPlanningStamp = (now = new Date()) => `${new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka", year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }).format(now)} (Asia/Dhaka)`;
 export function unionIntervals(intervals: Interval[]): Interval[] {
   const result: Interval[] = [];
   for (const item of intervals.filter((iv) => validInterval(iv.start, iv.end)).sort((a, b) => a.start - b.start || a.end - b.end)) {

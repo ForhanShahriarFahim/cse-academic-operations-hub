@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { deletionReasons, dhakaToday, futureOccurrence, futureOD, lifecycleCommand, snapshotRoomEvidence } from "../src/lib/room-lifecycle";
-import { commonRoomWindows, intervalMinutes, parseGapFilters, projectRoomOccupancy, roomGapResults, subtractIntervals, unionIntervals } from "../src/lib/room-occupancy";
+import { commonRoomWindows, intervalMinutes, parseGapFilters, projectRoomOccupancy, roomGapResults, roomPlanningStamp, subtractIntervals, unionIntervals } from "../src/lib/room-occupancy";
 import { suitableRooms } from "../src/lib/routine-workbench";
 import type { PortalData } from "../src/lib/data";
 import type { MeetingView, ExternalCommitmentView } from "../src/lib/serialize";
 const bounds = { termStart: "2026-10-01", termEnd: "2026-10-31", dayOfWeek: 4 };
 assert.equal(dhakaToday(new Date("2026-10-27T17:59:59Z")), "2026-10-27");
 assert.equal(dhakaToday(new Date("2026-10-27T18:00:00Z")), "2026-10-28");
+assert.match(roomPlanningStamp(new Date("2026-10-28T18:00:00Z")), /29 Oct 2026.*Asia\/Dhaka/);
 assert.deepEqual(futureOccurrence(bounds, "2026-10-28"), { kind: "future", firstDate: "2026-10-28" });
 assert.equal(futureOccurrence(bounds, "2026-10-29").kind, "past");
 assert.equal(futureOccurrence({ ...bounds, effectiveTo: "2026-10-27" }, "2026-10-28").kind, "past");

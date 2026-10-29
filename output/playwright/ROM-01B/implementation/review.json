@@ -1,0 +1,145 @@
+{
+  "observations": [
+    {
+      "name": "directory-desktop",
+      "width": 1440,
+      "route": "/rooms",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "directory-inactive",
+      "width": 1440,
+      "route": "/rooms",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "directory-empty",
+      "width": 1440,
+      "route": "/rooms",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "lifecycle-blocked-desktop",
+      "width": 1440,
+      "route": "/rooms/4",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "lifecycle-blocked-phone",
+      "width": 390,
+      "route": "/rooms/4",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "lifecycle-blocked-narrow",
+      "width": 320,
+      "route": "/rooms/4",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "lifecycle-validation",
+      "width": 1440,
+      "route": "/rooms/3",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "lifecycle-reactivated",
+      "width": 1440,
+      "route": "/rooms/3",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "delete-code-error",
+      "width": 1440,
+      "route": "/rooms/3",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-1440",
+      "width": 1440,
+      "route": "/rooms/5/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-390",
+      "width": 390,
+      "route": "/rooms/5/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-320",
+      "width": 320,
+      "route": "/rooms/5/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-invalid-filter",
+      "width": 1440,
+      "route": "/rooms/5/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-unknown-seats",
+      "width": 1440,
+      "route": "/rooms/6/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "occupancy-inactive",
+      "width": 1440,
+      "route": "/rooms/7/occupancy",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "inactive-class-remediation",
+      "width": 1440,
+      "route": "/routine",
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "od-active-room-choices",
+      "width": 1440,
+      "route": "/od",
+      "overflow": false,
+      "axeViolations": 0
+    }
+  ],
+  "publicationParity": {
+    "screen": "d7a4a91baefe288b3b95321a1895286d73f52e67e205f8815604e5103ad02e11",
+    "official": "ea34bf757ff6e17167b8cb3240575ce40b49383e972866f248d2b3e53fa6ecc4",
+    "print": "ea34bf757ff6e17167b8cb3240575ce40b49383e972866f248d2b3e53fa6ecc4",
+    "csv": "f57eef96ba4e6fb15d277bcecf81d268f44e11bfdb41afb4e2f292918202063f"
+  },
+  "pageErrors": [],
+  "flows": [
+    "status filters and empty",
+    "25 references paged",
+    "blocked reason kept",
+    "validation",
+    "pending status",
+    "deactivate/reactivate history",
+    "two-tab stale reason",
+    "delete confirmation/missing",
+    "seven days",
+    "duration invalid",
+    "unknown seats",
+    "inactive gaps excluded",
+    "viewer occupancy/editor denied"
+  ]
+}
