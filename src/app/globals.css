@@ -386,3 +386,14 @@ body {
   .load-bar > i { background: #666 !important; }
   .load-bar.over > i { background: #000 !important; }
 }
+@page room-occupancy { size: A4 portrait; margin: 12mm; }
+@media print {
+  .room-occupancy { page: room-occupancy; font-size: 9pt; }
+  .room-occupancy .occupancy-print-frame > thead { display: table-header-group; }
+  .room-occupancy .occupancy-print-frame > tbody > tr { break-inside: auto; page-break-inside: auto; }
+  .room-occupancy section { break-inside: auto; padding: 3mm; }
+  .room-occupancy h2, .room-occupancy h3 { break-after: avoid; }
+  .room-occupancy .occupancy-row { break-inside: avoid; }
+  .room-occupancy .grid { display: block; }
+  .room-occupancy .grid > * + * { margin-top: 3mm; }
+}

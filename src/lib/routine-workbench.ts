@@ -8,6 +8,7 @@ import { analyzeSchedule, type BreakRule, type Issue, type PermittedWindow } fro
 import { knownAudienceSize as audienceSizeOf, type ExternalCommitmentView, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
 import { fmtRange, overlaps } from "./time";
 import type { TimeGrid } from "./time-grid";
+import { roomFit } from "./room-records";
 
 /** Everything about a teaching group needed to place a new class, without a time or staff. */
 export type GroupTemplate = Omit<MeetingView, "id" | "dayOfWeek" | "startMinutes" | "endMinutes" | "teachers" | "rooms">;
@@ -20,6 +21,7 @@ export interface WorkbenchTeacher {
 export interface WorkbenchRoom {
   id: number; code: string; building: string; roomType: string; capabilities: string[]; capacity: number | null;
   owningDepartmentCode: string | null;
+  isActive?: boolean;
 }
 
 export interface EngineContext {
@@ -106,6 +108,7 @@ export function teacherAvailability(teacherId: number, day: number, start: numbe
 export function roomAvailability(
   room: WorkbenchRoom, day: number, start: number, end: number, context: EngineContext, exceptId: number, audienceSize: number | null,
 ): Availability {
+  if (room.isActive === false) return { state: "busy", detail: "Inactive: replace or remove this room before saving" };
   const clash = busyWith(context.meetings, day, start, end, exceptId, (m) => m.rooms.some((r) => r.id === room.id));
   if (clash) return { state: "busy", detail: `${clash.courseCode} · ${audienceText(clash)}` };
   const external = context.externals.find((e) => e.roomId === room.id && e.dayOfWeek === day
@@ -120,8 +123,7 @@ export function roomAvailability(
 
 /** Rooms offered for a class: a required capability (for example a lab) filters the list. */
 export function suitableRooms(rooms: WorkbenchRoom[], requiredCapability: string | null, courseType: string): WorkbenchRoom[] {
-  const needs = requiredCapability ?? (courseType === "sessional" ? "lab" : null);
-  return needs ? rooms.filter((r) => r.roomType === needs || r.capabilities.includes(needs)) : rooms;
+  return rooms.filter((r) => r.isActive !== false && roomFit(r, { requiredRoomCapability: requiredCapability, courseType, audienceSize: null }).length === 0);
 }
 
 /** Known total audience, or null when any part is unknown (same rule as the conflict engine). */

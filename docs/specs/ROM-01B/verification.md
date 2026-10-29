@@ -1,7 +1,15 @@
 # ROM-01B — Inspection and proposal verification
 
 Updated: 28 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: **Specification approved on 28 October 2026; implementation and acceptance criteria remain pending.**
+Status: **Implementation in verification on 29 October 2026; owner acceptance/local merge pending.**
+
+## Implementation checkpoint — 29 October 2026
+
+T-04–T-07 are implemented within approved D-1–D-6: forward-only `0011` retained-room backfill, monotonic portal drafts, locked lifecycle/deletion and first-assignment audits, all reference/move guards, status filters, inactive-picker remediation, weekly interval projection and gap/print view. Approval checkpoint `b713996` preceded all feature code. One branch/writer; no worktree, institutional operation, remote synchronization or ROM-01C work.
+
+Initial domain, populated PGlite/PostgreSQL upgrade and exercised restoration, lifecycle/permission/audit-failure checks and real two-connection production create/update/auto/OD races pass. Final snapshot-shape/weekday refinements and bulk-period rollback are being rechecked; final mobile/browser/print evidence and full regression completion remain pending. The interrupted full safety run passed the room groups, isolation, BUG-24 and PGlite recovery; the resumed runner preserves those results and covers remaining groups. Logs remain ignored under `.tmp/rom01b-*` until summarized here.
+
+Default Turbopack production build fails in the inherited CSS-worker IPC path both inside and outside the sandbox. The separately labelled Webpack production build passes; no package/configuration/bundler policy change. A direct-build wrapper initially omitted npm's normal build flag, causing disposable build workers to share the review target; it was corrected to use the repository's existing in-memory build-worker behavior, and the disposable fixture was rebuilt. No institutional target was involved. Direct production PGlite browser review exhibited its existing multi-instance stale-read behavior; it was stopped and the browser review moved to the guarded development harness. These intermediate runs are not passing browser evidence.
 
 ## Inspected baseline
 

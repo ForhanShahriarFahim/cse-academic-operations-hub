@@ -29,7 +29,7 @@ export default async function OdPage() {
         actions={
           <OdManager
             teachers={data.teachers.filter((t) => isAssignable(t.status)).map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode }))}
-            rooms={data.rooms.map((r) => ({ id: r.id, code: r.code }))}
+            rooms={data.rooms.filter((r) => r.isActive).map((r) => ({ id: r.id, code: r.code }))}
           />
         }
       />

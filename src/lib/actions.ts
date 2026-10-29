@@ -31,7 +31,8 @@ import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { conflicted, type ActionResult, type ResultIssue } from "./action-result";
 import { isForeignKeyViolation } from "./db-errors";
-import { lockRooms, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
+import { lockRooms, RoomAssignmentChanged, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
+import { assertActiveRooms, lockMoveRooms, retainAssignedRooms } from "./room-lifecycle-transaction";
 
 // The shared contract lives in ./action-result; this type-only re-export keeps
 // existing `import type { ActionResult } from "@/lib/actions"` consumers working.
@@ -139,7 +140,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     return { ok: false, message: `${blockers.length} blocking conflict(s) — placement rejected.`, issues };
   }
 
-  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.create", "meeting", async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.create", "meeting", async (tx, actor) => {
     await lockRooms(tx, roomIds);
     await validateRoomAssignment(tx, groupId, roomIds);
     const [m] = await tx.insert(meetings).values({
@@ -148,6 +149,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     }).returning();
     await tx.insert(meetingTeachers).values(teacherIds.map((tid) => ({ meetingId: m.id, teacherId: tid })));
     await tx.insert(meetingRooms).values(roomIds.map((rid) => ({ meetingId: m.id, roomId: rid })));
+    await retainAssignedRooms(tx, actor, roomIds, `class #${m.id}`);
     return { result: null, entityId: m.id, after: { groupId, dayOfWeek, start, end, teacherIds, roomIds } };
   }); });
   if (roomFailure) return roomFailure;
@@ -165,6 +167,7 @@ export async function moveMeetingAction(
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
   if (!Number.isInteger(meetingId)) return { ok: false, message: "Invalid meeting." };
+  if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6 || !Number.isInteger(startMinutes) || !Number.isInteger(endMinutes) || startMinutes < 0 || endMinutes > 1440) return { ok: false, message: "Choose a valid day and exact times." };
   if (endMinutes <= startMinutes) return { ok: false, message: "End time must be after start time." };
   const data = await getPortalData();
   const existing = data.meetings.find((m) => m.id === meetingId);
@@ -183,12 +186,14 @@ export async function moveMeetingAction(
     return { ok: false, message: `${blockers.length} blocking conflict(s) — move rejected, original placement kept.`, issues };
   }
 
-  await auditedChange("meeting.move", "meeting", async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.move", "meeting", async (tx) => {
+    await lockMoveRooms(tx, [meetingId]);
     await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes }).where(eq(meetings.id, meetingId));
     return { result: null, entityId: meetingId,
       before: { dayOfWeek: existing.dayOfWeek, startMinutes: existing.startMinutes, endMinutes: existing.endMinutes },
       after: { dayOfWeek, startMinutes, endMinutes } };
-  });
+  }); });
+  if (roomFailure) return roomFailure;
   revalidatePath("/", "layout");
   return { ok: true, message: "Meeting moved.", issues };
 }
@@ -266,8 +271,9 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     teacherIds: existing.teachers.map((t) => t.id), roomIds: existing.rooms.map((r) => r.id),
     isException: existing.isException, exceptionNote: existing.exceptionNote ?? null,
   };
-  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.update", "meeting", async (tx) => {
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.update", "meeting", async (tx, actor) => {
     const [current] = await tx.select().from(meetings).where(eq(meetings.id, meetingId)).for("update");
+    if (!current) throw new RoomAssignmentChanged(["The class no longer exists; reload before saving"]);
     const storedRooms = await tx.select({ roomId: meetingRooms.roomId }).from(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
     await lockRooms(tx, [...roomIds, ...storedRooms.map((row) => row.roomId)]);
     await validateRoomAssignment(tx, current?.teachingGroupId ?? existing.teachingGroupId, roomIds);
@@ -281,6 +287,7 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     const roomRoleOf = new Map(previousRooms.map((row) => [row.roomId, row.roomRole]));
     await tx.delete(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
     await tx.insert(meetingRooms).values(roomIds.map((roomId) => ({ meetingId, roomId, roomRole: roomRoleOf.get(roomId) ?? "primary" })));
+    await retainAssignedRooms(tx, actor, roomIds, `class #${meetingId}`);
     return { result: null, entityId: meetingId, before,
       after: { dayOfWeek, startMinutes, endMinutes, teacherIds, roomIds, isException: update.isException, exceptionNote } };
   }); });
@@ -364,8 +371,8 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
   else level = "C";
 
   const term = (await getPortalData()).term;
-  await auditedChange("external.create", "external_commitment", async (tx) => {
-    if (roomId) await lockRooms(tx, [roomId]);
+  const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("external.create", "external_commitment", async (tx, actor) => {
+    if (roomId) { await lockRooms(tx, [roomId]); await assertActiveRooms(tx, [roomId]); }
     const [row] = await tx.insert(externalCommitments).values({
       termId: term.id, kind, completenessLevel: level, counterpartDepartment,
       teacherId, roomId, courseLabel, audienceLabel,
@@ -375,8 +382,10 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
       credits: creditsRaw || null, verificationStatus: "pending",
       source: "Manual entry via OD manager", notes,
     }).returning();
+    if (roomId) await retainAssignedRooms(tx, actor, [roomId], `OD #${row.id}`);
     return { result: null, entityId: row.id, after: row };
-  });
+  }); });
+  if (roomFailure) return roomFailure;
   revalidatePath("/", "layout");
   return { ok: true, message: `External commitment recorded (completeness level ${level}).` };
 }

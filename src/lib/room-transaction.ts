@@ -32,7 +32,7 @@ export async function lockRooms(tx: RoomTransaction, roomIds: number[]) {
   return tx.select().from(rooms).where(inArray(rooms.id, ids)).orderBy(asc(rooms.id)).for("update");
 }
 
-async function groupEvidence(reader: RoomReader, groupIds: number[]) {
+export async function groupEvidence(reader: RoomReader, groupIds: number[]) {
   if (!groupIds.length) return new Map<number, { audience: string; audienceSize: number | null; audienceEvidence: Array<{ label: string; count: number | null }> }>();
   const groups = await reader.select().from(teachingGroups).where(inArray(teachingGroups.id, groupIds));
   const local = await reader.select({ groupId: teachingGroupOfferings.teachingGroupId, batchId: batches.id, label: batches.label, stream: batches.stream, count: batches.studentCount })
@@ -108,7 +108,7 @@ export async function saveRoomInTransaction(tx: RoomTransaction, actor: Actor, r
   };
   const [saved] = existing
     ? await tx.update(rooms).set({ ...values, revision: existing.revision + 1 }).where(eq(rooms.id, existing.id)).returning()
-    : await tx.insert(rooms).values({ ...values, revision: 1, isActive: true }).returning();
+    : await tx.insert(rooms).values({ ...values, revision: 1, isActive: true, isDraft: true }).returning();
   await tx.insert(auditEvents).values({ actor: actor.displayName, actorUserId: actor.id, actorDisplayName: actor.displayName, actorKind: "user",
     action: existing ? "room.update" : "room.create", entity: "room", entityId: saved.id,
     before: changes?.before ?? null, after: changes?.after ?? { ...values, isActive: true },

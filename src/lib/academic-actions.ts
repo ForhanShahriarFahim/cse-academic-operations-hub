@@ -26,6 +26,7 @@ import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
 import { auditedChange } from "./auth/audit";
 import { lockRooms, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
+import { retainAssignedRooms } from "./room-lifecycle-transaction";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 
@@ -315,6 +316,7 @@ export async function applyAutoScheduleAction(): Promise<ActionResult> {
   const roomFailure = await roomAssignmentGuard(async () => { await db.transaction(async (tx) => {
     await lockRooms(tx, source.plan.suggestions.map((suggestion) => suggestion.roomId));
     for (const suggestion of source.plan.suggestions) await validateRoomAssignment(tx, suggestion.teachingGroupId, [suggestion.roomId]);
+    await retainAssignedRooms(tx, actor, source.plan.suggestions.map((suggestion) => suggestion.roomId), "automatic class batch");
     for (const suggestion of source.plan.suggestions) {
       const [meeting] = await tx.insert(meetings).values({
         teachingGroupId: suggestion.teachingGroupId,

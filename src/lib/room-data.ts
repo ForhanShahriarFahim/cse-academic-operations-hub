@@ -4,6 +4,11 @@ import { db } from "@/db";
 import { auditEvents, departments, rooms } from "@/db/schema";
 import { authorize, can, getOptionalActor } from "./auth";
 import { positiveInteger } from "./room-records";
+import { readRoomLifecycleEvidence } from "./room-lifecycle-transaction";
+export async function getRoomLifecycleEvidence(room: { id: number; code: string }) {
+  await authorize("manage_rooms");
+  return readRoomLifecycleEvidence(db, room);
+}
 
 export async function requireRoomEditor(next: string) {
   const actor = await getOptionalActor();
@@ -25,6 +30,7 @@ export interface RoomChange {
   id: number; at: string; actor: string; action: string;
   before: Record<string, unknown> | null; after: Record<string, unknown> | null;
   warnings: Array<{ title: string; detail: string }>;
+  reason: string | null;
 }
 export async function getRoomChanges(roomId: number, before?: number): Promise<{ changes: RoomChange[]; next: number | null }> {
   await authorize("manage_rooms");
@@ -35,5 +41,6 @@ export async function getRoomChanges(roomId: number, before?: number): Promise<{
   return { changes: rows.slice(0, 20).map((row) => ({ id: row.id, at: row.at.toISOString(), actor: row.actorDisplayName ?? row.actor, action: row.action,
     before: row.before as Record<string, unknown> | null, after: row.after as Record<string, unknown> | null,
     warnings: (row.detail as { acknowledgedWarnings?: RoomChange["warnings"] } | null)?.acknowledgedWarnings ?? [],
+    reason: (row.detail as { reason?: string } | null)?.reason ?? null,
   })), next: rows.length > 20 ? rows[19].id : null };
 }
