@@ -1,7 +1,7 @@
 # ROM-01C — Implementation plan and sole checklist
 
 Parent: ROM-01 / #5. [Specification](spec.md), [verification](verification.md), [sketches](mockups/index.html).
-Status: **Planning authorized; implementation approval pending.**
+Status: **D-1–D-6 approved; implementation in progress.**
 Branch/base: `codex/rom-01c` from local `main` `cbdbce9`, following ROM-01B merge `850f42a`.
 Updated: 29 October 2026, Asia/Dhaka.
 
@@ -21,14 +21,14 @@ Read relevant installed Next.js guides before app changes, including server acti
 
 - Planning authorization: owner said **“accept and merge. And go for the next task.”** on 29 October 2026, following the explicit proposal to accept ROM-01B then inspect/specify ROM-01C before implementation. This authorizes starting C planning in this chat, superseding the default wait-for-new-session suggestion.
 - Prerequisite: B acceptance `57471b3`, local merge `850f42a`, merge/handoff `cbdbce9`. Parent #5 remains open.
-- Implementation authorization: **Pending.** Review [spec D-1–D-6](spec.md#required-behavior-and-proposed-decisions), this plan and responsive/print sketches. Actual wording/date and amendments must be recorded and committed before feature implementation.
+- Implementation authorization: **Approved on 29 October 2026, Asia/Dhaka.** Owner: “Approve D-1–D-6 to begin implementation. Approved”. The complete D-1–D-6 package, this plan and its verification requirements are authorized without amendment. Approval is recorded in this checkpoint before feature code.
 - Acceptance/local merge of C: **Pending.** No remote activity or institutional operation is authorized by this package.
 
 ## Tasks
 
 - [x] T-01 — Inspect accepted baseline, date/OD/publication/lock/occupancy seams and record the bounded proposal. Covers AC-01–AC-10 design.
 - [x] T-02 — Prepare and verify specification, decisions, responsive/print sketches and exact handoff; commit review package. Design evidence only.
-- [ ] T-03 — Obtain actual implementation approval, record wording/date/amendments and commit approved plan before code. Depends T-02.
+- [x] T-03 — Obtain actual implementation approval, record wording/date/amendments and commit approved plan before code. Owner approved D-1–D-6 on 29 October 2026 without amendment. Depends T-02.
 - [ ] T-04 — Build pure date/typed-conflict/projection rules, schema/constraints and empty forward migration; verify populated upgrade and recovery on both adapters. Covers AC-02/06/08/10; depends T-03.
 - [ ] T-05 — Add guarded reads/create/edit/cancel/history, impact fingerprint/reconfirmation, retention/revisions/audits and permissions. Covers AC-01/03/04; depends T-04.
 - [ ] T-06 — Connect all placement, automatic/bulk/move and publication checks under shared room locks; prove actual commit-order races/rollback. Covers AC-05/06/07; depends T-04/05.
@@ -48,8 +48,8 @@ Browser: synthetic populated/empty/denied/pending/error/stale and paged-impact/h
 
 ## Current checkpoint / handoff
 
-- Scope: proposed D-1–D-6; no C implementation approval yet. One writer/branch; no worktrees.
+- Scope: D-1–D-6 approved by the owner on 29 October 2026 without amendment. One writer/branch; no worktrees.
 - Base: `cbdbce9`; B is accepted/merged at `850f42a`. Last remote reconciliation 26 October; no sync this session.
 - Work: C planning documents and static synthetic sketches only; T-01/T-02 complete in the proposal checkpoint. Primary checklist above owns completion; [verification](verification.md) owns evidence. No application/schema/migration/test change.
-- Next action: present this proposal for actual approval. After approval, record/commit T-03 **before** code and begin T-04.
+- Next action: commit this approval checkpoint **before** code and begin T-04; continue through implementation and verification, then present C for owner inspection. Acceptance remains pending.
 - Exact continuation: “On `codex/rom-01c`, read the brief and ROM-01C spec/sole plan/verification, inspect Git and actual approval. If D-1–D-6 remain unapproved, keep application work pending. If approved, record and commit approval first, then implement this bounded slice with both-adapter recovery, real lock races, production UI/print/public parity and final suites. Preserve institutional storage and frozen publications; no remote sync/worktree. Present C for acceptance before local merge or advancing.”

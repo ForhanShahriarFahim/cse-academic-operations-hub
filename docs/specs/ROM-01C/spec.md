@@ -1,6 +1,6 @@
 # ROM-01C — Dated room maintenance and placement checks
 
-Parent: ROM-01 / #5. Status: **Proposed; implementation approval pending.**
+Parent: ROM-01 / #5. Status: **D-1–D-6 approved for implementation on 29 October 2026.**
 Updated: 29 October 2026, Asia/Dhaka. [Sole plan/checklist](plan.md), [verification](verification.md), [workflow sketches](mockups/index.html).
 
 ## Problem and inspected baseline
@@ -102,6 +102,6 @@ From room detail, maintenance list shows upcoming/current/past/cancelled entries
 
 ## Decisions and sources
 
-Owner approval of **D-1–D-6 as one bounded package** is pending. Dates/recurrence, saving despite clashes, whole-week placement consequence, conservative uncertain-OD publication gate and unchanged public snapshots are material choices. Amend the proposal before implementation if the owner chooses differently. No institutional maintenance calendar or approver has been inferred from source documents.
+The owner approved **D-1–D-6 as one bounded package** on 29 October 2026: “Approve D-1–D-6 to begin implementation. Approved”. This includes dates/recurrence, saving despite clashes, the whole-week placement consequence, the conservative uncertain-OD publication gate and unchanged public snapshots. No amendments were requested. No institutional maintenance calendar or approver has been inferred from source documents.
 
 Evidence: [requirements](../../PRODUCT_REQUIREMENTS.md), [institutional decisions](../../decisions/INSTITUTIONAL_DECISIONS.md), [local sequence](../../plans/LOCAL_DELIVERY_2026-10-26.md), accepted [ROM-01A](../ROM-01A/spec.md) and [ROM-01B](../ROM-01B/spec.md), and the inspected source modules listed above. The [plan approval record](plan.md#approval-record) owns actual authorization; this proposed document is not approval.
