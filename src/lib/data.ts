@@ -3,6 +3,7 @@
  * into serialized views — safe to hand to client components.
  */
 import { effectiveLimit } from "./teacher-records";
+import type { MaintenanceContext } from "./room-maintenance";
 import { db } from "@/db";
 import {
   academicTerms,
@@ -12,6 +13,7 @@ import {
   departments,
   teachers,
   rooms,
+  roomUnavailability,
   courseOfferings,
   teachingGroups,
   teachingGroupOfferings,
@@ -146,6 +148,7 @@ export interface VersionView {
 }
 
 export interface PortalData {
+  maintenance?: MaintenanceContext;
   term: {
     id: number;
     name: string;
@@ -264,7 +267,7 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
     offeringRows, groupRows, linkRows, requirementRows, meetingRows, mtRows,
     mrRows, patternRows, dayPlanRows, windowRows, ecRows, allocationRows, versionRows,
-    representativeRows, contactRows, reconciliationRows,
+    representativeRows, contactRows, reconciliationRows, maintenanceRows,
   ] = await Promise.all([
     db.select().from(departments),
     db.select().from(teachers),
@@ -289,6 +292,7 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
     db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
     db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
     db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
+    db.select().from(roomUnavailability).orderBy(roomUnavailability.id),
   ]);
 
   const deptById = new Map(deptRows.map((d) => [d.id, d]));
@@ -499,6 +503,7 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       effectiveFrom: term.effectiveFrom,
       status: term.status,
     },
+    maintenance: { termStart: term.startDate, termEnd: term.endDate, entries: maintenanceRows.map(({ id, roomId, startDate, endDate, weekdays, startMinutes, endMinutes, reason, revision, cancelled }) => ({ id, roomId, startDate, endDate, weekdays, startMinutes, endMinutes, reason, revision, cancelled })), meetingDates: Object.fromEntries(meetingRows.filter((m) => meetingViews.some((v) => v.id === m.id)).map((m) => [m.id, { effectiveFrom: m.effectiveFrom, effectiveTo: m.effectiveTo }])) },
     departments: deptRows.map((d) => ({ id: d.id, code: d.code, name: d.name })),
     teachers: teacherRows.map((t) => ({
       id: t.id,

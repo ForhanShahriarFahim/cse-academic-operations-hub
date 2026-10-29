@@ -1,4 +1,5 @@
 import { getPortalData } from "@/lib/data";
+import Link from "next/link";
 import { analyzeSchedule, type Issue } from "@/lib/conflicts";
 import { PageHeader, Badge, Panel, StatCard, EmptyNote } from "@/components/ui";
 import { AlertTriangle, CheckCircle2, ShieldAlert, Info } from "lucide-react";
@@ -9,6 +10,7 @@ import { PrintButton } from "@/components/print-button";
 export const dynamic = "force-dynamic";
 
 const TYPE_LABEL: Record<Issue["type"], string> = {
+  room_maintenance: "Dated room maintenance",
   teacher_double_booking: "Teacher double-booking",
   room_double_booking: "Room double-booking",
   audience_overlap: "Student audience overlap",
@@ -31,6 +33,7 @@ export default async function ConflictsPage() {
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   });
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -119,10 +122,11 @@ function IssueRow({ issue: i }: { issue: Issue }) {
         <Badge tone={i.severity === "blocker" ? "clay" : "gold"}>{i.severity}</Badge>
         <Badge tone="neutral">{TYPE_LABEL[i.type]}</Badge>
         <span className="ml-auto flex items-center gap-1 text-[10.5px] text-muted">
-          <Info size={11} /> {DAY_NAMES[i.dayOfWeek]}
+          <Info size={11} /> {i.dayOfWeek == null ? "Weekday unverified" : DAY_NAMES[i.dayOfWeek]}
         </span>
       </div>
       <p className="mt-1 pl-6 text-[11.5px] leading-relaxed text-muted">{i.detail}</p>
+      {i.href && <Link href={i.href} className="mt-2 inline-flex min-h-11 items-center pl-6 text-sm font-semibold underline">Review maintenance</Link>}
     </li>
   );
 }

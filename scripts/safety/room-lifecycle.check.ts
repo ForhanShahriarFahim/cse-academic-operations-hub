@@ -19,7 +19,7 @@ import { createEncryptedBackup, createKeyFile, restoreEncryptedBackup } from "./
 import { REPO_ROOT } from "./targets";
 
 const txType = (tx: unknown) => tx as RoomTransaction;
-const legacy = async (h: Pick<SafetyHandle, "exec">) => h.exec("alter table rooms drop column is_draft; delete from drizzle.__drizzle_migrations where created_at = 1793145600000;");
+const legacy = async (h: Pick<SafetyHandle, "exec">) => h.exec("drop table if exists room_unavailability; alter table rooms drop column is_draft; delete from drizzle.__drizzle_migrations where created_at >= 1793145600000;");
 async function upgrade(database: SafetyDatabase, lines: string[]) {
   await withHandle(database, async (h) => {
     await database.migrate(h); await populateSummerFixture(h.db);

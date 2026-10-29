@@ -65,6 +65,30 @@ export const rooms = pgTable(
 // Identity
 // ---------------------------------------------------------------------------
 
+/** ROM-01C: global finite outages; cancelled rows retain history and prevent room deletion. */
+export const roomUnavailability = pgTable("room_unavailability", {
+  id: serial("id").primaryKey(),
+  roomId: integer("room_id").notNull().references(() => rooms.id),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  weekdays: integer("weekdays").array().notNull(),
+  startMinutes: integer("start_minutes").notNull(),
+  endMinutes: integer("end_minutes").notNull(),
+  reason: text("reason").notNull(),
+  cancelled: boolean("cancelled").notNull().default(false),
+  revision: integer("revision").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("room_unavailability_room_dates_idx").on(t.roomId, t.startDate, t.endDate),
+  check("room_unavailability_dates_ck", sql.raw("start_date >= DATE '0001-01-01' AND end_date <= DATE '9999-12-31' AND start_date <= end_date")),
+  check("room_unavailability_weekdays_ck", sql.raw("array_ndims(weekdays) = 1 AND array_lower(weekdays, 1) = 1 AND cardinality(weekdays) BETWEEN 1 AND 7 AND weekdays <@ ARRAY[0,1,2,3,4,5,6] AND array_position(weekdays, NULL) IS NULL AND cardinality(weekdays) = (CASE WHEN 0 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 1 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 2 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 3 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 4 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 5 = ANY(weekdays) THEN 1 ELSE 0 END + CASE WHEN 6 = ANY(weekdays) THEN 1 ELSE 0 END)")),
+  check("room_unavailability_occurrence_ck", sql.raw("(0 = ANY(weekdays) AND ((0 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (1 = ANY(weekdays) AND ((1 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (2 = ANY(weekdays) AND ((2 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (3 = ANY(weekdays) AND ((3 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (4 = ANY(weekdays) AND ((4 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (5 = ANY(weekdays) AND ((5 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date) OR (6 = ANY(weekdays) AND ((6 - ((extract(isodow from start_date)::integer + 1) % 7) + 7) % 7) <= end_date - start_date)")),
+  check("room_unavailability_minutes_ck", sql.raw("0 <= start_minutes AND start_minutes < end_minutes AND end_minutes <= 1440")),
+  check("room_unavailability_reason_ck", sql.raw("char_length(btrim(reason)) BETWEEN 1 AND 300 AND reason = btrim(reason)")),
+  check("room_unavailability_revision_ck", sql.raw("revision > 0")),
+]);
+
 export const teachers = pgTable(
   "teachers",
   {

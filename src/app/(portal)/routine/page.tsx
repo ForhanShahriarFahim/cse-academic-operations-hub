@@ -91,6 +91,7 @@ export default async function RoutinePage({
           owningDepartmentCode: r.owningDepartmentCode, isActive: r.isActive,
         }))}
         windows={data.windows}
+        maintenance={data.maintenance}
         blockersByDay={blockersByDay}
         weekTotals={projection.issueCount}
       >

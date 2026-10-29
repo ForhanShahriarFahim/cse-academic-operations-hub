@@ -44,7 +44,8 @@ function useWide(query: string): boolean {
   return wide;
 }
 
-export function RoutineWorkbench({ projection, groups, teachers, rooms, windows, blockersByDay, weekTotals, children }: {
+export function RoutineWorkbench({ projection, groups, teachers, rooms, windows, maintenance, blockersByDay, weekTotals, children }: {
+  maintenance?: EngineContext["maintenance"];
   projection: RoutineProjection;
   groups: WorkbenchGroup[];
   teachers: WorkbenchTeacher[];
@@ -79,7 +80,7 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
   const trigger = useRef<HTMLElement | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
 
-  const context: EngineContext = useMemo(() => ({ meetings: source.meetings, externals: source.externals, breaks: source.breaks, windows, grid: source.timeGrid }), [source, windows]);
+  const context: EngineContext = useMemo(() => ({ meetings: source.meetings, externals: source.externals, breaks: source.breaks, windows, grid: source.timeGrid, maintenance }), [source, windows, maintenance]);
   const days = useMemo(() => teachingDays(source.timeGrid), [source]);
   const dayMeetings = useMemo(() => projection.exportMeetings.map((item) => item.meeting).filter((m) => m.dayOfWeek === day), [projection, day]);
   const statusById = useMemo(() => new Map<number, ClassStatus>(projection.exportMeetings.map((item) => [item.meeting.id, item.validationStatus])), [projection]);

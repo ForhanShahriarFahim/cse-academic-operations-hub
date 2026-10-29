@@ -1,13 +1,26 @@
 # ROM-01C — Verification and review
 
 [Specification](spec.md), [sole plan](plan.md), [sketches](mockups/index.html). Updated: 29 October 2026, Asia/Dhaka.
-Verified revision: planning working tree on `codex/rom-01c`, base `cbdbce9`. No C feature implementation.
+Branch `codex/rom-01c`, base `cbdbce9`; proposal `15ab147`, owner approval `3d4361a` before feature code. Implementation verification is in progress.
 
 ## Acceptance evidence
 
 | Criteria | Result | Evidence |
 | --- | --- | --- |
-| AC-01–AC-11 | Pending implementation approval and implementation | Proposed contracts only; static sketches cannot prove server, database, publication or production UI behavior |
+| AC-01/03/04 | Focused action/adapter checks pass | Global/CSE/other-department roles, anonymous/future/expired grants, duplicate/File input, all-term canonical/physical/uncertain OD impact, changed-evidence confirmation, stale/no-op/cancel, irreversible retention and audit rollback |
+| AC-02/06/08 | Domain checks pass; browser verification pending | Civil year/leap/pre-epoch/large-range and independent day oracle; half-open overlap/effective bounds; typed OD-only evidence; date/weekly unions, fully closed denominator and no exception bypass |
+| AC-05/07 | Focused PostgreSQL production-action races pass | Real audit and row-lock barriers in both commit orders for manual create/update/move, OD, automatic/bulk apply, publication/create/edit/cancel and first-maintenance/delete; rejected writes preserve prior rows/versions |
+| AC-09 | Production browser/A4 QA in progress | Static sketches below remain design evidence only; final implementation captures pending |
+| AC-10 | Both adapters pass populated upgrade and recovery | Empty 0012 relation, preserved two-term business/snapshot fingerprints, direct invalid-write constraints, pre-upgrade cold/encrypted backup and exact separate-target restore |
+| AC-11 | Partial; final verification in progress | Typecheck/lint/domain and separate Webpack build pass. Required default Turbopack build fails in the previously recorded CSS-worker process/IPC path. Full 23-group safety run pending; no build exception or acceptance inferred |
+
+## Implementation checkpoint
+
+The installed Next.js server-action, revalidation and async page/search-parameter guides were read before app changes. Pure internal date context is assembled alongside the same raw meeting rows; public MeetingView and schema-4 snapshots are unchanged. All inspected exposed placement writers use fresh maintenance under the existing complete sorted parent-room lock union. No exposed term-date or meeting-effective-date editor was found; no new one was added. Publication validates its actual frozen candidate, fresh term/effective/OD context and closures under parent locks, and records only maintenance IDs/revisions/cancellation state in its private audit. General publication/version races remain BUG-25.
+
+Focused `ROM-01C` PGlite/PostgreSQL checks pass, including 44 real production-action commit-order cases (36 assignment, six publication and two first-use/deletion). Required full safety regression is running separately. Intermediate fixture failures were corrected: the active fixture term now matches the dated cases, one room assignment keeps its unique canonical role, and bulk moves have the local audience needed to enter the production grid-move path. Browser-helper request interception and fixed-viewport parity comparisons were corrected; these are not claimed as product defects.
+
+Default `npm run build` and pinned-synthetic default-build retries fail with `globals.css → creating new process → node process exited before we could connect` inside and outside the sandbox on the shell's Node 22.11.0. A separate `next build --webpack` passes; no package, bundler or runtime policy was changed. An installed bundled-runtime diagnostic is pending. Owner acceptance/local merge remain pending.
 
 ## Checks
 
@@ -29,11 +42,11 @@ Print boundary: the sketch's A4 action opens a separate, explicitly composed two
 | Image preview alone made repeated context ambiguous | Separate print-design artifact; extracted text plus direct raster-header comparison and visual review | Both final A4 pages contain the same visible context; dynamic production continuation remains AC-09 |
 | Delivery-plan pointer still mixed C title with B branch/approval | Current C links/base and pending approval separated from completed B receipt | Local links and approval-state checks pass |
 
-No implementation review has occurred. D-1–D-6 remain proposed. Document and sketch review cannot certify adapter, permission, race, publication or production behavior.
+The planning findings above describe proposal `15ab147`, before approval. Implementation results are recorded at the top of this file; document/sketch review is not adapter, permission, race or production evidence.
 
 ## Delivery and acceptance
 
 - B accepted and merged locally at `850f42a`; merge receipt `cbdbce9`.
 - C branch: `codex/rom-01c`; planning authorized by the owner's 29 October request.
-- C implementation approval, feature acceptance and local merge: **Pending**.
+- C implementation approved without amendment on 29 October at `3d4361a`; feature acceptance and local merge remain **Pending**.
 - Parent #5 remains open. GitHub synchronization deferred; last remote reconciliation 26 October 2026.

@@ -1,4 +1,5 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
+import { roomUnavailability } from "@/db/schema";
 import { academicTerms, auditEvents, courses, externalCommitments, meetingRooms, meetings, rooms, scheduleVersions, teachingGroups } from "@/db/schema";
 import type { Actor } from "./auth/policy";
 import { conflicted, invalid, stale, succeeded } from "./action-result";
@@ -8,7 +9,7 @@ import { DAY_NAMES, fmtRange } from "./time";
 
 export interface RoomLifecycleEvidence {
   today: string;
-  totals: { meetings: number; externals: number; snapshots: number; uncertainSnapshots: number };
+  totals: { meetings: number; externals: number; snapshots: number; uncertainSnapshots: number; maintenance?: number };
   blocking: Array<{ key: string; title: string; detail: string; href?: string }>;
 }
 export interface RoomLifecycleResult extends RoomResult { evidence?: RoomLifecycleEvidence }
@@ -51,7 +52,8 @@ export async function readRoomLifecycleEvidence(reader: RoomReader, room: { id: 
     if (evidence === "reference") snapshots++;
     if (evidence === "uncertain") uncertainSnapshots++;
   }
-  return { today, totals: { meetings: rows.length, externals: externals.length, snapshots, uncertainSnapshots }, blocking };
+  const maintenance = (await reader.select({ id: roomUnavailability.id }).from(roomUnavailability).where(eq(roomUnavailability.roomId, room.id))).length;
+  return { today, totals: { meetings: rows.length, externals: externals.length, snapshots, uncertainSnapshots, maintenance }, blocking };
 }
 export async function lifecycleRoomInTransaction(tx: RoomTransaction, actor: Actor, raw: Record<string, unknown>): Promise<RoomLifecycleResult> {
   const command = lifecycleCommand(raw);

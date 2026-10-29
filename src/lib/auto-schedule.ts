@@ -1,4 +1,4 @@
-import { analyzeSchedule, type BreakRule, type PermittedWindow } from "./conflicts";
+import { analyzeSchedule, type BreakRule, type PermittedWindow, type EngineInput } from "./conflicts";
 import type { TimeGrid } from "./time-grid";
 import { knownAudienceSize, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
 
@@ -75,6 +75,7 @@ function roomOrder(group: AutoScheduleGroup, rooms: RoomRef[]) {
 
 /** Deterministic first-fit suggestions. Nothing is written until the user applies the plan. */
 export function suggestSchedule(input: {
+  maintenance?: EngineInput["maintenance"];
   meetings: MeetingView[];
   groups: AutoScheduleGroup[];
   rooms: RoomRef[];
@@ -142,7 +143,7 @@ export function suggestSchedule(input: {
               externalAudienceLabel: group.externalAudienceLabel,
               externalStudentCount: group.externalStudentCount,
             };
-            const candidateIssues = analyzeSchedule({ meetings: [...working, candidate], externals: input.externals, breaks: input.breaks, windows: input.windows, grid: input.grid }).filter((issue) => issue.meetingIds.includes(tempId));
+            const candidateIssues = analyzeSchedule({ meetings: [...working, candidate], externals: input.externals, breaks: input.breaks, windows: input.windows, grid: input.grid, maintenance: input.maintenance }).filter((issue) => issue.meetingIds.includes(tempId));
             if (candidateIssues.some((issue) => issue.severity === "blocker")) continue;
             chosen = candidate;
             chosenWarnings = candidateIssues.filter((issue) => issue.severity === "warning").map((issue) => issue.title);
