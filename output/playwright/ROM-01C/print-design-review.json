@@ -1,0 +1,22 @@
+{
+  "artifact": "Separate ReportLab A4 print design; production browser pagination pending AC-09",
+  "pages": [
+    {
+      "page": 1,
+      "a4Portrait": true,
+      "contextText": true,
+      "counter": true,
+      "headerDarkPixels": 7540,
+      "headerRasterHash": "e6cfa0c4d8af536148d50ce75e8c325fa38951c58750472e91d0ca16bd0541ff"
+    },
+    {
+      "page": 2,
+      "a4Portrait": true,
+      "contextText": true,
+      "counter": true,
+      "headerDarkPixels": 7540,
+      "headerRasterHash": "e6cfa0c4d8af536148d50ce75e8c325fa38951c58750472e91d0ca16bd0541ff"
+    }
+  ],
+  "identicalVisibleHeaders": true
+}

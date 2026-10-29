@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**ROM-01C / #5 — inspection/specification authorized; implementation not yet approved.** The owner replied “accept and merge. And go for the next task.” on 29 October. ROM-01B is accepted and merged locally; start ROM-01C dated room maintenance and conflict/placement inspection, a bounded specification/checklist and responsive sketches. Obtain actual approval before implementation. One branch/writer, no worktree, institutional operation or remote sync.
+**ROM-01C / #5 — proposal ready for review; implementation not yet approved.** The owner replied “accept and merge. And go for the next task.” on 29 October. ROM-01B is accepted and merged locally; C planning is authorized on `codex/rom-01c` from `cbdbce9`. Review [specification/D-1–D-6](specs/ROM-01C/spec.md), [sole checklist/exact handoff](specs/ROM-01C/plan.md), [responsive sketches](specs/ROM-01C/mockups/index.html) and [planning verification](specs/ROM-01C/verification.md). Obtain actual approval before implementation. One branch/writer, no worktree, institutional operation or remote sync.
 
 **ROM-01B / #5 — accepted and merged locally at `850f42a`.** Actual acceptance `57471b3`; implementation `3002bb2`, correction/evidence `25e75d0`, handoff `410faf5`. [Sole checklist/receipt](specs/ROM-01B/plan.md), [verification and capture links](specs/ROM-01B/verification.md). Typecheck/lint/domain/default build, all 21 safety groups, production browser and native A4 checks pass. Parent #5 remains open. No institutional migration or rollout occurred. Final default builds pass; earlier intermittent CSS-worker failures remain historical evidence, without a bundler policy change.
 
