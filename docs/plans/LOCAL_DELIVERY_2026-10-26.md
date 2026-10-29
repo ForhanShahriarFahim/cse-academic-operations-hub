@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. ROM-01B specification approved on 28 October; implementation checkpoint `3002bb2` and reviewed corrections are verified on 29 October; remaining scopes are proposals.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. ROM-01B specification approved on 28 October; implementation `3002bb2` and correction/evidence `25e75d0` are verified on 29 October; remaining scopes are proposals.
 Updated: 28 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 

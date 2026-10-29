@@ -5,7 +5,7 @@ Status: **Implementation and T-08 verification complete; owner inspection/accept
 
 ## Implemented and verified — 29 October 2026
 
-Implementation checkpoint `3002bb2` and the reviewed corrections implement unchanged D-1–D-6. Approval `b713996` preceded feature code. T-01–T-08 are complete; actual owner acceptance/local-main merge (T-09) remain pending. Parent #5 stays open. No institutional database was opened, prepared, migrated or reset; no remote activity, worktree, extra writer or ROM-01C implementation.
+Implementation checkpoint `3002bb2` and verified correction/evidence commit **`25e75d0`** implement unchanged D-1–D-6. Approval `b713996` preceded feature code. T-01–T-08 are complete; actual owner acceptance/local-main merge (T-09) remain pending. Parent #5 stays open. No institutional database was opened, prepared, migrated or reset; no remote activity, worktree, extra writer or ROM-01C implementation.
 
 ### Acceptance evidence
 
