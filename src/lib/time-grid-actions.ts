@@ -19,6 +19,8 @@ import {
   type DayPlan, type GridBreak, type GridImpact, type GridPeriod, type ImpactMeeting, type Stream, type TimeGrid, type WindowLike,
 } from "./time-grid";
 import { DAY_NAMES } from "./time";
+import { lockMoveRooms } from "./room-lifecycle-transaction";
+import { roomAssignmentGuard } from "./room-transaction";
 
 const EDITORS = ["manage_routine", "manage_policy"] as const;
 const CHANGED = "Someone else changed these periods since you opened them. Reload the page to see the latest version.";
@@ -75,6 +77,7 @@ function windowsAfter(before: WindowLike[], key: { stream: Stream; batchId: numb
 }
 
 async function applyMoves(tx: Tx, impact: GridImpact): Promise<number> {
+  await lockMoveRooms(tx, impact.moves.map((move) => move.meetingId));
   for (const move of impact.moves) {
     await tx.update(meetings).set({ startMinutes: move.startMinutes, endMinutes: move.endMinutes }).where(eq(meetings.id, move.meetingId));
   }
@@ -107,6 +110,11 @@ export interface SavePatternInput {
 }
 
 export async function savePatternAction(input: SavePatternInput): Promise<ActionResult> {
+  let result: ActionResult | undefined;
+  const failure = await roomAssignmentGuard(async () => { result = await savePattern(input); });
+  return failure ?? result!;
+}
+async function savePattern(input: SavePatternInput): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
   if (denied) return denied;
   const term = await getActiveTerm();
@@ -207,6 +215,11 @@ export interface SetDayPlanInput {
 }
 
 export async function setDayPlanAction(input: SetDayPlanInput): Promise<ActionResult> {
+  let result: ActionResult | undefined;
+  const failure = await roomAssignmentGuard(async () => { result = await setDayPlan(input); });
+  return failure ?? result!;
+}
+async function setDayPlan(input: SetDayPlanInput): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
   if (denied) return denied;
   const term = await getActiveTerm();

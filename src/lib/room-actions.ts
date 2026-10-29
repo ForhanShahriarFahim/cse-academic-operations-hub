@@ -7,6 +7,23 @@ import { invalid, type ActionResult } from "./action-result";
 import { saveRoomInTransaction, type RoomResult } from "./room-transaction";
 import { getRoomChanges } from "./room-data";
 import { positiveInteger } from "./room-records";
+import { lifecycleRoomInTransaction, type RoomLifecycleResult } from "./room-lifecycle-transaction";
+
+export async function lifecycleRoomAction(_previous: ActionResult | null, formData: FormData): Promise<RoomLifecycleResult> {
+  const actor = await actionActor("manage_rooms");
+  if ("ok" in actor) return actor;
+  const raw: Record<string, unknown> = {};
+  for (const field of ["roomId", "revision", "action", "reason", "confirmation"]) {
+    const values = formData.getAll(field);
+    if (values.length > 1 || values.some((v) => typeof v !== "string")) return invalid("Submit each lifecycle field once as text.");
+    raw[field] = values[0];
+  }
+  let result: RoomLifecycleResult;
+  try { result = await db.transaction((tx) => lifecycleRoomInTransaction(tx, actor, raw)); }
+  catch { return invalid("The room change could not be saved. Your input is kept. Try again."); }
+  if (result.ok && !result.message.startsWith("Nothing changed.")) revalidatePath("/", "layout");
+  return result;
+}
 
 export async function loadRoomChangesAction(roomId: number, before: number) {
   // Loader enforces editor access before reading history; validate client cursor too.

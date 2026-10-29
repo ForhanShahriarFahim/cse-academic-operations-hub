@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { auditEvents } from "@/db/schema";
 import { requireActor } from ".";
+import type { Actor } from "./policy";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -16,11 +17,11 @@ interface AuditResult<T> {
 export async function auditedChange<T>(
   action: string,
   entity: string,
-  change: (tx: Transaction) => Promise<AuditResult<T>>,
+  change: (tx: Transaction, actor: Actor) => Promise<AuditResult<T>>,
 ): Promise<T> {
   const actor = await requireActor();
   return db.transaction(async (tx) => {
-    const event = await change(tx);
+    const event = await change(tx, actor);
     await tx.insert(auditEvents).values({
       actor: actor.displayName,
       actorUserId: actor.id,

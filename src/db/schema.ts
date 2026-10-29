@@ -46,6 +46,7 @@ export const rooms = pgTable(
     capacity: integer("capacity"), // null = unknown (never treated as zero)
     owningDepartmentId: integer("owning_department_id").references(() => departments.id),
     isActive: boolean("is_active").notNull().default(true),
+    isDraft: boolean("is_draft").notNull().default(false), // ROM-01B: only portal creation opts into never-assigned draft status.
     notes: text("notes"),
     revision: integer("revision").notNull().default(1),
   },

@@ -386,3 +386,22 @@ body {
   .load-bar > i { background: #666 !important; }
   .load-bar.over > i { background: #000 !important; }
 }
+@page room-occupancy {
+  size: A4 portrait;
+  margin: 12mm 12mm 14mm;
+  @bottom-right { content: counter(page) " / " counter(pages); font-size: 8pt; }
+}
+@media screen {
+  .occupancy-print-frame, .occupancy-print-frame > tbody, .occupancy-print-frame > tbody > tr, .occupancy-print-frame > tbody > tr > td { display: contents; }
+}
+@media print {
+  .room-occupancy { page: room-occupancy; font-size: 9pt; }
+  .room-occupancy .occupancy-print-frame > thead { display: table-header-group; }
+  .room-occupancy .occupancy-print-frame > thead th { display: table-cell !important; border-bottom: 0.5pt solid #777; padding-bottom: 2mm; }
+  .room-occupancy .occupancy-print-frame > tbody > tr { break-inside: auto; page-break-inside: auto; }
+  .room-occupancy section { break-inside: auto; padding: 3mm; }
+  .room-occupancy h2, .room-occupancy h3 { break-after: avoid; }
+  .room-occupancy .occupancy-row { break-inside: avoid; }
+  .room-occupancy .grid { display: block; }
+  .room-occupancy .grid > * + * { margin-top: 3mm; }
+}

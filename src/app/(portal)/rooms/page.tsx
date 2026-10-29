@@ -1,134 +1,32 @@
-import { getPortalData } from "@/lib/data";
-import { fmtRange, DAY_SHORT } from "@/lib/time";
-import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
-import { Building2, FlaskConical, Wrench } from "lucide-react";
-import { PrintHeader } from "@/components/print-header";
-import { PrintButton } from "@/components/print-button";
 import Link from "next/link";
+import { getPortalData } from "@/lib/data";
+import { PageHeader, Badge, EmptyNote, Notice } from "@/components/ui";
+import { PrintButton } from "@/components/print-button";
 import { can, requireActor } from "@/lib/auth";
-import { buttonClass } from "@/components/account/styles";
-
+import { buttonClass, inputClass } from "@/components/account/styles";
+import { projectRoomOccupancy, roomPlanningStamp } from "@/lib/room-occupancy";
 export const dynamic = "force-dynamic";
-
-/** Union of permitted teaching windows minus applicable breaks, in minutes/week. */
-function usableWindowMinutes(data: Awaited<ReturnType<typeof getPortalData>>) {
-  const byDay = new Map<number, [number, number][]>();
-  // Batch-specific overrides should not inflate the institution-wide room
-  // denominator; only the stream-wide timetable defines usable capacity.
-  for (const w of data.windows.filter((window) => window.batchId == null)) {
-    const arr = byDay.get(w.dayOfWeek) ?? [];
-    arr.push([w.startMinutes, w.endMinutes]);
-    byDay.set(w.dayOfWeek, arr);
-  }
-  let total = 0;
-  for (const [day, ivs] of byDay) {
-    // union windows
-    ivs.sort((a, b) => a[0] - b[0]);
-    let cur: [number, number] | null = null;
-    const union: [number, number][] = [];
-    for (const [s, e] of ivs) {
-      if (!cur || s > cur[1]) { if (cur) union.push(cur); cur = [s, e]; }
-      else cur[1] = Math.max(cur[1], e);
-    }
-    if (cur) union.push(cur);
-    let dayMin = union.reduce((sum, [s, e]) => sum + (e - s), 0);
-    // subtract any break overlapping the day's windows (breaks are scoped; approximate against union)
-    for (const br of data.breaks) {
-      if (br.dayOfWeek != null && br.dayOfWeek !== day) continue;
-      for (const [s, e] of union) {
-        const ov = Math.min(e, br.endMinutes) - Math.max(s, br.startMinutes);
-        if (ov > 0) { dayMin -= ov; break; }
-      }
-    }
-    total += dayMin;
-  }
-  return total;
-}
-
-export default async function RoomsPage() {
+export default async function RoomsPage({ searchParams }: { searchParams: Promise<{ status?: string | string[]; q?: string | string[]; done?: string }> }) {
   const data = await getPortalData();
   const editor = await can(await requireActor(), "manage_rooms");
-  const windowMinutes = usableWindowMinutes(data);
-
-  const rows = data.rooms.map((r) => {
-    const reserved = data.meetings
-      .filter((m) => m.rooms.some((x) => x.id === r.id))
-      .reduce((s, m) => s + (m.endMinutes - m.startMinutes), 0);
-    const extReserved = data.externals
-      .filter((e) => e.roomId === r.id && e.startMinutes != null)
-      .reduce((s, e) => s + (e.endMinutes! - e.startMinutes!), 0);
-    const meetingCount = data.meetings.filter((m) => m.rooms.some((x) => x.id === r.id)).length;
-    return { r, reserved, extReserved, meetingCount, total: reserved + extReserved };
-  }).sort((a, b) => b.total - a.total);
-
-  const maxTotal = Math.max(...rows.map((x) => x.total), 1);
-
-  return (
-    <div>
-      <PrintHeader title="Rooms & occupancy" termName={data.term.name} publishedVersion={data.versions.find((v) => v.state === "published")?.versionNumber ?? null} />
-      <PageHeader
-        context="Planning records"
-        title="Rooms & occupancy"
-        description={`How much of each room's usable time is booked, out of ${windowMinutes} minutes a week in the permitted class windows (breaks excluded). CSE classes and confirmed bookings by other departments count once per class.`}
-        actions={<><PrintButton />{editor && <Link className={`${buttonClass.primary} no-print`} href="/rooms/new">Add room</Link>}</>}
-      />
-
-      {!rows.length && <EmptyNote>No rooms recorded yet. {editor ? <Link href="/rooms/new" className="underline">Add room</Link> : "An editor can add the room directory."}</EmptyNote>}
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {rows.map(({ r, reserved, extReserved, meetingCount, total }) => (
-          <div key={r.id} className="ruled min-w-0 break-words rounded-lg p-4">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="break-all font-mono text-[15px] font-bold text-[var(--color-pine)]"><Link className="hover:underline" href={`/rooms/${r.id}`}>{r.code}</Link></p>
-                <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted">
-                  {r.roomType === "lab" ? <FlaskConical size={11} /> : <Building2 size={11} />}
-                  {r.building} · {r.roomType} · seats {r.capacity ?? "unknown"}
-                </p>
-              </div>
-              <div className="flex max-w-[55%] shrink-0 flex-col items-end gap-1">
-                <Badge tone={r.owningDepartmentCode === "CSE" ? "pine" : "gold"}>
-                  {r.owningDepartmentCode === "CSE" ? "CSE" : r.owningDepartmentCode ? `${r.owningDepartmentCode} room` : "Owner not recorded"}
-                </Badge>
-                {!r.isActive && <Badge tone="clay"><Wrench size={9} /> closed</Badge>}
-                {editor && <Link href={`/rooms/${r.id}/edit`} className="no-print text-xs font-semibold underline">Edit <span className="sr-only">{r.code}</span></Link>}
-              </div>
-            </div>
-            {r.capabilities.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {r.capabilities.map((capability) => <Badge key={capability} tone="neutral">{capability}</Badge>)}
-              </div>
-            )}
-            <div className="mt-3">
-              <div className="flex justify-between text-[10.5px] text-muted">
-                <span>{meetingCount} meetings · {Math.round(total)} min/wk{extReserved > 0 ? ` (OD ${extReserved})` : ""}</span>
-                <span className="font-mono font-semibold">{windowMinutes ? Math.round((total / windowMinutes) * 100) : 0}%</span>
-              </div>
-              <div className="mt-1 flex h-2 overflow-hidden rounded-full bg-black/[0.06]">
-                <div className="h-full bg-[var(--color-pine)]" style={{ width: `${Math.min(100, (reserved / maxTotal) * 100)}%` }} />
-                <div className="h-full bg-[var(--color-gold)]" style={{ width: `${Math.min(100, (extReserved / maxTotal) * 100)}%` }} />
-              </div>
-              {r.notes && <p className="mt-2 text-[10.5px] leading-snug text-muted">{r.notes}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4">
-        <Panel title="Closures & external bookings" sub="Same-department ownership does not guarantee availability">
-          <div className="flex flex-wrap gap-2">
-            {data.externals.filter((e) => e.roomId && (e.kind === "room_reservation" || e.kind === "combined")).map((e) => (
-              <span key={e.id} className="flex items-center gap-1.5 rounded-full border border-[var(--color-clay)]/25 bg-[var(--color-clay)]/5 px-2.5 py-1 text-[11px] font-medium text-[var(--color-clay)]">
-                <Building2 size={11} />
-                {e.roomCode} · {e.counterpartDepartment} · {e.dayOfWeek != null ? DAY_SHORT[e.dayOfWeek] : "?"}{" "}
-                {e.startMinutes != null ? fmtRange(e.startMinutes, e.endMinutes!) : "time TBD"}
-              </span>
-            ))}
-            {data.externals.filter((e) => e.roomId).length === 0 && (
-              <EmptyNote>No external room reservations on record.</EmptyNote>
-            )}
-          </div>
-        </Panel>
-      </div>
-    </div>
-  );
+  const raw = await searchParams;
+  const status = typeof raw.status === "string" && ["active", "inactive", "all"].includes(raw.status) ? raw.status : "active";
+  const q = typeof raw.q === "string" ? raw.q : Array.isArray(raw.q) ? raw.q.join(", ") : "";
+  const query = new URLSearchParams({ status, ...(q ? { q } : {}) });
+  const counts = { active: data.rooms.filter((r) => r.isActive).length, inactive: data.rooms.filter((r) => !r.isActive).length, all: data.rooms.length };
+  const rows = data.rooms.filter((r) => (status === "all" || r.isActive === (status === "active")) && `${r.code} ${r.building}`.toLowerCase().includes(q.trim().toLowerCase())).sort((a, b) => a.code.localeCompare(b.code, "en", { numeric: true }) || a.id - b.id);
+  return <div className="min-w-0 break-words">
+    <PageHeader context="Internal planning records" title="Rooms & occupancy" description={`Weekly planning pattern · ${data.term.name}. Recorded bookings use interval unions. Utilization is booked within common stream windows / common usable minutes, after each stream's blocking breaks.`} actions={<><PrintButton />{editor && <Link className={`${buttonClass.primary} no-print`} href="/rooms/new">Add room</Link>}</>} />
+    <p className="mb-4 text-sm text-muted">Filter: {status} · {q ? `Search: ${q} · ` : ""}{rows.length} of {data.rooms.length} rooms · Generated {roomPlanningStamp()}. Active weekly records combine effective ranges; potential gaps do not resolve actual dates, incomplete OD data or maintenance.</p>
+    {raw.done && <Notice tone="success">{raw.done}</Notice>}
+    {raw.status && raw.status !== status && <Notice tone="warn">Unknown status filter. Showing Active rooms.</Notice>}
+    <form className="no-print ruled mb-4 grid min-w-0 gap-3 rounded-lg p-4 sm:grid-cols-[1fr_2fr_auto]" action="/rooms"><div className="min-w-0"><label htmlFor="rooms-status" className="mb-1 block text-sm font-semibold">Status</label><select id="rooms-status" name="status" defaultValue={status} className={inputClass}><option value="active">Active ({counts.active})</option><option value="inactive">Inactive ({counts.inactive})</option><option value="all">All ({counts.all})</option></select></div><div className="min-w-0"><label htmlFor="rooms-search" className="mb-1 block text-sm font-semibold">Code or building</label><input id="rooms-search" name="q" defaultValue={q} className={inputClass} /></div><button type="submit" className={`${buttonClass.secondary} self-end`}>Apply filters</button></form>
+    {!rows.length && <EmptyNote>{data.rooms.length ? "No rooms match these filters. Change status or clear the search." : "No rooms are recorded yet. An editor can add the room directory."}</EmptyNote>}
+    <div className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">{rows.map((room) => {
+      const p = projectRoomOccupancy(data, room);
+      return <article key={room.id} className="ruled min-w-0 break-words rounded-lg p-4"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-mono text-lg font-bold text-[var(--color-pine)]"><Link href={`/rooms/${room.id}?${query}`} className="underline">{room.code}</Link></h2><Badge tone={room.isActive ? "pine" : "clay"}>{room.isActive ? "Active" : "Inactive"}</Badge></div><p className="mt-1 text-sm">{room.building} · {room.roomType} · {room.capacity ?? "Unknown"} seats</p><p className="mt-1 text-xs text-muted">{room.capabilities.join(", ") || "No capabilities recorded"} · {room.owningDepartmentCode ?? "Owner not recorded"}</p>
+        <p className="mt-4 text-sm"><strong>{p.totals.booked} recorded booked min</strong> · {p.eventCount} events</p><p className="mt-1 text-xs">{p.totals.within} booked within / {p.totals.usable} common usable min · {p.utilization == null ? "Not configured" : `${p.utilization}% utilization`}</p><div className="mt-2 h-2 overflow-hidden rounded bg-black/10" aria-hidden="true"><div className="h-full bg-[var(--color-pine)]" style={{ width: `${p.utilization ?? 0}%` }} /></div><p className="mt-2 text-xs text-muted">{p.totals.outside} booked min outside common windows · {p.uncertainty.length} unverified booking records</p>{p.days.some((d) => d.warnings.length) && <p className="mt-2 text-xs">Configuration warnings: see weekly occupancy.</p>}<Link className="no-print mt-4 inline-block text-sm font-semibold underline" href={`/rooms/${room.id}/occupancy?${query}`}>View weekly occupancy</Link>
+      </article>;
+    })}</div>
+  </div>;
 }

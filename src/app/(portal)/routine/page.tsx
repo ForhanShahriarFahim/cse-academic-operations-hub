@@ -86,9 +86,9 @@ export default async function RoutinePage({
         teachers={data.teachers.map((t) => ({
           id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode, designation: t.designation, status: t.status,
         }))}
-        rooms={data.rooms.filter((r) => r.isActive).map((r) => ({
+        rooms={data.rooms.map((r) => ({
           id: r.id, code: r.code, building: r.building, roomType: r.roomType, capabilities: r.capabilities, capacity: r.capacity,
-          owningDepartmentCode: r.owningDepartmentCode,
+          owningDepartmentCode: r.owningDepartmentCode, isActive: r.isActive,
         }))}
         windows={data.windows}
         blockersByDay={blockersByDay}

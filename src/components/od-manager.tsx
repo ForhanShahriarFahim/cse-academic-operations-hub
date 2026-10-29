@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { BadgeCheck, CirclePlus, Trash2, X, XCircle } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
 import type { ExternalCommitmentView } from "@/lib/serialize";
@@ -22,6 +23,7 @@ export function OdManager({
   const [result, setResult] = useState<ActionResult | null>(null);
   const [pending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   return (
     <>
@@ -37,7 +39,7 @@ export function OdManager({
           <div className="w-[640px] max-h-[90vh] overflow-y-auto rounded-lg border border-[var(--color-line)] bg-sheet shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-[var(--color-line-soft)] px-4 py-3">
               <h3 className="font-display text-[16px] font-semibold">Record external commitment (OD)</h3>
-              <button onClick={() => setOpen(false)} className="rounded p-1 text-muted hover:bg-black/5"><X size={16} /></button>
+              <button aria-label="Close OD form" onClick={() => setOpen(false)} className="rounded p-1 text-muted hover:bg-black/5"><X size={16} /></button>
             </div>
             <form
               ref={formRef}
@@ -54,8 +56,8 @@ export function OdManager({
             >
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="micro-label mb-1 block">Kind</label>
-                  <select name="kind" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
+                  <label htmlFor="od-kind" className="micro-label mb-1 block">Kind</label>
+                  <select id="od-kind" name="kind" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
                     <option value="teaching">Outgoing teaching (CSE teacher elsewhere)</option>
                     <option value="room_reservation">External room reservation (blocks room only)</option>
                     <option value="combined">Combined teacher + room</option>
@@ -63,15 +65,15 @@ export function OdManager({
                   </select>
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">Counterpart department *</label>
-                  <input name="counterpartDepartment" required placeholder="e.g. Mathematics"
+                  <label htmlFor="od-counterpartDepartment" className="micro-label mb-1 block">Counterpart department *</label>
+                  <input id="od-counterpartDepartment" name="counterpartDepartment" required placeholder="e.g. Mathematics"
                     className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="micro-label mb-1 block">Teacher (if known)</label>
-                  <select name="teacherId" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
+                  <label htmlFor="od-teacherId" className="micro-label mb-1 block">Teacher (if known)</label>
+                  <select id="od-teacherId" name="teacherId" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
                     <option value="">— unknown / N/A —</option>
                     {teachers.map((t) => (
                       <option key={t.id} value={t.id}>{t.shortCode} · {t.fullName}{t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}</option>
@@ -79,8 +81,8 @@ export function OdManager({
                   </select>
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">Room (if known)</label>
-                  <select name="roomId" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
+                  <label htmlFor="od-roomId" className="micro-label mb-1 block">Room (if known)</label>
+                  <select id="od-roomId" name="roomId" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
                     <option value="">— unknown / N/A —</option>
                     {rooms.map((r) => <option key={r.id} value={r.id}>{r.code}</option>)}
                   </select>
@@ -88,38 +90,38 @@ export function OdManager({
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="micro-label mb-1 block">Day</label>
-                  <select name="dayOfWeek" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
+                  <label htmlFor="od-dayOfWeek" className="micro-label mb-1 block">Day</label>
+                  <select id="od-dayOfWeek" name="dayOfWeek" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]">
                     <option value="">—</option>
                     {DAY_NAMES.map((d, i) => <option key={d} value={i}>{d}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">Start</label>
-                  <input name="startTime" placeholder="9:00 AM" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
+                  <label htmlFor="od-startTime" className="micro-label mb-1 block">Start</label>
+                  <input id="od-startTime" name="startTime" placeholder="9:00 AM" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">End</label>
-                  <input name="endTime" placeholder="10:15 AM" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
+                  <label htmlFor="od-endTime" className="micro-label mb-1 block">End</label>
+                  <input id="od-endTime" name="endTime" placeholder="10:15 AM" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="micro-label mb-1 block">Course label</label>
-                  <input name="courseLabel" placeholder="MAT-2201 …" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
+                  <label htmlFor="od-courseLabel" className="micro-label mb-1 block">Course label</label>
+                  <input id="od-courseLabel" name="courseLabel" placeholder="MAT-2201 …" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">Audience</label>
-                  <input name="audienceLabel" placeholder="MATH 2nd year" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
+                  <label htmlFor="od-audienceLabel" className="micro-label mb-1 block">Audience</label>
+                  <input id="od-audienceLabel" name="audienceLabel" placeholder="MATH 2nd year" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
                 </div>
                 <div>
-                  <label className="micro-label mb-1 block">Credits</label>
-                  <input name="credits" placeholder="3.0" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
+                  <label htmlFor="od-credits" className="micro-label mb-1 block">Credits</label>
+                  <input id="od-credits" name="credits" placeholder="3.0" className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 font-mono text-[12.5px]" />
                 </div>
               </div>
               <div>
-                <label className="micro-label mb-1 block">Notes / source reference</label>
-                <textarea name="notes" rows={2} placeholder="How was this learned? What is unconfirmed?"
+                <label htmlFor="od-notes" className="micro-label mb-1 block">Notes / source reference</label>
+                  <textarea id="od-notes" name="notes" rows={2} placeholder="How was this learned? What is unconfirmed?"
                   className="w-full rounded-md border border-[var(--color-line)] bg-white px-2 py-2 text-[12.5px]" />
               </div>
               <p className="text-[10.5px] leading-snug text-muted">
@@ -127,7 +129,7 @@ export function OdManager({
                 room and invents no teacher conflict; unresolved notes never become fabricated reservations.
               </p>
               {result && !result.ok && (
-                <p className="rounded-md border border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 px-3 py-2 text-[12px] text-[var(--color-clay)]">{result.message}</p>
+                <div role="alert" className="rounded-md border border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 px-3 py-2 text-[12px] text-[var(--color-clay)]"><p>{result.message}</p><button type="button" className="mt-2 font-semibold underline" onClick={() => router.refresh()}>Refresh room choices (keep entered values)</button></div>
               )}
               <div className="flex justify-end gap-2 border-t border-[var(--color-line-soft)] pt-3">
                 <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-[var(--color-line)] px-3.5 py-2 text-[12.5px] font-semibold text-muted">Cancel</button>

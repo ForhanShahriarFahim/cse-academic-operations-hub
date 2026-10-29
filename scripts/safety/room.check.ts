@@ -20,7 +20,7 @@ import { createEncryptedBackup, createKeyFile, restoreEncryptedBackup } from "./
 
 const txType = (tx: unknown) => tx as RoomTransaction;
 const raw = (row: RoomRecord, patch: Record<string, unknown> = {}) => ({ ...row, roomId: String(row.id), revision: String(row.revision), capacity: row.capacity == null ? "" : String(row.capacity), owningDepartmentId: row.owningDepartmentId == null ? "" : String(row.owningDepartmentId), notes: row.notes ?? "", ...patch });
-const legacy = async (handle: Pick<SafetyHandle, "exec">) => handle.exec(`alter table rooms drop constraint rooms_code_nonblank_ck, drop constraint rooms_building_nonblank_ck, drop constraint rooms_type_ck, drop constraint rooms_capacity_ck, drop constraint rooms_revision_ck; drop index rooms_code_canonical_uq; alter table rooms drop column revision; delete from drizzle.__drizzle_migrations where created_at = 1793059200000;`);
+const legacy = async (handle: Pick<SafetyHandle, "exec">) => handle.exec(`alter table rooms drop constraint rooms_code_nonblank_ck, drop constraint rooms_building_nonblank_ck, drop constraint rooms_type_ck, drop constraint rooms_capacity_ck, drop constraint rooms_revision_ck; drop index rooms_code_canonical_uq; alter table rooms drop column revision, drop column is_draft; delete from drizzle.__drizzle_migrations where created_at >= 1793059200000;`);
 
 async function upgrade(database: SafetyDatabase, lines: string[]) {
   await withHandle(database, async (h) => {
@@ -35,7 +35,7 @@ async function upgrade(database: SafetyDatabase, lines: string[]) {
     await database.migrate(h);
     const after = await fingerprintDatabase(h.client);
     for (const [name, table] of Object.entries(before.tables)) if (!["public.rooms", "drizzle.__drizzle_migrations"].includes(name)) assert.deepEqual(after.tables[name], table, name);
-    assert.deepEqual((await h.client.query(`select to_jsonb(r) - 'revision' as value from rooms r order by id`)).rows.map((r) => (r as { value: unknown }).value), roomBefore.rows);
+    assert.deepEqual((await h.client.query(`select to_jsonb(r) - 'revision' - 'is_draft' as value from rooms r order by id`)).rows.map((r) => (r as { value: unknown }).value), roomBefore.rows);
     assert.ok((await h.db.select().from(s.rooms)).every((row) => row.revision === 1));
     await assert.rejects(h.client.query(`insert into rooms (code, building, is_active) values ('LEGACY-1', 'Synthetic', false)`), /rooms_code_canonical_uq/);
     for (const [column, value] of [["capacity", "0"], ["room_type", "'hall'"], ["building", "' '"], ["code", "' '"]]) await assert.rejects(h.client.query(`update rooms set ${column} = ${value}`), /rooms_.*_ck/);

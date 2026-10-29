@@ -1,6 +1,6 @@
 # Local delivery plan — 26 October 2026
 
-Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. Remaining delivery order/scopes are proposals.
+Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. ROM-01B specification approved on 28 October; implementation `3002bb2` and correction/evidence `25e75d0` are verified on 29 October; remaining scopes are proposals.
 Updated: 28 October 2026, Asia/Dhaka.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
@@ -86,6 +86,8 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merged locally at `2b363cb`, preserving approved/implementation/correction history; parent #5 remains open.
-- Default Turbopack CSS-worker IPC failure remains unresolved; separately labelled Webpack build passes. Accepted delivery exception does not alter build policy or certify production.
-- The owner requested ROM-01B inspection/specification next in this session after the merge. Prepare lifecycle, unused deletion, guarded pickers and weekly occupancy/free-window rules and sketches for approval. No ROM-01B implementation, ROM-01C, institutional operation or remote synchronization authorized.
+- ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merged locally at `2b363cb`, acceptance `44753cb`, completed merge handoff `3c4e7cc`. Parent #5 remains open; no remote synchronization.
+- Current part: **ROM-01B implemented and verified; owner inspection pending**, on `codex/rom-01b` from `3c4e7cc`. [Specification/D-1–D-6](../specs/ROM-01B/spec.md), [sole checklist/exact continuation](../specs/ROM-01B/plan.md), [verification](../specs/ROM-01B/verification.md), [responsive sketches](../specs/ROM-01B/mockups/index.html). Owner explicitly requested this next inspection after the merge; owner subsequently replied “approved.” to the spec/plan/sketches and D-1–D-6 on 28 October, without amendments.
+- Review decisions: existing authority; all-term today-inclusive future-use checks; monotonic new-draft-only deletion with all existing rooms retained; weekly pattern rather than dated availability; stream-window/break union and uncertainty; inactive-selection remediation. Drag/keyboard/undo and grid bulk moves join the narrow lifecycle guard.
+- Final ROM-01B default Turbopack builds pass. Earlier intermittent CSS-worker failures remain recorded; no root-cause repair or bundler policy change is claimed, and no inherited acceptance exception is needed for the passing final result.
+- Next action: owner inspection and actual acceptance of the verified ROM-01B delivery, then bounded local-main merge. Approval `b713996` preceded code. ROM-01C follows this slice separately. No institutional operation, remote activity, additional worktree or extra writer.

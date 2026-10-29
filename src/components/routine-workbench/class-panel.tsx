@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { DAY_NAMES, DAY_SHORT, fmtRange } from "@/lib/time";
 import { daysFor, periodsFor, type Stream, type TimeGrid } from "@/lib/time-grid";
@@ -72,6 +73,7 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
   headingId: string;
 }) {
   const existing = mode.kind === "edit" ? meetings.find((m) => m.id === mode.meetingId) ?? null : null;
+  const router = useRouter();
   const batchGroups = mode.kind === "new"
     ? groups.filter((g) => g.template.audiences.some((a) => a.batchId === mode.batchId) && g.template.deliveryMode !== "teacher_managed")
       .sort((a, b) => Number(b.coverage.status !== "scheduled") - Number(a.coverage.status !== "scheduled") || a.template.courseCode.localeCompare(b.template.courseCode))
@@ -113,14 +115,17 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
     id: t.id, code: t.shortCode, label: `${t.fullName}${t.homeDepartmentCode && t.homeDepartmentCode !== "CSE" ? ` (${t.homeDepartmentCode})` : ""}${t.status === "on_leave" ? " · on leave" : t.status === "inactive" ? " · inactive" : ""}`,
     availability: timesValid ? teacherAvailability(t.id, day, placement.startMinutes, placement.endMinutes, context, exceptId) : { state: "free" as const },
   }));
-  const roomChoices = base ? suitableRooms(rooms, base.requiredRoomCapability, base.courseType) : rooms;
+  const suitable = base ? suitableRooms(rooms, base.requiredRoomCapability, base.courseType) : rooms.filter((r) => r.isActive !== false);
+  const roomChoices = [...new Map([...suitable, ...rooms.filter((r) => roomIds.includes(r.id))].map((r) => [r.id, r])).values()];
   const roomOptions = roomChoices.map((r) => ({
-    id: r.id, code: r.code, label: `${r.roomType}${r.capacity ? ` · ${r.capacity} seats` : ""}${r.owningDepartmentCode && r.owningDepartmentCode !== "CSE" ? ` · ${r.owningDepartmentCode}` : ""}`,
+    id: r.id, code: r.code, label: `${r.isActive === false ? "Inactive · replace/remove · " : ""}${r.roomType}${r.capacity ? ` · ${r.capacity} seats` : ""}${r.owningDepartmentCode && r.owningDepartmentCode !== "CSE" ? ` · ${r.owningDepartmentCode}` : ""}`,
     availability: timesValid ? roomAvailability(r, day, placement.startMinutes, placement.endMinutes, context, exceptId, size) : { state: "free" as const },
   }));
+  for (const id of roomIds.filter((id) => !rooms.some((r) => r.id === id))) roomOptions.push({ id, code: existing?.rooms.find((r) => r.id === id)?.code ?? `Room #${id}`, label: "Unavailable · remove or replace before saving", availability: { state: "busy", detail: "Room no longer available" } });
 
   const changed = existing ? JSON.stringify(placementOf(existing)) !== JSON.stringify(placement) : true;
   const canSave = !!base && timesValid && teacherIds.length > 0 && roomIds.length > 0 && blockers.length === 0 && changed
+    && roomIds.every((id) => rooms.some((r) => r.id === id && r.isActive !== false))
     && (!isException || !!exceptionNote.trim()) && !pending;
 
   // Keyboard/screen-reader alternative to drag and drop: every free slot this class could move to.
@@ -235,7 +240,8 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
         )
       ) : null}
 
-      {serverResult ? <IssueList issues={serverResult.issues ?? []} prefix={serverResult.message} /> : null}
+      {roomIds.some((id) => !rooms.some((r) => r.id === id && r.isActive !== false)) && <p role="alert" className="rounded border border-[var(--color-clay)] p-3 text-sm">A selected room is inactive or unavailable. Replace or remove it before saving. Every existing room role is kept until you explicitly change the selection.</p>}
+      {serverResult ? <><IssueList issues={serverResult.issues ?? []} prefix={serverResult.message} /><button type="button" className="text-sm font-semibold underline" onClick={() => router.refresh()}>Refresh room choices (keep entered values)</button></> : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button type="button" disabled={!canSave} onClick={save}
