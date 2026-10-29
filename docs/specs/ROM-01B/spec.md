@@ -1,7 +1,7 @@
 # ROM-01B — Safe room lifecycle and weekly occupancy
 
 Parent: [#5 ROM-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/5).
-Status: **Approved on 28 October 2026; implemented and verified on 29 October; owner inspection/acceptance pending.**
+Status: **Approved on 28 October 2026; implemented and verified on 29 October; accepted by the owner on 29 October for local merge.**
 Updated: 29 October 2026, Asia/Dhaka.
 Sole checklist: [plan.md](plan.md). Inspection/checks: [verification.md](verification.md). Workflow sketches: [mockups/index.html](mockups/index.html).
 

@@ -1,7 +1,7 @@
 # ROM-01B — Implementation verification and inspection
 
 Updated: 29 October 2026, Asia/Dhaka. Sole checklist: [plan.md](plan.md).
-Status: **Implementation and T-08 verification complete; owner inspection/acceptance and local merge pending.**
+Status: **Verified delivery accepted by the owner on 29 October 2026; bounded local merge authorized.**
 
 ## Implemented and verified — 29 October 2026
 
@@ -77,3 +77,7 @@ The owner must review D-1–D-6, especially deletion eligibility for existing ro
 The owner replied **“approved.”** to the concrete specification, sole checklist and responsive/print sketches, including the explicit request to approve D-1–D-6 before implementation. All six decisions are approved without amendments; no new institutional facts or build exception granted. Proposal checkpoint `19509b0` is preserved; commit this approval record before any feature implementation. Historical sketch banners retain “Approval pending” as review-time artifacts, not the current authorization state. Actual implementation acceptance/local merge remain pending. Approval-only changes use documentation checks and reuse unchanged static evidence.
 
 Approval checkpoint **`b713996`** is committed before application/schema/test changes. Final approval-record checks pass: 16 text files, 258 local references, 19 anchors, the sole nine-task checklist with T-01–T-03 complete, unchanged D-1–D-6 and `git diff --check`. Implementation remains the next session's T-04; no application/database commands or repeat suites were run for this approval-only handoff.
+
+## Actual owner acceptance — 29 October 2026
+
+The owner replied **“accept and merge. And go for the next task.”** after the delivered review. ROM-01B is accepted with its passing final default build and recorded checks. The bounded local-main merge is authorized; parent #5 remains open. The follow-on authorization is ROM-01C inspection/specification, with implementation still requiring its own approved plan. No institutional migration/rollout, push, PR or GitHub update is included.
