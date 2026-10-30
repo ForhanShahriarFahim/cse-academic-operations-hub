@@ -1,0 +1,121 @@
+{
+  "observations": [
+    {
+      "name": "create-form-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "create-form-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "create-form-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "validation-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "impact-review-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "impact-page-3-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "pending-save-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "saved-history-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "date-occupancy-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "date-occupancy-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "date-occupancy-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "outside-term-error",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "uncertain-od-date",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "cancellation-confirmation",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "closed-date",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "maintenance-page-2",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "maintenance-history-paged",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    }
+  ],
+  "publicProjectionHashes": {
+    "screen": "3a9e0d2e74c59a93282b0ff646928e1a591f134f1f1fe56847cca8278eb50027",
+    "official": "1467405e5817760998c8fe3e6ca772e544aea6a251906f9253571fedc6707108",
+    "print": "1467405e5817760998c8fe3e6ca772e544aea6a251906f9253571fedc6707108",
+    "csv": "f57eef96ba4e6fb15d277bcecf81d268f44e11bfdb41afb4e2f292918202063f"
+  },
+  "pageErrors": [],
+  "flows": [
+    "create/impact pagination/pending/save",
+    "date/weekly/filter bounds and print after interaction",
+    "edit/cancel history",
+    "two-tab stale",
+    "reader/editor denial",
+    "public screen/CSV/official print projection parity after create/edit/cancel"
+  ]
+}

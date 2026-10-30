@@ -1,0 +1,8 @@
+{
+  "syntheticSignInRedirect": true,
+  "finalProductionBuild": "webpack",
+  "dateCalculation": true,
+  "dialogTabAndShiftTabAndEscape": true,
+  "publicOperationalReasonAbsent": true,
+  "writePerformed": false
+}

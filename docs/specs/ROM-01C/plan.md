@@ -1,9 +1,9 @@
 # ROM-01C — Implementation plan and sole checklist
 
 Parent: ROM-01 / #5. [Specification](spec.md), [verification](verification.md), [sketches](mockups/index.html).
-Status: **D-1–D-6 approved; implementation in progress.**
+Status: **Implemented; ready for owner inspection with the disclosed default-build failure. Acceptance/merge pending.**
 Branch/base: `codex/rom-01c` from local `main` `cbdbce9`, following ROM-01B merge `850f42a`.
-Updated: 29 October 2026, Asia/Dhaka.
+Updated: 30 October 2026, Asia/Dhaka. Approval remains the owner's 29 October decision.
 
 ## Inspection and proposed approach
 
@@ -32,8 +32,8 @@ Read relevant installed Next.js guides before app changes, including server acti
 - [x] T-04 — Build pure date/typed-conflict/projection rules, schema/constraints and empty forward migration; verify populated upgrade and recovery on both adapters. Focused PGlite/PostgreSQL upgrade, constraint and exact restore checks pass. Covers AC-02/06/08/10; depends T-03.
 - [x] T-05 — Add guarded reads/create/edit/cancel/history, impact fingerprint/reconfirmation, retention/revisions/audits and permissions. Focused production action/role, stale/no-op/uncertainty and audit rollback checks pass. Covers AC-01/03/04; depends T-04.
 - [x] T-06 — Connect all placement, automatic/bulk/move and publication checks under shared room locks; prove actual commit-order races/rollback. PostgreSQL production-action barriers pass in both orders for all six placement writers, publication/create/edit/cancel and draft-delete/first-maintenance. Covers AC-05/06/07; depends T-04/05.
-- [ ] T-07 — Build responsive maintenance/impact states, conflict remediation and weekly/date occupancy with matching A4 print. Covers AC-03/08/09; depends T-05/06.
-- [ ] T-08 — Run final domain/action/adapter/concurrency/browser/print/publication parity and required suites; correct findings and record criteria evidence. Covers AC-01–AC-11; depends T-04–T-07.
+- [x] T-07 — Build responsive maintenance/impact states, conflict remediation and weekly/date occupancy with matching A4 print. Seventeen production browser/axe captures, keyboard confirmation, stale/denied/history flows and six-page native A4 checks pass. Covers AC-03/08/09; depends T-05/06.
+- [ ] T-08 — Verification executed; **AC-11 remains partial because the default Turbopack build fails**. Typecheck/lint/domain, all 23 safety groups, real adapter/race/browser/publication-parity and native-print checks pass; the separate final Webpack production build passes. No default-build exception is inferred. [Exact evidence/limitations](verification.md). Covers AC-01–AC-11; depends T-04–T-07.
 - [ ] T-09 — Present local runnable synthetic review, obtain actual owner acceptance, merge bounded C delivery into local main and update handoff. Keep #5 open until remaining requirements review. Depends T-08 and acceptance.
 
 ## Verification and delivery
@@ -50,6 +50,7 @@ Browser: synthetic populated/empty/denied/pending/error/stale and paged-impact/h
 
 - Scope: D-1–D-6 approved by the owner on 29 October 2026 without amendment. One writer/branch; no worktrees.
 - Base: `cbdbce9`; B is accepted/merged at `850f42a`. Last remote reconciliation 26 October; no sync this session.
-- Work: approval committed at `3d4361a` before code. T-04–T-06 pass focused checks. Maintenance/impact and date occupancy UI is implemented; production browser/A4 QA and the full 23-group safety run are in progress. Default Turbopack build currently fails in the inherited CSS-worker process/IPC path; the separate Webpack production build passes. This is not an accepted build exception.
-- Next action: complete T-07/T-08, correct findings, record bounded evidence and present a runnable synthetic review. Do not merge or advance before owner acceptance.
-- Exact continuation: “On `codex/rom-01c`, read the brief and ROM-01C spec/sole plan/verification and inspect Git. D-1–D-6 are approved without amendment at `3d4361a`; do not ask again. Continue remaining browser/print/final checks and any corrections, preserving passing evidence. Record default-build failures honestly; a separate Webpack result does not pass the default build. Preserve institutional storage and frozen publications; no remote sync/worktree. Present C for acceptance before local merge or advancing.”
+- Work: approval `3d4361a` preceded implementation `c33e6ad`, corrections `49a50f2`; corrections complete cancellation focus/success revalidation, a dump/restore-stable reason constraint and explicit disposable-reset/legacy-test integration. T-04–T-07 and 23 safety groups pass. [Verification/capture gallery](verification.md) owns exact evidence. The default Turbopack CSS-worker process/IPC failure remains unresolved; the separately labeled final Webpack build powers the synthetic review. This is not an accepted build exception.
+- Review on this host: `node node_modules/tsx/dist/cli.mjs .tmp/rom01c-pg-review.ts --serve` starts a guarded owned PostgreSQL production preview on `http://localhost:3104`; `node .tmp/rom01c-owner-preview.cjs` supplies a loopback gallery and synthetic sign-in link in ignored `.tmp/rom01c-owner-review.json`. These host-local helpers retain no institutional target and are not application/deployment entry points. Captures and evidence are versioned under `output/playwright/ROM-01C/implementation`.
+- Next action: owner inspection and a decision on the disclosed default-build failure or requested corrections. Record actual acceptance before merging C into local main. Do not start the next part.
+- Exact continuation: “On `codex/rom-01c`, read the brief and ROM-01C spec/sole plan/verification and inspect Git. D-1–D-6 are approved at `3d4361a`; do not ask again. Review the implemented slice and its 23-group/browser/print evidence. AC-11 remains partial: default Turbopack fails; the separate Webpack review build passes. Resolve owner findings or obtain actual acceptance explicitly covering that disclosed limitation before a local-main merge. Preserve institutional storage and frozen publications; no remote sync/worktree or next-part implementation.”

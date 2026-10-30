@@ -1,0 +1,338 @@
+{
+  "date": "30 October 2026 (Asia/Dhaka)",
+  "groups": [
+    {
+      "group": "ROM-01C maintenance (PGlite)",
+      "result": "passed",
+      "phase": "final-maintenance",
+      "evidence": [
+        "Populated 0011 → 0012 adds an empty table; every preexisting table/sequence/snapshot fingerprint unchanged across two terms. Direct SQL rejects invalid years/ranges, absent/nonoccurring/duplicate/null/multidimensional weekdays, minute/reason/revision violations.",
+        "Inactive draft accepts maintenance without reactivation; first use retains with one parent revision. Stale/no-op, edit/cancel reasons, repeated cancellation, maintenance FK/delete retention, failed audit rollback and frozen snapshot bytes verified.",
+        "Production actions: complete role/read/anonymous/expired/future authority matrix; duplicate/File fields; fresh all-term canonical/OD impact and changed uncertainty reconfirmation; exception/move/update/OD refusals; unknown-use recording and conservative publication gate; cancelled history and immutable snapshots.",
+        "PGlite pre-0012 cold backup → populated forward upgrade → separate-target restore: exact complete fingerprint recovered."
+      ]
+    },
+    {
+      "group": "ROM-01C maintenance (PostgreSQL)",
+      "result": "passed",
+      "phase": "final-maintenance",
+      "evidence": [
+        "Disposable PostgreSQL 17.11",
+        "Populated 0011 → 0012 adds an empty table; every preexisting table/sequence/snapshot fingerprint unchanged across two terms. Direct SQL rejects invalid years/ranges, absent/nonoccurring/duplicate/null/multidimensional weekdays, minute/reason/revision violations.",
+        "Inactive draft accepts maintenance without reactivation; first use retains with one parent revision. Stale/no-op, edit/cancel reasons, repeated cancellation, maintenance FK/delete retention, failed audit rollback and frozen snapshot bytes verified.",
+        "Production actions: complete role/read/anonymous/expired/future authority matrix; duplicate/File fields; fresh all-term canonical/OD impact and changed uncertainty reconfirmation; exception/move/update/OD refusals; unknown-use recording and conservative publication gate; cancelled history and immutable snapshots.",
+        "Real PostgreSQL production-action barriers: manual create/update/move (undo seam), complete OD, automatic batch and bulk time-grid writers versus maintenance create/edit/cancel in both commit orders; fresh impact confirmation/closure refusal and cancellation ordering.",
+        "Real PostgreSQL production publication/create/edit/cancel and draft-delete/first-maintenance barriers in both commit orders: committed outages refuse publication, newly published references force fresh confirmation, cancellation serializes, and retained history survives deletion races. Refused publication preserves exact prior versions.",
+        "PostgreSQL pre-0012 encrypted backup → populated upgrade → separate-target restore: exact complete fingerprint recovered."
+      ]
+    },
+    {
+      "group": "ROM-01B lifecycle (PGlite)",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Populated 0010 → 0011 retains every existing room, including inactive rows; complete other-table/snapshot/audit fingerprints and preexisting room fields unchanged; imports default retained",
+        "Lifecycle stale/no-op/reason/confirmation, atomic status/delete/retention rollback, persistent history/new-ID reuse; all-term canonical roles, cancelled references, partial OD, saved alias/unknown snapshots and publication preservation (2026-10-29)",
+        "Production lifecycle/read permissions cover global/CSE/other-department roles, expired/future grants and anonymous; duplicate/File fields refuse; cached OD and move/update inactivity refuse; real OD insertion consumes draft atomically; bulk period move refusal rolls back the entire grid/hours/class transaction",
+        "PGlite pre-0011 cold backup → populated upgrade → separate-target restore: exact complete fingerprint recovered"
+      ]
+    },
+    {
+      "group": "ROM-01B lifecycle (PostgreSQL)",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11",
+        "Populated 0010 → 0011 retains every existing room, including inactive rows; complete other-table/snapshot/audit fingerprints and preexisting room fields unchanged; imports default retained",
+        "Lifecycle stale/no-op/reason/confirmation, atomic status/delete/retention rollback, persistent history/new-ID reuse; all-term canonical roles, cancelled references, partial OD, saved alias/unknown snapshots and publication preservation (2026-10-29)",
+        "Real two-connection PostgreSQL barriers: lifecycle/delete versus manual/auto/OD reference-and-retention seams in both commit orders; single/bulk sorted meeting-before-room moves versus lifecycle; unsafe contender refused",
+        "Production lifecycle/read permissions cover global/CSE/other-department roles, expired/future grants and anonymous; duplicate/File fields refuse; cached OD and move/update inactivity refuse; real OD insertion consumes draft atomically; bulk period move refusal rolls back the entire grid/hours/class transaction",
+        "Unmocked production PostgreSQL actions at real audit/row-lock barriers: lifecycle/delete against manual create/update, recomputed automatic plan/apply and OD in both commit orders; first assignment retains, unsafe contender refuses, failed auto applies no batch, snapshots unchanged",
+        "PostgreSQL pre-0011 encrypted dump → populated upgrade → separate-target restore: exact complete fingerprint recovered"
+      ]
+    },
+    {
+      "group": "ROM-01A rooms (PGlite)",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Populated 0009 → 0010: all preexisting room values (including whitespace/case/inactive), business tables, references, snapshots and audits preserved; only revision=1 added; constraints enforce new writes",
+        "Invalid legacy canonical duplicates/type/capacity/blank fields rejected; actual migrator duplicate failure leaves schema, rows, references, snapshots and journal unchanged; valid legacy state migrates after explicit fixture repair",
+        "Real server guard matrix: global/CSE administrators and coordinator allowed; other roles, EEE-only, no session and ended grants denied; edit/history payloads guarded before read",
+        "Create/edit uses stable ID, preserves status/owner access, translates duplicates; no-op has no event/revision; stale edit cannot overwrite; history follows rename with stored actor and before/after",
+        "Unknown merged/external audience warns; candidate and changed reference evidence refresh acknowledgement; blocker cannot be bypassed; acknowledged warning summaries audited",
+        "History >20 events pages without overlap; live directory shows rename; all published/superseded version rows and JSON remain identical",
+        "Audit insert failure rolls back fields/revision; older-term alternative/segment references checked; 30→40 for 50 allowed, worsening/clearing blocked; cancelled use ignored, empty audience unknown, partial OD references refresh warnings",
+        "PGlite pre-0010 cold backup → upgrade → restore to separate owned target: complete schema/sequence/table fingerprint restored exactly"
+      ]
+    },
+    {
+      "group": "ROM-01A rooms (PostgreSQL)",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11",
+        "Populated 0009 → 0010: all preexisting room values (including whitespace/case/inactive), business tables, references, snapshots and audits preserved; only revision=1 added; constraints enforce new writes",
+        "Invalid legacy canonical duplicates/type/capacity/blank fields rejected; actual migrator duplicate failure leaves schema, rows, references, snapshots and journal unchanged; valid legacy state migrates after explicit fixture repair",
+        "Real server guard matrix: global/CSE administrators and coordinator allowed; other roles, EEE-only, no session and ended grants denied; edit/history payloads guarded before read",
+        "Create/edit uses stable ID, preserves status/owner access, translates duplicates; no-op has no event/revision; stale edit cannot overwrite; history follows rename with stored actor and before/after",
+        "Unknown merged/external audience warns; candidate and changed reference evidence refresh acknowledgement; blocker cannot be bypassed; acknowledged warning summaries audited",
+        "History >20 events pages without overlap; live directory shows rename; all published/superseded version rows and JSON remain identical",
+        "Unmocked PostgreSQL production actions: manual create, update, actual auto plan/apply and OD insertion race room edits in both commit orders at audit/row-lock barriers; unsafe loser refused; real auto refusal inserts no batch; snapshots unchanged",
+        "Audit insert failure rolls back fields/revision; older-term alternative/segment references checked; 30→40 for 50 allowed, worsening/clearing blocked; cancelled use ignored, empty audience unknown, partial OD references refresh warnings",
+        "Real PostgreSQL lock barriers: two editors produce save+stale; concurrent creates/renames have one unique winner; assignment validation/reference seam (create/update/auto roles) versus edit in both commit orders refuses the unsafe loser; OD insert/edit both orders; failed batch rolls back inserted meetings/audits",
+        "PostgreSQL pre-0010 encrypted dump → upgrade → restore to separate empty owned target: complete schema/sequence/table fingerprint restored exactly"
+      ]
+    },
+    {
+      "group": "T-01 isolation",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "PGlite targets: default/.data/inherited/relative/outside/junction-escape refused; owned scratch paths accepted",
+        "Locations: identical/nested refused; non-empty or non-directory restore targets refused",
+        "PostgreSQL targets: implicit/configured/non-safe01/unconfirmed/redirecting URLs refused; credentials redacted",
+        "Import boundary: safety modules do not import the app database singleton, preparation scripts or dotenv",
+        "Owned runs: unmarked directories refused; single writer lock; idempotent migrations persist after cold reopen",
+        "Child env: unpinned development .env.local hazard demonstrated; pinned children stay on the owned run (BUG-24 checks CLI parity)"
+      ]
+    },
+    {
+      "group": "BUG-24 environment",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "80 precedence/preview cases: development, production, test, both adapters, process empty pins, expansion and escaping match fresh installed Next-loader processes",
+        "All four previews open nothing; armed import tripwire confirms execution prints the identical banner before client import; helper imports execute no commands",
+        "Default and lifecycle modes, contradictory/invalid modes, Vercel requirement, invalid URL redaction, credential/query/auth-token omission and no-email bootstrap preview verified",
+        "Missing/wrong reset confirmation and institutional-directory refusal precede import; preview does not waive refusal; review environment remains pinned against hostile files"
+      ]
+    },
+    {
+      "group": "T-02 PGlite recovery",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Cold backup: 1222 files, 41.5 MiB; fingerprint equals the populated source (37 non-empty tables)",
+        "Restore: separate empty run reopened cold with identical schema, journal, rows, sequences, roles, audits and snapshot; sequences continue; app module opens it",
+        "Rejected: active writer, nested/protected/non-empty locations, unmarked or non-empty restore targets, 6 corrupt/incomplete backups and a fingerprint mismatch (partial restore removed)"
+      ]
+    },
+    {
+      "group": "T-03 two-term history",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Spring active: loaders, attendance, extra load (Spring rate), workload and internal CSV show only Spring; public routine/CSV do not fall back to Summer; graduated batch has no semester",
+        "Summer history (term rows, dependants, snapshot, enrollments, attendance, extra load, roles, prior audits) unchanged after Spring entry and publication; switching terms reproduces each term's loaders and CSV exactly",
+        "Repeated migrations on the populated two-term database leave schema, journal and every row unchanged",
+        "Cross-term writes refused: 13 id-based actions against Summer rows while Spring is active (Summer history unchanged); the same actions on Spring rows are not blocked",
+        "Days & periods: a teacher is denied and a stale edit refused with no change; a Spring pattern edit (with class hours and moves) and a copy from Summer change only Spring, write audits, and leave Summer history unchanged"
+      ]
+    },
+    {
+      "group": "T-04 audit atomicity",
+      "result": "passed",
+      "phase": "initial-regression",
+      "evidence": [
+        "Activation: failing audit leaves the user invited and the request fails; first sign-in activates with one user-attributed audit; later sign-ins write nothing",
+        "Shared auditedChange (student), publication, auto-placement, class edit and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits; a class edit keeps teacher roles and a clashing edit is refused with no writes",
+        "Bootstrap command: failing audit leaves no user/role; success writes user, role and one system-attributed audit atomically; rerun writes nothing; a second administrator is refused"
+      ]
+    },
+    {
+      "group": "T-06 PostgreSQL",
+      "result": "passed",
+      "phase": "recovery-recheck",
+      "evidence": [
+        "Disposable cluster: PostgreSQL 17.11 tools from SAFE01_PG_BIN, owned data under .tmp/safe-01, 127.0.0.1:55432 only, random SCRAM password, stopped and removed afterwards",
+        "PostgreSQL T-03 — Spring active: loaders, attendance, extra load (Spring rate), workload and internal CSV show only Spring; public routine/CSV do not fall back to Summer; graduated batch has no semester",
+        "PostgreSQL T-03 — Summer history (term rows, dependants, snapshot, enrollments, attendance, extra load, roles, prior audits) unchanged after Spring entry and publication; switching terms reproduces each term's loaders and CSV exactly",
+        "PostgreSQL T-03 — Repeated migrations on the populated two-term database leave schema, journal and every row unchanged",
+        "PostgreSQL T-03 — Cross-term writes refused: 13 id-based actions against Summer rows while Spring is active (Summer history unchanged); the same actions on Spring rows are not blocked",
+        "PostgreSQL T-03 — Days & periods: a teacher is denied and a stale edit refused with no change; a Spring pattern edit (with class hours and moves) and a copy from Summer change only Spring, write audits, and leave Summer history unchanged",
+        "PostgreSQL T-04 — Activation: failing audit leaves the user invited and the request fails; first sign-in activates with one user-attributed audit; later sign-ins write nothing",
+        "PostgreSQL T-04 — Shared auditedChange (student), publication, auto-placement, class edit and invitation: anonymous/viewer/teacher denied with no row changes; injected audit failure rolls back every domain write; success changes exactly the expected tables with actor-attributed audits; a class edit keeps teacher roles and a clashing edit is refused with no writes",
+        "PostgreSQL T-04 — Bootstrap command: failing audit leaves no user/role; success writes user, role and one system-attributed audit atomically; rerun writes nothing; a second administrator is refused",
+        "Encrypted backup: pg_dump 17.11 (server 17.11) custom format streamed through AES-256-GCM; 148 KiB plaintext never written; no plaintext markers in the ciphertext; manifest fingerprint equals the live two-term source",
+        "Restore: separate empty safe01_restore database, single transaction; schema, constraints, indexes, sequences, journal and every row equal the source; real loaders/exports identical to the source; sequences continue; migrations are no-ops",
+        "Rejected: non-safe01 databases, key inside the repository or malformed, backup outside scratch, non-empty or source destination, wrong key, altered ciphertext (digest and, when digests are forged, the GCM tag), edited manifest; the destination stays empty"
+      ]
+    },
+    {
+      "group": "BUG-29 time zones (PGlite)",
+      "result": "passed",
+      "phase": "legacy-and-auth-regression",
+      "evidence": [
+        "Fresh migration in UTC, Etc/GMT-6, America/New_York: all 43 instant columns are timestamptz and date columns unchanged; a default-stamped and an application-written time read back equal; a role granted now is in force at once and one revoked now is not; with the app clock 50 ms behind the database, an app-written start is in force and a default-stamped one is not yet (#59)",
+        "auth:bootstrap child in Etc/GMT-6: the administrator role and its audit event carry the true time, the role starts on the app clock and is in force at once",
+        "Upgrade: stamped in Etc/GMT-6 at 0006, upgraded: 9 default-stamped values now at their true instant (formerly 6 h ahead), 6 application values unchanged to the ms, editor-written term-grid time 6 h early as D-2 accepts, prior role in force, stale-edit token exact",
+        "Guard: values stamped in Etc/GMT-6 but migrated from a UTC session make 0007 fail; it is not recorded and every column stays as it was"
+      ]
+    },
+    {
+      "group": "BUG-29 time zones (PostgreSQL)",
+      "result": "passed",
+      "phase": "legacy-and-auth-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11 cluster (server zone UTC; each database sets its own zone)",
+        "Fresh migration in UTC, Etc/GMT-6, America/New_York: all 43 instant columns are timestamptz and date columns unchanged; a default-stamped and an application-written time read back equal; a role granted now is in force at once and one revoked now is not; with the app clock 50 ms behind the database, an app-written start is in force and a default-stamped one is not yet (#59)",
+        "auth:bootstrap child in Etc/GMT-6: the administrator role and its audit event carry the true time, the role starts on the app clock and is in force at once",
+        "Upgrade: stamped in Etc/GMT-6 at 0006, upgraded: 9 default-stamped values now at their true instant (formerly 6 h ahead), 6 application values unchanged to the ms, editor-written term-grid time 6 h early as D-2 accepts, prior role in force, stale-edit token exact",
+        "Guard: values stamped in Etc/GMT-6 but migrated from a UTC session make 0007 fail; it is not recorded and every column stays as it was"
+      ]
+    },
+    {
+      "group": "AUTH-02 accounts (PGlite)",
+      "result": "passed",
+      "phase": "legacy-and-auth-regression",
+      "evidence": [
+        "Create: a Password account returns its setup link once; duplicate emails and no-method accounts refused",
+        "Setup link: inspect shows the person; a refused password leaves the link usable; use stores a hash only, signs in, and marks the link used",
+        "Unusable links (used, expired, replaced, revoked, tampered, unknown, malformed, suspended account, password off): one message, no row changed",
+        "Concurrent use of one link: exactly one succeeds",
+        "Sign-in: right password accepted; unknown, wrong, method off, never set and suspended all refused; refusals still hash (≥ 219 ms)",
+        "Google gate: accepted only with Google on for an invited, usable account; other methods refused",
+        "Password sign-in and sign-out work with Google unconfigured",
+        "Lockout: 5 failures lock (concurrent failures lock and audit once); right password refused while locked; ends after 15 min; success, a reset link and an administrator clear each end it",
+        "Sessions: suspension, email change (Google link dropped) and sign out everywhere delete all; method off refused at once; own password change keeps only this session",
+        "Role dates: scheduled role grants nothing until it starts; a role granted or ended now applies on the next request; overlaps refused",
+        "Safeguards: self-suspension, self-demotion and turning off one's own method refused; two administrators suspending each other at once leaves exactly one active",
+        "Denials: 30 account action calls as anonymous, a teacher and a suspended administrator are refused with no row changed",
+        "Audit: every account event kind is recorded",
+        "Lockout survives a restart: a new process still refuses the right password",
+        "Secrets: 23 planted passwords and link tokens appear in no row and no output; no password, token or session token is in the 22 audit rows",
+        "Operator: --password creates a Password administrator and prints a setup link once; --reset-link replaces it; strangers and suspended administrators are refused; system-attributed audits; links stored only as hashes",
+        "Upgrade 0007 → 0008: accounts, statuses and roles unchanged; existing accounts Google only; existing sessions kept; an account cannot lose both methods"
+      ]
+    },
+    {
+      "group": "AUTH-02 accounts (PostgreSQL)",
+      "result": "passed",
+      "phase": "legacy-and-auth-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11 cluster",
+        "Create: a Password account returns its setup link once; duplicate emails and no-method accounts refused",
+        "Setup link: inspect shows the person; a refused password leaves the link usable; use stores a hash only, signs in, and marks the link used",
+        "Unusable links (used, expired, replaced, revoked, tampered, unknown, malformed, suspended account, password off): one message, no row changed",
+        "Concurrent use of one link: exactly one succeeds",
+        "Sign-in: right password accepted; unknown, wrong, method off, never set and suspended all refused; refusals still hash (≥ 127 ms)",
+        "Google gate: accepted only with Google on for an invited, usable account; other methods refused",
+        "Password sign-in and sign-out work with Google unconfigured",
+        "Lockout: 5 failures lock (concurrent failures lock and audit once); right password refused while locked; ends after 15 min; success, a reset link and an administrator clear each end it",
+        "Sessions: suspension, email change (Google link dropped) and sign out everywhere delete all; method off refused at once; own password change keeps only this session",
+        "Role dates: scheduled role grants nothing until it starts; a role granted or ended now applies on the next request; overlaps refused",
+        "Safeguards: self-suspension, self-demotion and turning off one's own method refused; two administrators suspending each other at once leaves exactly one active",
+        "Denials: 30 account action calls as anonymous, a teacher and a suspended administrator are refused with no row changed",
+        "Audit: every account event kind is recorded",
+        "Lockout survives a restart: a new process still refuses the right password",
+        "Secrets: 23 planted passwords and link tokens appear in no row and no output; no password, token or session token is in the 22 audit rows",
+        "Operator: --password creates a Password administrator and prints a setup link once; --reset-link replaces it; strangers and suspended administrators are refused; system-attributed audits; links stored only as hashes",
+        "Upgrade 0007 → 0008: accounts, statuses and roles unchanged; existing accounts Google only; existing sessions kept; an account cannot lose both methods"
+      ]
+    },
+    {
+      "group": "BUG-48 cluster cleanup (PostgreSQL)",
+      "result": "passed",
+      "phase": "legacy-and-auth-regression",
+      "evidence": [
+        "Killed run (process tree terminated, as by `timeout`): the watchdog stopped the cluster and removed the run in 3.9 s, then exited",
+        "Sweep: without the watchdog a killed run's cluster kept running (reproducing the incident); the next sweep stopped it and removed the run, and skipped a run whose owner is alive",
+        "Thrown error: the cluster is stopped and removed in-process; the original error reaches the caller",
+        "Failed start: `pg_ctl start -t 0` gave up while the postmaster was starting; that server was found, stopped and the run removed",
+        "Failed stop (simulated): the run directory is kept, the error names its data directory and carries the original error as cause",
+        "Interrupts: sigint → exit 130, exit → exit 3; each stopped its cluster before exiting (SIGINT through the handler, as a console Ctrl+C would; Windows cannot send a catchable SIGINT to a child)",
+        "Boundaries: unmarked run directories are ignored and a junction escaping the scratch root is refused; neither is touched"
+      ]
+    },
+    {
+      "group": "BUG-26 reset keeps access (PGlite)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Default directory: refused with a matching --confirm for 5 spellings (unset, absolute, relative, nested, parent); nothing created",
+        "Unconfirmed: no --confirm, an empty one and a different target all exit 1 and leave the fingerprint unchanged (target printed as the resolved directory)",
+        "Confirmed reset: accounts, password hashes, sessions, setup links and roles unchanged; user re-linked to the same teacher code; a missing teacher reported and left unlinked; roles keep their departments (a custom one too); access audit kept, academic audit replaced; one complete reset event",
+        "Interrupted after the delete step: the next reset re-links from the unfinished event and completes it",
+        "db:prepare on an empty database: loads the dataset with no prompt and keeps the existing user and role"
+      ]
+    },
+    {
+      "group": "BUG-26 reset keeps access (PostgreSQL)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11 cluster",
+        "Unconfirmed: no --confirm, an empty one and a different target all exit 1 and leave the fingerprint unchanged (target printed as host:port/database)",
+        "Confirmed reset: accounts, password hashes, sessions, setup links and roles unchanged; user re-linked to the same teacher code; a missing teacher reported and left unlinked; roles keep their departments (a custom one too); access audit kept, academic audit replaced; one complete reset event",
+        "Interrupted after the delete step: the next reset re-links from the unfinished event and completes it",
+        "db:prepare on an empty database: loads the dataset with no prompt and keeps the existing user and role"
+      ]
+    },
+    {
+      "group": "TCH-01 teacher records (PGlite)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Upgrade 0008 → 0009: every teacher field unchanged; UT and unresolved codes keep their status and lose only the pseudo employment type; status, employment, limit and case-twin codes are enforced",
+        "Denied: no session (unauthenticated) and the teacher role (forbidden) for add, edit, status and delete; nothing changed, no audit",
+        "Coordinator adds a teacher; one save reports a taken code (case-insensitive), a bad email, an out-of-range limit and an unknown department together",
+        "Edit audits only changed fields (phone as a flag); a stale edit is refused unchanged; a no-op save writes nothing",
+        "Deactivate refused while SYA has active-term classes and allocations; allowed for an unused teacher; an inactive teacher cannot be added to a class; reactivate restores",
+        "Delete refused for a used teacher and for a code in a publication snapshot; a wrong typed code is a field error; an unused record is deleted",
+        "Placeholders: an unresolved code is resolved into an active teacher keeping its class (code fixed); UT-style vacancy cannot be edited, deactivated or set on leave",
+        "Privacy: 6 teacher audit events and every action result hold no phone digits; publications unchanged"
+      ]
+    },
+    {
+      "group": "TCH-01 teacher records (PostgreSQL)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11 cluster",
+        "Upgrade 0008 → 0009: every teacher field unchanged; UT and unresolved codes keep their status and lose only the pseudo employment type; status, employment, limit and case-twin codes are enforced",
+        "Denied: no session (unauthenticated) and the teacher role (forbidden) for add, edit, status and delete; nothing changed, no audit",
+        "Coordinator adds a teacher; one save reports a taken code (case-insensitive), a bad email, an out-of-range limit and an unknown department together",
+        "Edit audits only changed fields (phone as a flag); a stale edit is refused unchanged; a no-op save writes nothing",
+        "Deactivate refused while SYA has active-term classes and allocations; allowed for an unused teacher; an inactive teacher cannot be added to a class; reactivate restores",
+        "Delete refused for a used teacher and for a code in a publication snapshot; a wrong typed code is a field error; an unused record is deleted",
+        "Placeholders: an unresolved code is resolved into an active teacher keeping its class (code fixed); UT-style vacancy cannot be edited, deactivated or set on leave",
+        "Privacy: 6 teacher audit events and every action result hold no phone digits; publications unchanged"
+      ]
+    },
+    {
+      "group": "BUG-27 blocked deletes (PGlite)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Refused with a conflict and no change (fingerprint, no audit): a class with attendance on 6 dates (5 listed, \"and 1 more\") and a commitment counted in SYB's workload",
+        "Unused class (with its teachers and rooms) and unused commitment are still deleted, one audit event each",
+        "Race fallback: a real foreign-key error is recognised (code 23503); a unique violation is not"
+      ]
+    },
+    {
+      "group": "BUG-27 blocked deletes (PostgreSQL)",
+      "result": "passed",
+      "phase": "reset-teacher-delete-regression",
+      "evidence": [
+        "Disposable PostgreSQL 17.11 cluster",
+        "Refused with a conflict and no change (fingerprint, no audit): a class with attendance on 6 dates (5 listed, \"and 1 more\") and a commitment counted in SYB's workload",
+        "Unused class (with its teachers and rooms) and unused commitment are still deleted, one audit event each",
+        "Race fallback: a real foreign-key error is recognised (code 23503); a unique violation is not"
+      ]
+    }
+  ],
+  "count": 23,
+  "scope": "Owned synthetic PGlite/PostgreSQL only; institutional storage never opened; completed phases report its metadata unchanged.",
+  "correctedFailures": [
+    "PostgreSQL reason-check grouping changed during dump/restore; equivalent explicit bounds preserve exact schema fingerprint.",
+    "Legacy BUG-29 fixture now excludes the four temporal columns absent before migration 0012, while current catalog checks still include them.",
+    "Explicit confirmed disposable reset includes room_unavailability without CASCADE; populated maintenance and portal access preservation verified."
+  ],
+  "build": {
+    "default": "FAILED: Turbopack globals.css child-process/IPC, inside/outside sandbox and Node 22.11.0/24.22.1 diagnostic; no exception accepted.",
+    "webpack": "PASSED: separately labeled final production review build. No bundler/dependency/runtime policy change."
+  },
+  "implementationCommit": "c33e6ad",
+  "reviewedCodeCommit": "49a50f2"
+}

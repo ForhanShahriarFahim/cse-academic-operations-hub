@@ -1,0 +1,12 @@
+{
+  "date": "30 October 2026 (Asia/Dhaka)",
+  "files": 6,
+  "localLinksChecked": 144,
+  "problems": 0,
+  "checklistOwner": "docs/specs/ROM-01C/plan.md",
+  "implementationApproval": "3d4361a",
+  "acceptance": "pending",
+  "defaultBuild": "failed; no inherited exception",
+  "implementationCommit": "c33e6ad",
+  "reviewedCodeCommit": "49a50f2"
+}

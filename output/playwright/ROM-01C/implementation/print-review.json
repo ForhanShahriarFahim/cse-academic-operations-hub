@@ -1,0 +1,47 @@
+{
+  "nativePrint": [
+    {
+      "file": "selected-date-after-interaction.pdf",
+      "pages": 6,
+      "A4": true,
+      "repeatedRoomTermBasisDateFiltersDhakaWarningsAndCounters": true
+    },
+    {
+      "file": "selected-date-fresh.pdf",
+      "pages": 6,
+      "A4": true,
+      "repeatedRoomTermBasisDateFiltersDhakaWarningsAndCounters": true
+    }
+  ],
+  "freshAndInteractedProjectionMatches": true,
+  "publicOfficialPrint": {
+    "captureCount": 4,
+    "pixelHashesPerCapture": [
+      [
+        "a2c563cbbc2222bce873174e43bec7b9b4c40bf61d4f03a9046eb0c480ad3418",
+        "e15b80d5ce7383d88288b59a5a548b64cd004c76b8a3e2e92508c49a220adf9a",
+        "80e0e993fe63ffde7b212ea77cf093ac76ca33b698b850226584166b01ee050a",
+        "89aa9db0250171ee541c120e80221fee070e53ea5dae47733a38c88060315017"
+      ],
+      [
+        "a2c563cbbc2222bce873174e43bec7b9b4c40bf61d4f03a9046eb0c480ad3418",
+        "e15b80d5ce7383d88288b59a5a548b64cd004c76b8a3e2e92508c49a220adf9a",
+        "80e0e993fe63ffde7b212ea77cf093ac76ca33b698b850226584166b01ee050a",
+        "89aa9db0250171ee541c120e80221fee070e53ea5dae47733a38c88060315017"
+      ],
+      [
+        "a2c563cbbc2222bce873174e43bec7b9b4c40bf61d4f03a9046eb0c480ad3418",
+        "e15b80d5ce7383d88288b59a5a548b64cd004c76b8a3e2e92508c49a220adf9a",
+        "80e0e993fe63ffde7b212ea77cf093ac76ca33b698b850226584166b01ee050a",
+        "89aa9db0250171ee541c120e80221fee070e53ea5dae47733a38c88060315017"
+      ],
+      [
+        "a2c563cbbc2222bce873174e43bec7b9b4c40bf61d4f03a9046eb0c480ad3418",
+        "e15b80d5ce7383d88288b59a5a548b64cd004c76b8a3e2e92508c49a220adf9a",
+        "80e0e993fe63ffde7b212ea77cf093ac76ca33b698b850226584166b01ee050a",
+        "89aa9db0250171ee541c120e80221fee070e53ea5dae47733a38c88060315017"
+      ]
+    ],
+    "identical": true
+  }
+}
