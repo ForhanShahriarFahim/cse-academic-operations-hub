@@ -25,7 +25,7 @@ async function upgrade(database: SafetyDatabase, lines: string[]) {
     await legacy(h); const before = await fingerprintDatabase(h.client);
     await database.migrate(h); const after = await fingerprintDatabase(h.client);
     for (const [name, table] of Object.entries(before.tables)) if (name !== "drizzle.__drizzle_migrations") assert.deepEqual(after.tables[name], table, name);
-    for (const [name, position] of Object.entries(before.sequences)) assert.equal(after.sequences[name], position, name);
+    for (const [name, position] of Object.entries(before.sequences)) if (name !== "drizzle.__drizzle_migrations_id_seq") assert.equal(after.sequences[name], position, name);
     assert.equal((await h.db.select().from(s.roomUnavailability)).length, 0);
     const [room] = await h.db.select().from(s.rooms);
     // Independent direct-SQL invalid writes verify database invariants, including null/duplicate weekdays.

@@ -23,6 +23,8 @@ const minuteValue = (time: string) => /^\d{2}:\d{2}$/.test(time) ? String(Number
 export function MaintenanceForm({ room, entry, cancel = false }: { room: { id: number; code: string; revision: number; isActive: boolean }; entry?: MaintenanceEntry; cancel?: boolean }) {
   const [result, submit, pending] = useActionState(saveMaintenanceAction, null);
   const router = useRouter(), message = useRef<HTMLDivElement>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { if (cancel && dialog.current && !dialog.current.open) dialog.current.showModal(); }, [cancel]);
   const [allDay, setAllDay] = useState(!entry || (entry.startMinutes === 0 && entry.endMinutes === 1440));
   const [endOfDay, setEndOfDay] = useState(entry?.endMinutes === 1440);
   const [start, setStart] = useState(timeValue(entry?.startMinutes ?? 540));
@@ -39,10 +41,11 @@ export function MaintenanceForm({ room, entry, cancel = false }: { room: { id: n
   const errors = result?.outcome?.kind === "validation" ? result.outcome.fieldErrors : {};
   const error = (field: string) => <p id={`maintenance-${field}-error`} className="mt-1 text-sm text-[var(--color-clay)]">{errors[field]?.join(" ")}</p>;
   const fieldProps = (field: string) => ({ id: `maintenance-${field}`, "aria-invalid": !!errors[field], "aria-describedby": `maintenance-${field}-error` });
-  return <form action={submit} className="room-maintenance-form ruled mt-5 min-w-0 rounded-lg p-4" onSubmit={() => setReviewInput(inputKey)} noValidate>
-    <h2 className="font-display text-xl font-semibold">{cancel ? "Cancel maintenance" : entry ? "Correct maintenance" : "Add maintenance"}</h2><p className="mt-2 text-sm">{room.code} is independently {room.isActive ? "active" : "inactive"}. Dates are inclusive, in Asia/Dhaka. Even one outage occurrence blocks a whole recurring placement.</p>
+  const content = <form action={submit} className="room-maintenance-form ruled mt-5 min-w-0 rounded-lg p-4" onSubmit={() => setReviewInput(inputKey)} noValidate>
+    <h2 id="maintenance-form-title" className="font-display text-xl font-semibold">{cancel ? "Cancel maintenance" : entry ? "Correct maintenance" : "Add maintenance"}</h2><p className="mt-2 text-sm">{room.code} is independently {room.isActive ? "active" : "inactive"}. Dates are inclusive, in Asia/Dhaka. Even one outage occurrence blocks a whole recurring placement.</p>
     <input type="hidden" name="roomId" value={room.id} /><input type="hidden" name="revision" value={revision} /><input type="hidden" name="action" value={cancel ? "cancel" : entry ? "edit" : "create"} /><input type="hidden" name="entryId" value={entry?.id ?? ""} /><input type="hidden" name="entryRevision" value={entryRevision ?? ""} />
-    <fieldset disabled={pending} className="min-w-0"><legend className="sr-only">Maintenance details</legend>
+    {entry?.cancelled && <p className="mt-3 text-sm">This record is already cancelled. Its history is retained; add a new outage for further work.</p>}
+    <fieldset disabled={pending || (!!entry?.cancelled && !cancel)} className="min-w-0"><legend className="sr-only">Maintenance details</legend>
       {!cancel ? <><div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2"><div className="min-w-0"><label htmlFor="maintenance-startDate" className="block text-sm font-semibold">Start date</label><input {...fieldProps("startDate")} type="date" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />{error("startDate")}</div><div className="min-w-0"><label htmlFor="maintenance-endDate" className="block text-sm font-semibold">End date</label><input {...fieldProps("endDate")} type="date" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />{error("endDate")}</div></div>
       <fieldset className="mt-4" aria-describedby="maintenance-weekdays-error"><legend className="text-sm font-semibold">Days within the date range</legend><button type="button" className={`${buttonClass.secondary} my-2`} onClick={() => setDays([0, 1, 2, 3, 4, 5, 6])}>All days</button><div className="flex flex-wrap gap-x-4">{DAY_NAMES.map((label, day) => <label key={day} className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" name="weekdays" value={day} checked={days.includes(day)} onChange={(e) => setDays(e.target.checked ? [...days, day].sort() : days.filter((d) => d !== day))} />{label}</label>)}</div>{error("weekdays")}</fieldset>
       <label className="mt-2 flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={allDay} onChange={(e) => setAllDay(e.target.checked)} />All day (00:00–24:00)</label>
@@ -58,4 +61,10 @@ export function MaintenanceForm({ room, entry, cancel = false }: { room: { id: n
     </fieldset>
     <div ref={message} tabIndex={-1} role={result?.ok ? "status" : "alert"} className="mt-3 break-words text-sm">{result?.message}{result?.outcome?.kind === "stale" && <p className="mt-2"><button type="button" className={buttonClass.secondary} onClick={() => window.location.reload()}>Reload latest record (discard this input)</button></p>}</div>
   </form>;
+  return cancel ? <dialog ref={dialog} aria-labelledby="maintenance-form-title" className="m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-[44rem] overflow-y-auto rounded-xl border border-[var(--color-line)] bg-sheet p-0 text-ink backdrop:bg-black/30" onKeyDown={(event) => {
+    if (event.key !== "Tab") return;
+    const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('a[href],button,input:not([type="hidden"]),select,textarea,[tabindex="0"]')].filter((node) => !node.matches(":disabled") && node.getClientRects().length);
+    const first = controls[0], last = controls.at(-1);
+    if (first && last && ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+  }} onCancel={(event) => { event.preventDefault(); if (!pending) router.push(`/rooms/${room.id}/maintenance`); }}>{content}</dialog> : content;
 }

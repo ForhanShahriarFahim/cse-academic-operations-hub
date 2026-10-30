@@ -17,7 +17,9 @@ export default async function MaintenancePage({ params, searchParams }: { params
   const editing = query.edit ?? query.cancel, form = !!editing || query.add === "1";
   if (form) await requireRoomEditor(`/rooms/${id}/maintenance`);
   const entry = editing ? await getMaintenanceForEdit(room.id, positiveInteger(editing) ?? -1) : null;
-  if (editing && (!entry || entry.cancelled)) notFound();
+  // Keep the form mounted after successful cancellation revalidation so its
+  // action result can announce success and navigate back to the room.
+  if (editing && !entry) notFound();
   const list = await getRoomMaintenance(room.id, positiveInteger(query.page ?? "1") ?? 1), today = dhakaToday();
   return <div className="room-maintenance mx-auto min-w-0 max-w-[980px] break-words"><Link href={`/rooms/${id}`} className="text-sm font-semibold underline">← Room details</Link><PageHeader context="Internal room planning" title={`${room.code} · maintenance`} description={`${room.isActive ? "Active" : "Inactive"} room · finite inclusive dates in Asia/Dhaka`} actions={editor && !form ? <Link className={buttonClass.primary} href={`/rooms/${id}/maintenance?add=1`}>Add maintenance</Link> : undefined} />
     <p className="text-sm">Outages apply across all terms. Bookings remain recorded; overlapping occurrences block recurring placements and new publications. Public routines retain their saved output.</p>
