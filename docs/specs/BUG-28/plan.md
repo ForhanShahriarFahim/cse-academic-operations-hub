@@ -1,7 +1,7 @@
 # BUG-28 — Implementation plan and sole checklist
 
 Issue: [#28](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/28). [Specification/D-1–D-4](spec.md), [verification](verification.md), [state sketches](review-states.md).
-Status: **Inspection/specification complete; implementation approval pending.**
+Status: **D-1–D-4 approved for implementation on 1 November 2026; implementation in progress.**
 Branch/base: `codex/bug-28` from local main `f09df27` (ROM-01C merge `0dc096c`, acceptance `e99f586`). Updated: 1 November 2026, Asia/Dhaka.
 
 ## Inspection and proposed approach
@@ -18,7 +18,7 @@ Likely files: `src/db/schema.ts`, next SQL migration and `drizzle/meta/_journal.
 
 - Planning authorization: owner said **“accepted and go for the next task.”** on 1 November after the explicit next-task proposal was BUG-28 inspection/specification following C acceptance. This authorizes planning in this chat without another session.
 - Prerequisite complete: C acceptance `e99f586`, merge `0dc096c`, receipt `f09df27`; parent #5 remains open. C's failed default build is accepted for C only.
-- **Implementation authorization: Pending.** D-1–D-4 and this concrete checklist have not been approved. No app/schema/migration/command feature code belongs in this planning checkpoint.
+- **Implementation authorization: Approved on 1 November 2026, Asia/Dhaka.** Owner: “approved.” This directly answers the request to approve BUG-28 D-1–D-4 at proposal `0d2c9f5`. The specification, state sketches and checklist are approved without amendment. This approval is committed before feature code.
 - Institutional operation/remediation mapping and GitHub synchronization: not authorized. No status/term has been selected.
 - Feature acceptance/local merge of BUG-28: pending after implementation and review.
 
@@ -26,7 +26,7 @@ Likely files: `src/db/schema.ts`, next SQL migration and `drizzle/meta/_journal.
 
 - [x] T-01 — Inspect schema, all production selectors, action/page/export consumers, migrations/preparation and fixture switch; reproduce the schema defect using explicit in-memory synthetic data. AC-01–AC-07 design evidence.
 - [x] T-02 — Prepare bounded specification/D-1–D-4, state sketches, migration/remediation boundaries, verification requirements and exact handoff; check links/content/diff and commit the proposal. Planning only.
-- [ ] T-03 — Obtain actual approval of D-1–D-4, record wording/date/amendments and commit the approved plan before feature code. Depends T-02.
+- [x] T-03 — Obtain actual approval of D-1–D-4, record wording/date/amendments and commit the approved plan before feature code. Owner approved 1 November without amendment. Depends T-02.
 - [ ] T-04 — Add matching index/forward guarded migration and prove clean/duplicate upgrades, reapply and backup/restore with preserved populated history on both adapters. AC-01/02; depends T-03.
 - [ ] T-05 — Add shared reader; integrate the five sites and affected action/shell/public/CSV boundaries, preserving transaction, authorization and history contracts. AC-03/04/07; depends T-03/04.
 - [ ] T-06 — Add read-only target-aware diagnostic and operator runbook; prove preview/read-only/credential/resource behavior without institutional access. AC-06; depends T-03/04.
@@ -45,10 +45,10 @@ Final code checks: typecheck, lint, domain, **default** build, all relevant full
 
 ## Current checkpoint / handoff
 
-- Approved scope: planning only under 1 November next-task authorization. Implementation pending approval of the concrete D-1–D-4 package.
+- Approved scope: D-1–D-4 at proposal `0d2c9f5`, approved by the owner on 1 November without amendment.
 - Branch/base: `codex/bug-28` / `f09df27`, one writer in this checkout, no worktrees. C acceptance/merge/receipt already preserved on local main. Last remote reconciliation 26 October; no remote query/update this session.
-- Completed: T-01/T-02. The sole checklist above owns implementation progress. [Verification](verification.md) separates inspected baseline from pending fix evidence.
+- Completed: T-01–T-03. The sole checklist above owns implementation progress. [Verification](verification.md) separates inspected baseline from pending fix evidence.
 - Proposal checkpoint: this spec/plan/state-sketch/inspection/verification package plus brief/local-sequence/roadmap pointers. No app/schema/migration/command feature edits.
-- Next action: owner review of the concrete D-1–D-4 proposal. Record actual approval and commit it, then perform T-04 onward autonomously within approved scope.
-- Blockers: implementation approval; any real duplicate resolution additionally requires actual census and owner-approved exact mapping in a separately authorized operation. No such census/mapping exists here.
-- Exact continuation: “On `codex/bug-28`, read the brief and BUG-28 spec/sole plan/verification/state sketches, then inspect Git. ROM-01C was accepted and merged locally at `0dc096c`; receipt/base `f09df27`. BUG-28 planning is complete; do not infer implementation approval. If the owner approves D-1–D-4, record and commit actual approval before implementing the bounded constraint, shared read guards and feedback, read-only diagnostic and safe migration/runbook. Preserve status/history/public snapshots and institutional storage; no automatic active-term choice, activation/repair feature, worktree or remote sync. C's default-build exception does not waive BUG-28's build check.”
+- Next action: implement T-04 onward autonomously within approved scope after this approval checkpoint is committed.
+- Blockers: none for implementation. Any real duplicate resolution requires actual census and owner-approved exact mapping in a separately authorized operation. No such census/mapping exists here.
+- Exact continuation: “On `codex/bug-28`, read the brief and BUG-28 spec/sole plan/verification/state sketches, then inspect Git. D-1–D-4 at `0d2c9f5` were approved on 1 November; do not ask again. Continue T-04 onward: bounded constraint, shared read guards and feedback, read-only diagnostic and safe migration/runbook, then full verification and owner review. Preserve status/history/public snapshots and institutional storage; no automatic active-term choice, activation/repair feature, worktree or remote sync. C's default-build exception does not waive BUG-28's build check. Actual feature acceptance precedes local merge.”

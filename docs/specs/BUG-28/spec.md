@@ -1,6 +1,6 @@
 # BUG-28 — At most one active academic term
 
-Issue: [#28](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/28). Status: **Proposed; implementation approval pending.**
+Issue: [#28](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/28). Status: **D-1–D-4 approved for implementation on 1 November 2026.**
 Updated: 1 November 2026, Asia/Dhaka. [Sole plan/checklist](plan.md), [inspection and verification](verification.md), [state sketches](review-states.md).
 
 ## Problem and inspected baseline
@@ -78,6 +78,6 @@ Legacy ambiguity behavior must be exercised using a deliberately pre-0013 synthe
 
 ## Decisions and sources
 
-Approval requested for D-1–D-4 together: global at-most-one (zero allowed), no status/default/lifecycle redesign, refuse duplicate migration with owner-selected remediation outside this delivery, shared safe reads/feedback and bounded concurrency/history checks. No decision is needed about an actual institutional active ID to implement this package; no institutional census was performed.
+Owner approved D-1–D-4 together on 1 November (“approved.”), directly following the proposal `0d2c9f5`: global at-most-one (zero allowed), no status/default/lifecycle redesign, refuse duplicate migration with owner-selected remediation outside this delivery, shared safe reads/feedback and bounded concurrency/history checks. No amendments were requested. No decision is needed about an actual institutional active ID to implement this package; no institutional census was performed. The sole plan records actual authorization.
 
 Sources: [SAFE-01 finding](../../operations/SAFE-01-mutation-inventory.md), [requirements](../../PRODUCT_REQUIREMENTS.md), [decisions](../../decisions/INSTITUTIONAL_DECISIONS.md), [local delivery sequence](../../plans/LOCAL_DELIVERY_2026-10-26.md), `src/db/schema.ts:226`, `drizzle/0000_pretty_lady_vermin.sql:1`, the five query sites listed above, `src/db/migrate.ts`, `src/db/prepare.ts`, `src/db/command.ts`, `src/db/target.ts`, and `scripts/safety/fixture.ts`. A further material scope/behavior change returns for owner decision.
