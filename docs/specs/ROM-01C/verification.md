@@ -1,7 +1,7 @@
 # ROM-01C — Verification and review
 
-[Specification](spec.md), [sole plan](plan.md), [sketches](mockups/index.html). Updated: 30 October 2026, Asia/Dhaka. Checks span 29–30 October.
-Branch `codex/rom-01c`, base `cbdbce9`; proposal `15ab147`, owner approval `3d4361a` before implementation `c33e6ad`, corrections `49a50f2`. Implementation and review corrections are complete; owner acceptance/local merge remain pending. **AC-11 is partial: the default build fails.**
+[Specification](spec.md), [sole plan](plan.md), [sketches](mockups/index.html). Updated: 1 November 2026, Asia/Dhaka. Checks span 29–30 October; acceptance recorded 1 November.
+Branch `codex/rom-01c`, base `cbdbce9`; proposal `15ab147`, owner approval `3d4361a` before implementation `c33e6ad`, corrections `49a50f2`. Owner accepted on 1 November: “accepted and go for the next task.” Acceptance covers the disclosed default-build failure; local merge authorized. **AC-11 remains partial: the default build fails.** Historical test results below are unchanged; no build-policy change or new passing default build is claimed.
 
 ## Acceptance evidence
 
@@ -12,7 +12,7 @@ Branch `codex/rom-01c`, base `cbdbce9`; proposal `15ab147`, owner approval `3d43
 | AC-05/07 | Focused PostgreSQL production-action races pass | Real audit and row-lock barriers in both commit orders for manual create/update/move, OD, automatic/bulk apply, publication/create/edit/cancel and first-maintenance/delete; rejected writes preserve prior rows/versions |
 | AC-09 | Production browser and native A4 checks pass | Seventeen desktop/390/320 browser/axe capture checks without page-wide overflow, WCAG A/AA violations or page errors; keyboard/pending/validation/stale/denied/impact/list/history states; two six-page A4 exports, fresh and after interaction, with matching projections and repeated context/counters; every continued page rendered and visually inspected |
 | AC-10 | Both adapters pass populated upgrade and recovery | Empty 0012 relation, preserved two-term business/snapshot fingerprints, direct invalid-write constraints, pre-upgrade cold/encrypted backup and exact separate-target restore |
-| AC-11 | **Partial: default build fails** | Final typecheck/lint/domain and separately labeled Webpack build pass. All 23 safety groups pass across preserved/resumed runs. Required default Turbopack build fails in the previously recorded CSS-worker process/IPC path; no build exception or owner acceptance inferred |
+| AC-11 | **Partial; owner-accepted delivery exception on 1 November** | Final typecheck/lint/domain and separately labeled Webpack build pass. All 23 safety groups pass across preserved/resumed runs. Required default Turbopack build fails in the previously recorded CSS-worker process/IPC path; acceptance does not turn this into a passing check |
 
 [Production capture gallery](../../../output/playwright/ROM-01C/implementation/index.html), [browser results and frozen projection hashes](../../../output/playwright/ROM-01C/implementation/review.json), [23-group safety results](../../../output/playwright/ROM-01C/implementation/safety-results.json), [native print/raster comparison](../../../output/playwright/ROM-01C/implementation/print-review.json), [six-page A4 after interaction](../../../output/playwright/ROM-01C/implementation/selected-date-after-interaction.pdf), [fresh-page A4](../../../output/playwright/ROM-01C/implementation/selected-date-fresh.pdf), [rendered page overview](../../../output/playwright/ROM-01C/implementation/print-contact-sheet.png). Automated accessibility results are bounded checks, not a complete accessibility certification. The synthetic stress fixture intentionally has duplicate/overlapping bookings and a missing stream-window warning; it is not institutional data or a publication-ready routine.
 
@@ -38,7 +38,7 @@ The [final running-preview smoke](../../../output/playwright/ROM-01C/implementat
 2. Open occupancy and choose date `2026-06-13`: recorded booking union 180 min, common 420, maintenance 90, available 330, booked within available 90, booked during maintenance 90 and utilization 27%. Configuration uncertainty remains explicitly visible. Weekly basis retains its original denominator.
 3. Review `MAINT-INACTIVE` through the All/inactive room filter for 25 retained cancelled entries and paged change history. Public routine/CSV/official print retain their frozen publication.
 
-**Acceptance and local merge are pending.** The owner must decide on the disclosed default-build failure or request further corrections before merge. Parent #5 stays open; do not start another slice.
+**Accepted on 1 November with the disclosed default-build exception.** The owner authorized local merge and next-task inspection/specification. Parent #5 stays open; institutional operations and remote synchronization remain outside scope.
 
 ## Planning checks (proposal `15ab147`; historical design evidence)
 
@@ -66,5 +66,5 @@ The planning findings above describe proposal `15ab147`, before approval. Implem
 
 - B accepted and merged locally at `850f42a`; merge receipt `cbdbce9`.
 - C branch: `codex/rom-01c`; planning authorized by the owner's 29 October request.
-- C implementation approved without amendment on 29 October at `3d4361a`; feature acceptance and local merge remain **Pending**.
+- C implementation approved without amendment on 29 October at `3d4361a`; feature accepted on 1 November with the disclosed default-build exception. Local merge authorized; receipt follows in the sole plan.
 - Parent #5 remains open. GitHub synchronization deferred; last remote reconciliation 26 October 2026.

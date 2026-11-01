@@ -1,7 +1,7 @@
 # ROM-01C — Dated room maintenance and placement checks
 
-Parent: ROM-01 / #5. Status: **D-1–D-6 approved for implementation on 29 October 2026.**
-Updated: 30 October 2026, Asia/Dhaka; D-1–D-6 approved on 29 October. Implementation is ready for inspection; AC-11 remains partial because the default build fails. [Sole plan/checklist](plan.md), [verification](verification.md), [workflow sketches](mockups/index.html).
+Parent: ROM-01 / #5. Status: **Accepted on 1 November 2026 with the disclosed default-build exception.**
+Updated: 1 November 2026, Asia/Dhaka; D-1–D-6 approved on 29 October. AC-11 remains partial because the default build fails; owner acceptance covers this delivery exception without changing build policy. [Sole plan/checklist and acceptance](plan.md), [verification](verification.md), [workflow sketches](mockups/index.html).
 
 ## Problem and inspected baseline
 
