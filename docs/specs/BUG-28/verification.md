@@ -1,7 +1,7 @@
 # BUG-28 — Inspection and verification
 
 [Specification](spec.md), [sole plan](plan.md), [state sketches](review-states.md). Updated: 1 November 2026, Asia/Dhaka.
-Status: **Implemented and ready for owner inspection; default build fails; acceptance/local merge pending.** Approval `d20c9b6` precedes implementation `fd08ee0`.
+Status: **Accepted on 1 November 2026 with the disclosed default-build exception; local merge authorized.** Approval `d20c9b6` precedes implementation `fd08ee0`; review evidence `f75c433`. The owner said “ok go for that” after the proposal to accept this limitation, merge locally and inspect/specify SET-01A. AC-08 remains partial; the test results and build policy have not changed.
 
 ## Implementation verification
 
@@ -16,7 +16,7 @@ The read-only `db:check-terms` command names its target before driver import, su
 | AC-05 | Focused PostgreSQL checks pass | Sixteen independent-connection update/explicit/default/mixed races in both orders with holder rollback and observed blocking PIDs. Actual migrator versus earlier writer refuses after writer commit; actual migrator held at test-only journal barrier commits before later writer, which fails uniqueness; final runner reapply passes |
 | AC-06 | Final focused checks pass on both adapters | Actual zero/one/duplicate/empty/missing-table/store/unsupported-flag CLI cases and unchanged complete fingerprints; normal child exit proves closure. Updated BUG-24 94-case environment/preview/import/redaction group passes, including owned-file tripwire proof when diagnostic errors mask the raw marker |
 | AC-07 | Production browser and native A4 review pass | Eighteen desktop/390/320 captures with no overflow, axe WCAG A/AA violations or page errors; skip-link/mobile Escape-focus checks; stale-page policy refusal announces feedback and retains 321; CSV status/privacy and business/audit/snapshot hashes preserved. All four valid official pages have identical before/after rendered pixels; unavailable pages reveal no term/routine data. Existing synthetic long-break print crowding is unchanged and separately recorded below |
-| AC-08 | **Partial: default build fails** | Final typecheck/lint/domain, all 25 named safety groups across preserved/resumed runs and final preview smoke pass. Final default `next build` (the build-script command, lifecycle flag and memory target pinned) on `fd08ee0` reproduces `globals.css → creating new process → node process exited before we could connect` outside the sandbox, as earlier inside/outside runs did. Separate final `next build --webpack` passes; initial sandbox Webpack run hit a generated-directory EPERM. No build exception/acceptance inferred |
+| AC-08 | **Partial; owner-accepted delivery exception on 1 November** | Final typecheck/lint/domain, all 25 named safety groups across preserved/resumed runs and final preview smoke pass. Final default `next build` on `fd08ee0` fails in the CSS-worker process/IPC path inside/outside the sandbox. Separate final `next build --webpack` passes. Acceptance does not turn the failed default build into a passed check |
 
 PostgreSQL's sandboxed loopback connection was denied with EACCES; the same owned-cluster focused run passes outside the sandbox. No runtime, bundler, dependency or build-script policy changed. The separate Webpack artifact exists only as labeled production review evidence. Next's generated route-type import paths were restored to the tracked baseline after building; final typecheck passes with those paths. No code changed after the verified implementation.
 
@@ -38,8 +38,8 @@ Print inspection rendered all ten pages (two one-page unavailable notices and tw
 
 Local links/anchors, source paths, required document sections, sole-checklist ownership, D-1–D-4 and AC-01–AC-08 references, pending approval and Git diff are checked for the planning checkpoint; exact counts/results are recorded in [document review](document-review.json). The Markdown state sketches provide desktop/390/320 and print behavior for approval; no browser capture, axe scan or print rendering is claimed for them. No institutional census, backup, migration, preparation, reset, application server or GitHub read/write occurred.
 
-ROM-01C's historical verification and accepted default-build exception apply to C only; BUG-28's failed default build remains an unaccepted limitation. No production-readiness or institutional rollout claim is made.
+ROM-01C's exception did not carry over: BUG-28's exception was separately accepted on 1 November after disclosure. Historical build/document-review JSON receipts describe their pre-acceptance check state and remain unchanged. No production-readiness or institutional rollout claim is made.
 
 ## Delivery and handoff
 
-Planning authorization is the owner's 1 November “accepted and go for the next task.” The owner subsequently approved D-1–D-4 without amendment (“approved.”), recorded before code at `d20c9b6`. The [sole plan's exact handoff](plan.md#current-checkpoint--handoff) now points to owner inspection/default-build decision or findings; do not ask for implementation approval again. Feature acceptance/local merge remain pending. GitHub issue #28 status remains the dated remote snapshot until an agreed synchronization boundary.
+Planning authorization was the owner's 1 November “accepted and go for the next task.” D-1–D-4 were approved without amendment (“approved.”) before code at `d20c9b6`. Feature acceptance is now recorded in the [sole plan](plan.md#approval-record); local merge is authorized, followed by SET-01A inspection/specification. No code checks were repeated for this documentation-only acceptance. GitHub issue #28 status remains the dated remote snapshot until an agreed synchronization boundary.

@@ -1,7 +1,7 @@
 # BUG-28 — At most one active academic term
 
-Issue: [#28](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/28). Status: **D-1–D-4 approved for implementation on 1 November 2026.**
-Updated: 1 November 2026, Asia/Dhaka. Implemented at `fd08ee0`; owner inspection/acceptance pending. AC-08 remains partial for the disclosed default-build failure. [Sole plan/checklist](plan.md), [inspection and verification](verification.md), [state sketches](review-states.md).
+Issue: [#28](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/28). Status: **Accepted on 1 November 2026 with the disclosed default-build exception.**
+Updated: 1 November 2026, Asia/Dhaka. Implemented at `fd08ee0`; actual acceptance is recorded in the sole plan. AC-08 remains partial for the accepted default-build delivery exception; build policy is unchanged. [Sole plan/checklist](plan.md), [inspection and verification](verification.md), [state sketches](review-states.md).
 
 ## Problem and inspected baseline
 
