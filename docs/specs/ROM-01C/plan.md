@@ -1,7 +1,7 @@
 # ROM-01C — Implementation plan and sole checklist
 
 Parent: ROM-01 / #5. [Specification](spec.md), [verification](verification.md), [sketches](mockups/index.html).
-Status: **Accepted on 1 November 2026 with the disclosed default-build exception; local merge authorized and pending.**
+Status: **Accepted on 1 November 2026 with the disclosed default-build exception; merged into local main at `0dc096c`.**
 Branch/base: `codex/rom-01c` from local `main` `cbdbce9`, following ROM-01B merge `850f42a`.
 Updated: 1 November 2026, Asia/Dhaka. Implementation approval remains the owner's 29 October decision.
 
@@ -35,7 +35,7 @@ Read relevant installed Next.js guides before app changes, including server acti
 - [x] T-06 — Connect all placement, automatic/bulk/move and publication checks under shared room locks; prove actual commit-order races/rollback. PostgreSQL production-action barriers pass in both orders for all six placement writers, publication/create/edit/cancel and draft-delete/first-maintenance. Covers AC-05/06/07; depends T-04/05.
 - [x] T-07 — Build responsive maintenance/impact states, conflict remediation and weekly/date occupancy with matching A4 print. Seventeen production browser/axe captures, keyboard confirmation, stale/denied/history flows and six-page native A4 checks pass. Covers AC-03/08/09; depends T-05/06.
 - [x] T-08 — Verification executed; **AC-11 remains partial because the default Turbopack build fails**. Typecheck/lint/domain, all 23 safety groups, real adapter/race/browser/publication-parity and native-print checks pass; the separate final Webpack production build passes. Owner accepted the disclosed delivery exception on 1 November. [Exact evidence/limitations](verification.md). Covers AC-01–AC-11; depends T-04–T-07.
-- [ ] T-09 — Present local runnable synthetic review, obtain actual owner acceptance, merge bounded C delivery into local main and update handoff. Keep #5 open until remaining requirements review. Depends T-08 and acceptance.
+- [x] T-09 — Present local runnable synthetic review, obtain actual owner acceptance, merge bounded C delivery into local main and update handoff. Acceptance `e99f586`, local merge `0dc096c` on 1 November. Keep #5 open until remaining requirements review. Depends T-08 and acceptance.
 
 ## Verification and delivery
 
@@ -50,10 +50,10 @@ Browser: synthetic populated/empty/denied/pending/error/stale and paged-impact/h
 ## Current checkpoint / handoff
 
 - Scope: D-1–D-6 approved by the owner on 29 October 2026 without amendment. One writer/branch; no worktrees.
-- Inspection receipt: reviewed code `49a50f2`, implementation `c33e6ad`, verification/capture checkpoint `a61e732`. Final local main remains `cbdbce9`; no acceptance, merge, institutional operation or remote sync has occurred. The synthetic preview sign-in/date/dialog/public-privacy smoke passes on the final Webpack artifact.
+- Inspection receipt: reviewed code `49a50f2`, implementation `c33e6ad`, verification/capture checkpoint `a61e732`, final inspection receipt `fee00f2`. Acceptance `e99f586`, local merge `0dc096c` on 1 November. No institutional operation or remote sync occurred. The recorded synthetic preview smoke passes on the final Webpack artifact.
 - Base: `cbdbce9`; B is accepted/merged at `850f42a`. Last remote reconciliation 26 October; no sync this session.
-- Work: approval `3d4361a` preceded implementation `c33e6ad`, corrections `49a50f2`; corrections complete cancellation focus/success revalidation, a dump/restore-stable reason constraint and explicit disposable-reset/legacy-test integration. T-04–T-07 and 23 safety groups pass. [Verification/capture gallery](verification.md) owns exact evidence. The default Turbopack CSS-worker process/IPC failure remains unresolved; the separately labeled final Webpack build powers the synthetic review. This is not an accepted build exception.
+- Work: approval `3d4361a` preceded implementation `c33e6ad`, corrections `49a50f2`; corrections complete cancellation focus/success revalidation, a dump/restore-stable reason constraint and explicit disposable-reset/legacy-test integration. T-04–T-07 and 23 safety groups pass. [Verification/capture gallery](verification.md) owns exact evidence. Default Turbopack remains failed; separate Webpack build powers the synthetic review. Owner acceptance covers this delivery exception, without changing build policy.
 - Review on this host: `node node_modules/tsx/dist/cli.mjs .tmp/rom01c-pg-review.ts --serve` starts a guarded owned PostgreSQL production preview on `http://localhost:3104`; `node .tmp/rom01c-owner-preview.cjs` supplies a loopback gallery and synthetic sign-in link in ignored `.tmp/rom01c-owner-review.json`. These host-local helpers retain no institutional target and are not application/deployment entry points. Captures and evidence are versioned under `output/playwright/ROM-01C/implementation`.
-- Acceptance boundary: owner accepted on 1 November with the disclosed default-build exception. The inspection receipt above describes the pre-acceptance state; no code or verification result changed during acceptance.
-- Next action: commit this acceptance, merge C into local main, record the merge receipt, then inspect/specify BUG-28 as explicitly requested. No BUG-28 implementation before approval of its concrete plan.
-- Exact continuation: “Read the brief and selected sole plan; inspect Git. ROM-01C is accepted on 1 November with AC-11 partial under the disclosed default-build exception. Complete its authorized local merge/receipt if still pending, then inspect/specify BUG-28. Preserve institutional storage and frozen publications; no remote sync/worktree or unapproved next-task implementation.”
+- Acceptance boundary: owner accepted on 1 November with the disclosed default-build exception. No code or verification result changed during acceptance/merge. Git confirms the acceptance and implementation are ancestors of local main; no conflict resolution was needed.
+- Next action: inspect/specify BUG-28 as explicitly requested. No BUG-28 implementation before approval of its concrete plan. This C delivery is complete; remaining #5 requirements review is deferred.
+- Exact continuation: “Read the brief and selected sole plan; inspect Git. ROM-01C is accepted and merged at `0dc096c` on 1 November with AC-11 partial under the disclosed default-build exception. Inspect/specify BUG-28 under the owner's next-task authorization. Preserve institutional storage and frozen publications; no remote sync/worktree or unapproved implementation.”

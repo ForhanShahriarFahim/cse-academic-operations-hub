@@ -66,5 +66,5 @@ The planning findings above describe proposal `15ab147`, before approval. Implem
 
 - B accepted and merged locally at `850f42a`; merge receipt `cbdbce9`.
 - C branch: `codex/rom-01c`; planning authorized by the owner's 29 October request.
-- C implementation approved without amendment on 29 October at `3d4361a`; feature accepted on 1 November with the disclosed default-build exception. Local merge authorized; receipt follows in the sole plan.
+- C implementation approved without amendment on 29 October at `3d4361a`; feature accepted on 1 November with the disclosed default-build exception, acceptance `e99f586`; merged locally at `0dc096c`. All reviewed code/acceptance commits are preserved as ancestors of main. No code checks were rerun for this documentation-only merge receipt.
 - Parent #5 remains open. GitHub synchronization deferred; last remote reconciliation 26 October 2026.
