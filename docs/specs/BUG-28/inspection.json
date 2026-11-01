@@ -1,0 +1,34 @@
+{
+  "issue": "BUG-28 / #28",
+  "inspectedBase": "f09df27",
+  "date": "2026-11-01",
+  "target": "explicit memory://; no environment loader or application database import",
+  "scope": "Baseline reproduction using original academic_terms DDL; later migrations do not alter this table. Not a production loader or fix verification.",
+  "baselineDDL": "drizzle/0000_pretty_lady_vermin.sql:1",
+  "rows": [
+    {
+      "id": 1,
+      "name": "Synthetic Summer",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Synthetic Spring",
+      "status": "active"
+    }
+  ],
+  "firstRowQueryResult": [
+    {
+      "id": 1
+    }
+  ],
+  "indexes": [
+    {
+      "indexname": "academic_terms_pkey",
+      "indexdef": "CREATE UNIQUE INDEX academic_terms_pkey ON public.academic_terms USING btree (id)"
+    }
+  ],
+  "result": "Two implicit active inserts succeed; LIMIT 1 hides ambiguity. No ordering guarantee is established by the observed ID.",
+  "institutionalDataOpened": false,
+  "applicationOrMigrationFilesChanged": false
+}
