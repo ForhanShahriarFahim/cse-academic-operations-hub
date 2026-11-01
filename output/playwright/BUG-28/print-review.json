@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-01",
+  "scope": "Read-only native browser-export QA; no PDF source authored/edited",
+  "exports": {
+    "none-unavailable": {
+      "pages": 1,
+      "A4": true,
+      "orientation": "landscape (existing print CSS)",
+      "pixelHashes": [
+        "ba3aea0027f818b3352b75f197c7fcbae7feb5e37640cf06620ed62c98a4199e"
+      ]
+    },
+    "ambiguous-unavailable": {
+      "pages": 1,
+      "A4": true,
+      "orientation": "landscape (existing print CSS)",
+      "pixelHashes": [
+        "ddfea16d611ce0e3221f9eb11351c4b58372956d4a8dea5e26225ba090feb548"
+      ]
+    },
+    "valid-official-before": {
+      "pages": 4,
+      "A4": true,
+      "orientation": "landscape (existing print CSS)",
+      "pixelHashes": [
+        "934841bfd71e5e9d68ae6c52fd6b4c093116b3f32eec0a6f50c01dac6f19d002",
+        "95e5fda62579b483abe7e87b95d07cc707a398af83cec850321982f8389ce5fb",
+        "4de1a37e56e2d491441ce450fa2c32ba24fc05572bc69e401e6bdef3513b632e",
+        "ceb3f0fea544ab267da4ee997a14fb4d3de774a84d06a6aa6c37c467e0b5de36"
+      ]
+    },
+    "valid-official-after": {
+      "pages": 4,
+      "A4": true,
+      "orientation": "landscape (existing print CSS)",
+      "pixelHashes": [
+        "934841bfd71e5e9d68ae6c52fd6b4c093116b3f32eec0a6f50c01dac6f19d002",
+        "95e5fda62579b483abe7e87b95d07cc707a398af83cec850321982f8389ce5fb",
+        "4de1a37e56e2d491441ce450fa2c32ba24fc05572bc69e401e6bdef3513b632e",
+        "ceb3f0fea544ab267da4ee997a14fb4d3de774a84d06a6aa6c37c467e0b5de36"
+      ]
+    }
+  },
+  "validOfficialPixelsUnchanged": true,
+  "unavailablePagesRevealNoTermOrRoutineData": true,
+  "visualInspection": "Completed: notice pages and all rendered pages inspected via contact sheet; native routine/contact pages inspected. Unavailable notices are readable with no term/routine data. Existing long synthetic break annotations crowd narrow columns in both identical valid-package renders; outside BUG-28."
+}

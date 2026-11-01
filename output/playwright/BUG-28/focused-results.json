@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-01",
+  "exitCode": 0,
+  "groups": [
+    {
+      "name": "BUG-28 active terms (PGlite)",
+      "phase": "final focused run with empty/missing diagnostic cases",
+      "details": [
+        "Actual diagnostic safely refuses missing store/table and unsupported repair flag; migrated empty table reports zero without seeding or changing any fingerprint; child exit proves resource closure.",
+        "Populated 0012→0013, reapply and explicit/default/update uniqueness pass; zero/non-active custom statuses remain valid. Duplicate actual-migrator preflight (23514) preserves complete schema/sequence/table/audit/snapshot/journal fingerprint.",
+        "ambiguous: five real production read sites, 27 direct action refusals, anonymous permission precedence, CSV statuses/no attachments/no-store, missing-record and teacher-reference contracts; full fingerprint proves no data/audit/sequence mutation.",
+        "none: five real production read sites, 25 direct action refusals, anonymous permission precedence, CSV statuses/no attachments/no-store, missing-record and teacher-reference contracts; full fingerprint proves no data/audit/sequence mutation.",
+        "Sole-active real portal/summary/CSV/scope readers preserve existing contracts; transactional teacher-reference reader observes its own uncommitted zero-active state, then rolls back without changing history.",
+        "Pre-0013 PGlite cold backup, populated upgrade and separate-target restore recover complete schema/sequence/history fingerprint."
+      ],
+      "defaultDatabaseMetadataUnchanged": true
+    },
+    {
+      "name": "BUG-28 active terms (PostgreSQL)",
+      "phase": "final focused run with empty/missing diagnostic cases",
+      "details": [
+        "Disposable PostgreSQL 17.11",
+        "Actual diagnostic safely refuses missing store/table and unsupported repair flag; migrated empty table reports zero without seeding or changing any fingerprint; child exit proves resource closure.",
+        "Populated 0012→0013, reapply and explicit/default/update uniqueness pass; zero/non-active custom statuses remain valid. Duplicate actual-migrator preflight (23514) preserves complete schema/sequence/table/audit/snapshot/journal fingerprint.",
+        "ambiguous: five real production read sites, 27 direct action refusals, anonymous permission precedence, CSV statuses/no attachments/no-store, missing-record and teacher-reference contracts; full fingerprint proves no data/audit/sequence mutation.",
+        "none: five real production read sites, 25 direct action refusals, anonymous permission precedence, CSV statuses/no attachments/no-store, missing-record and teacher-reference contracts; full fingerprint proves no data/audit/sequence mutation.",
+        "Sole-active real portal/summary/CSV/scope readers preserve existing contracts; transactional teacher-reference reader observes its own uncommitted zero-active state, then rolls back without changing history.",
+        "16 PostgreSQL uniqueness races use real blocking-PID barriers: explicit/default inserts, updates and mixed pairs, both orders and holder rollback. Actual migrator waits for an earlier duplicate writer then refuses; actual migrator held before journal commit wins before a later writer, which refuses; final real-runner reapply passes.",
+        "Pre-0013 PostgreSQL encrypted backup, populated upgrade and separate-target restore recover complete schema/sequence/history fingerprint."
+      ],
+      "defaultDatabaseMetadataUnchanged": true
+    }
+  ]
+}
