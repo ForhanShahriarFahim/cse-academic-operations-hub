@@ -3,11 +3,18 @@ import { getPublicRoutineData } from "@/lib/public-routine";
 import { buildOfficialRoutinePackage } from "@/lib/official-routine-package";
 import { OfficialRoutinePackage } from "@/components/official-routine-package";
 import { PrintPackageButton } from "@/components/print-package-button";
+import { ActiveTermUnavailable } from "@/lib/term-state";
+import { RoutineUnavailable } from "@/components/routine-unavailable";
 
 export const dynamic = "force-dynamic";
 
 export default async function PublishedOfficialRoutinePage() {
-  const data = await getPublicRoutineData();
+  let data;
+  try { data = await getPublicRoutineData(); }
+  catch (error) {
+    if (error instanceof ActiveTermUnavailable) return <RoutineUnavailable />;
+    throw error;
+  }
   const source = data?.source ?? null;
   if (!source || !data) {
     return <main className="mx-auto max-w-3xl p-8">

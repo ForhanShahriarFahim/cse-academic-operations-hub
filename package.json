@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "db:migrate": "tsx src/db/migrate.ts",
+    "db:check-terms": "tsx scripts/check-terms.ts",
     "db:prepare": "tsx src/db/prepare.ts",
     "db:reset": "tsx src/db/seed.ts",
     "auth:bootstrap": "tsx scripts/bootstrap-admin.ts",

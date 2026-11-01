@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-01",
+  "build": "Separately labeled Webpack production review build; default Turbopack failed",
+  "target": "Owned synthetic PostgreSQL, deliberately pre-0013 for legacy states",
+  "captures": [
+    {
+      "name": "refused-policy-values-retained",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-account-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-public-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-account-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-public-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-account-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-public-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-dependent-page",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "none-official",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-account-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-public-1440",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-account-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-public-390",
+      "width": 390,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-account-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-public-320",
+      "width": 320,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-dependent-page",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "ambiguous-official",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    },
+    {
+      "name": "restored-one-account",
+      "width": 1440,
+      "overflow": false,
+      "axeViolations": 0
+    }
+  ],
+  "modes": [
+    "one",
+    "ambiguous",
+    "none",
+    "ambiguous",
+    "one"
+  ],
+  "routes": [
+    {
+      "mode": "none",
+      "route": "/public/routine/export",
+      "status": 404,
+      "contentType": "application/json",
+      "noAttachment": true
+    },
+    {
+      "mode": "none",
+      "route": "/routine/export",
+      "status": 503,
+      "contentType": "application/json",
+      "noAttachment": true
+    },
+    {
+      "mode": "ambiguous",
+      "route": "/public/routine/export",
+      "status": 503,
+      "contentType": "application/json",
+      "noAttachment": true
+    },
+    {
+      "mode": "ambiguous",
+      "route": "/routine/export",
+      "status": 503,
+      "contentType": "application/json",
+      "noAttachment": true
+    }
+  ],
+  "formValuesRetained": true,
+  "refusedFeedbackAnnounced": true,
+  "keyboardNavigation": "desktop skip link and mobile dialog Escape/focus pass",
+  "publicHashesBefore": {
+    "screen": "d7a4a91baefe288b3b95321a1895286d73f52e67e205f8815604e5103ad02e11",
+    "official": "02732d46a23665ccecab326fc45900dfbb61a1add63bbe634d0bd825245df037",
+    "printText": "02732d46a23665ccecab326fc45900dfbb61a1add63bbe634d0bd825245df037",
+    "csv": "f57eef96ba4e6fb15d277bcecf81d268f44e11bfdb41afb4e2f292918202063f"
+  },
+  "publicHashesAfter": {
+    "screen": "d7a4a91baefe288b3b95321a1895286d73f52e67e205f8815604e5103ad02e11",
+    "official": "02732d46a23665ccecab326fc45900dfbb61a1add63bbe634d0bd825245df037",
+    "printText": "02732d46a23665ccecab326fc45900dfbb61a1add63bbe634d0bd825245df037",
+    "csv": "f57eef96ba4e6fb15d277bcecf81d268f44e11bfdb41afb4e2f292918202063f"
+  },
+  "businessHashesBefore": {
+    "academic_policies": "38a5ebb28fb60a5bbaa4a33e36f544bbb78098569d2b96e665bb5adbdf1e548d",
+    "audit_events": "027e0548a676e008f95d79e857158168d116b0521ff8cfb0cff9ab58a1789e15",
+    "schedule_versions": "052887e74016854c944d7bd10fdf1a6bd15dad9eb955c9cbb75c4e60fdce13ed",
+    "meetings": "aa0c46fb9b36dfa57cae296ce6ea346cc2931a5ccd524ba304603377e2677c0b",
+    "attendance_records": "b3d81b756ea54d5ac699773f7e6968030cc1b85fbc4676fa5913dc0904ecc53b"
+  },
+  "businessHashesAfter": {
+    "academic_policies": "38a5ebb28fb60a5bbaa4a33e36f544bbb78098569d2b96e665bb5adbdf1e548d",
+    "audit_events": "027e0548a676e008f95d79e857158168d116b0521ff8cfb0cff9ab58a1789e15",
+    "schedule_versions": "052887e74016854c944d7bd10fdf1a6bd15dad9eb955c9cbb75c4e60fdce13ed",
+    "meetings": "aa0c46fb9b36dfa57cae296ce6ea346cc2931a5ccd524ba304603377e2677c0b",
+    "attendance_records": "b3d81b756ea54d5ac699773f7e6968030cc1b85fbc4676fa5913dc0904ecc53b"
+  },
+  "pageErrors": []
+}

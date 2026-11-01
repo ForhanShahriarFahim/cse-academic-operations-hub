@@ -3,10 +3,11 @@
  * into serialized views — safe to hand to client components.
  */
 import { effectiveLimit } from "./teacher-records";
+import { readActiveTerm, requireActiveTerm } from "./active-term";
+import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
 import { db } from "@/db";
 import {
-  academicTerms,
   batches,
   batchTermPlacements,
   courses,
@@ -224,9 +225,7 @@ function toNum(v: string | number | null): number | null {
 }
 
 export async function getActiveTerm() {
-  const rows = await db.select().from(academicTerms).where(eq(academicTerms.status, "active")).limit(1);
-  if (rows.length === 0) throw new Error("No active academic term — run the seed.");
-  return rows[0];
+  return requireActiveTerm();
 }
 
 /**
@@ -234,9 +233,10 @@ export async function getActiveTerm() {
  * currently published, if any. Reads only small columns (never snapshots).
  */
 export async function getTermPublicationState(): Promise<{ termName: string; publishedVersion: number | null } | null> {
-  const [term] = await db.select({ id: academicTerms.id, name: academicTerms.name })
-    .from(academicTerms).where(eq(academicTerms.status, "active")).limit(1);
-  if (!term) return null;
+  const state = await readActiveTerm();
+  if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
+  if (state.kind === "none") return null;
+  const term = state.term;
   const versions = await db.select({ versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state })
     .from(scheduleVersions).where(eq(scheduleVersions.termId, term.id)).orderBy(desc(scheduleVersions.versionNumber));
   return { termName: term.name, publishedVersion: versions.find((version) => version.state === "published")?.versionNumber ?? null };

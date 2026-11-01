@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-01",
+  "codeCheckpoint": "fd08ee0",
+  "build": "Final separately labeled Webpack production review build",
+  "buildId": "IRjNMiZA7jvjFElIG4mRs",
+  "signInRedirectPassed": true,
+  "modes": [
+    {
+      "mode": "none",
+      "publicCsvStatus": 404,
+      "accountReachable": true
+    },
+    {
+      "mode": "ambiguous",
+      "publicCsvStatus": 503,
+      "accountReachable": true
+    },
+    {
+      "mode": "one",
+      "publicCsvStatus": 200,
+      "accountReachable": true
+    }
+  ],
+  "restoredMode": "one"
+}

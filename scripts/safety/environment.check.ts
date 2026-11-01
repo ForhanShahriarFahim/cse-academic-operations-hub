@@ -1,7 +1,7 @@
 /** BUG-24: fresh-process Next parity and pre-connection CLI contracts, synthetic files only. */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { createOwnedRun, removeOwnedRun } from "./pglite";
@@ -13,6 +13,7 @@ const PROBE = path.join(__dirname, "children/environment-probe.ts");
 const entries = {
   "db:prepare": "src/db/prepare.ts", "db:migrate": "src/db/migrate.ts",
   "db:reset": "src/db/seed.ts", "auth:bootstrap": "scripts/bootstrap-admin.ts",
+  "db:check-terms": "scripts/check-terms.ts",
 };
 type Mode = "development" | "production" | "test";
 
@@ -31,19 +32,24 @@ export async function checkDatabaseEnvironment(): Promise<string[]> {
   const run = createOwnedRun("bug24 environment");
   const tripwire = path.join(run.root, "no-db.mjs");
   const hooks = path.join(run.root, "no-db-hooks.mjs");
+  const importHit = path.join(run.root, "database-import-hit");
   // Verify the actual runtime import boundary, including transitive imports.
-  writeFileSync(hooks, `export async function load(url, context, nextLoad) {
+  writeFileSync(hooks, `import { writeFileSync } from 'node:fs';
+export async function load(url, context, nextLoad) {
   if (url.includes('/src/db/index.ts') || /node_modules\\/(?:pg|@electric-sql\\/pglite)\\//.test(url)) {
+    writeFileSync(${JSON.stringify(importHit)}, 'hit');
     throw new Error('BUG24_DATABASE_IMPORT_TRIPWIRE');
   }
   return nextLoad(url, context);
 }\n`);
   writeFileSync(tripwire, `import Module, { register } from 'node:module';
+import { writeFileSync } from 'node:fs';
 register('./no-db-hooks.mjs', import.meta.url);
 const original = Module._load;
 Module._load = function(request, parent, ...rest) {
   const resolved = Module._resolveFilename(request, parent).replaceAll('\\\\', '/');
   if (resolved.endsWith('/src/db/index.ts') || /node_modules\\/(?:pg|@electric-sql\\/pglite)\\//.test(resolved)) {
+    writeFileSync(${JSON.stringify(importHit)}, 'hit');
     throw new Error('BUG24_DATABASE_IMPORT_TRIPWIRE');
   }
   return original.call(this, request, parent, ...rest);
@@ -137,9 +143,14 @@ Module._load = function(request, parent, ...rest) {
     for (const [command, file] of Object.entries(entries)) {
       // Actual execution must hit the armed tripwire only AFTER the identical banner.
       const args = command === "db:reset" ? ["--confirm", directory] : [];
+      if (existsSync(importHit)) unlinkSync(importHit);
       const result = execute(cwd, path.join(REPO_ROOT, file), args, pinned);
       assert.equal(result.status, 1);
-      assert.match(result.stderr, /BUG24_DATABASE_IMPORT_TRIPWIRE/);
+      assert.ok(existsSync(importHit), `${command}: actual driver import intercepted`);
+      if (command === "db:check-terms") {
+        assert.match(result.stderr, /Term diagnostic failed/);
+        assert.doesNotMatch(result.stderr, /BUG24_DATABASE_IMPORT_TRIPWIRE/);
+      } else assert.match(result.stderr, /BUG24_DATABASE_IMPORT_TRIPWIRE/);
       assert.equal(result.stdout, `Command: ${command}\nEnvironment: development\nMode: pglite\nTarget: ${directory}\n`);
 
       for (const env of [
@@ -154,7 +165,7 @@ Module._load = function(request, parent, ...rest) {
         assert.doesNotMatch(invalid.stdout + invalid.stderr, /BUG24_DATABASE_IMPORT_TRIPWIRE|invalid-secret-marker|secret-user|secret-password|%ZZ/);
       }
       const secrets = { ...pinned, DATABASE_URL: "postgresql://secret%40user:secret%2Fpassword@unreachable.invalid:59999/fixture?password=secret-query&token=secret-token", BETTER_AUTH_SECRET: "secret-auth", PORTAL_BOOTSTRAP_ADMIN_EMAIL: "" };
-      const redacted = execute(cwd, path.join(REPO_ROOT, file), ["--show-target", "--password", "--reset-link"], secrets);
+      const redacted = execute(cwd, path.join(REPO_ROOT, file), command === "db:check-terms" ? ["--show-target"] : ["--show-target", "--password", "--reset-link"], secrets);
       assert.equal(redacted.status, 0, redacted.stderr);
       assert.match(redacted.stdout, /Target: unreachable.invalid:59999\/fixture/);
       assert.doesNotMatch(redacted.stdout + redacted.stderr, /secret|Setup link|Reset link/);
@@ -194,7 +205,7 @@ Module._load = function(request, parent, ...rest) {
     assert.equal(probe(cwd, reviewEnv).label, directory);
     return [
       `${cases} precedence/preview cases: development, production, test, both adapters, process empty pins, expansion and escaping match fresh installed Next-loader processes`,
-      "All four previews open nothing; armed import tripwire confirms execution prints the identical banner before client import; helper imports execute no commands",
+      "All five previews open nothing; armed import tripwire and owned-file marker confirm execution prints the identical banner before client import, including safely masked diagnostic failures; helper imports execute no commands",
       "Default and lifecycle modes, contradictory/invalid modes, Vercel requirement, invalid URL redaction, credential/query/auth-token omission and no-email bootstrap preview verified",
       "Missing/wrong reset confirmation and institutional-directory refusal precede import; preview does not waive refusal; review environment remains pinned against hostile files",
     ];

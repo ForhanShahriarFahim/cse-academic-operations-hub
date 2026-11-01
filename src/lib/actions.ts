@@ -1,5 +1,7 @@
 "use server";
 
+import { withTermContext } from "./active-term";
+
 /**
  * Server actions — every mutation is validated server-side. Conflict
  * validation runs within the commit path; client-side checks are advisory
@@ -89,6 +91,9 @@ async function buildCandidateView(groupId: number): Promise<MeetingView | null> 
 }
 
 export async function createMeetingAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => createMeetingActionInTerm(formData));
+}
+async function createMeetingActionInTerm(formData: FormData): Promise<ActionResult> {
   const groupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("manage_routine", { kind: "teaching_group", teachingGroupId: groupId });
   if (denied) return denied;
@@ -168,6 +173,14 @@ export async function moveMeetingAction(
   startMinutes: number,
   endMinutes: number,
 ): Promise<ActionResult> {
+  return withTermContext(() => moveMeetingActionInTerm(meetingId, dayOfWeek, startMinutes, endMinutes));
+}
+async function moveMeetingActionInTerm(
+  meetingId: number,
+  dayOfWeek: number,
+  startMinutes: number,
+  endMinutes: number,
+): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
   if (!Number.isInteger(meetingId)) return { ok: false, message: "Invalid meeting." };
@@ -220,6 +233,9 @@ export interface MeetingUpdate {
  * keep their role; newly added teachers are instructors.
  */
 export async function updateMeetingAction(meetingId: number, update: MeetingUpdate): Promise<ActionResult> {
+  return withTermContext(() => updateMeetingActionInTerm(meetingId, update));
+}
+async function updateMeetingActionInTerm(meetingId: number, update: MeetingUpdate): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
   if (!Number.isInteger(meetingId)) return { ok: false, message: "Invalid meeting." };
@@ -305,6 +321,9 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
 }
 
 export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
+  return withTermContext(() => deleteMeetingActionInTerm(meetingId));
+}
+async function deleteMeetingActionInTerm(meetingId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
   if (denied) return denied;
   if (!await isInActiveTerm("meeting", meetingId)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -343,6 +362,9 @@ export async function deleteMeetingAction(meetingId: number): Promise<ActionResu
 // ---------------------------------------------------------------------------
 
 export async function createExternalAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => createExternalActionInTerm(formData));
+}
+async function createExternalActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
   const kind = String(formData.get("kind") ?? "");
@@ -400,6 +422,9 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
 }
 
 export async function verifyExternalAction(id: number): Promise<ActionResult> {
+  return withTermContext(() => verifyExternalActionInTerm(id));
+}
+async function verifyExternalActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -416,6 +441,9 @@ export async function verifyExternalAction(id: number): Promise<ActionResult> {
 }
 
 export async function deleteExternalAction(id: number): Promise<ActionResult> {
+  return withTermContext(() => deleteExternalActionInTerm(id));
+}
+async function deleteExternalActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
   if (denied) return denied;
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -468,6 +496,9 @@ function blockedDelete(error: unknown, what: "class" | "commitment"): ActionResu
 // ---------------------------------------------------------------------------
 
 export async function publishAction(changeSummary: string): Promise<ActionResult> {
+  return withTermContext(() => publishActionInTerm(changeSummary));
+}
+async function publishActionInTerm(changeSummary: string): Promise<ActionResult> {
   const actor = await actionActor("approve_publication");
   if ("ok" in actor) return actor;
   const data = await getPortalData();

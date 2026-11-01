@@ -1,5 +1,7 @@
 "use server";
 
+import { withTermContext } from "./active-term";
+
 /**
  * TCH-01 (#4) teacher record actions. Each one checks `manage_teachers` on the
  * server, refuses stale edits, re-checks references inside its transaction and
@@ -48,6 +50,9 @@ const matches = (updatedAt: Date, expected: string) => updatedAt.toISOString() =
 
 /** Add a teacher, edit one, or resolve an unresolved routine code (`resolve=1`). */
 export async function saveTeacherAction(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => saveTeacherActionInTerm(_previous, formData));
+}
+async function saveTeacherActionInTerm(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const who = await editor();
   if (isResult(who)) return who;
   const teacherId = field(formData, "teacherId") ? Number(field(formData, "teacherId")) : null;
@@ -124,6 +129,9 @@ const STATUS_MESSAGES: Record<"set_on_leave" | "back_from_leave" | "deactivate" 
 
 /** Set on leave, back from leave, deactivate or reactivate. */
 export async function setTeacherStatusAction(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => setTeacherStatusActionInTerm(_previous, formData));
+}
+async function setTeacherStatusActionInTerm(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const who = await editor();
   if (isResult(who)) return who;
   const action = field(formData, "action") as keyof typeof STATUS_MESSAGES;
@@ -156,6 +164,9 @@ export async function setTeacherStatusAction(_previous: ActionResult | null, for
 
 /** Permanently delete a record that nothing has ever referred to. The typed code must match. */
 export async function deleteTeacherAction(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => deleteTeacherActionInTerm(_previous, formData));
+}
+async function deleteTeacherActionInTerm(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const who = await editor();
   if (isResult(who)) return who;
   const teacherId = Number(field(formData, "teacherId"));

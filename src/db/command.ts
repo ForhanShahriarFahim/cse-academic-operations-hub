@@ -2,7 +2,7 @@
 import { loadDatabaseEnvironment, type EnvironmentMode } from "./environment";
 import { databaseTarget } from "./target";
 
-type Command = "db:prepare" | "db:migrate" | "db:reset" | "auth:bootstrap";
+type Command = "db:prepare" | "db:migrate" | "db:reset" | "db:check-terms" | "auth:bootstrap";
 
 export function databaseCommand(command: Command, args: string[]) {
   let expected: EnvironmentMode | undefined;

@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-01",
+  "codeCheckpoint": "fd08ee0",
+  "typecheck": "passed",
+  "lint": "passed",
+  "domain": "passed",
+  "defaultBuild": {
+    "command": "node node_modules/next/dist/bin/next build (the declared build-script command)",
+    "target": "DATABASE_URL empty, PGLITE_DATA_DIR memory://, npm_lifecycle_event build",
+    "exitCode": 1,
+    "result": "failed inside and outside sandbox; final committed-code outside-sandbox retry also failed",
+    "failure": "globals.css -> creating new process -> node process exited before we could connect",
+    "ownerException": "not granted"
+  },
+  "separateReviewBuild": {
+    "command": "node node_modules/next/dist/bin/next build --webpack",
+    "target": "same pinned in-memory build target and lifecycle flag",
+    "exitCode": 0,
+    "result": "final Webpack production artifact passes compile, TypeScript, page collection and route output; used by browser and final running-preview smoke",
+    "initialSandboxAttempt": "generated .next route-directory mkdir EPERM; outside-sandbox retry passes"
+  },
+  "buildPolicyOrDependenciesChanged": false,
+  "institutionalDatabaseOpened": false
+}

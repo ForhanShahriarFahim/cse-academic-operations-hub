@@ -11,6 +11,7 @@ async function main() {
     await import("../../../src/db/seed");
     await import("../../../src/db/seed-summer-2026");
     await import("../../bootstrap-admin");
+    await import("../../check-terms");
     console.log("Helpers imported without opening a database or executing a command.");
     return;
   }

@@ -6,10 +6,11 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  academicTerms, attendanceSessions, externalCommitments, extraLoadClasses, extraLoadManualSummaries,
+  attendanceSessions, externalCommitments, extraLoadClasses, extraLoadManualSummaries,
   meetings, teachingGroups,
 } from "@/db/schema";
 import { stale } from "./action-result";
+import { readActiveTerm } from "./active-term";
 
 export type TermScopedRecord =
   | "teaching_group"
@@ -51,6 +52,6 @@ async function owningTermId(kind: TermScopedRecord, id: number): Promise<number 
 export async function isInActiveTerm(kind: TermScopedRecord, id: number): Promise<boolean> {
   const termId = await owningTermId(kind, id);
   if (termId == null) return true;
-  const [active] = await db.select({ id: academicTerms.id }).from(academicTerms).where(eq(academicTerms.status, "active")).limit(1);
-  return active?.id === termId;
+  const active = await readActiveTerm();
+  return active.kind === "one" && active.term.id === termId;
 }
