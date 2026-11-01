@@ -21,6 +21,7 @@ import { checkTeachers, checkTeachersPostgres } from "./safety/teacher.check";
 import { checkDeletes, checkDeletesPostgres } from "./safety/delete.check";
 import { checkRooms, checkRoomsPostgres } from "./safety/room.check";
 import { checkRoomLifecycle, checkRoomLifecyclePostgres } from "./safety/room-lifecycle.check";
+import { checkRoomMaintenance, checkRoomMaintenancePostgres } from "./safety/room-maintenance.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -43,6 +44,8 @@ async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
+    ["ROM-01C maintenance (PGlite)", () => checkRoomMaintenance()],
+    ["ROM-01C maintenance (PostgreSQL)", () => checkRoomMaintenancePostgres(process.env.SAFE01_PG_BIN), true],
     ["ROM-01B lifecycle (PGlite)", () => checkRoomLifecycle()],
     ["ROM-01B lifecycle (PostgreSQL)", () => checkRoomLifecyclePostgres(process.env.SAFE01_PG_BIN), true],
     ["ROM-01A rooms (PGlite)", () => checkRooms()],

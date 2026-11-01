@@ -38,7 +38,7 @@ const ACADEMIC_TABLES = sql.raw(`
   teaching_requirements, teaching_group_offerings, teaching_groups,
   course_offerings, batch_term_placements, courses, batches,
   day_plans, period_patterns, permitted_windows, break_rules, external_commitments,
-  academic_terms, rooms`);
+  academic_terms, room_unavailability, rooms`);
 
 const RESET_ACTION = "database.reset";
 /** Audit entities about portal access; every other audit event refers to academic rows. */

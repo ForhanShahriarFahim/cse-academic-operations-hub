@@ -21,6 +21,7 @@ import {
 import { DAY_NAMES } from "./time";
 import { lockMoveRooms } from "./room-lifecycle-transaction";
 import { roomAssignmentGuard } from "./room-transaction";
+import { assertMeetingMaintenanceClear } from "./room-maintenance-transaction";
 
 const EDITORS = ["manage_routine", "manage_policy"] as const;
 const CHANGED = "Someone else changed these periods since you opened them. Reload the page to see the latest version.";
@@ -78,6 +79,7 @@ function windowsAfter(before: WindowLike[], key: { stream: Stream; batchId: numb
 
 async function applyMoves(tx: Tx, impact: GridImpact): Promise<number> {
   await lockMoveRooms(tx, impact.moves.map((move) => move.meetingId));
+  for (const move of impact.moves) await assertMeetingMaintenanceClear(tx, move.meetingId, move);
   for (const move of impact.moves) {
     await tx.update(meetings).set({ startMinutes: move.startMinutes, endMinutes: move.endMinutes }).where(eq(meetings.id, move.meetingId));
   }

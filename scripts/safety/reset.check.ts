@@ -83,6 +83,10 @@ async function scenario(factory: DatabaseFactory, lines: string[]): Promise<void
     const label = targetOf(await database.runChild(SEED));
     const first = await database.runChild(SEED, ["--confirm", label]);
     assert.equal(first.status, 0, failure(first));
+    await withHandle(database, async ({ db }) => {
+      const [room] = await db.select().from(schema.rooms).limit(1);
+      await db.insert(schema.roomUnavailability).values({ roomId: room.id, startDate: "2026-06-13", endDate: "2026-06-13", weekdays: [0], startMinutes: 540, endMinutes: 600, reason: "Synthetic reset fixture maintenance" });
+    });
     const planted = await withHandle(database, ({ db }) => plantAccess(db));
     const before = await withHandle(database, async ({ client }) => ({
       fingerprint: await fingerprintDatabase(client), access: await accessRows(client), roles: await departmentCodes(client),
@@ -106,6 +110,7 @@ async function scenario(factory: DatabaseFactory, lines: string[]): Promise<void
     assert.match(reset.stdout, new RegExp(`Not re-linked: ${planted.orphanEmail.replace(/\./g, "\\.")} \\(teacher ZZQ`));
     await withHandle(database, async ({ client, db }) => {
       assert.equal(await accessRows(client), before.access, "accounts, passwords, sessions, links or roles changed");
+      assert.equal((await db.select().from(schema.roomUnavailability)).length, 0, "explicit disposable reset includes maintenance without a cascading truncate");
       assert.deepEqual(await departmentCodes(client), before.roles, "a role changed department");
       const [linked] = await db.select({ code: schema.teachers.shortCode }).from(schema.portalUsers)
         .innerJoin(schema.teachers, eq(schema.teachers.id, schema.portalUsers.teacherId)).where(eq(schema.portalUsers.email, planted.linkedEmail));

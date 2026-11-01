@@ -9,6 +9,7 @@
 import { overlaps, fmtRange, DAY_NAMES } from "./time";
 import { blockingBreaks, isClosedDay, type TimeGrid } from "./time-grid";
 import { knownAudienceSize, meetingStreams, type MeetingView, type ExternalCommitmentView } from "./serialize";
+import { maintenanceOverlap, physicalOD, type MaintenanceContext } from "./room-maintenance";
 
 export interface BreakRule {
   id: number; name: string; scope: string; stream: string | null;
@@ -36,14 +37,20 @@ export interface Issue {
     | "capacity_unverified"
     | "incompatible_room"
     | "tight_transition"
-    | "pending_reconciliation";
+    | "pending_reconciliation"
+    | "room_maintenance";
   title: string;
   detail: string;
-  dayOfWeek: number;
+  dayOfWeek: number | null;
   meetingIds: number[];
+  roomId?: number;
+  externalId?: number;
+  href?: string;
 }
 
 export interface EngineInput {
+  /** Internal date context only; public snapshots never contain live maintenance. */
+  maintenance?: MaintenanceContext;
   meetings: MeetingView[];
   externals: ExternalCommitmentView[];
   breaks: BreakRule[];
@@ -62,6 +69,22 @@ function refRangesTouch(aStart: number, aEnd: number, bStart: number, bEnd: numb
 
 export function analyzeSchedule(input: EngineInput): Issue[] {
   const issues: Issue[] = [];
+  if (input.maintenance) {
+    const context = input.maintenance;
+    for (const entry of context.entries.filter((e) => !e.cancelled)) {
+      const detail = (result: ReturnType<typeof maintenanceOverlap>) => `${result.kind === "overlap" ? `First overlap ${result.firstDate}; ${result.occurrences} occurrence(s)` : result.kind === "unverified" ? result.reason : ""} · ${fmtRange(entry.startMinutes, entry.endMinutes)} · ${entry.reason}`;
+      for (const m of input.meetings.filter((m) => m.rooms.some((r) => r.id === entry.roomId))) {
+        // New candidates use whole-term bounds. A missing existing context fails closed.
+        const dates = m.id < 0 ? {} : context.meetingDates[m.id] ?? { effectiveFrom: "invalid", effectiveTo: "invalid" };
+        const overlap = maintenanceOverlap(entry, { ...context, ...dates, ...m });
+        if (overlap.kind !== "clear") issues.push({ id: `maintenance-${entry.id}-m${m.id}`, severity: "blocker", type: "room_maintenance", title: `Room maintenance: ${m.rooms.find((r) => r.id === entry.roomId)?.code}`, detail: detail(overlap), dayOfWeek: m.dayOfWeek, meetingIds: [m.id], roomId: entry.roomId, href: `/rooms/${entry.roomId}/maintenance` });
+      }
+      for (const e of input.externals.filter((e) => e.roomId === entry.roomId && e.kind !== "teaching")) {
+        const overlap = maintenanceOverlap(entry, { ...context, ...e, ...(!physicalOD(e.kind) ? { dayOfWeek: null, startMinutes: null, endMinutes: null } : {}) });
+        if (overlap.kind !== "clear") issues.push({ id: `maintenance-${entry.id}-e${e.id}`, severity: "blocker", type: "room_maintenance", title: `${overlap.kind === "unverified" ? "Unverified room use" : "OD reservation during maintenance"}: OD #${e.id}`, detail: detail(overlap), dayOfWeek: physicalOD(e.kind) ? e.dayOfWeek : null, meetingIds: [], externalId: e.id, roomId: entry.roomId, href: `/rooms/${entry.roomId}/maintenance` });
+      }
+    }
+  }
   const byDay = new Map<number, MeetingView[]>();
   for (const m of input.meetings) {
     const arr = byDay.get(m.dayOfWeek) ?? [];
@@ -375,7 +398,7 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
 
   return issues.sort((a, b) =>
     (a.severity === b.severity ? 0 : a.severity === "blocker" ? -1 : 1) ||
-    a.dayOfWeek - b.dayOfWeek ||
+    (a.dayOfWeek ?? 7) - (b.dayOfWeek ?? 7) ||
     a.title.localeCompare(b.title),
   );
 }

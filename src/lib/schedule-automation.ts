@@ -62,6 +62,7 @@ export async function buildAutoSchedulePlan() {
     breaks: data.breaks,
     windows: data.windows,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
   });
   return { data, groups, plan };
 }

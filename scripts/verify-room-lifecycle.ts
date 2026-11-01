@@ -63,7 +63,7 @@ const meeting = { id: 1, dayOfWeek: 0, startMinutes: 520, endMinutes: 600, rooms
 data.meetings = [meeting, meeting, { ...meeting, id: 2, startMinutes: 580, endMinutes: 640 }];
 data.externals = [{ id: 1, roomId: 1, kind: "combined", dayOfWeek: 0, startMinutes: 640, endMinutes: 660, verificationStatus: "pending" }, { id: 2, roomId: 1, kind: "unresolved_note", dayOfWeek: null }, { id: 3, roomId: 1, kind: "teaching", dayOfWeek: 0, startMinutes: 700, endMinutes: 720 }] as ExternalCommitmentView[];
 const p = projectRoomOccupancy(data, room);
-assert.deepEqual(p.totals, { booked: 140, within: 120, usable: 180, outside: 20 });
+assert.deepEqual({ booked: p.totals.booked, within: p.totals.within, usable: p.totals.usable, outside: p.totals.outside }, { booked: 140, within: 120, usable: 180, outside: 20 });
 assert.equal(p.eventCount, 3); assert.equal(p.utilization, 67);
 assert.deepEqual(p.days[0].gaps, [{ start: 660, end: 720 }]);
 assert.ok(p.days.every((d) => d.uncertain));

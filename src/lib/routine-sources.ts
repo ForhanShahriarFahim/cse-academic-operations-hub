@@ -9,6 +9,7 @@ export function draftRoutineSource(data: PortalData): RoutineSource {
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   });
   return {

@@ -1,0 +1,202 @@
+{
+  "results": [
+    {
+      "name": "index",
+      "device": "desktop",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "maintenance",
+      "device": "desktop",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "device": "desktop",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "occupancy",
+      "device": "desktop",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "index",
+      "device": "phone",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "maintenance",
+      "device": "phone",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "device": "phone",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "occupancy",
+      "device": "phone",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "index",
+      "device": "narrow",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "maintenance",
+      "device": "narrow",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "device": "narrow",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    },
+    {
+      "name": "occupancy",
+      "device": "narrow",
+      "overflow": false,
+      "unlabeled": [],
+      "h1": 1,
+      "proposal": "Design proposal · Synthetic data · Approval pending · No application or database connection",
+      "brokenImages": 0,
+      "firstFocus": "Skip to content",
+      "skipTarget": "content",
+      "errors": [],
+      "network": [],
+      "axe": []
+    }
+  ],
+  "interactions": [
+    {
+      "case": "cancellation-feedback",
+      "pass": true
+    },
+    {
+      "case": "confirmation-required",
+      "pass": true
+    },
+    {
+      "case": "pending-disabled",
+      "pass": true
+    },
+    {
+      "case": "success-announced-no-write",
+      "pass": true
+    },
+    {
+      "case": "stale-keeps-input",
+      "pass": true
+    },
+    {
+      "case": "review-focus",
+      "pass": true
+    },
+    {
+      "case": "all-day-controls",
+      "pass": true
+    }
+  ]
+}

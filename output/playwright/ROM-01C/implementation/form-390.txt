@@ -1,0 +1,52 @@
+- main:
+  - link "← Room details":
+    - /url: /rooms/3
+  - paragraph: Internal room planning
+  - heading "MAINT-REVIEW · maintenance" [level=1]
+  - paragraph: Active room · finite inclusive dates in Asia/Dhaka
+  - paragraph: Outages apply across all terms. Bookings remain recorded; overlapping occurrences block recurring placements and new publications. Public routines retain their saved output.
+  - heading "Add maintenance" [level=2]
+  - paragraph: MAINT-REVIEW is independently active. Dates are inclusive, in Asia/Dhaka. Even one outage occurrence blocks a whole recurring placement.
+  - group "Maintenance details":
+    - text: Maintenance details Start date
+    - textbox "Start date"
+    - paragraph
+    - text: End date
+    - textbox "End date"
+    - paragraph
+    - group "Days within the date range":
+      - text: Days within the date range
+      - button "All days"
+      - checkbox "Saturday" [checked]
+      - text: Saturday
+      - checkbox "Sunday" [checked]
+      - text: Sunday
+      - checkbox "Monday" [checked]
+      - text: Monday
+      - checkbox "Tuesday" [checked]
+      - text: Tuesday
+      - checkbox "Wednesday" [checked]
+      - text: Wednesday
+      - checkbox "Thursday" [checked]
+      - text: Thursday
+      - checkbox "Friday" [checked]
+      - text: Friday
+      - paragraph
+    - checkbox "All day (00:00–24:00)" [checked]
+    - text: All day (00:00–24:00)
+    - paragraph
+    - text: Operational reason
+    - textbox "Operational reason"
+    - paragraph: 1–300 characters; visible to internal portal viewers. Split overnight work or different daily hours into separate records.
+    - paragraph
+    - button "Review impact and save"
+    - link "Back to maintenance":
+      - /url: /rooms/3/maintenance
+  - alert
+  - region "Maintenance records":
+    - heading "Maintenance records (0)" [level=2]
+    - paragraph: No maintenance recorded. Add an outage with dates, times and an operational reason.
+    - list
+    - paragraph:
+      - link "Review room change history and correction reasons":
+        - /url: /rooms/3#room-history

@@ -20,7 +20,7 @@ import { createEncryptedBackup, createKeyFile, restoreEncryptedBackup } from "./
 
 const txType = (tx: unknown) => tx as RoomTransaction;
 const raw = (row: RoomRecord, patch: Record<string, unknown> = {}) => ({ ...row, roomId: String(row.id), revision: String(row.revision), capacity: row.capacity == null ? "" : String(row.capacity), owningDepartmentId: row.owningDepartmentId == null ? "" : String(row.owningDepartmentId), notes: row.notes ?? "", ...patch });
-const legacy = async (handle: Pick<SafetyHandle, "exec">) => handle.exec(`alter table rooms drop constraint rooms_code_nonblank_ck, drop constraint rooms_building_nonblank_ck, drop constraint rooms_type_ck, drop constraint rooms_capacity_ck, drop constraint rooms_revision_ck; drop index rooms_code_canonical_uq; alter table rooms drop column revision, drop column is_draft; delete from drizzle.__drizzle_migrations where created_at >= 1793059200000;`);
+const legacy = async (handle: Pick<SafetyHandle, "exec">) => handle.exec(`drop table if exists room_unavailability; alter table rooms drop constraint rooms_code_nonblank_ck, drop constraint rooms_building_nonblank_ck, drop constraint rooms_type_ck, drop constraint rooms_capacity_ck, drop constraint rooms_revision_ck; drop index rooms_code_canonical_uq; alter table rooms drop column revision, drop column is_draft; delete from drizzle.__drizzle_migrations where created_at >= 1793059200000;`);
 
 async function upgrade(database: SafetyDatabase, lines: string[]) {
   await withHandle(database, async (h) => {

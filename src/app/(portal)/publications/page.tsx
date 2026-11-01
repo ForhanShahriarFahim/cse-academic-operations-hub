@@ -16,6 +16,7 @@ export default async function PublicationsPage() {
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   });
   const blockers = issues.filter((i) => i.severity === "blocker").length;

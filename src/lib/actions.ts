@@ -33,6 +33,8 @@ import { conflicted, type ActionResult, type ResultIssue } from "./action-result
 import { isForeignKeyViolation } from "./db-errors";
 import { lockRooms, RoomAssignmentChanged, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
 import { assertActiveRooms, lockMoveRooms, retainAssignedRooms } from "./room-lifecycle-transaction";
+import { assertGroupMaintenanceClear, assertMeetingMaintenanceClear, assertMaintenanceClear } from "./room-maintenance-transaction";
+import { checkPublicationMaintenance } from "./room-publication-maintenance";
 
 // The shared contract lives in ./action-result; this type-only re-export keeps
 // existing `import type { ActionResult } from "@/lib/actions"` consumers working.
@@ -133,6 +135,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(-1));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -143,6 +146,7 @@ export async function createMeetingAction(formData: FormData): Promise<ActionRes
   const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.create", "meeting", async (tx, actor) => {
     await lockRooms(tx, roomIds);
     await validateRoomAssignment(tx, groupId, roomIds);
+    await assertGroupMaintenanceClear(tx, groupId, roomIds, { dayOfWeek, startMinutes: start, endMinutes: end });
     const [m] = await tx.insert(meetings).values({
       teachingGroupId: groupId, dayOfWeek, startMinutes: start, endMinutes: end,
       isException, exceptionNote, customTimeLabel,
@@ -179,6 +183,7 @@ export async function moveMeetingAction(
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(meetingId));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -188,6 +193,7 @@ export async function moveMeetingAction(
 
   const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("meeting.move", "meeting", async (tx) => {
     await lockMoveRooms(tx, [meetingId]);
+    await assertMeetingMaintenanceClear(tx, meetingId, { dayOfWeek, startMinutes, endMinutes });
     await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes }).where(eq(meetings.id, meetingId));
     return { result: null, entityId: meetingId,
       before: { dayOfWeek: existing.dayOfWeek, startMinutes: existing.startMinutes, endMinutes: existing.endMinutes },
@@ -259,6 +265,7 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   }).filter((i) => i.meetingIds.includes(meetingId));
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -277,6 +284,7 @@ export async function updateMeetingAction(meetingId: number, update: MeetingUpda
     const storedRooms = await tx.select({ roomId: meetingRooms.roomId }).from(meetingRooms).where(eq(meetingRooms.meetingId, meetingId));
     await lockRooms(tx, [...roomIds, ...storedRooms.map((row) => row.roomId)]);
     await validateRoomAssignment(tx, current?.teachingGroupId ?? existing.teachingGroupId, roomIds);
+    await assertGroupMaintenanceClear(tx, current.teachingGroupId, roomIds, { dayOfWeek, startMinutes, endMinutes }, meetingId);
     await tx.update(meetings).set({ dayOfWeek, startMinutes, endMinutes, isException: update.isException, exceptionNote })
       .where(eq(meetings.id, meetingId));
     await tx.delete(meetingTeachers).where(eq(meetingTeachers.meetingId, meetingId));
@@ -373,6 +381,7 @@ export async function createExternalAction(formData: FormData): Promise<ActionRe
   const term = (await getPortalData()).term;
   const roomFailure = await roomAssignmentGuard(async () => { await auditedChange("external.create", "external_commitment", async (tx, actor) => {
     if (roomId) { await lockRooms(tx, [roomId]); await assertActiveRooms(tx, [roomId]); }
+    if (roomId && ["room_reservation", "combined"].includes(kind)) await assertMaintenanceClear(tx, [roomId], { termStart: term.startDate, termEnd: term.endDate }, { dayOfWeek, startMinutes: start, endMinutes: end });
     const [row] = await tx.insert(externalCommitments).values({
       termId: term.id, kind, completenessLevel: level, counterpartDepartment,
       teacherId, roomId, courseLabel, audienceLabel,
@@ -396,6 +405,7 @@ export async function verifyExternalAction(id: number): Promise<ActionResult> {
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
   await auditedChange("external.verify", "external_commitment", async (tx) => {
     const [previous] = await tx.select().from(externalCommitments).where(eq(externalCommitments.id, id)).limit(1);
+    if (previous?.roomId) await lockRooms(tx, [previous.roomId]);
     const [updated] = await tx.update(externalCommitments)
       .set({ verificationStatus: "verified", lastVerifiedAt: new Date() })
       .where(eq(externalCommitments.id, id)).returning();
@@ -466,6 +476,7 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
     externals: data.externals,
     breaks: data.breaks,
     grid: data.timeGrid,
+    maintenance: data.maintenance,
     windows: data.windows,
   });
   const blockers = issues.filter((i) => i.severity === "blocker");
@@ -499,7 +510,8 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
   });
 
   // Atomic state transition: supersede the old published version, insert new.
-  await db.transaction(async (tx) => {
+  const publicationFailure = await roomAssignmentGuard(async () => { await db.transaction(async (tx) => {
+    const maintenanceCheck = await checkPublicationMaintenance(tx, data);
     await tx.update(scheduleVersions)
       .set({ state: "superseded", effectiveTo: data.term.effectiveFrom })
       .where(and(
@@ -526,9 +538,10 @@ export async function publishAction(changeSummary: string): Promise<ActionResult
       entityId: v.id,
       before: latest ? { versionNumber: latest.versionNumber, state: latest.state } : null,
       after: { versionNumber: nextVersion, state: "published", meetingCount: data.meetings.length },
-      detail: { version: nextVersion, warnings: issues.length },
+      detail: { version: nextVersion, warnings: issues.length, maintenanceCheck },
     });
-  });
+  }); });
+  if (publicationFailure) return publicationFailure;
 
   revalidatePath("/", "layout");
   return {

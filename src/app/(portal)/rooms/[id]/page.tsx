@@ -32,6 +32,7 @@ export default async function RoomDetailPage({ params, searchParams }: { params:
     {done && <Notice tone="success">{done}</Notice>}
     <dl className="ruled grid min-w-0 gap-4 rounded-lg p-4 md:grid-cols-2">{ROOM_FIELDS.map((field) => <div key={field} className={`min-w-0 break-words ${field === "notes" ? "md:col-span-2" : ""}`}><dt className="text-xs font-semibold text-muted">{ROOM_LABELS[field]}</dt><dd className="mt-1 whitespace-pre-wrap text-sm">{display(field)}</dd></div>)}</dl>
     <p className="mt-3 text-sm text-muted">Working records use these current values. Published routines keep their saved values.</p>
+    <p className="mt-4"><Link href={`/rooms/${record.id}/maintenance`} className={buttonClass.secondary}>Maintenance records</Link></p>
     {editor && <><RoomLifecycle key={`${record.revision}-${record.isActive}`} room={record} evidence={await getRoomLifecycleEvidence(record)} returnQuery={query.toString()} /><RoomHistory key={record.revision} roomId={record.id} initial={await getRoomChanges(record.id)} /></>}
   </div>;
 }

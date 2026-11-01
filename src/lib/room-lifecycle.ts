@@ -73,6 +73,7 @@ export function snapshotRoomEvidence(snapshot: unknown, roomId: number, aliases:
   }
   return uncertain ? "uncertain" : "clear";
 }
-export function deletionReasons(room: { code: string; isDraft: boolean }, totals: { meetings: number; externals: number; snapshots: number; uncertainSnapshots: number }): string[] {
+export function deletionReasons(room: { code: string; isDraft: boolean }, totals: { meetings: number; externals: number; snapshots: number; uncertainSnapshots: number; maintenance?: number }): string[] {
+  if (totals.maintenance) return [`${totals.maintenance} maintenance history record(s), including cancelled/past outages. This room must be retained.`];
   return [!room.isDraft && "Retained records cannot be permanently deleted. Deactivate when safe.", protectedRoom(room.code) && "Source-protected identities must be retained.", totals.meetings > 0 && `${totals.meetings} class reference(s), including historical/cancelled use.`, totals.externals > 0 && `${totals.externals} OD reference(s).`, totals.snapshots > 0 && `${totals.snapshots} saved snapshot reference(s).`, totals.uncertainSnapshots > 0 && `${totals.uncertainSnapshots} saved snapshot(s) have unsupported or ambiguous room evidence.`].filter((reason): reason is string => typeof reason === "string");
 }
