@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { SidebarNav, currentNavLabel } from "@/components/nav";
+import type { TermProblem } from "@/lib/term-state";
 
 interface PortalShellProps {
   capabilities: string[];
   /** The account is linked to a teacher record, so it has a "My routine". */
   linkedTeacher: boolean;
   termName: string;
+  termProblem?: TermProblem | null;
   publishedVersion: number | null;
   displayName: string;
   roleLabel: string;
@@ -22,7 +24,7 @@ interface PortalShellProps {
  * Portal chrome. At 1024px and wider the sidebar is always visible; below it
  * becomes a drawer opened from the top bar, with the page behind made inert.
  */
-export function PortalShell({ capabilities, linkedTeacher, termName, publishedVersion, displayName, roleLabel, account, children }: PortalShellProps) {
+export function PortalShell({ capabilities, linkedTeacher, termName, termProblem = null, publishedVersion, displayName, roleLabel, account, children }: PortalShellProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -73,7 +75,7 @@ export function PortalShell({ capabilities, linkedTeacher, termName, publishedVe
           <Menu size={20} strokeWidth={1.8} aria-hidden="true" />
         </button>
         <span className="font-display min-w-0 truncate text-[15px] font-semibold">{currentNavLabel(pathname)}</span>
-        <span className="ml-auto shrink-0 text-[12px] text-[#f0c98a]">{termName} · {publishedVersion == null ? "Draft" : `v${publishedVersion}`}</span>
+        <span className="ml-auto max-w-[48%] text-right text-[12px] text-[#f0c98a]">{termName}{!termProblem && <> · {publishedVersion == null ? "Draft" : `v${publishedVersion}`}</>}</span>
       </header>
 
       {open ? <div aria-hidden="true" className="no-print fixed inset-0 z-40 bg-[rgba(16,29,22,0.5)] lg:hidden" onClick={() => close()} /> : null}
@@ -101,10 +103,10 @@ export function PortalShell({ capabilities, linkedTeacher, termName, publishedVe
         </div>
         <div className="mx-3 mb-1 rounded-md border border-white/15 px-3 py-2.5 text-[12.5px]">
           <span className="block font-semibold text-white">{termName}</span>
-          <span className="mt-0.5 flex items-center gap-1.5 text-[#f0c98a]">
+          {!termProblem && <span className="mt-0.5 flex items-center gap-1.5 text-[#f0c98a]">
             <span aria-hidden="true" className={`h-[7px] w-[7px] rounded-full ${publishedVersion == null ? "bg-[var(--color-gold)]" : "bg-[#7fbf95]"}`} />
             {termState}
-          </span>
+          </span>}
         </div>
         <SidebarNav capabilities={capabilities} linkedTeacher={linkedTeacher} onNavigate={() => close(false)} />
         <div className="border-t border-white/10 px-4 py-3 text-[12.5px] text-[#aeb7b1]">
@@ -115,6 +117,10 @@ export function PortalShell({ capabilities, linkedTeacher, termName, publishedVe
       </aside>
 
       <main id="main" tabIndex={-1} inert={open} className="min-w-0 px-4 pb-12 pt-5 outline-none sm:px-6 lg:px-9 lg:pt-7 print:p-0">
+        {termProblem && <section role="alert" className="mb-5 max-w-xl rounded-lg border border-[var(--color-line)] bg-sheet p-5">
+          <h2 className="font-display text-xl font-semibold">{termProblem === "none" ? "No academic term is active" : "More than one academic term is active"}</h2>
+          <p className="mt-2 text-sm">Term-based pages and changes are unavailable. Contact the portal administrator.</p>
+        </section>}
         {children}
       </main>
     </div>

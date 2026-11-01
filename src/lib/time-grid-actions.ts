@@ -1,5 +1,7 @@
 "use server";
 
+import { withTermContext } from "./active-term";
+
 /**
  * Days & periods server actions (RUT-04). Each change is guarded (routine or
  * policy editors, decision D-1), limited to the active term, checked against
@@ -112,6 +114,9 @@ export interface SavePatternInput {
 }
 
 export async function savePatternAction(input: SavePatternInput): Promise<ActionResult> {
+  return withTermContext(() => savePatternActionInTerm(input));
+}
+async function savePatternActionInTerm(input: SavePatternInput): Promise<ActionResult> {
   let result: ActionResult | undefined;
   const failure = await roomAssignmentGuard(async () => { result = await savePattern(input); });
   return failure ?? result!;
@@ -176,6 +181,9 @@ async function savePattern(input: SavePatternInput): Promise<ActionResult> {
 }
 
 export async function deletePatternAction(patternId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
+  return withTermContext(() => deletePatternActionInTerm(patternId, expectedUpdatedAt));
+}
+async function deletePatternActionInTerm(patternId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
   if (denied) return denied;
   if (!Number.isInteger(patternId) || patternId <= 0) return invalid("Choose a pattern.");
@@ -217,6 +225,9 @@ export interface SetDayPlanInput {
 }
 
 export async function setDayPlanAction(input: SetDayPlanInput): Promise<ActionResult> {
+  return withTermContext(() => setDayPlanActionInTerm(input));
+}
+async function setDayPlanActionInTerm(input: SetDayPlanInput): Promise<ActionResult> {
   let result: ActionResult | undefined;
   const failure = await roomAssignmentGuard(async () => { result = await setDayPlan(input); });
   return failure ?? result!;
@@ -294,6 +305,9 @@ async function setDayPlan(input: SetDayPlanInput): Promise<ActionResult> {
 }
 
 export async function removeExceptionAction(planId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
+  return withTermContext(() => removeExceptionActionInTerm(planId, expectedUpdatedAt));
+}
+async function removeExceptionActionInTerm(planId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
   if (denied) return denied;
   if (!Number.isInteger(planId) || planId <= 0) return invalid("Choose an exception.");
@@ -317,6 +331,9 @@ export async function removeExceptionAction(planId: number, expectedUpdatedAt: s
 // ---------------------------------------------------------------------------
 
 export async function copyGridFromTermAction(sourceTermId: number, expectedPatternCount: number): Promise<ActionResult> {
+  return withTermContext(() => copyGridFromTermActionInTerm(sourceTermId, expectedPatternCount));
+}
+async function copyGridFromTermActionInTerm(sourceTermId: number, expectedPatternCount: number): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
   if (denied) return denied;
   const term = await getActiveTerm();

@@ -1,5 +1,7 @@
 "use server";
 
+import { withTermContext } from "./active-term";
+
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
@@ -43,6 +45,9 @@ function numberField(formData: FormData, name: string): number | null {
 }
 
 export async function updateAcademicPolicyAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => updateAcademicPolicyActionInTerm(formData));
+}
+async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
   const term = await getActiveTerm();
@@ -71,6 +76,9 @@ export async function updateAcademicPolicyAction(formData: FormData): Promise<Ac
 // Class days, periods and class hours are edited in Days & periods (RUT-04, time-grid-actions.ts).
 
 export async function createExtraLoadClassAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => createExtraLoadClassActionInTerm(formData));
+}
+async function createExtraLoadClassActionInTerm(formData: FormData): Promise<ActionResult> {
   const teacherId = Number(formData.get("teacherId"));
   const teachingGroupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("submit_extra_load", { kind: "teacher", teacherId });
@@ -105,6 +113,9 @@ export async function createExtraLoadClassAction(formData: FormData): Promise<Ac
 }
 
 export async function deleteExtraLoadClassAction(id: number): Promise<ActionResult> {
+  return withTermContext(() => deleteExtraLoadClassActionInTerm(id));
+}
+async function deleteExtraLoadClassActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_class", id)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -117,6 +128,9 @@ export async function deleteExtraLoadClassAction(id: number): Promise<ActionResu
 }
 
 export async function createManualTopSheetRowAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => createManualTopSheetRowActionInTerm(formData));
+}
+async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   const term = await getActiveTerm();
@@ -139,6 +153,9 @@ export async function createManualTopSheetRowAction(formData: FormData): Promise
 }
 
 export async function deleteManualTopSheetRowAction(id: number): Promise<ActionResult> {
+  return withTermContext(() => deleteManualTopSheetRowActionInTerm(id));
+}
+async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_manual_summary", id)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -151,6 +168,9 @@ export async function deleteManualTopSheetRowAction(id: number): Promise<ActionR
 }
 
 export async function upsertStudentAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => upsertStudentActionInTerm(formData));
+}
+async function upsertStudentActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
   if (denied) return denied;
@@ -187,6 +207,9 @@ export async function upsertStudentAction(formData: FormData): Promise<ActionRes
 }
 
 export async function importStudentCsvAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => importStudentCsvActionInTerm(formData));
+}
+async function importStudentCsvActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
   if (denied) return denied;
@@ -222,6 +245,9 @@ export async function importStudentCsvAction(formData: FormData): Promise<Action
 }
 
 export async function deactivateStudentAction(studentId: number, teachingGroupId: number): Promise<ActionResult> {
+  return withTermContext(() => deactivateStudentActionInTerm(studentId, teachingGroupId));
+}
+async function deactivateStudentActionInTerm(studentId: number, teachingGroupId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
   if (denied) return denied;
   const term = await getActiveTerm();
@@ -236,6 +262,9 @@ export async function deactivateStudentAction(studentId: number, teachingGroupId
 }
 
 export async function createAttendanceSessionAction(formData: FormData): Promise<ActionResult> {
+  return withTermContext(() => createAttendanceSessionActionInTerm(formData));
+}
+async function createAttendanceSessionActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("take_attendance", { kind: "teaching_group", teachingGroupId });
   if (denied) return denied;
@@ -265,6 +294,9 @@ export async function createAttendanceSessionAction(formData: FormData): Promise
 }
 
 export async function saveAttendanceAction(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
+  return withTermContext(() => saveAttendanceActionInTerm(sessionId, values));
+}
+async function saveAttendanceActionInTerm(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
   const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId });
   if (denied) return denied;
   if (!Number.isInteger(sessionId) || values.some((value) => !Number.isInteger(value.studentId) || !ATTENDANCE_STATUSES.includes(value.status as never))) {
@@ -293,6 +325,9 @@ export async function saveAttendanceAction(sessionId: number, values: Array<{ st
 }
 
 export async function deleteAttendanceSessionAction(id: number): Promise<ActionResult> {
+  return withTermContext(() => deleteAttendanceSessionActionInTerm(id));
+}
+async function deleteAttendanceSessionActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId: id });
   if (denied) return denied;
   if (!await isInActiveTerm("attendance_session", id)) return { ...OUTSIDE_ACTIVE_TERM };
@@ -308,6 +343,9 @@ export async function deleteAttendanceSessionAction(id: number): Promise<ActionR
 }
 
 export async function applyAutoScheduleAction(): Promise<ActionResult> {
+  return withTermContext(() => applyAutoScheduleActionInTerm());
+}
+async function applyAutoScheduleActionInTerm(): Promise<ActionResult> {
   const actor = await actionActor("run_auto_schedule");
   if ("ok" in actor) return actor;
   // Recompute immediately before commit; suggestions from an earlier page

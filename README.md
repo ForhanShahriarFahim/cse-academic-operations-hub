@@ -184,7 +184,7 @@ Do not commit database credentials.
 
 The app and operator commands use Next's environment precedence from the project root: process values, `.env.<mode>.local`, `.env.local`, `.env.<mode>`, then `.env`. Test mode skips `.env.local`. Expansion (`$NAME`) and escaping (`\$`) follow Next. Explicit process values, including empty values used by disposable checks, take precedence. Files under `src/` are not loaded.
 
-Standalone `db:prepare`, `db:migrate`, `db:reset` and `auth:bootstrap` default to **development** when `NODE_ENV` is absent; set it explicitly to `production` for production files or `test` for test files. `npm run dev` preparation uses development and `npm start` preparation uses production; a contradictory explicit `NODE_ENV` is refused before opening a database. Next manages environment loading within its runtime.
+Standalone `db:prepare`, `db:migrate`, `db:reset`, `db:check-terms` and `auth:bootstrap` default to **development** when `NODE_ENV` is absent; set it explicitly to `production` for production files or `test` for test files. `npm run dev` preparation uses development and `npm start` preparation uses production; a contradictory explicit `NODE_ENV` is refused before opening a database. Next manages environment loading within its runtime.
 
 Each operator command prints its command, environment, adapter and safe target before loading database code. PostgreSQL banners show only host, port and database. Add `-- --show-target` to preview without opening a database, migrating, seeding or changing accounts; bootstrap preview needs no email and prints no setup link. For example, `npm run db:migrate -- --show-target`. A preview does not check connectivity or authorize reset. Reset still requires an exact `--confirm` and refuses the institutional directory, including aliases, parents and children. Safe, pinned inspection commands are in [BUG-24 verification](docs/specs/BUG-24/verification.md#owner-inspection).
 
@@ -211,6 +211,7 @@ This repository is **Vercel-compatible but not deployed or production-verified y
 | `npm run build` | Create an optimized production build |
 | `npm start` | Prepare and run the production server |
 | `npm run db:migrate` | Apply checked-in migrations |
+| `npm run db:check-terms` | Read-only active-term diagnostic; exits 0 for zero/one, 2 for duplicates, 1 for failure. Add `-- --show-target` for a database-free preview. See [active-term recovery](docs/operations/ACTIVE_TERM_RECOVERY.md); duplicate migration refuses without automatically choosing a term. |
 | `npm run db:prepare` | Migrate and seed only when the database is empty |
 | `npm run auth:bootstrap` | Create the first administrator (explicit email required; `-- --password` prints a setup link; `-- --reset-link <email>` recovers a system administrator) |
 | `npm run db:reset` | Replace a development database's academic data with the Summer-2026 seed, keeping portal users, passwords, roles and setup links. It prints its target and runs only with `npm run db:reset -- --confirm "<target>"`. It refuses the default `.data/pglite-summer-2026` directory (the institutional database): point `PGLITE_DATA_DIR` at a disposable copy. See the [recovery runbook](docs/operations/DATABASE_RECOVERY.md). |

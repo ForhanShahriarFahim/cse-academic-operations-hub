@@ -18,7 +18,7 @@ import { createColdBackup, newBackupLocation, removeBackup, restoreColdBackup } 
 import { createEncryptedBackup, createKeyFile, restoreEncryptedBackup } from "./pg-backup";
 import { REPO_ROOT } from "./targets";
 const txType = (tx: unknown) => tx as RoomTransaction;
-const legacy = (h: Pick<SafetyHandle, "exec">) => h.exec("drop table room_unavailability; delete from drizzle.__drizzle_migrations where created_at >= 1793232000000;");
+const legacy = (h: Pick<SafetyHandle, "exec">) => h.exec("drop index if exists academic_terms_one_active_uq; drop table room_unavailability; delete from drizzle.__drizzle_migrations where created_at >= 1793232000000;");
 async function upgrade(database: SafetyDatabase, lines: string[]) {
   await withHandle(database, async (h) => {
     await database.migrate(h); const summer = await populateSummerFixture(h.db); await populateSpringFixture(h.db, summer);

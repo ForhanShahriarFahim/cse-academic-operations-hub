@@ -1,6 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { academicTerms, scheduleVersions } from "@/db/schema";
+import { scheduleVersions } from "@/db/schema";
+import { readActiveTerm } from "./active-term";
+import { ActiveTermUnavailable } from "./term-state";
 import type { RoutineSource } from "./routine-projection";
 import type { PublicationSnapshotV3, PublicationRoutineMetadata } from "./serialize";
 import { isTimeGrid } from "./time-grid";
@@ -28,9 +30,10 @@ export function publicMetadata(metadata: PublicationRoutineMetadata): Publicatio
 // No draft loader is reachable through this function. Public output is derived
 // exclusively from the effective immutable publication row.
 export async function getPublicRoutineData(): Promise<{ source: RoutineSource; metadata: PublicationRoutineMetadata } | null> {
-  const [term] = await db.select({ id: academicTerms.id }).from(academicTerms)
-    .where(eq(academicTerms.status, "active")).limit(1);
-  if (!term) return null;
+  const state = await readActiveTerm();
+  if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
+  if (state.kind === "none") return null;
+  const term = state.term;
   const [version] = await db.select({ snapshot: scheduleVersions.snapshot, publishedAt: scheduleVersions.publishedAt })
     .from(scheduleVersions).where(and(eq(scheduleVersions.termId, term.id), eq(scheduleVersions.state, "published")))
     .orderBy(desc(scheduleVersions.versionNumber)).limit(1);

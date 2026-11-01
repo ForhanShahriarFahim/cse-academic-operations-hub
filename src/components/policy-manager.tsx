@@ -17,7 +17,7 @@ export function PolicyManager({ policy }: { policy: ExtraLoadPolicy }) {
     startTransition(async () => setResult(await action(new FormData(form))));
   }
   return <div className="space-y-4">
-    {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
+    {result && <p role="status" aria-live="polite" className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
     <section className="ruled rounded-lg">
       <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Academic, attendance & payment policy</h2><p className="mt-0.5 text-[11.5px] text-muted">Saved per Spring/Summer term so historical calculations do not change.</p></header>
       <form ref={policyForm} onSubmit={(event) => { event.preventDefault(); submit(policyForm.current!, updateAcademicPolicyAction); }} className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">

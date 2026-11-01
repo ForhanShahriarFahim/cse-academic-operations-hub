@@ -4,6 +4,8 @@ import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection"
 import { RoutineViewControls } from "@/components/routine-view-controls";
 import { RoutineDocument } from "@/components/routine-document";
 import { EMPTY_GRID, teachingDays } from "@/lib/time-grid";
+import { ActiveTermUnavailable } from "@/lib/term-state";
+import { RoutineUnavailable } from "@/components/routine-unavailable";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,12 @@ export default async function PublicRoutinePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const data = await getPublicRoutineData();
+  let data;
+  try { data = await getPublicRoutineData(); }
+  catch (error) {
+    if (error instanceof ActiveTermUnavailable) return <RoutineUnavailable />;
+    throw error;
+  }
   const source = data?.source ?? null;
   const selectionSource = source ?? { batches: [], timeGrid: EMPTY_GRID };
   const { selection } = parseRoutineSelection(await searchParams, selectionSource);

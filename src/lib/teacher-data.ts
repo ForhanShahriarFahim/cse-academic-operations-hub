@@ -10,6 +10,8 @@ import {
 } from "@/db/schema";
 import { DAY_SHORT, fmtTime } from "./time";
 import { snapshotMentionsCode, type TeacherReferences } from "./teacher-records";
+import { readActiveTerm } from "./active-term";
+import { ActiveTermUnavailable } from "./term-state";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type Reader = typeof db | Transaction;
@@ -29,7 +31,9 @@ export async function getDepartmentOptions(reader: Reader = db) {
 
 /** Every reference to the teacher. Inside a transaction so a just-added class still counts. */
 export async function getTeacherReferences(teacherId: number, shortCode: string, reader: Reader = db): Promise<TeacherReferences> {
-  const [term] = await reader.select().from(academicTerms).where(eq(academicTerms.status, "active")).limit(1);
+  const active = await readActiveTerm(reader);
+  if (active.kind === "ambiguous") throw new ActiveTermUnavailable(active.kind);
+  const term = active.kind === "one" ? active.term : null;
   const termId = term?.id ?? -1;
 
   const [classRows, allocationRows, extraRows, externalRows, account, versions] = await Promise.all([
@@ -64,7 +68,7 @@ export async function getTeacherReferences(teacherId: number, shortCode: string,
   const activeClasses = classRows.filter((row) => row.termId === termId && row.status === "active");
   const terms = new Set<number>([...classRows, ...allocationRows, ...extraRows, ...externalRows, ...attendanceTerms].map((row) => row.termId));
   return {
-    termName: term?.name ?? "the active term",
+    termName: term?.name ?? "No active term",
     activeTerm: {
       classes: activeClasses.map((row) => ({ courseCode: row.courseCode, day: DAY_SHORT[row.day] ?? `Day ${row.day}`, time: fmtTime(row.start) })),
       allocations: allocationRows.filter((row) => row.termId === termId).map(({ courseCode, method, externalDepartment }) => ({ courseCode, method, externalDepartment })),

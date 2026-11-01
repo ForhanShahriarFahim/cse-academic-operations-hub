@@ -3,6 +3,7 @@ import { parseRoutineSelection, projectRoutine } from "@/lib/routine-projection"
 import { serializeRoutineCsv } from "@/lib/routine-csv";
 import { draftRoutineSource } from "@/lib/routine-sources";
 import { can, getOptionalActor } from "@/lib/auth";
+import { ActiveTermUnavailable, PUBLIC_TERM_MESSAGE } from "@/lib/term-state";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,12 @@ export async function GET(request: Request) {
   const actor = await getOptionalActor();
   if (!actor) return Response.json({ error: "Sign in required." }, { status: 401 });
   if (!await can(actor, "view_internal_portal")) return Response.json({ error: "Access denied." }, { status: 403 });
-  const data = await getPortalData();
+  let data;
+  try { data = await getPortalData(); }
+  catch (error) {
+    if (error instanceof ActiveTermUnavailable) return Response.json({ error: PUBLIC_TERM_MESSAGE }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    throw error;
+  }
   const source = draftRoutineSource(data);
   const params = Object.fromEntries(new URL(request.url).searchParams.entries());
   const parsed = parseRoutineSelection(params, source, { strict: true });

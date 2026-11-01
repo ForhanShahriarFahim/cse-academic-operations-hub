@@ -92,6 +92,13 @@
       "when": 1793232000000,
       "tag": "0012_room-maintenance",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793491200000,
+      "tag": "0013_one-active-term",
+      "breakpoints": true
     }
   ]
 }

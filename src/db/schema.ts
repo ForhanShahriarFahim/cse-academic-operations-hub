@@ -231,7 +231,7 @@ export const academicTerms = pgTable("academic_terms", {
   endDate: date("end_date").notNull(),
   effectiveFrom: date("effective_from"), // printed routine effective date
   status: text("status").notNull().default("active"),
-});
+}, (t) => [uniqueIndex("academic_terms_one_active_uq").on(t.status).where(sql`${t.status} = 'active'`)]);
 
 // Policy values are term-scoped so Spring/Summer sessions can change without
 // rewriting historical marks or payment calculations.
