@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 import assert from "node:assert/strict";
 import { eq } from "drizzle-orm";
 import { Pool } from "pg";
@@ -15,10 +16,10 @@ const { db } = loadApp<typeof Db>("src/db/index.ts");
 const s = loadApp<typeof Schema>("src/db/schema.ts");
 const { lifecycleRoomAction, saveRoomAction } = loadApp<typeof RoomActions>("src/lib/room-actions.ts");
 const { getRoomLifecycleEvidence, getRoomRecord } = loadApp<typeof RoomData>("src/lib/room-data.ts");
-const actions = loadApp<typeof Actions>("src/lib/actions.ts");
-const auto = loadApp<typeof Auto>("src/lib/academic-actions.ts");
+const actions = freshTermActions(loadApp<typeof Actions>("src/lib/actions.ts"));
+const auto = freshTermActions(loadApp<typeof Auto>("src/lib/academic-actions.ts"));
 const { buildAutoSchedulePlan } = loadApp<typeof AutoPlan>("src/lib/schedule-automation.ts");
-const grid = loadApp<typeof Grid>("src/lib/time-grid-actions.ts");
+const grid = freshTermActions(loadApp<typeof Grid>("src/lib/time-grid-actions.ts"));
 const form = (values: Record<string, unknown>) => { const fd = new FormData(); for (const [key, value] of Object.entries(values)) for (const v of Array.isArray(value) ? value : [value]) fd.append(key, v instanceof File ? v : String(v)); return fd; };
 const life = (r: { id: number; revision: number; code: string }, action = "deactivate") => lifecycleRoomAction(null, form({ roomId: r.id, revision: r.revision, action, reason: "Synthetic action", confirmation: r.code }));
 async function main() {

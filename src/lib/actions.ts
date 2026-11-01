@@ -1,6 +1,7 @@
 "use server";
 
-import { withTermContext } from "./active-term";
+import { withActiveTermContext as withTermContext } from "./active-term";
+import type { TermWriteContext } from "./term-context-value";
 
 /**
  * Server actions — every mutation is validated server-side. Conflict
@@ -90,8 +91,8 @@ async function buildCandidateView(groupId: number): Promise<MeetingView | null> 
   };
 }
 
-export async function createMeetingAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => createMeetingActionInTerm(formData));
+export async function createMeetingAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => createMeetingActionInTerm(formData), context ?? formData);
 }
 async function createMeetingActionInTerm(formData: FormData): Promise<ActionResult> {
   const groupId = Number(formData.get("teachingGroupId"));
@@ -172,8 +173,8 @@ export async function moveMeetingAction(
   dayOfWeek: number,
   startMinutes: number,
   endMinutes: number,
-): Promise<ActionResult> {
-  return withTermContext(() => moveMeetingActionInTerm(meetingId, dayOfWeek, startMinutes, endMinutes));
+context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => moveMeetingActionInTerm(meetingId, dayOfWeek, startMinutes, endMinutes), context);
 }
 async function moveMeetingActionInTerm(
   meetingId: number,
@@ -232,8 +233,8 @@ export interface MeetingUpdate {
  * validated, audited change (UX-01 amendment A). Teachers kept on the class
  * keep their role; newly added teachers are instructors.
  */
-export async function updateMeetingAction(meetingId: number, update: MeetingUpdate): Promise<ActionResult> {
-  return withTermContext(() => updateMeetingActionInTerm(meetingId, update));
+export async function updateMeetingAction(meetingId: number, update: MeetingUpdate, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => updateMeetingActionInTerm(meetingId, update), context);
 }
 async function updateMeetingActionInTerm(meetingId: number, update: MeetingUpdate): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
@@ -320,8 +321,8 @@ async function updateMeetingActionInTerm(meetingId: number, update: MeetingUpdat
   return { ok: true, message: `${existing.courseCode} updated.`, issues };
 }
 
-export async function deleteMeetingAction(meetingId: number): Promise<ActionResult> {
-  return withTermContext(() => deleteMeetingActionInTerm(meetingId));
+export async function deleteMeetingAction(meetingId: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deleteMeetingActionInTerm(meetingId), context);
 }
 async function deleteMeetingActionInTerm(meetingId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_routine", { kind: "meeting", meetingId });
@@ -361,8 +362,8 @@ async function deleteMeetingActionInTerm(meetingId: number): Promise<ActionResul
 // External commitments (OD)
 // ---------------------------------------------------------------------------
 
-export async function createExternalAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => createExternalActionInTerm(formData));
+export async function createExternalAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => createExternalActionInTerm(formData), context ?? formData);
 }
 async function createExternalActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
@@ -421,8 +422,8 @@ async function createExternalActionInTerm(formData: FormData): Promise<ActionRes
   return { ok: true, message: `External commitment recorded (completeness level ${level}).` };
 }
 
-export async function verifyExternalAction(id: number): Promise<ActionResult> {
-  return withTermContext(() => verifyExternalActionInTerm(id));
+export async function verifyExternalAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => verifyExternalActionInTerm(id), context);
 }
 async function verifyExternalActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
@@ -440,8 +441,8 @@ async function verifyExternalActionInTerm(id: number): Promise<ActionResult> {
   return { ok: true, message: "Commitment verified." };
 }
 
-export async function deleteExternalAction(id: number): Promise<ActionResult> {
-  return withTermContext(() => deleteExternalActionInTerm(id));
+export async function deleteExternalAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deleteExternalActionInTerm(id), context);
 }
 async function deleteExternalActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("manage_external_commitments");
@@ -495,8 +496,8 @@ function blockedDelete(error: unknown, what: "class" | "commitment"): ActionResu
 // Publication — atomic version cut with full server-side validation
 // ---------------------------------------------------------------------------
 
-export async function publishAction(changeSummary: string): Promise<ActionResult> {
-  return withTermContext(() => publishActionInTerm(changeSummary));
+export async function publishAction(changeSummary: string, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => publishActionInTerm(changeSummary), context);
 }
 async function publishActionInTerm(changeSummary: string): Promise<ActionResult> {
   const actor = await actionActor("approve_publication");

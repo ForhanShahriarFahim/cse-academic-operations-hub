@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /**
  * Production-path term scenario child. Commands:
  *   view <email>            — real loaders, workload and both CSV routes for the active term
@@ -91,15 +92,15 @@ async function view() {
 }
 
 async function publish(summary: string) {
-  const { publishAction } = loadApp<typeof ActionsModule>("src/lib/actions.ts");
+  const { publishAction } = freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts"));
   report(await publishAction(summary));
 }
 
 /** Each action is attempted against rows of a term that is not active. */
 async function crossTerm(ids: Record<string, number>) {
-  const actions = loadApp<typeof ActionsModule>("src/lib/actions.ts");
-  const academic = loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts");
-  const grid = loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts");
+  const actions = freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts"));
+  const academic = freshTermActions(loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts"));
+  const grid = freshTermActions(loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts"));
   const meetingForm = new FormData();
   meetingForm.set("teachingGroupId", String(ids.teachingGroupId));
   meetingForm.set("dayOfWeek", "3");
@@ -137,7 +138,7 @@ async function crossTerm(ids: Record<string, number>) {
 
 /** One Days & periods action (RUT-04), reported as its result. */
 async function gridAction(spec: { action: "savePatternAction" | "copyGridFromTermAction"; args: unknown[] }) {
-  const grid = loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts");
+  const grid = freshTermActions(loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts"));
   const action = grid[spec.action] as (...args: unknown[]) => Promise<{ ok: boolean; message: string; outcome?: unknown }>;
   try {
     const result = await action(...spec.args);

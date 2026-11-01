@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -65,7 +66,7 @@ export default async function RoutinePage({
   const blockersByDay = Object.fromEntries(streamDays(source.timeGrid, selection.stream).map((day) => [day,
     source.issues.filter((issue) => issue.severity === "blocker" && issue.dayOfWeek === day && issue.meetingIds.some((id) => streamMeetingIds.has(id))).length]));
 
-  return (
+  return <TermWriteProvider value={data.writeContext}>{(
     <div>
       <PageHeader
         context="Routine · Working draft"
@@ -98,5 +99,5 @@ export default async function RoutinePage({
         {selection.view === "week" ? <RoutineDocument projection={projection} /> : <RoutineDocument projection={projection} printOnly />}
       </RoutineWorkbench>
     </div>
-  );
+  )}</TermWriteProvider>;
 }

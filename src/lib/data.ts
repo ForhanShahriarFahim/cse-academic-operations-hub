@@ -3,7 +3,9 @@
  * into serialized views — safe to hand to client components.
  */
 import { effectiveLimit } from "./teacher-records";
-import { readActiveTerm, requireActiveTerm } from "./active-term";
+import { requireActiveTerm } from "./active-term";
+import { captureActiveContext, assertTermContext, readTermContext } from "./term-context";
+import type { TermWriteContext } from "./term-context-value";
 import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
 import { db } from "@/db";
@@ -149,6 +151,7 @@ export interface VersionView {
 }
 
 export interface PortalData {
+  writeContext: TermWriteContext;
   maintenance?: MaintenanceContext;
   term: {
     id: number;
@@ -233,12 +236,13 @@ export async function getActiveTerm() {
  * currently published, if any. Reads only small columns (never snapshots).
  */
 export async function getTermPublicationState(): Promise<{ termName: string; publishedVersion: number | null } | null> {
-  const state = await readActiveTerm();
+  const { state, generation } = await readTermContext();
   if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
   if (state.kind === "none") return null;
   const term = state.term;
   const versions = await db.select({ versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state })
     .from(scheduleVersions).where(eq(scheduleVersions.termId, term.id)).orderBy(desc(scheduleVersions.versionNumber));
+  await assertTermContext({ activeTermId: term.id, generation });
   return { termName: term.name, publishedVersion: versions.find((version) => version.state === "published")?.versionNumber ?? null };
 }
 
@@ -261,7 +265,7 @@ export async function getPortalDataForSeed(): Promise<PortalData> {
 }
 
 async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
-  const term = await getActiveTerm();
+  const { term, writeContext } = await captureActiveContext();
 
   const [
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
@@ -493,7 +497,9 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       })
     : null;
 
+  await assertTermContext(writeContext);
   return {
+    writeContext,
     term: {
       id: term.id,
       name: term.name,

@@ -25,7 +25,8 @@ export async function backfillTimeGrids(db: GridDb): Promise<number[]> {
   return db.transaction(async (tx) => {
     const converted = await tx.select({ id: schema.periodPatterns.id }).from(schema.periodPatterns).limit(1);
     if (converted.length) return [];
-    const terms = await tx.select({ id: schema.academicTerms.id }).from(schema.academicTerms);
+    const terms = await tx.select({ id: schema.academicTerms.id }).from(schema.academicTerms)
+      .where(eq(schema.academicTerms.managedSetup, false));
     const filled: number[] = [];
     for (const term of terms) {
       const rules = await tx.select().from(schema.breakRules);

@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import { validTermDate, validateTermFields, validateStartingPolicy, termIdentityKey, POLICY_FIELDS } from "../src/lib/term-records";
+import { parseTermWriteContext } from "../src/lib/term-context-value";
+import { frozenPublication, frozenRoutineSource } from "../src/lib/term-publication";
+import { buildSnapshot } from "../src/lib/serialize";
+import { EMPTY_GRID } from "../src/lib/time-grid";
+
+for(const date of ["0001-01-01","2000-02-29","2028-02-29","9999-12-31"])assert.ok(validTermDate(date),date);
+for(const date of ["0000-01-01","1900-02-29","2026-02-29","2026-04-31","2026-13-01","26-01-01","2026-01-01T00:00:00Z"])assert.equal(validTermDate(date),false,date);
+const fields={name:"  Summer   Term ",academicYear:2027,startDate:"2026-12-01",endDate:"2027-04-30",effectiveFrom:"2027-01-01"};
+assert.deepEqual(validateTermFields(fields),{ok:true,fields:{...fields,name:"Summer Term"}});
+assert.equal(termIdentityKey(" SUMMER  term",2027),termIdentityKey("summer term",2027));
+for(const change of [{name:""},{name:"x".repeat(121)},{academicYear:0},{academicYear:1.5},{endDate:"2026-01-01"},{effectiveFrom:"2027-05-01"}])assert.equal(validateTermFields({...fields,...change}).ok,false);
+const policy=Object.fromEntries(POLICY_FIELDS.map(key=>[key,key==="extraClassRate"?"99999999.99":"999.9"]));
+assert.ok(validateStartingPolicy(policy).ok);
+assert.ok(validateStartingPolicy(Object.fromEntries(POLICY_FIELDS.map(key=>[key,"0"]))).ok);
+for(const bad of [""," ","-1","NaN","Infinity","1e2","1.11","1000"])assert.equal(validateStartingPolicy({...policy,theoryCreditHours:bad}).ok,false,bad);
+assert.equal(validateStartingPolicy({...policy,extraClassRate:"100000000"}).ok,false);
+for(const value of [null,{},"1",{activeTermId:1,generation:0},{activeTermId:1,generation:Infinity},{activeTermId:"1",generation:1}])assert.equal(parseTermWriteContext(value),null);
+assert.deepEqual(parseTermWriteContext({activeTermId:1,generation:2}),{activeTermId:1,generation:2});
+const snapshot=buildSnapshot({term:{id:1,name:"Frozen Summer",academicYear:2026,effectiveFrom:null},versionNumber:2,meetings:[],batches:[],breaks:[],externals:[],issues:[],timeGrid:EMPTY_GRID,metadata:{teachers:[{shortCode:"X",fullName:"Frozen teacher",designation:null,departmentCode:"CSE",phone:"PRIVATE_PHONE",email:"PRIVATE_EMAIL",status:"active"}],courses:[],classRepresentatives:[],queryContacts:[],sourceReconciliations:[]}});
+const parsed=frozenPublication({...snapshot,privateRoster:"PRIVATE_ROSTER"},1,2)!;
+assert.ok(parsed);assert.equal(JSON.stringify(parsed).includes("PRIVATE_"),false);assert.equal(parsed.metadata.teachers[0].fullName,"Frozen teacher");
+assert.equal(frozenRoutineSource(parsed,null).termName,"Frozen Summer");
+for(const bad of [null,{...snapshot,schemaVersion:2},{...snapshot,term:{...snapshot.term,id:2}},{...snapshot,versionNumber:3},{...snapshot,timeGrid:null},{...snapshot,metadata:{...snapshot.metadata,teachers:[{}]}}])assert.equal(frozenPublication(bad,1,2),null);
+console.log("SET-01A domain: dates, identity, numeric/blank policy boundaries, strict contexts, frozen projection, redaction and malformed snapshot refusal passed.");

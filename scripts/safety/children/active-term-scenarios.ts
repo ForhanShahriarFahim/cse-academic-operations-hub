@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /** Real production loaders/actions on pinned zero/one/legacy-duplicate storage. */
 import assert from "node:assert/strict";
 import { eq } from "drizzle-orm";
@@ -13,10 +14,10 @@ const state = loadApp<typeof import("../../../src/lib/term-state")>("src/lib/ter
 const refs = loadApp<typeof import("../../../src/lib/teacher-data")>("src/lib/teacher-data.ts");
 const scope = loadApp<typeof import("../../../src/lib/term-scope")>("src/lib/term-scope.ts");
 const pub = loadApp<typeof import("../../../src/lib/public-routine")>("src/lib/public-routine.ts");
-const actions = loadApp<typeof import("../../../src/lib/actions")>("src/lib/actions.ts");
-const academic = loadApp<typeof import("../../../src/lib/academic-actions")>("src/lib/academic-actions.ts");
-const grid = loadApp<typeof import("../../../src/lib/time-grid-actions")>("src/lib/time-grid-actions.ts");
-const teachers = loadApp<typeof import("../../../src/lib/teacher-actions")>("src/lib/teacher-actions.ts");
+const actions = freshTermActions(loadApp<typeof import("../../../src/lib/actions")>("src/lib/actions.ts"));
+const academic = freshTermActions(loadApp<typeof import("../../../src/lib/academic-actions")>("src/lib/academic-actions.ts"));
+const grid = freshTermActions(loadApp<typeof import("../../../src/lib/time-grid-actions")>("src/lib/time-grid-actions.ts"));
+const teachers = freshTermActions(loadApp<typeof import("../../../src/lib/teacher-actions")>("src/lib/teacher-actions.ts"));
 type Route = { GET(request: Request): Promise<Response> };
 const internalCsv = loadApp<Route>("src/app/(portal)/routine/export/route.ts");
 const publicCsv = loadApp<Route>("src/app/public/routine/export/route.ts");

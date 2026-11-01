@@ -7,6 +7,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import * as schema from "./schema";
 import { databaseTarget, loadDatabaseEnvironment } from "./target";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 // Standalone children use Next's supported loader; initialized Next runtimes keep their environment.
 loadDatabaseEnvironment();
@@ -52,4 +53,22 @@ if (databaseUrl) {
   database = drizzlePglite(client, { schema }) as unknown as NodePgDatabase<typeof schema>;
 }
 
-export const db = database;
+type Transaction = Parameters<Parameters<typeof database.transaction>[0]>[0];
+const transactionScope = new AsyncLocalStorage<Transaction>();
+
+/**
+ * Term actions enclose their existing readers, guards and audited savepoints in
+ * one transaction. The scope is asynchronous-request-local, never process-wide.
+ * Outside that scope the original database is used unchanged. Nested transaction
+ * calls remain real Drizzle savepoints, so caught domain errors roll back writes.
+ */
+export function inDatabaseTransaction<T>(tx: Transaction, work: () => Promise<T>): Promise<T> {
+  return transactionScope.run(tx, work);
+}
+export const db: typeof database = new Proxy(database, {
+  get(target, property) {
+    const reader = transactionScope.getStore() ?? target;
+    const value = Reflect.get(reader, property, reader);
+    return typeof value === "function" ? value.bind(reader) : value;
+  },
+});

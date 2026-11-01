@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 import assert from "node:assert/strict";
 import { eq } from "drizzle-orm";
 import { Pool } from "pg";
@@ -18,7 +19,7 @@ const { db } = loadApp<typeof Db>("src/db/index.ts"), s = loadApp<typeof Schema>
 const { saveMaintenanceAction: save } = loadApp<typeof MaintenanceActions>("src/lib/room-maintenance-actions.ts");
 const { getRoomMaintenance } = loadApp<typeof MaintenanceData>("src/lib/room-maintenance-data.ts");
 const { lifecycleRoomAction } = loadApp<typeof RoomActions>("src/lib/room-actions.ts");
-const actions = loadApp<typeof Actions>("src/lib/actions.ts"), auto = loadApp<typeof Auto>("src/lib/academic-actions.ts"), grid = loadApp<typeof Grid>("src/lib/time-grid-actions.ts");
+const actions = freshTermActions(loadApp<typeof Actions>("src/lib/actions.ts")), auto = freshTermActions(loadApp<typeof Auto>("src/lib/academic-actions.ts")), grid = freshTermActions(loadApp<typeof Grid>("src/lib/time-grid-actions.ts"));
 const { buildAutoSchedulePlan } = loadApp<typeof AutoPlan>("src/lib/schedule-automation.ts");
 const { getPortalData } = loadApp<typeof Data>("src/lib/data.ts");
 const form = (values: Record<string, unknown>) => { const fd = new FormData(); for (const [key, value] of Object.entries(values)) for (const v of Array.isArray(value) ? value : [value]) fd.append(key, v instanceof File ? v : String(v)); return fd; };

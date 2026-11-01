@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import Link from "next/link";
 import { INSTITUTION } from "@/lib/constants";
 import { getPortalData } from "@/lib/data";
@@ -25,7 +26,7 @@ export default async function PublicationsPage() {
   const draftMeetingCount = data.meetings.length;
   const deltas = published ? draftMeetingCount - published.meetingCount : 0;
 
-  return (
+  return <TermWriteProvider value={data.writeContext}>{(
     <div>
       <PageHeader
         context="Routine"
@@ -102,5 +103,5 @@ export default async function PublicationsPage() {
         </div>
       </div>
     </div>
-  );
+  )}</TermWriteProvider>;
 }

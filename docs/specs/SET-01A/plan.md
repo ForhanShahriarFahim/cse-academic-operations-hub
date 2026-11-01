@@ -8,7 +8,7 @@ Status: **Approved; implementation in progress**
 
 Branch/base: `codex/set-01a` / local `main` `6011e0f`
 
-Updated: 1 November 2026, Asia/Dhaka
+Updated: 2 November 2026, Asia/Dhaka
 
 ## Inspection and proposed approach
 
@@ -29,6 +29,8 @@ Proposed seams:
 | UI/navigation | `/terms`, selected workspace, metadata/create, initial setup, activation review; menu visible to internal viewers, controls by capability. Settings links to terms; operational pages still name active scope. |
 | Tests/docs | Meaningful domain and persisted-action checks, two-connection races, both-adapter migration/recovery, guarded disposable production preview and browser/print evidence. Keep the parent open. |
 
+Implementation detail: the database export routes calls through an `AsyncLocalStorage` transaction scope during active-dependent actions. Existing guards/readers/ownership checks therefore use the same transaction that owns the first context lock; existing nested audit transactions remain real savepoints. Outside the scope the original database is unchanged. Page-scoped client providers capture the context from the same data as their forms, rather than the independently loaded layout. PostgreSQL production-action races and PGlite request-queue checks exercise these actual paths. PGlite has one SQL connection; independent multi-session SQL barriers apply to PostgreSQL, while PGlite is checked through its real serialized transaction/request queue.
+
 Migration preparation must test a pre-0014 populated copy, original legacy no-grid conversion, a wholly empty database, and new managed drafts with no patterns globally. Existing source preparation remains explicit. Record table/row/snapshot preservation, idempotence and recovery. Do not start dev/start/prepare/migrate against the configured institutional target. Use the existing guarded disposable harness/owned target, with target proof before each runner that can prepare data.
 
 Activation review fingerprints only the evidence displayed to the administrator; define its canonical representation in code and tests. Metadata/create needs exclusive context serialization for duplicate decisions; setup can take shared context then target-row lock/revision. Ordinary active writers take shared context before their current locks; activation takes exclusive context and never upgrades from shared. Check the teacher-deactivation path especially: its teacher lock currently precedes active-reference lookup and must move behind context acquisition. Tests must expose deadlock/order errors, not merely call two promises serially.
@@ -45,9 +47,9 @@ Activation review fingerprints only the evidence displayed to the administrator;
 - [x] T-01 — Inspect current code/requirements and record the bounded proposal, risks and six owner decisions; AC-01–AC-11.
 - [x] T-02 — Review responsive sketches/documentation and obtain actual unchanged D-1–D-6 approval (“Approve.”, 1 November); commit this approval before implementation. Static review evidence is in verification.
 - [ ] T-03 — Implement schema/context/read capture and forward migration/backfill guard; verify populated preservation, zero-active setup and both-adapter recovery; AC-03/08/09. Depends on T-02.
-- [ ] T-04 — Implement permissions, identity/protected references, explicit starting policy and atomic activation with fresh evidence/audit; AC-01/02/03/06. Depends on T-03.
-- [ ] T-05 — Migrate every active-dependent action/caller and active/public loader to the strict context protocol; preserve existing ownership/room/teacher behavior; AC-07/08/10. Depends on T-03; inventory first, no bypasses.
-- [ ] T-06 — Implement directory/workspaces/forms, redacted frozen archive and existing print/export adaptation; AC-01/04/05/10. Depends on T-04/05.
+- [x] T-04 — Implement permissions, identity/protected references, explicit starting policy and atomic activation with fresh evidence/audit; focused raw-action checks pass on both adapters. AC-01/02/03/06; broader verification remains T-07/T-08.
+- [x] T-05 — Migrate all 25 active-dependent actions plus teacher deactivation, every client caller and composed active/public loader to strict context; focused missing/stale/ABA/refusal and real race/queue checks pass. AC-07/08/10; regression/UI checks remain T-07/T-08.
+- [x] T-06 — Implement directory/workspaces/forms, redacted frozen archive and existing print/export adaptation. Historical teacher sheets explicitly mark absent workload allocations instead of substituting live totals. AC-01/04/05/10; browser/native print verification remains T-08.
 - [ ] T-07 — Run focused domain/persisted-action/permission/migration/real-race regressions and correct findings; AC-01–AC-10. Exercise historical preservation and private sentinels on both adapters.
 - [ ] T-08 — Run final required suites/default build, production browser/mobile/keyboard/native A4/output checks and diff review; record criterion results and guarded owner preview; AC-05/10/11. Commit coherent verified delivery.
 - [ ] T-09 — Present bounded delivery for actual owner inspection/acceptance, resolve required failures or record an explicit owner exception; merge locally only after acceptance, record receipt and exact next-session handoff. Leave #14 open; no routine remote sync.
@@ -64,9 +66,9 @@ Owner review after implementation: isolated authenticated administrator and view
 
 - Branch/base: `codex/set-01a` from `6011e0f`; BUG-28 is already accepted and merged. One writer/checklist, no worktree or remote changes.
 - Scope: [D-1–D-6](spec.md) approved unchanged by owner's “Approve.” on 1 November; T-01/T-02 complete.
-- Changes: proposal `de43546`; approval record is the next local commit before implementation. Check actual Git log/status for its hash and subsequent implementation state.
-- Next action: commit this approval, then implement T-03 onward autonomously within the approved scope. Preserve context-before-domain lock order and use disposable databases only.
-- Checks: [planning verification and capture manifest](verification.md). All implementation ACs remain pending.
-- Institutional commands, schema/source changes, implementation, owner acceptance and SET-01A merge: none. BUG-28's existing synthetic preview may remain open; it is separate from this static proposal.
+- Changes: proposal `de43546`; approval `c6c7bdc` precedes all implementation. Source/schema/action/UI and safety/domain checks are implemented; inspect actual Git log/status for the checkpoint and corrections.
+- Next action: finish T-03 recovery evidence and T-07/T-08 regression/browser/native A4 checks, correct findings and present a guarded synthetic preview. No repeated implementation approval is needed. T-09 owner acceptance still precedes local merge.
+- Checks: [verification](verification.md). Focused PGlite/PostgreSQL workspace checks, domain, typecheck and initial lint pass. Full safety suite is running. Default Turbopack build fails in CSS-worker process/IPC startup; separately labelled Webpack review build is finishing. No default-build exception is inferred.
+- No institutional command, worktree or remote sync. Owner delivery acceptance and SET-01A merge remain pending. Static proposal at port 3112 is separate from the upcoming production review preview.
 
 Pasteable continuation: “Continue approved SET-01A on `codex/set-01a`. Read the brief, workflow and `docs/specs/SET-01A/{spec,plan,verification}.md`. Owner approved unchanged D-1–D-6 (‘Approve.’, 1 November) after proposal `de43546`; inspect its committed approval and actual Git/code state. Complete the sole checklist without re-requesting unchanged scope. No worktrees, institutional preparation/reset, automatic next part or remote synchronization. Delivery acceptance still precedes local-main merge.”

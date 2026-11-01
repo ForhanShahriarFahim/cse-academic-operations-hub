@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /** Real room actions/guards/loaders on a pinned synthetic target. */
 import assert from "node:assert/strict";
 import { eq } from "drizzle-orm";
@@ -143,8 +144,8 @@ async function main() {
  * The second production action must block on the shared room row. No action or room helper is mocked.
  */
 async function actionRaces(lines: string[]) {
-  const { createMeetingAction, updateMeetingAction, createExternalAction } = loadApp<typeof MeetingActions>("src/lib/actions.ts");
-  const { applyAutoScheduleAction } = loadApp<typeof AcademicActions>("src/lib/academic-actions.ts");
+  const { createMeetingAction, updateMeetingAction, createExternalAction } = freshTermActions(loadApp<typeof MeetingActions>("src/lib/actions.ts"));
+  const { applyAutoScheduleAction } = freshTermActions(loadApp<typeof AcademicActions>("src/lib/academic-actions.ts"));
   const { buildAutoSchedulePlan } = loadApp<typeof Automation>("src/lib/schedule-automation.ts");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3 });
   const control = await pool.connect();

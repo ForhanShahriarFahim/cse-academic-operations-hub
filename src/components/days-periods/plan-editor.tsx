@@ -1,8 +1,10 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useId, useState, useTransition } from "react";
 import type { ActionResult } from "@/lib/action-result";
-import { removeExceptionAction, setDayPlanAction } from "@/lib/time-grid-actions";
+
 import {
   analyzeGridChange, patternById, patternSpan, streamPlan, withDayPlan,
   type DayPlan, type Stream, type TimeGrid,
@@ -26,6 +28,7 @@ export function PlanEditor({ grid, target, context, onDone, onCancel }: {
   onDone: (result: ActionResult) => void;
   onCancel: () => void;
 }) {
+  const { removeExceptionAction, setDayPlanAction } = useTermActions();
   const id = useId();
   const [ask, confirmDialog] = useConfirm();
   const stream = target.stream;

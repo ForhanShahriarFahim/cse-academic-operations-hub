@@ -1,6 +1,7 @@
 "use server";
 
-import { withTermContext } from "./active-term";
+import { withActiveTermContext as withTermContext } from "./active-term";
+import type { TermWriteContext } from "./term-context-value";
 
 /**
  * Days & periods server actions (RUT-04). Each change is guarded (routine or
@@ -113,8 +114,8 @@ export interface SavePatternInput {
   moveClasses: boolean;
 }
 
-export async function savePatternAction(input: SavePatternInput): Promise<ActionResult> {
-  return withTermContext(() => savePatternActionInTerm(input));
+export async function savePatternAction(input: SavePatternInput, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => savePatternActionInTerm(input), context);
 }
 async function savePatternActionInTerm(input: SavePatternInput): Promise<ActionResult> {
   let result: ActionResult | undefined;
@@ -180,8 +181,8 @@ async function savePattern(input: SavePatternInput): Promise<ActionResult> {
   return succeeded(`${existing ? "Periods saved" : "Pattern created"}: ${pattern.name}.${note ? ` ${note}` : ""}`, { entityId: result.id });
 }
 
-export async function deletePatternAction(patternId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
-  return withTermContext(() => deletePatternActionInTerm(patternId, expectedUpdatedAt));
+export async function deletePatternAction(patternId: number, expectedUpdatedAt: string | null, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deletePatternActionInTerm(patternId, expectedUpdatedAt), context);
 }
 async function deletePatternActionInTerm(patternId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
@@ -224,8 +225,8 @@ export interface SetDayPlanInput {
   moveClasses: boolean;
 }
 
-export async function setDayPlanAction(input: SetDayPlanInput): Promise<ActionResult> {
-  return withTermContext(() => setDayPlanActionInTerm(input));
+export async function setDayPlanAction(input: SetDayPlanInput, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => setDayPlanActionInTerm(input), context);
 }
 async function setDayPlanActionInTerm(input: SetDayPlanInput): Promise<ActionResult> {
   let result: ActionResult | undefined;
@@ -304,8 +305,8 @@ async function setDayPlan(input: SetDayPlanInput): Promise<ActionResult> {
   return succeeded(`${what}${note ? ` ${note}` : ""}`);
 }
 
-export async function removeExceptionAction(planId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
-  return withTermContext(() => removeExceptionActionInTerm(planId, expectedUpdatedAt));
+export async function removeExceptionAction(planId: number, expectedUpdatedAt: string | null, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => removeExceptionActionInTerm(planId, expectedUpdatedAt), context);
 }
 async function removeExceptionActionInTerm(planId: number, expectedUpdatedAt: string | null): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);
@@ -330,8 +331,8 @@ async function removeExceptionActionInTerm(planId: number, expectedUpdatedAt: st
 // Copy from another term
 // ---------------------------------------------------------------------------
 
-export async function copyGridFromTermAction(sourceTermId: number, expectedPatternCount: number): Promise<ActionResult> {
-  return withTermContext(() => copyGridFromTermActionInTerm(sourceTermId, expectedPatternCount));
+export async function copyGridFromTermAction(sourceTermId: number, expectedPatternCount: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => copyGridFromTermActionInTerm(sourceTermId, expectedPatternCount), context);
 }
 async function copyGridFromTermActionInTerm(sourceTermId: number, expectedPatternCount: number): Promise<ActionResult> {
   const denied = await guardAnyAction([...EDITORS]);

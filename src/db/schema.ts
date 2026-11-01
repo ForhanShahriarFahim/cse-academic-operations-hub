@@ -230,8 +230,16 @@ export const academicTerms = pgTable("academic_terms", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   effectiveFrom: date("effective_from"), // printed routine effective date
-  status: text("status").notNull().default("active"),
+  status: text("status").notNull().default("draft"),
+  revision: integer("revision").notNull().default(1),
+  managedSetup: boolean("managed_setup").notNull().default(false),
 }, (t) => [uniqueIndex("academic_terms_one_active_uq").on(t.status).where(sql`${t.status} = 'active'`)]);
+
+/** Lock this singleton before any term-dependent decision or domain row lock. */
+export const termContext = pgTable("term_context", {
+  id: integer("id").primaryKey().default(1),
+  generation: integer("generation").notNull().default(1),
+}, (t) => [check("term_context_singleton", sql`${t.id} = 1`), check("term_context_positive", sql`${t.generation} > 0`)]);
 
 // Policy values are term-scoped so Spring/Summer sessions can change without
 // rewriting historical marks or payment calculations.

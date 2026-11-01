@@ -4,13 +4,23 @@ Parent [#14](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/
 
 Date/environment: 1 November 2026, Asia/Dhaka; Windows, local documentation branch `codex/set-01a`, base `6011e0f`.
 
-Verified revision: proposal working tree; no application implementation. See the local proposal commit for the finalized docs/captures.
+Verified revision: proposal `de43546`, implementation approval `c6c7bdc`, followed by implementation working tree/checkpoint; see current Git log. Implementation verification continues on 2 November 2026, Asia/Dhaka.
 
 ## Acceptance evidence
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| AC-01–AC-11 | **Pending implementation** | Specification and sketches describe proposed behavior only. No runtime/schema/action claim is made. |
+| AC-01/02/03/06/07/08 | Focused checks passed; broader review pending | Raw production role/scope, explicit policy, migration, fresh activation, rollback, immutable history and 26 missing/stale/ABA refusals pass on both adapters. Expanded reference-family and duplicate-race coverage is being completed. |
+| AC-04/05/09/10 | Pending final verification | Archive/UI implemented; full recovery, actual production browser and native print evidence in progress. |
+| AC-11 | **Partial / default build failed** | Domain/typecheck/initial lint pass. Default Turbopack fails in CSS-worker process startup/IPC; alternate Webpack review build is separately labelled. No exception or delivery acceptance inferred. |
+
+## Implementation checks — in progress
+
+The focused SET-01A safety groups exercise the actual database singleton, guards, actions and transactions through the pinned controlled runtime. Only identity-provider session and request-scoped framework dependencies are controlled. Older regression scenarios use an explicit test-only fresh-page adapter to supply the new context; missing/stale/ABA cases use raw actions without that adapter.
+
+On both PGlite and PostgreSQL: populated pre-0014 preservation, draft default, repeated preparation, preserved context generation, managed-draft exclusion from legacy-grid backfill, policy readiness, revision/duplicate refusal, role/scope denial, audit-failure rollback and historical snapshot hashes pass. All 26 active-dependent action paths refuse missing/stale/ABA contexts without changing complete persisted fingerprints. PostgreSQL uses independent SQL connections with real trigger/advisory barriers and observed blocking PIDs for writer/switch ordering and competing activations. PGlite is a single-connection engine: actual independent async requests queue behind its open transactions; both orderings pass. Do not describe that as independent PGlite SQL sessions.
+
+Required final browser/print/output parity and broader suite evidence remains pending. Earlier planning screenshots below remain static proposal evidence, not runtime results. Native teacher sheets now show “Not stored in publication” for historical workload allocations because snapshots never stored those totals; no current allocation is substituted.
 
 ## Planning checks
 

@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /**
  * BUG-27 (#27) production-path child: the real class and external-commitment
  * deletes, signed in as an administrator, on the pinned owned database.
@@ -7,7 +8,7 @@ import { loadApp, report, signInAs } from "./controlled-runtime";
 import type * as ActionsModule from "../../../src/lib/actions";
 import type { ActionResult } from "../../../src/lib/action-result";
 
-const { deleteMeetingAction, deleteExternalAction } = loadApp<typeof ActionsModule>("src/lib/actions.ts");
+const { deleteMeetingAction, deleteExternalAction } = freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts"));
 
 async function run(ids: { meetingId: number; externalId: number }) {
   const results: Record<string, ActionResult | { threw: true; message: string }> = {};

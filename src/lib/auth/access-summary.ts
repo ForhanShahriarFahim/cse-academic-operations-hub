@@ -18,6 +18,7 @@ export const CAPABILITY_LABELS: Record<Capability, string> = {
   manage_users: "Manage accounts, sign-in and roles",
   manage_teachers: "Add and edit teacher records",
   manage_rooms: "Add and edit the CSE planning room directory",
+  manage_terms: "Create draft academic terms and review activation",
   manage_policy: "Change academic policies and settings",
   manage_routine: "Edit the routine",
   approve_publication: "Approve and publish the routine",

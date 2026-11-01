@@ -7,6 +7,8 @@ import { buttonClass } from "@/components/account/styles";
 import { allowedFrom, deactivationBlockers, deactivationNotes, transitionRefusal } from "@/lib/teacher-records";
 import { getTeacherRecord, getTeacherReferences } from "@/lib/teacher-data";
 import { requireTeacherEditor } from "@/lib/teacher-pages";
+import { captureActiveContext, assertTermContext } from "@/lib/term-context";
+import { TermWriteProvider } from "@/components/term-write-context";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +27,9 @@ export default async function DeactivateTeacherPage({ params }: { params: Promis
   if (!allowedFrom("deactivate", record.status)) {
     return <div className="mx-auto max-w-[760px]">{back}<PageHeader title={`Deactivate ${record.shortCode}?`} /><Notice tone="warn">{transitionRefusal("deactivate", record.status)}</Notice></div>;
   }
+  const { writeContext } = await captureActiveContext();
   const references = await getTeacherReferences(record.id, record.shortCode);
+  await assertTermContext(writeContext);
   const blockers = deactivationBlockers(references);
   const notes = deactivationNotes(references);
 
@@ -70,7 +74,7 @@ export default async function DeactivateTeacherPage({ params }: { params: Promis
               </li>
             </ul>
           </Panel>
-          <div className="mt-4"><DeactivateForm teacherId={record.id} code={record.shortCode} expectedUpdatedAt={record.updatedAt.toISOString()} /></div>
+          <div className="mt-4"><TermWriteProvider value={writeContext}><DeactivateForm teacherId={record.id} code={record.shortCode} expectedUpdatedAt={record.updatedAt.toISOString()} /></TermWriteProvider></div>
         </>
       )}
     </div>

@@ -1,11 +1,14 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useState, useTransition } from "react";
 import { Sparkles } from "lucide-react";
 import type { ActionResult } from "@/lib/actions";
-import { applyAutoScheduleAction } from "@/lib/academic-actions";
+
 
 export function AutoScheduleApply({ count }: { count: number }) {
+  const { applyAutoScheduleAction } = useTermActions();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
   return <div className="flex flex-col items-end gap-2">
