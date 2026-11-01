@@ -56,6 +56,6 @@ Planning helper: installed Playwright library with headless Microsoft Edge and `
 ## Delivery and acceptance
 
 - Local branch: `codex/set-01a`; proposal only. BUG-28 acceptance/merge is recorded in its own [plan](../BUG-28/plan.md).
-- Remaining gate: actual owner approval of D-1–D-6 before code/migration changes, per [workflow](../../WORKFLOW.md#issue-lifecycle).
-- Owner implementation approval, delivery acceptance and local SET-01A merge: **Pending**.
+- D-1–D-6 approved unchanged on 1 November: owner replied “Approve.” after proposal `de43546`. Approval is recorded/committed before implementation, per [workflow](../../WORKFLOW.md#issue-lifecycle).
+- Owner implementation approval: **Approved**. Delivery acceptance and local SET-01A merge: **Pending**.
 - Parent #14 remains open. No GitHub access/update/push/PR or institutional operation. Last remote reconciliation remains 26 October, `0b1e055`.

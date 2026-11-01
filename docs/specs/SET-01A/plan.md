@@ -4,7 +4,7 @@ Parent: [SET-01 / #14](https://github.com/ForhanShahriarFahim/cse-academic-opera
 
 Specification: [D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [sketches](mockups/terms.html)
 
-Status: **Proposed; implementation approval pending**
+Status: **Approved; implementation in progress**
 
 Branch/base: `codex/set-01a` / local `main` `6011e0f`
 
@@ -36,14 +36,14 @@ Activation review fingerprints only the evidence displayed to the administrator;
 ## Approval record
 
 - Planning authorization: owner's 1 November “ok go for that”, after the proposed BUG-28 merge and SET-01A inspection/specification next step.
-- Implementation authorization: **Pending** for this concrete D-1–D-6 specification and sketches. No app/schema/action/test implementation has begun.
-- Approved scope/date/commit: none yet. Record the actual owner response and commit the approved plan before T-03.
+- Implementation authorization: **Approved**, 1 November 2026. Owner replied **“Approve.”** to the explicit request to approve D-1–D-6 after presentation of specification, plan and responsive sketches.
+- Approved scope: D-1–D-6 / AC-01–AC-11 at proposal commit `de43546`, unchanged. This approval record is committed before T-03; it does not authorize institutional rollout, remote synchronization or merge before delivery acceptance.
 - Material amendments: none; any lifecycle, authority, historic-editing, empty-activation or policy-governance expansion needs a decision.
 
 ## Tasks — sole checklist
 
 - [x] T-01 — Inspect current code/requirements and record the bounded proposal, risks and six owner decisions; AC-01–AC-11.
-- [ ] T-02 — Review responsive sketches and documentation, present proposal; obtain actual D-1–D-6 approval and commit approval before implementation. Static review completion is recorded in verification; the approval gate remains open.
+- [x] T-02 — Review responsive sketches/documentation and obtain actual unchanged D-1–D-6 approval (“Approve.”, 1 November); commit this approval before implementation. Static review evidence is in verification.
 - [ ] T-03 — Implement schema/context/read capture and forward migration/backfill guard; verify populated preservation, zero-active setup and both-adapter recovery; AC-03/08/09. Depends on T-02.
 - [ ] T-04 — Implement permissions, identity/protected references, explicit starting policy and atomic activation with fresh evidence/audit; AC-01/02/03/06. Depends on T-03.
 - [ ] T-05 — Migrate every active-dependent action/caller and active/public loader to the strict context protocol; preserve existing ownership/room/teacher behavior; AC-07/08/10. Depends on T-03; inventory first, no bypasses.
@@ -63,10 +63,10 @@ Owner review after implementation: isolated authenticated administrator and view
 ## Current checkpoint / exact handoff
 
 - Branch/base: `codex/set-01a` from `6011e0f`; BUG-28 is already accepted and merged. One writer/checklist, no worktree or remote changes.
-- Scope: proposal only, [D-1–D-6](spec.md); actual implementation approval pending. Completed work is T-01 plus static preparation within T-02; do not mark approval complete from a template or earlier message.
-- Changes: documentation, workflow sketches and capture evidence only. The local proposal commit contains this checkpoint; use `git log -1` and `git status` for its exact hash/cleanliness rather than a self-referencing placeholder.
-- Next action: owner reviews the linked proposal/sketches and approves or amends D-1–D-6. After actual approval, record evidence, commit it, then start T-03 without another routine permission request. If amended, align all criteria/plan/sketches first.
+- Scope: [D-1–D-6](spec.md) approved unchanged by owner's “Approve.” on 1 November; T-01/T-02 complete.
+- Changes: proposal `de43546`; approval record is the next local commit before implementation. Check actual Git log/status for its hash and subsequent implementation state.
+- Next action: commit this approval, then implement T-03 onward autonomously within the approved scope. Preserve context-before-domain lock order and use disposable databases only.
 - Checks: [planning verification and capture manifest](verification.md). All implementation ACs remain pending.
 - Institutional commands, schema/source changes, implementation, owner acceptance and SET-01A merge: none. BUG-28's existing synthetic preview may remain open; it is separate from this static proposal.
 
-Pasteable continuation: “Continue SET-01A on `codex/set-01a`. Read the brief, workflow and `docs/specs/SET-01A/{spec,plan,verification}.md`. Check actual Git state and whether D-1–D-6 have actual owner implementation approval. If approved unchanged, record/commit that approval before T-03 and complete the sole checklist within its scope. Otherwise present the concrete pending proposal. No worktrees, institutional preparation/reset, automatic next part or remote synchronization.”
+Pasteable continuation: “Continue approved SET-01A on `codex/set-01a`. Read the brief, workflow and `docs/specs/SET-01A/{spec,plan,verification}.md`. Owner approved unchanged D-1–D-6 (‘Approve.’, 1 November) after proposal `de43546`; inspect its committed approval and actual Git/code state. Complete the sole checklist without re-requesting unchanged scope. No worktrees, institutional preparation/reset, automatic next part or remote synchronization. Delivery acceptance still precedes local-main merge.”

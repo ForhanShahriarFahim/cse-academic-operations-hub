@@ -2,7 +2,7 @@
 
 Parent: [SET-01 / #14](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/14)
 
-Status: **Proposed; implementation approval pending**
+Status: **Approved for implementation, 1 November 2026**
 
 Updated: 1 November 2026, Asia/Dhaka
 
@@ -105,6 +105,6 @@ All criteria are pending implementation. Approval of this specification is not a
 
 ## Decisions and sources
 
-**Owner decision requested:** approve D-1–D-6 together as the bounded SET-01A implementation scope, or amend the specific decision before coding. The current “ok go for that” authorized planning and the preceding BUG-28 acceptance/merge; it did not approve this newly written design.
+**Owner decision:** D-1–D-6 approved unchanged on 1 November 2026. Owner replied **“Approve.”** to the explicit approval request after proposal `de43546`; [approval record](plan.md#approval-record). This authorizes bounded implementation, not future failed-check exceptions, institutional rollout or merge before acceptance.
 
 Sources: [local delivery sequence](../../plans/LOCAL_DELIVERY_2026-10-26.md), [workflow approval gate](../../WORKFLOW.md#issue-lifecycle), [SET-01 requirements](../../PRODUCT_REQUIREMENTS.md#SET-01--Separate-configuration-from-governance), [institutional decisions](../../decisions/INSTITUTIONAL_DECISIONS.md), [BUG-28 accepted foundation](../BUG-28/spec.md), [RUT-04](../RUT-04/spec.md), [ROM-01C](../ROM-01C/spec.md). The missing institutional specification, policy approval hierarchy and rollover decisions remain open; this proposal does not resolve them by inference. Administrator authority, draft starting-policy entry and permitted empty activation are explicit owner-review choices here.
