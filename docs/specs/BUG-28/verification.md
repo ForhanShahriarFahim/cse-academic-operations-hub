@@ -1,7 +1,7 @@
 # BUG-28 — Inspection and verification
 
 [Specification](spec.md), [sole plan](plan.md), [state sketches](review-states.md). Updated: 1 November 2026, Asia/Dhaka.
-Status: **Accepted on 1 November 2026 with the disclosed default-build exception; local merge authorized.** Approval `d20c9b6` precedes implementation `fd08ee0`; review evidence `f75c433`. The owner said “ok go for that” after the proposal to accept this limitation, merge locally and inspect/specify SET-01A. AC-08 remains partial; the test results and build policy have not changed.
+Status: **Accepted and merged locally at `649f292` on 1 November 2026 with the disclosed default-build exception.** Approval `d20c9b6` precedes implementation `fd08ee0`; review evidence `f75c433`, acceptance `0520887`. The owner said “ok go for that” after the proposal to accept this limitation, merge locally and inspect/specify SET-01A. AC-08 remains partial; the test results and build policy have not changed.
 
 ## Implementation verification
 
@@ -42,4 +42,4 @@ ROM-01C's exception did not carry over: BUG-28's exception was separately accept
 
 ## Delivery and handoff
 
-Planning authorization was the owner's 1 November “accepted and go for the next task.” D-1–D-4 were approved without amendment (“approved.”) before code at `d20c9b6`. Feature acceptance is now recorded in the [sole plan](plan.md#approval-record); local merge is authorized, followed by SET-01A inspection/specification. No code checks were repeated for this documentation-only acceptance. GitHub issue #28 status remains the dated remote snapshot until an agreed synchronization boundary.
+Planning authorization was the owner's 1 November “accepted and go for the next task.” D-1–D-4 were approved without amendment (“approved.”) before code at `d20c9b6`. Feature acceptance `0520887` and merge `649f292` are recorded in the [sole plan](plan.md#approval-record); implementation/acceptance are ancestors of main. SET-01A inspection/specification is explicitly authorized next. No code checks were repeated for the documentation-only acceptance/merge. GitHub issue #28 status remains the dated remote snapshot until an agreed synchronization boundary.
