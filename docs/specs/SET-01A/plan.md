@@ -4,7 +4,7 @@ Parent: [SET-01 / #14](https://github.com/ForhanShahriarFahim/cse-academic-opera
 
 Specification: [D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [sketches](mockups/terms.html)
 
-Status: **Approved; implementation in progress**
+Status: **Implemented and ready for owner review; AC-11 partial**
 
 Branch/base: `codex/set-01a` / local `main` `6011e0f`
 
@@ -46,12 +46,12 @@ Activation review fingerprints only the evidence displayed to the administrator;
 
 - [x] T-01 — Inspect current code/requirements and record the bounded proposal, risks and six owner decisions; AC-01–AC-11.
 - [x] T-02 — Review responsive sketches/documentation and obtain actual unchanged D-1–D-6 approval (“Approve.”, 1 November); commit this approval before implementation. Static review evidence is in verification.
-- [ ] T-03 — Implement schema/context/read capture and forward migration/backfill guard; verify populated preservation, zero-active setup and both-adapter recovery; AC-03/08/09. Depends on T-02.
+- [x] T-03 — Implement schema/context/read capture and forward migration/backfill guard; populated preservation, zero-active setup and both-adapter recovery pass; AC-03/08/09. Approval T-02 preceded implementation.
 - [x] T-04 — Implement permissions, identity/protected references, explicit starting policy and atomic activation with fresh evidence/audit; focused raw-action checks pass on both adapters. AC-01/02/03/06; broader verification remains T-07/T-08.
 - [x] T-05 — Migrate all 25 active-dependent actions plus teacher deactivation, every client caller and composed active/public loader to strict context; focused missing/stale/ABA/refusal and real race/queue checks pass. AC-07/08/10; regression/UI checks remain T-07/T-08.
 - [x] T-06 — Implement directory/workspaces/forms, redacted frozen archive and existing print/export adaptation. Historical teacher sheets explicitly mark absent workload allocations instead of substituting live totals. AC-01/04/05/10; browser/native print verification remains T-08.
-- [ ] T-07 — Run focused domain/persisted-action/permission/migration/real-race regressions and correct findings; AC-01–AC-10. Exercise historical preservation and private sentinels on both adapters.
-- [ ] T-08 — Run final required suites/default build, production browser/mobile/keyboard/native A4/output checks and diff review; record criterion results and guarded owner preview; AC-05/10/11. Commit coherent verified delivery.
+- [x] T-07 — Run focused domain/persisted-action/permission/migration/real-race regressions and correct findings; AC-01–AC-10. Historical preservation and private sentinels pass on both adapters; all 27 named safety groups pass across recorded runs.
+- [x] T-08 — Run final required suites/default build, production browser/mobile/keyboard/native A4/output checks and diff review; record criterion results and guarded owner preview; AC-05/10/11. Typecheck/lint/domain, 66 layout/accessibility captures, keyboard and ten native A4 pages pass. Default Turbopack fails; separate Webpack build passes. AC-11 remains partial, awaiting owner decision under T-09.
 - [ ] T-09 — Present bounded delivery for actual owner inspection/acceptance, resolve required failures or record an explicit owner exception; merge locally only after acceptance, record receipt and exact next-session handoff. Leave #14 open; no routine remote sync.
 
 ## Verification and delivery
@@ -65,10 +65,11 @@ Owner review after implementation: isolated authenticated administrator and view
 ## Current checkpoint / exact handoff
 
 - Branch/base: `codex/set-01a` from `6011e0f`; BUG-28 is already accepted and merged. One writer/checklist, no worktree or remote changes.
-- Scope: [D-1–D-6](spec.md) approved unchanged by owner's “Approve.” on 1 November; T-01/T-02 complete.
-- Changes: proposal `de43546`; approval `c6c7bdc` precedes implementation `0928e4a`. Corrective checkpoint adds keyed form scopes/reviews, strict malformed-field handling, ordered transaction reads, retained-context replacement epochs, narrow print preview and explicit/legacy fixture boundaries. Inspect actual Git log/status for its hash and later evidence.
-- Next action: finish T-03 recovery evidence and T-07/T-08 regression/browser/native A4 checks, correct findings and present a guarded synthetic preview. No repeated implementation approval is needed. T-09 owner acceptance still precedes local merge.
-- Checks: [verification](verification.md). Focused PGlite/PostgreSQL workspace checks, domain, typecheck and initial lint pass. Full safety suite is running. Default Turbopack build fails in CSS-worker process/IPC startup; separately labelled Webpack review build is finishing. No default-build exception is inferred.
-- No institutional command, worktree or remote sync. Owner delivery acceptance and SET-01A merge remain pending. Static proposal at port 3112 is separate from the upcoming production review preview.
+- Scope: [D-1–D-6](spec.md) approved unchanged by owner's “Approve.” on 1 November; T-01–T-08 complete. T-09 remains pending.
+- Changes: proposal `de43546`; approval `c6c7bdc` precedes implementation `0928e4a` and correction `c5bf6bb`. Corrections add keyed form scopes/reviews, strict malformed-field handling, ordered transaction reads, retained-context replacement epochs, narrow archive preview and explicit/legacy fixture boundaries. Final tests `96291ff` strengthen exact-ID replacement and supported schema-3 coverage; evidence commits follow in the Git log.
+- Next action: owner inspects [synthetic review control](http://localhost:3115/) → **Sign in as synthetic administrator** → [Academic terms](http://localhost:3114/terms). Inspect draft/policy/activation, stale forms, archive/CSV/print and viewer access. The [verification](verification.md#actual-owner-review-path) records fixture controls and guarded restart. No repeated implementation approval is needed.
+- Checks: [criterion results and receipts](verification.md). Final typecheck/lint/domain and all 27 named safety groups pass across preserved/resumed/focused runs; 57 workflow + 9 pending captures, keyboard and ten A4 pages pass. Default Turbopack build fails in CSS-worker process/IPC startup on final application code; separately labelled Webpack production review build passes. AC-11 remains partial; prior exceptions do not transfer.
+- Required decision: actual delivery acceptance, including an explicit default-build exception or a request to resolve that failure, before local merge. If accepted, record acceptance, merge only this bounded branch into local `main`, record receipt, retain parent #14 open and suggest the next ready slice from the delivery plan without starting it.
+- No institutional command, worktree or remote sync. Owner delivery acceptance and SET-01A merge remain pending. Static proposal at port 3112 is separate from the actual production preview at 3115/3114.
 
-Pasteable continuation: “Continue approved SET-01A on `codex/set-01a`. Read the brief, workflow and `docs/specs/SET-01A/{spec,plan,verification}.md`. Owner approved unchanged D-1–D-6 (‘Approve.’, 1 November) after proposal `de43546`; inspect its committed approval and actual Git/code state. Complete the sole checklist without re-requesting unchanged scope. No worktrees, institutional preparation/reset, automatic next part or remote synchronization. Delivery acceptance still precedes local-main merge.”
+Pasteable continuation: “Continue SET-01A delivery review on `codex/set-01a`. Read the brief, workflow and `docs/specs/SET-01A/{spec,plan,verification}.md`; inspect final Git state. D-1–D-6 approval `c6c7bdc` precedes implementation `0928e4a` and correction `c5bf6bb`. T-01–T-08 are complete; use recorded final checks instead of repeating them without a change. Present/recover the owned preview at localhost:3115. AC-11 remains partial: default Turbopack fails, separate Webpack passes. Obtain actual delivery acceptance/build-failure decision before merging local main. No worktrees, institutional preparation/reset, automatic next part or remote synchronization.”

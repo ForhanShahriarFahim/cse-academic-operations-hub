@@ -1,0 +1,61 @@
+{
+  "kind": "Actual production forms with delayed HTTP transport; no mocked application or database responses",
+  "captures": [
+    {
+      "file": "pending-create-1440.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "file": "pending-create-390.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "file": "pending-create-320.png",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "file": "pending-policy-1440.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "file": "pending-policy-390.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "file": "pending-policy-320.png",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "file": "pending-activation-1440.png",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "file": "pending-activation-390.png",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "file": "pending-activation-320.png",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    }
+  ],
+  "repeatSubmitDisabled": true,
+  "allSubmissionsCompleted": true
+}

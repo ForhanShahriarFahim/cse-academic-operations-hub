@@ -1,0 +1,302 @@
+{
+  "date": "2 November 2026, Asia/Dhaka",
+  "implementation": "0928e4a",
+  "corrections": "c5bf6bb",
+  "finalTests": "96291ff",
+  "groups": [
+    {
+      "name": "SET-01A workspace (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-workspace-safety.log"
+    },
+    {
+      "name": "SET-01A workspace (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-workspace-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-active-term-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-active-term-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-maintenance-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-maintenance-safety.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-lifecycle-recheck.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-lifecycle-recheck.log"
+    },
+    {
+      "name": "ROM-01A rooms (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "ROM-01A rooms (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "T-01 isolation",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "BUG-24 environment",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "T-02 PGlite recovery",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "T-03 two-term history",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-final-history-safety.log"
+    },
+    {
+      "name": "T-04 audit atomicity",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "T-06 PostgreSQL",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-resumed-safety.log"
+    },
+    {
+      "name": "BUG-29 time zones (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-29 time zones (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-48 cluster cleanup (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PGlite)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PostgreSQL)",
+      "result": "passed",
+      "sourceLog": ".tmp/set01a-tail-safety.log"
+    }
+  ],
+  "runs": [
+    {
+      "file": ".tmp/set01a-all-safety.log",
+      "sha256": "0392b09230c44282fd9d151c475d4874d70a6d87621172c4e0ff4e212f531b9a",
+      "passedGroups": [
+        "SET-01A workspace (PGlite)",
+        "SET-01A workspace (PostgreSQL)",
+        "BUG-28 active terms (PGlite)",
+        "BUG-28 active terms (PostgreSQL)",
+        "ROM-01C maintenance (PGlite)",
+        "ROM-01C maintenance (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": false
+    },
+    {
+      "file": ".tmp/set01a-resumed-safety.log",
+      "sha256": "54443f5b06dd69332fa4c309a9d920c0bf484e61897f5da296ed4ae4f78db633",
+      "passedGroups": [
+        "ROM-01A rooms (PGlite)",
+        "ROM-01A rooms (PostgreSQL)",
+        "T-01 isolation",
+        "BUG-24 environment",
+        "T-02 PGlite recovery",
+        "T-03 two-term history",
+        "T-04 audit atomicity",
+        "T-06 PostgreSQL"
+      ],
+      "defaultDirectoryUnchanged": false
+    },
+    {
+      "file": ".tmp/set01a-tail-safety.log",
+      "sha256": "24d28396a7af276caffad712c113a38143147e0231627300336adb077ee195c8",
+      "passedGroups": [
+        "BUG-29 time zones (PGlite)",
+        "BUG-29 time zones (PostgreSQL)",
+        "AUTH-02 accounts (PGlite)",
+        "AUTH-02 accounts (PostgreSQL)",
+        "BUG-48 cluster cleanup (PostgreSQL)",
+        "BUG-26 reset keeps access (PGlite)",
+        "BUG-26 reset keeps access (PostgreSQL)",
+        "TCH-01 teacher records (PGlite)",
+        "TCH-01 teacher records (PostgreSQL)",
+        "BUG-27 blocked deletes (PGlite)",
+        "BUG-27 blocked deletes (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": true
+    },
+    {
+      "file": ".tmp/set01a-lifecycle-recheck.log",
+      "sha256": "024c57f05c1c3866347ea7067934481ea2bf6fdd5ec27698989a45914ec99b52",
+      "passedGroups": [
+        "ROM-01B lifecycle (PGlite)",
+        "ROM-01B lifecycle (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": true
+    },
+    {
+      "file": ".tmp/set01a-final-active-term-safety.log",
+      "sha256": "31028e31835459defea6f3248dfd46570d1d9bc394d9f892f437e530aa71ff11",
+      "passedGroups": [
+        "BUG-28 active terms (PGlite)",
+        "BUG-28 active terms (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": true
+    },
+    {
+      "file": ".tmp/set01a-final-maintenance-safety.log",
+      "sha256": "39759a13104db8e3980cd461eeb27cddfc8ff99b1d73bca94e97637fd83280db",
+      "passedGroups": [
+        "ROM-01C maintenance (PGlite)",
+        "ROM-01C maintenance (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": true
+    },
+    {
+      "file": ".tmp/set01a-final-history-safety.log",
+      "sha256": "f5f52b9d4745f1d3aeecd39dd4434f9ef360686d8943ed1c83d015e9434c0d62",
+      "passedGroups": [
+        "T-03 two-term history"
+      ],
+      "defaultDirectoryUnchanged": true
+    },
+    {
+      "file": ".tmp/set01a-final-workspace-safety.log",
+      "sha256": "ed8a974d01aaf9c204de13b6c0ddba98116444e4d4fdc1a9d9026e6b352713c4",
+      "passedGroups": [
+        "SET-01A workspace (PGlite)",
+        "SET-01A workspace (PostgreSQL)"
+      ],
+      "defaultDirectoryUnchanged": true
+    }
+  ],
+  "build": {
+    "sourceRevision": "c5bf6bb",
+    "defaultExit": 1,
+    "alternateExit": 0,
+    "mode": "webpack"
+  },
+  "browser": {
+    "captures": 57,
+    "checks": [
+      "Authenticated production term directory",
+      "Frozen routine/official/teacher views and CSV omit private contact/extra JSON sentinels; native print captures saved",
+      "Soft same-route refresh never binds old unsaved inputs to a new term context",
+      "Actual create/edit/policy, stale activation-review refusal, explicit activation, public unpublished effect, old policy-form refusal with retained input, completed identity protection and immutable snapshot hash",
+      "Viewer controls hidden and direct management denied; archive CSV permits viewer and rejects anonymous",
+      "Zero-active directory, retained duplicate-validation fields, explicit starting policy and first activation all work through actual UI"
+    ],
+    "errors": []
+  },
+  "print": {
+    "pages": 10,
+    "officialPixelParityPages": 4
+  },
+  "finalCommandLogs": [
+    {
+      "file": ".tmp/set01a-final-typecheck.log",
+      "sha256": "e5046545a3a9fcc0cf6950c9402c78a2b227f07a6a658d2a0c1fbc5f4a194da0"
+    },
+    {
+      "file": ".tmp/set01a-final-lint.log",
+      "sha256": "9e26cc9ff4b569e5db90454732fd10fd7539c03822105285e1736826ed26fc0f"
+    },
+    {
+      "file": ".tmp/set01a-final-domain.log",
+      "sha256": "cd9f973043a5f9d393b1dbc33d99dca403d1b85edec0799b8fe938dc2bf37f58"
+    },
+    {
+      "file": ".tmp/set01a-final-default-build.log",
+      "sha256": "b337e0aadcd09a51755cadf70712c06f6bcbd253fe3434ea2b2f30133c353b9b"
+    },
+    {
+      "file": ".tmp/set01a-final-webpack-build.log",
+      "sha256": "547a7119eea1a7c77e04e1f13b507f0dad266c9c2b4fb59190b6c3c5e011435f"
+    }
+  ],
+  "requiredCommands": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "domain": "passed",
+    "defaultBuild": "failed",
+    "separateWebpackBuild": "passed"
+  },
+  "pendingReview": {
+    "captures": 9,
+    "allLayoutAndAxePassed": true
+  },
+  "keyboardReview": {
+    "kind": "Actual read-only keyboard traversal; no form submitted",
+    "focus": {
+      "label": "Term name",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px"
+    },
+    "tabOrder": "term name → academic year",
+    "passed": true
+  },
+  "method": "Preserved complete named groups plus focused/resumed groups. Initial fixture failures are retained in local logs; corrected groups supersede them. Only disposable owned targets; no institutional migration/reset or remote synchronization.",
+  "adapterLimit": "PGlite has one SQL connection; independent async request queues are exercised there. PostgreSQL uses independent SQL connections and observed real blocking-PID barriers."
+}

@@ -101,7 +101,7 @@ Use paper/ink/pine/gold styling, keyboard-labelled controls, associated field er
 | AC-10 | Desktop/mobile management, confirmation, denied/empty/error/stale/pending/success states meet D-6; existing active room/scheduling/policy flows remain usable. | Production browser/keyboard/contrast/layout checks at three widths and targeted integration regression. |
 | AC-11 | Required code and domain/safety/build checks are recorded honestly and changes reviewed; owner has a guarded runnable inspection path. | Shared workflow suites, issue groups, diff review and isolated preview; default build separately from any alternate. |
 
-All criteria are pending implementation. Approval of this specification is not acceptance of a future failed check or an institutional rollout.
+Implementation and [criterion-by-criterion evidence](verification.md#acceptance-evidence) are ready for owner review. AC-01–AC-10 pass; AC-11 remains partial because the default build fails while the separately labelled Webpack build passes. Specification approval is not delivery acceptance, a build-failure exception or authorization for institutional rollout.
 
 ## Decisions and sources
 
