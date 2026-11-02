@@ -101,8 +101,8 @@ Planning helper: installed Playwright library with headless Microsoft Edge and `
 
 ## Delivery and acceptance
 
-- Local branch: `codex/set-01a`; application `0928e4a`/`c5bf6bb`, final test/evidence commits in Git log. Local `main` remains `6011e0f`. BUG-28 acceptance/merge is recorded in its own [plan](../BUG-28/plan.md).
+- Retained branch: `codex/set-01a`; application `0928e4a`/`c5bf6bb`, final tests `96291ff`, delivery evidence `f12060a`. Accepted branch merged into local `main` at `6860f84`. BUG-28 acceptance/merge is recorded in its own [plan](../BUG-28/plan.md).
 - D-1–D-6 approved unchanged on 1 November: owner replied “Approve.” after proposal `de43546`. Approval is recorded/committed before implementation, per [workflow](../../WORKFLOW.md#issue-lifecycle).
-- Owner implementation approval: **Approved**. Delivery acceptance: **Accepted**, 2 November 2026; owner replied “accepted” after delivery `f12060a`, runnable preview and the explicit default-build exception/local-merge request. Local SET-01A merge: **Pending**.
-- AC-11 remains partial under this delivery's accepted default-build exception; the default result is not relabelled passing. Acceptance authorizes the bounded local merge. No automatic next part, build-policy change, institutional rollout or remote synchronization.
+- Owner implementation approval: **Approved**. Delivery acceptance: **Accepted**, 2 November 2026; owner replied “accepted” after delivery `f12060a`, runnable preview and the explicit default-build exception/local-merge request. Acceptance `7d4fa8f` precedes local `--no-ff` merge `6860f84`; merge content matches the reviewed branch.
+- AC-11 remains partial under this delivery's accepted default-build exception; the default result is not relabelled passing. Final receipt-only documentation uses local link/content/diff checks; application evidence remains applicable without repeated suites. Next-session BAT-01A inspection/specification is only a suggestion. No automatic next part, build-policy change, institutional rollout or remote synchronization.
 - Parent #14 remains open. No GitHub access/update/push/PR or institutional operation. Last remote reconciliation remains 26 October, `0b1e055`.
