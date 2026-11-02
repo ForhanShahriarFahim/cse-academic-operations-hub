@@ -1,9 +1,11 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useId, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
 import type { ActionResult } from "@/lib/action-result";
-import { deletePatternAction, savePatternAction } from "@/lib/time-grid-actions";
+
 import {
   analyzeGridChange, fillEvenly, normalizePattern, patternSpan, validatePattern, withPattern,
   type GridBreak, type GridPeriod, type PeriodPattern, type TimeGrid,
@@ -30,6 +32,7 @@ export function PatternEditor({ grid, pattern, context, onDone, onCancel }: {
   onDone: (result: ActionResult) => void;
   onCancel: () => void;
 }) {
+  const { deletePatternAction, savePatternAction } = useTermActions();
   const id = useId();
   const [ask, confirmDialog] = useConfirm();
   const [name, setName] = useState(pattern?.name ?? "");

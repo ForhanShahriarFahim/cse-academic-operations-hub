@@ -70,6 +70,7 @@ export const navGroups: { label: string | null; items: NavItem[] }[] = [
   {
     label: "Administration",
     items: [
+      { href: "/terms", label: "Academic terms", icon: CalendarDays },
       { href: "/settings", label: "Decisions & settings", icon: ListChecks, required: ["manage_policy"] },
       { href: "/access", label: "People & access", icon: KeyRound, required: ["manage_users"] },
     ],

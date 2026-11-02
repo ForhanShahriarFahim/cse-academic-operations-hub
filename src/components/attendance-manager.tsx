@@ -1,17 +1,12 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { CheckCheck, FileUp, Pencil, Plus, Save, Trash2, UserMinus } from "lucide-react";
 import type { ActionResult } from "@/lib/actions";
-import {
-  createAttendanceSessionAction,
-  deactivateStudentAction,
-  deleteAttendanceSessionAction,
-  importStudentCsvAction,
-  saveAttendanceAction,
-  upsertStudentAction,
-} from "@/lib/academic-actions";
+
 import type { AttendanceStatus } from "@/lib/attendance";
 import { fmtRange } from "@/lib/time";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -48,6 +43,7 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
   canManageRosters: boolean;
   canTakeAttendance: boolean;
 }) {
+  const { createAttendanceSessionAction, deactivateStudentAction, deleteAttendanceSessionAction, importStudentCsvAction, saveAttendanceAction, upsertStudentAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
   const router = useRouter();
   const [pending, startTransition] = useTransition();

@@ -1,10 +1,12 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useId } from "react";
 import type { ActionResult } from "@/lib/action-result";
-import { deleteTeacherAction, setTeacherStatusAction } from "@/lib/teacher-actions";
+import { deleteTeacherAction } from "@/lib/teacher-actions";
 import { FieldError, ResultNotice, fieldErrors } from "@/components/account/form-bits";
 import { buttonClass, inputClass } from "@/components/account/styles";
 
@@ -23,6 +25,7 @@ function Refusal({ result }: { result: ActionResult | null }) {
 
 /** Confirm deactivation, with an optional reason kept in Changes. */
 export function DeactivateForm({ teacherId, code, expectedUpdatedAt }: { teacherId: number; code: string; expectedUpdatedAt: string }) {
+  const { setTeacherStatusAction } = useTermActions();
   const router = useRouter();
   const reasonId = useId();
   const [result, submit, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {

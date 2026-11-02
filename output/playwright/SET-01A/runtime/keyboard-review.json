@@ -1,0 +1,10 @@
+{
+  "kind": "Actual read-only keyboard traversal; no form submitted",
+  "focus": {
+    "label": "Term name",
+    "outlineStyle": "solid",
+    "outlineWidth": "2px"
+  },
+  "tabOrder": "term name → academic year",
+  "passed": true
+}

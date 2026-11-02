@@ -7,6 +7,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import * as schema from "./schema";
 import { databaseTarget, loadDatabaseEnvironment } from "./target";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 // Standalone children use Next's supported loader; initialized Next runtimes keep their environment.
 loadDatabaseEnvironment();
@@ -52,4 +53,31 @@ if (databaseUrl) {
   database = drizzlePglite(client, { schema }) as unknown as NodePgDatabase<typeof schema>;
 }
 
-export const db = database;
+type Transaction = Parameters<Parameters<typeof database.transaction>[0]>[0];
+const transactionScope = new AsyncLocalStorage<Transaction>();
+
+/**
+ * Term actions enclose their existing readers, guards and audited savepoints in
+ * one transaction. The scope is asynchronous-request-local, never process-wide.
+ * Outside that scope the original database is used unchanged. Nested transaction
+ * calls remain real Drizzle savepoints, so caught domain errors roll back writes.
+ */
+export function inDatabaseTransaction<T>(tx: Transaction, work: () => Promise<T>): Promise<T> {
+  return transactionScope.run(tx, work);
+}
+/** pg 8.20 deprecates concurrent queries on one client. Keep pool reads
+ * parallel, but explicitly sequence lazy reads on a transaction connection. */
+export async function databaseReadBatch<T extends readonly (() => unknown)[]>(reads: [...T], forceSerial = false): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const values: unknown[] = [];
+  if (forceSerial || transactionScope.getStore()) {
+    for (const read of reads) values.push(await read());
+  } else values.push(...await Promise.all(reads.map(read => read())));
+  return values as { [K in keyof T]: Awaited<ReturnType<T[K]>> };
+}
+export const db: typeof database = new Proxy(database, {
+  get(target, property) {
+    const reader = transactionScope.getStore() ?? target;
+    const value = Reflect.get(reader, property, reader);
+    return typeof value === "function" ? value.bind(reader) : value;
+  },
+});

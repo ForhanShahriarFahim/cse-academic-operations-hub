@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import { getPortalData } from "@/lib/data";
 import Link from "next/link";
 import { INSTITUTION } from "@/lib/constants";
@@ -35,7 +36,7 @@ export default async function SettingsPage() {
   const data = await getPortalData();
   const policy = await getAcademicPolicy(data.term.id);
 
-  return (
+  return <TermWriteProvider value={data.writeContext}>{(
     <div>
       <PageHeader
         context="Administration"
@@ -96,6 +97,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="mt-4">
+        <p className="mb-4 text-sm"><Link href="/terms" className="font-semibold text-[var(--color-pine)] underline">Academic terms</Link> · Create drafts, review activation and view historical publications.</p>
         <PolicyManager policy={policy} />
       </div>
 
@@ -107,5 +109,5 @@ export default async function SettingsPage() {
         </EmptyNote>
       </div>
     </div>
-  );
+  )}</TermWriteProvider>;
 }

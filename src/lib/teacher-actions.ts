@@ -1,6 +1,6 @@
 "use server";
 
-import { withTermContext } from "./active-term";
+import { withTermContext, withActiveTermContext } from "./active-term";
 
 /**
  * TCH-01 (#4) teacher record actions. Each one checks `manage_teachers` on the
@@ -129,7 +129,9 @@ const STATUS_MESSAGES: Record<"set_on_leave" | "back_from_leave" | "deactivate" 
 
 /** Set on leave, back from leave, deactivate or reactivate. */
 export async function setTeacherStatusAction(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => setTeacherStatusActionInTerm(_previous, formData));
+  return field(formData, "action") === "deactivate"
+    ? withActiveTermContext(() => setTeacherStatusActionInTerm(_previous, formData), formData)
+    : withTermContext(() => setTeacherStatusActionInTerm(_previous, formData));
 }
 async function setTeacherStatusActionInTerm(_previous: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const who = await editor();

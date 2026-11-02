@@ -1,6 +1,7 @@
 "use server";
 
-import { withTermContext } from "./active-term";
+import { withActiveTermContext as withTermContext } from "./active-term";
+import type { TermWriteContext } from "./term-context-value";
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -44,8 +45,8 @@ function numberField(formData: FormData, name: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export async function updateAcademicPolicyAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => updateAcademicPolicyActionInTerm(formData));
+export async function updateAcademicPolicyAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => updateAcademicPolicyActionInTerm(formData), context ?? formData);
 }
 async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_policy");
@@ -75,8 +76,8 @@ async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<Act
 
 // Class days, periods and class hours are edited in Days & periods (RUT-04, time-grid-actions.ts).
 
-export async function createExtraLoadClassAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => createExtraLoadClassActionInTerm(formData));
+export async function createExtraLoadClassAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => createExtraLoadClassActionInTerm(formData), context ?? formData);
 }
 async function createExtraLoadClassActionInTerm(formData: FormData): Promise<ActionResult> {
   const teacherId = Number(formData.get("teacherId"));
@@ -112,8 +113,8 @@ async function createExtraLoadClassActionInTerm(formData: FormData): Promise<Act
   return { ok: true, message: "Extra class recorded. The print copy leaves the signature cell blank." };
 }
 
-export async function deleteExtraLoadClassAction(id: number): Promise<ActionResult> {
-  return withTermContext(() => deleteExtraLoadClassActionInTerm(id));
+export async function deleteExtraLoadClassAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deleteExtraLoadClassActionInTerm(id), context);
 }
 async function deleteExtraLoadClassActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
@@ -127,8 +128,8 @@ async function deleteExtraLoadClassActionInTerm(id: number): Promise<ActionResul
   return { ok: true, message: "Extra class removed." };
 }
 
-export async function createManualTopSheetRowAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => createManualTopSheetRowActionInTerm(formData));
+export async function createManualTopSheetRowAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => createManualTopSheetRowActionInTerm(formData), context ?? formData);
 }
 async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("review_extra_load");
@@ -152,8 +153,8 @@ async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<
   return { ok: true, message: "Manual teacher row added to the top sheet." };
 }
 
-export async function deleteManualTopSheetRowAction(id: number): Promise<ActionResult> {
-  return withTermContext(() => deleteManualTopSheetRowActionInTerm(id));
+export async function deleteManualTopSheetRowAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deleteManualTopSheetRowActionInTerm(id), context);
 }
 async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("review_extra_load");
@@ -167,8 +168,8 @@ async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionRe
   return { ok: true, message: "Manual top-sheet row removed." };
 }
 
-export async function upsertStudentAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => upsertStudentActionInTerm(formData));
+export async function upsertStudentAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => upsertStudentActionInTerm(formData), context ?? formData);
 }
 async function upsertStudentActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
@@ -206,8 +207,8 @@ async function upsertStudentActionInTerm(formData: FormData): Promise<ActionResu
   return { ok: true, message: studentId ? "Student updated." : "Student added and enrolled." };
 }
 
-export async function importStudentCsvAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => importStudentCsvActionInTerm(formData));
+export async function importStudentCsvAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => importStudentCsvActionInTerm(formData), context ?? formData);
 }
 async function importStudentCsvActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
@@ -244,8 +245,8 @@ async function importStudentCsvActionInTerm(formData: FormData): Promise<ActionR
   return { ok: true, message: `${parsed.length} student record(s) imported or updated.` };
 }
 
-export async function deactivateStudentAction(studentId: number, teachingGroupId: number): Promise<ActionResult> {
-  return withTermContext(() => deactivateStudentActionInTerm(studentId, teachingGroupId));
+export async function deactivateStudentAction(studentId: number, teachingGroupId: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deactivateStudentActionInTerm(studentId, teachingGroupId), context);
 }
 async function deactivateStudentActionInTerm(studentId: number, teachingGroupId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
@@ -261,8 +262,8 @@ async function deactivateStudentActionInTerm(studentId: number, teachingGroupId:
   return { ok: true, message: "Student removed from this roster; attendance history was preserved." };
 }
 
-export async function createAttendanceSessionAction(formData: FormData): Promise<ActionResult> {
-  return withTermContext(() => createAttendanceSessionActionInTerm(formData));
+export async function createAttendanceSessionAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => createAttendanceSessionActionInTerm(formData), context ?? formData);
 }
 async function createAttendanceSessionActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
@@ -293,8 +294,8 @@ async function createAttendanceSessionActionInTerm(formData: FormData): Promise<
   return { ok: true, message: "Attendance session created with every student initially marked absent." };
 }
 
-export async function saveAttendanceAction(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
-  return withTermContext(() => saveAttendanceActionInTerm(sessionId, values));
+export async function saveAttendanceAction(sessionId: number, values: Array<{ studentId: number; status: string }>, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => saveAttendanceActionInTerm(sessionId, values), context);
 }
 async function saveAttendanceActionInTerm(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
   const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId });
@@ -324,8 +325,8 @@ async function saveAttendanceActionInTerm(sessionId: number, values: Array<{ stu
   return { ok: true, message: `Attendance saved for ${values.length} student(s).` };
 }
 
-export async function deleteAttendanceSessionAction(id: number): Promise<ActionResult> {
-  return withTermContext(() => deleteAttendanceSessionActionInTerm(id));
+export async function deleteAttendanceSessionAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => deleteAttendanceSessionActionInTerm(id), context);
 }
 async function deleteAttendanceSessionActionInTerm(id: number): Promise<ActionResult> {
   const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId: id });
@@ -342,8 +343,8 @@ async function deleteAttendanceSessionActionInTerm(id: number): Promise<ActionRe
   return { ok: true, message: "Attendance session removed." };
 }
 
-export async function applyAutoScheduleAction(): Promise<ActionResult> {
-  return withTermContext(() => applyAutoScheduleActionInTerm());
+export async function applyAutoScheduleAction(context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => applyAutoScheduleActionInTerm(), context);
 }
 async function applyAutoScheduleActionInTerm(): Promise<ActionResult> {
   const actor = await actionActor("run_auto_schedule");

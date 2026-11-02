@@ -1,11 +1,13 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import type { ActionResult } from "@/lib/action-result";
-import { setTeacherStatusAction } from "@/lib/teacher-actions";
+
 import { ResultNotice } from "@/components/account/form-bits";
 import { buttonClass } from "@/components/account/styles";
 
@@ -15,6 +17,7 @@ type StatusAction = "set_on_leave" | "back_from_leave" | "reactivate";
 export function StatusButton({ teacherId, expectedUpdatedAt, action, label, hint, className }: {
   teacherId: number; expectedUpdatedAt: string; action: StatusAction; label: string; hint?: string; className?: string;
 }) {
+  const { setTeacherStatusAction } = useTermActions();
   const router = useRouter();
   // Navigate from the submit itself: on success this button may unmount (its status no longer applies).
   const [result, submit, pending] = useActionState<ActionResult | null, FormData>(async (previous, formData) => {

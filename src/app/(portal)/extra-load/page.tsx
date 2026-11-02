@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import { Badge, PageHeader, StatCard } from "@/components/ui";
 import { ExtraLoadManager } from "@/components/extra-load-manager";
 import { getExtraLoadData } from "@/lib/academic-operations";
@@ -14,7 +15,7 @@ export default async function ExtraLoadPage() {
   const eligibleCount = source.teacherSummaries.filter((row) => row.assignedCredits > source.policy.extraLoadThresholdCredits).length;
   const totalClasses = source.classes.length + source.manualSummaries.reduce((sum, row) => sum + row.classCount, 0);
   const totalAmount = source.classes.length * source.policy.extraClassRate + source.manualSummaries.reduce((sum, row) => sum + row.amount, 0);
-  return <div>
+  return <TermWriteProvider value={source.data.writeContext}>{<div>
     <PageHeader
       context="Classes"
       title="Extra class load"
@@ -38,5 +39,5 @@ export default async function ExtraLoadPage() {
       termStart={source.data.term.startDate}
       termEnd={source.data.term.endDate}
     />
-  </div>;
+  </div>}</TermWriteProvider>;
 }

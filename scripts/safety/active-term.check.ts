@@ -32,7 +32,6 @@ async function upgrade(database: SafetyDatabase, lines: string[]) {
     const rowsBefore = JSON.stringify((await h.client.query("select * from academic_terms order by id")).rows);
     for (const statement of [
       "insert into academic_terms (name,academic_year,start_date,end_date,status) values ('Bad explicit',2030,'2030-01-01','2030-05-01','active')",
-      "insert into academic_terms (name,academic_year,start_date,end_date) values ('Bad default',2030,'2030-01-01','2030-05-01')",
       "update academic_terms set status='active' where status <> 'active'",
     ]) await assert.rejects(h.client.query(statement), (error) => errorCode(error) === "23505");
     assert.equal(JSON.stringify((await h.client.query("select * from academic_terms order by id")).rows), rowsBefore);
@@ -45,7 +44,7 @@ async function upgrade(database: SafetyDatabase, lines: string[]) {
     const dirty = await fingerprintDatabase(h.client);
     await assert.rejects(database.migrate(h), (error) => errorCode(error) === "23514");
     assert.deepEqual(await fingerprintDatabase(h.client), dirty, "duplicate migration rolls back schema/data/journal");
-    lines.push("Populated 0012→0013, reapply and explicit/default/update uniqueness pass; zero/non-active custom statuses remain valid. Duplicate actual-migrator preflight (23514) preserves complete schema/sequence/table/audit/snapshot/journal fingerprint.");
+    lines.push("Populated 0012→0013, reapply and explicit/update uniqueness pass (future default is now draft under SET-01A); zero/non-active custom statuses remain valid. Duplicate actual-migrator preflight (23514) preserves complete schema/sequence/table/audit/snapshot/journal fingerprint.");
   });
   for (const mode of ["ambiguous", "none", "one"]) {
     if (mode !== "ambiguous") await withHandle(database, async (h) => { await h.exec("update academic_terms set status='completed' where status='active'"); if (mode === "one") { await h.exec("update academic_terms set status='active' where name='Summer 2026'"); await database.migrate(h); } });
@@ -85,7 +84,10 @@ async function races(database: SafetyDatabase, lines: string[]) {
       return [await firstResult, await secondResult];
     };
     let count = 0;
-    for (const pair of [["update", "update"], ["explicit", "explicit"], ["default", "default"], ["explicit", "update"]] as const) {
+    // SET-01A intentionally changes future omitted statuses to draft. The
+    // active-index races now exercise explicit active inserts and updates;
+    // omitted-status draft creation is covered by the SET-01A group.
+    for (const pair of [["update", "update"], ["explicit", "explicit"], ["explicit", "update"]] as const) {
       for (const reversed of [false, true]) for (const rollback of [false, true]) {
         await a.exec("update academic_terms set status='draft'");
         const ids = (await a.client.query<{ id: number }>("select id from academic_terms order by id limit 2")).rows;
@@ -149,7 +151,7 @@ async function races(database: SafetyDatabase, lines: string[]) {
     assert.ok("error" in lost && errorCode(lost.error) === "23505");
     await a.exec("drop trigger bug28_journal_barrier on drizzle.__drizzle_migrations; drop function public.bug28_journal_barrier()");
     await database.migrate(a);
-    lines.push(`${count} PostgreSQL uniqueness races use real blocking-PID barriers: explicit/default inserts, updates and mixed pairs, both orders and holder rollback. Actual migrator waits for an earlier duplicate writer then refuses; actual migrator held before journal commit wins before a later writer, which refuses; final real-runner reapply passes.`);
+    lines.push(`${count} PostgreSQL uniqueness races use real blocking-PID barriers: explicit active inserts, updates and mixed pairs, both orders and holder rollback. Actual migrator waits for an earlier duplicate writer then refuses; actual migrator held before journal commit wins before a later writer, which refuses; final real-runner reapply passes.`);
   } finally { await a.close(); await b.close(); await monitor.close(); }
 }
 

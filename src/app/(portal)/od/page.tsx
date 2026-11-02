@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import { isAssignable } from "@/lib/teacher-records";
 import { getPortalData } from "@/lib/data";
 import { fmtRange, DAY_NAMES } from "@/lib/time";
@@ -20,7 +21,7 @@ const levelTone: Record<string, "pine" | "sage" | "gold" | "clay"> = {
 export default async function OdPage() {
   const data = await getPortalData();
 
-  return (
+  return <TermWriteProvider value={data.writeContext}>{(
     <div>
       <PageHeader
         context="Planning records"
@@ -85,5 +86,5 @@ export default async function OdPage() {
         </EmptyNote>
       </div>
     </div>
-  );
+  )}</TermWriteProvider>;
 }

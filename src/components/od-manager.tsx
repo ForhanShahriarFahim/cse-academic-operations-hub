@@ -1,14 +1,14 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, CirclePlus, Trash2, X, XCircle } from "lucide-react";
 import { DAY_NAMES } from "@/lib/time";
 import type { ExternalCommitmentView } from "@/lib/serialize";
 import { useConfirm } from "@/components/confirm-dialog";
-import {
-  createExternalAction, verifyExternalAction, deleteExternalAction, type ActionResult,
-} from "@/lib/actions";
+import { type ActionResult } from "@/lib/actions";
 
 interface TeacherOpt { id: number; shortCode: string; fullName: string; homeDepartmentCode: string | null }
 interface RoomOpt { id: number; code: string }
@@ -19,6 +19,7 @@ export function OdManager({
   teachers: TeacherOpt[];
   rooms: RoomOpt[];
 }) {
+  const { createExternalAction } = useTermActions();
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<ActionResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -146,6 +147,7 @@ export function OdManager({
 }
 
 export function OdRowActions({ e }: { e: ExternalCommitmentView }) {
+  const { verifyExternalAction, deleteExternalAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
   const [pending, startTransition] = useTransition();
   const [failed, setFailed] = useState<ActionResult | null>(null);

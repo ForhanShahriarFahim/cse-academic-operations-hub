@@ -1,5 +1,7 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
@@ -7,7 +9,7 @@ import { DAY_NAMES, DAY_SHORT, fmtRange } from "@/lib/time";
 import { daysFor, periodsFor, type Stream, type TimeGrid } from "@/lib/time-grid";
 import type { MeetingView } from "@/lib/serialize";
 import type { ActionResult } from "@/lib/action-result";
-import { createMeetingAction, deleteMeetingAction, moveMeetingAction, updateMeetingAction } from "@/lib/actions";
+
 import {
   candidateMeeting, knownAudienceSize, precheck, roomAvailability, suitableRooms, teacherAvailability,
   type EngineContext, type Placement, type WorkbenchRoom, type WorkbenchTeacher,
@@ -53,7 +55,7 @@ const placementOf = (m: MeetingView): Placement => ({
 });
 
 /** Undo for a deleted class: add it again with the same group, time, staff and note. */
-export function recreate(m: MeetingView): () => Promise<ActionResult> {
+export function recreate(m: MeetingView, createMeetingAction: (form: FormData) => Promise<ActionResult>): () => Promise<ActionResult> {
   const form = placementForm(m.teachingGroupId, placementOf(m));
   if (m.customTimeLabel) form.set("customTimeLabel", m.customTimeLabel);
   return () => createMeetingAction(form);
@@ -72,6 +74,7 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
   onClose: () => void;
   headingId: string;
 }) {
+  const { createMeetingAction, deleteMeetingAction, moveMeetingAction, updateMeetingAction } = useTermActions();
   const existing = mode.kind === "edit" ? meetings.find((m) => m.id === mode.meetingId) ?? null : null;
   const router = useRouter();
   const batchGroups = mode.kind === "new"
@@ -254,7 +257,7 @@ export function ClassPanel({ mode, stream, grid, meetings, groups, teachers, roo
         {existing ? (
           <button type="button" disabled={pending} onClick={async () => {
             if (!await ask({ title: `Delete ${existing.courseCode} on ${DAY_NAMES[existing.dayOfWeek]}?`, body: "This class is removed from the working draft for every stream, teacher and room view. The published routine is not affected. You can undo this straight after.", confirmLabel: "Delete class" })) return;
-            run(() => deleteMeetingAction(existing.id), recreate(existing));
+            run(() => deleteMeetingAction(existing.id), recreate(existing, createMeetingAction));
           }} className="ml-auto min-h-9 px-1 text-[13.5px] font-medium text-[var(--color-clay)] underline-offset-2 hover:underline">
             Delete class
           </button>

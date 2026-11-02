@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { courseOfferings, teachingGroupOfferings, teachingGroups } from "@/db/schema";
 import { getPortalData } from "./data";
+import { assertTermContext } from "./term-context";
 import { suggestSchedule, type AutoScheduleGroup } from "./auto-schedule";
 
 export async function buildAutoSchedulePlan() {
@@ -64,5 +65,6 @@ export async function buildAutoSchedulePlan() {
     grid: data.timeGrid,
     maintenance: data.maintenance,
   });
+  await assertTermContext(data.writeContext);
   return { data, groups, plan };
 }

@@ -1,14 +1,14 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { scheduleVersions } from "@/db/schema";
-import { readActiveTerm } from "./active-term";
+import { readTermContext, assertTermContext } from "./term-context";
 import { ActiveTermUnavailable } from "./term-state";
 import type { RoutineSource } from "./routine-projection";
 import type { PublicationSnapshotV3, PublicationRoutineMetadata } from "./serialize";
 import { isTimeGrid } from "./time-grid";
 import { legacyTimeGrid } from "./time-grid-legacy";
 
-function isPublishedSnapshot(value: unknown): value is PublicationSnapshotV3 {
+export function isPublishedSnapshot(value: unknown): value is PublicationSnapshotV3 {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
   return (item.schemaVersion === 3 || (item.schemaVersion === 4 && isTimeGrid(item.timeGrid))) && typeof item.generatedAt === "string"
@@ -30,13 +30,14 @@ export function publicMetadata(metadata: PublicationRoutineMetadata): Publicatio
 // No draft loader is reachable through this function. Public output is derived
 // exclusively from the effective immutable publication row.
 export async function getPublicRoutineData(): Promise<{ source: RoutineSource; metadata: PublicationRoutineMetadata } | null> {
-  const state = await readActiveTerm();
+  const { state, generation } = await readTermContext();
   if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
   if (state.kind === "none") return null;
   const term = state.term;
   const [version] = await db.select({ snapshot: scheduleVersions.snapshot, publishedAt: scheduleVersions.publishedAt })
     .from(scheduleVersions).where(and(eq(scheduleVersions.termId, term.id), eq(scheduleVersions.state, "published")))
     .orderBy(desc(scheduleVersions.versionNumber)).limit(1);
+  await assertTermContext({ activeTermId: term.id, generation });
   if (!version || !isPublishedSnapshot(version.snapshot)) return null;
   const snapshot = version.snapshot;
   return {

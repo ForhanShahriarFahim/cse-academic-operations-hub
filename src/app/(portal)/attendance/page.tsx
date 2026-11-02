@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import { AttendanceManager } from "@/components/attendance-manager";
 import { PageHeader } from "@/components/ui";
 import { getAttendanceData } from "@/lib/academic-operations";
@@ -14,7 +15,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
     ? await can(actor, "manage_rosters", { kind: "teaching_group", teachingGroupId: source.selectedGroup.id }) : false;
   const canTakeAttendance = source.selectedGroup
     ? await can(actor, "take_attendance", { kind: "teaching_group", teachingGroupId: source.selectedGroup.id }) : false;
-  return <div>
+  return <TermWriteProvider value={source.data.writeContext}>{<div>
     <PageHeader
       context="Classes"
       title="Attendance"
@@ -32,5 +33,5 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
       termStart={source.data.term.startDate}
       termEnd={source.data.term.endDate}
     /> : <p>No teaching groups are available.</p>}
-  </div>;
+  </div>}</TermWriteProvider>;
 }

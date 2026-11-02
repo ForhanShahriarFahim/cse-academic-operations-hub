@@ -14,6 +14,7 @@ import {
   students,
 } from "@/db/schema";
 import { getPortalData, type PortalData } from "./data";
+import { assertTermContext } from "./term-context";
 import { can, requireActor } from "./auth";
 import { hasCapability } from "./auth/policy";
 import { redirect } from "next/navigation";
@@ -117,6 +118,7 @@ export async function getExtraLoadData(from?: string, to?: string) {
     amountOverride: row.amountOverride == null ? null : Number(row.amountOverride),
     amount: paymentForClasses(row.classCount, row.rateOverride == null ? policy.extraClassRate : Number(row.rateOverride), row.amountOverride == null ? null : Number(row.amountOverride)),
   }));
+  await assertTermContext(data.writeContext);
   return { data, policy, groups, loads, classes, teacherSummaries, manualSummaries };
 }
 
@@ -138,7 +140,7 @@ export async function getAttendanceData(selectedGroupId?: number) {
   const selectedGroup = selectedGroupId == null
     ? groups[0] ?? null
     : groups.find((group) => group.id === selectedGroupId) ?? null;
-  if (!selectedGroup) return { data, policy, groups, selectedGroup: null, roster: [], sessions: [], summaries: [] };
+  if (!selectedGroup) { await assertTermContext(data.writeContext); return { data, policy, groups, selectedGroup: null, roster: [], sessions: [], summaries: [] }; }
 
   const [enrollmentRows, sessionRows] = await Promise.all([
     db.select().from(courseEnrollments).where(and(
@@ -192,5 +194,6 @@ export async function getAttendanceData(selectedGroupId?: number) {
       maximum,
     };
   });
+  await assertTermContext(data.writeContext);
   return { data, policy, groups, selectedGroup, roster, sessions, summaries };
 }

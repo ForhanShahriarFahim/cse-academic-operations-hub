@@ -3,7 +3,7 @@
  * refers to it, and its change log. Callers check permissions first.
  */
 import { and, count, countDistinct, desc, eq, isNotNull, or, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import {
   academicTerms, attendanceSessions, auditEvents, courses, departments, externalCommitments, extraLoadClasses, meetingTeachers,
   meetings, portalUsers, scheduleVersions, teachers, teachingGroups, workloadAllocations,
@@ -36,29 +36,29 @@ export async function getTeacherReferences(teacherId: number, shortCode: string,
   const term = active.kind === "one" ? active.term : null;
   const termId = term?.id ?? -1;
 
-  const [classRows, allocationRows, extraRows, externalRows, account, versions] = await Promise.all([
-    reader.select({ termId: teachingGroups.termId, courseCode: courses.code, day: meetings.dayOfWeek, start: meetings.startMinutes, status: meetings.status })
+  const [classRows, allocationRows, extraRows, externalRows, account, versions] = await databaseReadBatch([
+    () => reader.select({ termId: teachingGroups.termId, courseCode: courses.code, day: meetings.dayOfWeek, start: meetings.startMinutes, status: meetings.status })
       .from(meetingTeachers)
       .innerJoin(meetings, eq(meetings.id, meetingTeachers.meetingId))
       .innerJoin(teachingGroups, eq(teachingGroups.id, meetings.teachingGroupId))
       .innerJoin(courses, eq(courses.id, teachingGroups.courseId))
       .where(eq(meetingTeachers.teacherId, teacherId))
       .orderBy(meetings.dayOfWeek, meetings.startMinutes),
-    reader.select({ termId: workloadAllocations.termId, courseCode: courses.code, method: workloadAllocations.allocationMethod, externalDepartment: externalCommitments.counterpartDepartment })
+    () => reader.select({ termId: workloadAllocations.termId, courseCode: courses.code, method: workloadAllocations.allocationMethod, externalDepartment: externalCommitments.counterpartDepartment })
       .from(workloadAllocations)
       .leftJoin(teachingGroups, eq(teachingGroups.id, workloadAllocations.teachingGroupId))
       .leftJoin(courses, eq(courses.id, teachingGroups.courseId))
       .leftJoin(externalCommitments, eq(externalCommitments.id, workloadAllocations.externalCommitmentId))
       .where(eq(workloadAllocations.teacherId, teacherId)),
-    reader.select({ termId: extraLoadClasses.termId, classDate: extraLoadClasses.classDate, courseCode: extraLoadClasses.courseCodeSnapshot })
+    () => reader.select({ termId: extraLoadClasses.termId, classDate: extraLoadClasses.classDate, courseCode: extraLoadClasses.courseCodeSnapshot })
       .from(extraLoadClasses).where(eq(extraLoadClasses.teacherId, teacherId)).orderBy(extraLoadClasses.classDate),
-    reader.select({ termId: externalCommitments.termId, counterpartDepartment: externalCommitments.counterpartDepartment, courseLabel: externalCommitments.courseLabel })
+    () => reader.select({ termId: externalCommitments.termId, counterpartDepartment: externalCommitments.counterpartDepartment, courseLabel: externalCommitments.courseLabel })
       .from(externalCommitments).where(eq(externalCommitments.teacherId, teacherId)),
-    reader.select({ email: portalUsers.email }).from(portalUsers).where(eq(portalUsers.teacherId, teacherId)).limit(1),
-    reader.select({ termName: academicTerms.name, versionNumber: scheduleVersions.versionNumber, snapshot: scheduleVersions.snapshot })
+    () => reader.select({ email: portalUsers.email }).from(portalUsers).where(eq(portalUsers.teacherId, teacherId)).limit(1),
+    () => reader.select({ termName: academicTerms.name, versionNumber: scheduleVersions.versionNumber, snapshot: scheduleVersions.snapshot })
       .from(scheduleVersions).innerJoin(academicTerms, eq(academicTerms.id, scheduleVersions.termId))
-      .where(isNotNull(scheduleVersions.snapshot)).orderBy(academicTerms.id, scheduleVersions.versionNumber),
-  ]);
+      .where(isNotNull(scheduleVersions.snapshot)).orderBy(academicTerms.id, scheduleVersions.versionNumber)
+  ], reader !== db);
   const [attendance] = await reader.select({ sessions: count(), terms: countDistinct(attendanceSessions.termId) })
     .from(attendanceSessions).where(eq(attendanceSessions.teacherId, teacherId));
   const attendanceTerms = attendance.sessions

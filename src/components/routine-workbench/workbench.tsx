@@ -1,5 +1,7 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useEffect, useId, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AlertTriangle, ChevronDown, Undo2, XCircle } from "lucide-react";
@@ -12,7 +14,7 @@ import type { PermittedWindow } from "@/lib/conflicts";
 import type { GroupCoverage } from "@/lib/data";
 import type { ActionResult } from "@/lib/action-result";
 import type { RoutineProjection, RoutineView } from "@/lib/routine-projection";
-import { moveMeetingAction } from "@/lib/actions";
+
 import {
   candidateMeeting, fitsForGroup, precheck,
   type EngineContext, type GroupTemplate, type WorkbenchRoom, type WorkbenchTeacher,
@@ -55,6 +57,7 @@ export function RoutineWorkbench({ projection, groups, teachers, rooms, windows,
   weekTotals: { blockers: number; warnings: number };
   children: ReactNode;
 }) {
+  const { moveMeetingAction } = useTermActions();
   const router = useRouter();
   const pathname = usePathname();
   const { selection, source } = projection;

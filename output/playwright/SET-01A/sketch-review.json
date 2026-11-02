@@ -1,0 +1,375 @@
+{
+  "kind": "Static proposal only; no app or database operations",
+  "browser": "156.0.4314.50",
+  "createdAt": "2026-11-01T13:46:07.988Z",
+  "results": [
+    {
+      "view": "directory",
+      "width": 1440,
+      "file": "directory-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "directory"
+      ],
+      "title": "Academic terms · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "active",
+      "width": 1440,
+      "file": "active-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "active"
+      ],
+      "title": "Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "term",
+      "width": 1440,
+      "file": "term-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "term"
+      ],
+      "title": "Summer 2026 Read-only · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "create",
+      "width": 1440,
+      "file": "create-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "create"
+      ],
+      "title": "Create a draft term · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "setup",
+      "width": 1440,
+      "file": "setup-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "setup"
+      ],
+      "title": "Set the starting policy · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "activate",
+      "width": 1440,
+      "file": "activate-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "activate"
+      ],
+      "title": "Review activation · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "stale",
+      "width": 1440,
+      "file": "stale-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "stale"
+      ],
+      "title": "This page belongs to Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "history",
+      "width": 1440,
+      "file": "history-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "history"
+      ],
+      "title": "Summer 2026 · Version 2 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "empty",
+      "width": 1440,
+      "file": "empty-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "empty"
+      ],
+      "title": "No academic terms yet · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "success",
+      "width": 1440,
+      "file": "success-1440.png",
+      "scrollWidth": 1440,
+      "mains": [
+        "success"
+      ],
+      "title": "Summer 2027 is now active · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "directory",
+      "width": 390,
+      "file": "directory-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "directory"
+      ],
+      "title": "Academic terms · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "active",
+      "width": 390,
+      "file": "active-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "active"
+      ],
+      "title": "Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "term",
+      "width": 390,
+      "file": "term-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "term"
+      ],
+      "title": "Summer 2026 Read-only · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "create",
+      "width": 390,
+      "file": "create-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "create"
+      ],
+      "title": "Create a draft term · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "setup",
+      "width": 390,
+      "file": "setup-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "setup"
+      ],
+      "title": "Set the starting policy · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "activate",
+      "width": 390,
+      "file": "activate-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "activate"
+      ],
+      "title": "Review activation · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "stale",
+      "width": 390,
+      "file": "stale-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "stale"
+      ],
+      "title": "This page belongs to Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "history",
+      "width": 390,
+      "file": "history-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "history"
+      ],
+      "title": "Summer 2026 · Version 2 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "empty",
+      "width": 390,
+      "file": "empty-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "empty"
+      ],
+      "title": "No academic terms yet · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "success",
+      "width": 390,
+      "file": "success-390.png",
+      "scrollWidth": 390,
+      "mains": [
+        "success"
+      ],
+      "title": "Summer 2027 is now active · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "directory",
+      "width": 320,
+      "file": "directory-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "directory"
+      ],
+      "title": "Academic terms · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "active",
+      "width": 320,
+      "file": "active-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "active"
+      ],
+      "title": "Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "term",
+      "width": 320,
+      "file": "term-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "term"
+      ],
+      "title": "Summer 2026 Read-only · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "create",
+      "width": 320,
+      "file": "create-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "create"
+      ],
+      "title": "Create a draft term · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "setup",
+      "width": 320,
+      "file": "setup-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "setup"
+      ],
+      "title": "Set the starting policy · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "activate",
+      "width": 320,
+      "file": "activate-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "activate"
+      ],
+      "title": "Review activation · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "stale",
+      "width": 320,
+      "file": "stale-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "stale"
+      ],
+      "title": "This page belongs to Spring 2027 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "history",
+      "width": 320,
+      "file": "history-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "history"
+      ],
+      "title": "Summer 2026 · Version 2 · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "empty",
+      "width": 320,
+      "file": "empty-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "empty"
+      ],
+      "title": "No academic terms yet · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    },
+    {
+      "view": "success",
+      "width": 320,
+      "file": "success-320.png",
+      "scrollWidth": 320,
+      "mains": [
+        "success"
+      ],
+      "title": "Summer 2027 is now active · SET-01A proposal",
+      "violations": [],
+      "errors": []
+    }
+  ],
+  "keyboardNavigation": {
+    "tag": "A",
+    "text": "Academic terms"
+  },
+  "policyStartsBlank": true,
+  "explicitReasonAndAcknowledgement": true,
+  "selectedArchiveVersion": true,
+  "failures": 0
+}

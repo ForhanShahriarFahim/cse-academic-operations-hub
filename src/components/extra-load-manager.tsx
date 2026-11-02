@@ -1,14 +1,11 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { FileText, Plus, Printer, Trash2 } from "lucide-react";
-import {
-  createExtraLoadClassAction,
-  createManualTopSheetRowAction,
-  deleteExtraLoadClassAction,
-  deleteManualTopSheetRowAction,
-} from "@/lib/academic-actions";
+
 import { fmtRange } from "@/lib/time";
 import type { ActionResult } from "@/lib/actions";
 import { useConfirm } from "@/components/confirm-dialog";
@@ -39,6 +36,7 @@ export function ExtraLoadManager({
   canReview: boolean;
   canSubmit: boolean;
 }) {
+  const { createExtraLoadClassAction, createManualTopSheetRowAction, deleteExtraLoadClassAction, deleteManualTopSheetRowAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
   const eligible = summaries.filter((row) => row.assignedCredits > threshold);
   const [teacherId, setTeacherId] = useState(eligible[0]?.teacher.id ?? 0);

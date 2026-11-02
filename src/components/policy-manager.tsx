@@ -1,15 +1,18 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Save } from "lucide-react";
 import type { ActionResult } from "@/lib/actions";
-import { updateAcademicPolicyAction } from "@/lib/academic-actions";
+
 import type { ExtraLoadPolicy } from "@/lib/extra-load";
 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[12px]";
 
 export function PolicyManager({ policy }: { policy: ExtraLoadPolicy }) {
+  const { updateAcademicPolicyAction } = useTermActions();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
   const policyForm = useRef<HTMLFormElement>(null);

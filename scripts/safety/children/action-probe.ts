@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /**
  * Production-path action probe: `action-probe.ts <email|-> <operation> [json]`.
  * Runs one real action or loader as the signed-in portal user (or anonymously)
@@ -22,15 +23,15 @@ async function run(operation: string, argument: unknown): Promise<unknown> {
       return { actorId: actor?.id ?? null };
     }
     case "upsertStudent":
-      return loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts").upsertStudentAction(form(argument as Record<string, string>));
+      return freshTermActions(loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts")).upsertStudentAction(form(argument as Record<string, string>));
     case "publish":
-      return loadApp<typeof ActionsModule>("src/lib/actions.ts").publishAction(String(argument));
+      return freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts")).publishAction(String(argument));
     case "updateMeeting": {
       const { meetingId, update } = argument as { meetingId: number; update: Parameters<typeof ActionsModule.updateMeetingAction>[1] };
-      return loadApp<typeof ActionsModule>("src/lib/actions.ts").updateMeetingAction(meetingId, update);
+      return freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts")).updateMeetingAction(meetingId, update);
     }
     case "autoSchedule":
-      return loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts").applyAutoScheduleAction();
+      return freshTermActions(loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts")).applyAutoScheduleAction();
     case "createAccount":
       return loadApp<typeof AdminActionsModule>("src/lib/auth/admin-actions.ts").createAccountAction(null, form(argument as Record<string, string>));
     default:

@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import { db } from "@/db";
 import { academicTerms, periodPatterns } from "@/db/schema";
 import { getPortalData } from "@/lib/data";
@@ -25,7 +26,7 @@ export default async function DaysAndPeriodsPage({
   const params = await searchParams;
   const initialStream = params.stream === "DIPLOMA" ? "DIPLOMA" : "HSC";
 
-  return (
+  return <TermWriteProvider value={data.writeContext}>{(
     <div>
       <PageHeader
         context={`Routine · ${data.term.name}`}
@@ -48,5 +49,5 @@ export default async function DaysAndPeriodsPage({
         }}
       />
     </div>
-  );
+  )}</TermWriteProvider>;
 }

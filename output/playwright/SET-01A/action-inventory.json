@@ -1,0 +1,135 @@
+{
+  "kind": "Source coverage audit; persisted missing/stale/ABA outcomes are in adapter safety evidence",
+  "termActionCount": 25,
+  "conditionalTeacherDeactivation": 1,
+  "allClientActionsBoundToPageContext": true,
+  "rawActionsCoveredBySafetyInventory": true,
+  "publicationSerializationUnchanged": true,
+  "inventory": [
+    {
+      "file": "src/lib/actions.ts",
+      "action": "createMeetingAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "moveMeetingAction",
+      "originalArguments": 4
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "updateMeetingAction",
+      "originalArguments": 2
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "deleteMeetingAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "createExternalAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "verifyExternalAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "deleteExternalAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/actions.ts",
+      "action": "publishAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "updateAcademicPolicyAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "createExtraLoadClassAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "deleteExtraLoadClassAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "createManualTopSheetRowAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "deleteManualTopSheetRowAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "upsertStudentAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "importStudentCsvAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "deactivateStudentAction",
+      "originalArguments": 2
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "createAttendanceSessionAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "saveAttendanceAction",
+      "originalArguments": 2
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "deleteAttendanceSessionAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/academic-actions.ts",
+      "action": "applyAutoScheduleAction",
+      "originalArguments": 0
+    },
+    {
+      "file": "src/lib/time-grid-actions.ts",
+      "action": "savePatternAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/time-grid-actions.ts",
+      "action": "deletePatternAction",
+      "originalArguments": 2
+    },
+    {
+      "file": "src/lib/time-grid-actions.ts",
+      "action": "setDayPlanAction",
+      "originalArguments": 1
+    },
+    {
+      "file": "src/lib/time-grid-actions.ts",
+      "action": "removeExceptionAction",
+      "originalArguments": 2
+    },
+    {
+      "file": "src/lib/time-grid-actions.ts",
+      "action": "copyGridFromTermAction",
+      "originalArguments": 2
+    }
+  ]
+}

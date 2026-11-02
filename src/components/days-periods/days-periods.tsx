@@ -1,10 +1,12 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { Fragment, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { CalendarDays, Copy, Plus } from "lucide-react";
 import type { ActionResult } from "@/lib/action-result";
-import { copyGridFromTermAction } from "@/lib/time-grid-actions";
+
 import {
   dayGroups, exceptionKind, patternById, streamDays, streamPlan,
   type DayPlan, type PeriodPattern, type Stream, type TimeGrid,
@@ -34,6 +36,7 @@ export function DaysAndPeriods({ grid, context, termName, otherTerms, initialStr
   otherTerms: Array<{ id: number; name: string; patternCount: number }>;
   initialStream: Stream;
 }) {
+  const { copyGridFromTermAction } = useTermActions();
   const [stream, setStream] = useState<Stream>(initialStream);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [notice, setNotice] = useState<ActionResult | null>(null);

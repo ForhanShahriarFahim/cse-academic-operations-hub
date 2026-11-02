@@ -1,3 +1,4 @@
+import { TermWriteProvider } from "@/components/term-write-context";
 import Link from "next/link";
 import { ArrowLeft, CircleAlert, Sparkles } from "lucide-react";
 import { AutoScheduleApply } from "@/components/auto-schedule-panel";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AutoSchedulePage() {
   const source = await buildAutoSchedulePlan();
-  return <div>
+  return <TermWriteProvider value={source.data.writeContext}>{<div>
     <Link href="/routine" className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--color-pine)] hover:underline"><ArrowLeft size={13} />Routine Builder</Link>
     <PageHeader
       context="Routine"
@@ -27,5 +28,5 @@ export default async function AutoSchedulePage() {
     </Panel>
     <div className="mt-4"><Panel title="Unresolved coverage" sub="The assistant does not invent missing teachers, rooms, credits, or policy exceptions.">{source.plan.skipped.length === 0 ? <EmptyNote>Nothing was skipped.</EmptyNote> : <ul className="space-y-2">{source.plan.skipped.map((item, index) => <li key={`${item.teachingGroupId}-${index}`} className="flex items-start gap-2 rounded-md border border-[var(--color-gold)]/25 bg-[var(--color-gold)]/[0.05] px-3 py-2 text-[12px]"><CircleAlert size={14} className="mt-0.5 shrink-0 text-gold-text" /><span><strong className="font-mono">{item.courseCode}</strong> · {item.audience}<br /><span className="text-muted">{item.reason}</span></span></li>)}</ul>}</Panel></div>
     <p className="mt-4 flex items-center gap-1.5 text-[11px] text-muted"><Sparkles size={12} />Automatic placement is an initialization aid, not an automatic publication decision.</p>
-  </div>;
+  </div>}</TermWriteProvider>;
 }

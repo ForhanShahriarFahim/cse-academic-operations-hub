@@ -3,10 +3,12 @@
  * into serialized views — safe to hand to client components.
  */
 import { effectiveLimit } from "./teacher-records";
-import { readActiveTerm, requireActiveTerm } from "./active-term";
+import { requireActiveTerm } from "./active-term";
+import { captureActiveContext, assertTermContext, readTermContext } from "./term-context";
+import type { TermWriteContext } from "./term-context-value";
 import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import {
   batches,
   batchTermPlacements,
@@ -149,6 +151,7 @@ export interface VersionView {
 }
 
 export interface PortalData {
+  writeContext: TermWriteContext;
   maintenance?: MaintenanceContext;
   term: {
     id: number;
@@ -233,12 +236,13 @@ export async function getActiveTerm() {
  * currently published, if any. Reads only small columns (never snapshots).
  */
 export async function getTermPublicationState(): Promise<{ termName: string; publishedVersion: number | null } | null> {
-  const state = await readActiveTerm();
+  const { state, generation } = await readTermContext();
   if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
   if (state.kind === "none") return null;
   const term = state.term;
   const versions = await db.select({ versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state })
     .from(scheduleVersions).where(eq(scheduleVersions.termId, term.id)).orderBy(desc(scheduleVersions.versionNumber));
+  await assertTermContext({ activeTermId: term.id, generation });
   return { termName: term.name, publishedVersion: versions.find((version) => version.state === "published")?.versionNumber ?? null };
 }
 
@@ -261,38 +265,38 @@ export async function getPortalDataForSeed(): Promise<PortalData> {
 }
 
 async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
-  const term = await getActiveTerm();
+  const { term, writeContext } = await captureActiveContext();
 
   const [
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
     offeringRows, groupRows, linkRows, requirementRows, meetingRows, mtRows,
     mrRows, patternRows, dayPlanRows, windowRows, ecRows, allocationRows, versionRows,
     representativeRows, contactRows, reconciliationRows, maintenanceRows,
-  ] = await Promise.all([
-    db.select().from(departments),
-    db.select().from(teachers),
-    db.select().from(rooms),
-    db.select().from(courses),
-    db.select().from(batches),
-    db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId, term.id)),
-    db.select().from(courseOfferings).where(eq(courseOfferings.termId, term.id)),
-    db.select().from(teachingGroups).where(eq(teachingGroups.termId, term.id)),
-    db.select().from(teachingGroupOfferings),
-    db.select().from(teachingRequirements),
-    db.select().from(meetings),
-    db.select().from(meetingTeachers),
-    db.select().from(meetingRooms),
-    db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
-    db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
-    db.select().from(permittedWindows),
-    db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
-    db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
-    db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
+  ] = await databaseReadBatch([
+    () => db.select().from(departments),
+    () => db.select().from(teachers),
+    () => db.select().from(rooms),
+    () => db.select().from(courses),
+    () => db.select().from(batches),
+    () => db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId, term.id)),
+    () => db.select().from(courseOfferings).where(eq(courseOfferings.termId, term.id)),
+    () => db.select().from(teachingGroups).where(eq(teachingGroups.termId, term.id)),
+    () => db.select().from(teachingGroupOfferings),
+    () => db.select().from(teachingRequirements),
+    () => db.select().from(meetings),
+    () => db.select().from(meetingTeachers),
+    () => db.select().from(meetingRooms),
+    () => db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
+    () => db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
+    () => db.select().from(permittedWindows),
+    () => db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
+    () => db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
+    () => db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
       .orderBy(desc(scheduleVersions.versionNumber)),
-    db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
-    db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
-    db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
-    db.select().from(roomUnavailability).orderBy(roomUnavailability.id),
+    () => db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
+    () => db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
+    () => db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
+    () => db.select().from(roomUnavailability).orderBy(roomUnavailability.id)
   ]);
 
   const deptById = new Map(deptRows.map((d) => [d.id, d]));
@@ -493,7 +497,9 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       })
     : null;
 
+  await assertTermContext(writeContext);
   return {
+    writeContext,
     term: {
       id: term.id,
       name: term.name,

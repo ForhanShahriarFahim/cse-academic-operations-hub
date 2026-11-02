@@ -1,11 +1,14 @@
 "use client";
 
+import { useTermActions } from "@/components/term-write-context";
+
 import { useState, useTransition } from "react";
 import { FileCheck2, ShieldAlert } from "lucide-react";
-import { publishAction, type ActionResult } from "@/lib/actions";
+import { type ActionResult } from "@/lib/actions";
 import { useConfirm } from "@/components/confirm-dialog";
 
 export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; blockerCount: number }) {
+  const { publishAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
   const [summary, setSummary] = useState("");
   const [result, setResult] = useState<ActionResult | null>(null);

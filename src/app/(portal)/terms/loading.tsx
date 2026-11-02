@@ -1,0 +1,1 @@
+export default function TermsLoading(){return <div role="status" aria-live="polite" aria-busy="true" className="rounded-lg border border-[var(--color-line)] bg-sheet p-5 text-sm">Loading academic term workspace…</div>;}

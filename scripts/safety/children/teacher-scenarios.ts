@@ -1,3 +1,4 @@
+import { freshTermActions } from "./fresh-term-actions";
 /**
  * TCH-01 (#4) production-path child: the real teacher actions and loaders,
  * signed in as each role, on the pinned owned database. Prints one JSON report.
@@ -15,8 +16,8 @@ import type { ActionResult } from "../../../src/lib/action-result";
 
 const { db } = loadApp<typeof DbModule>("src/db/index.ts");
 const schema = loadApp<typeof SchemaModule>("src/db/schema.ts");
-const { saveTeacherAction, setTeacherStatusAction, deleteTeacherAction } = loadApp<typeof TeacherActions>("src/lib/teacher-actions.ts");
-const { updateMeetingAction } = loadApp<typeof MeetingActions>("src/lib/actions.ts");
+const { saveTeacherAction, setTeacherStatusAction, deleteTeacherAction } = freshTermActions(loadApp<typeof TeacherActions>("src/lib/teacher-actions.ts"));
+const { updateMeetingAction } = freshTermActions(loadApp<typeof MeetingActions>("src/lib/actions.ts"));
 const { getPortalData } = loadApp<typeof DataModule>("src/lib/data.ts");
 
 const PHONE = "+880-1999-424242";

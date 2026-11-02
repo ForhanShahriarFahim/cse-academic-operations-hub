@@ -17,7 +17,7 @@ export function sheetDate(iso: string | null | undefined, withTime = false): str
 }
 
 /** One teacher's Individual Class Routine as A4 portrait sheets (TCH-02). */
-export function IndividualRoutineSheets({ routine, printedAt }: { routine: TeacherRoutine; printedAt: string }) {
+export function IndividualRoutineSheets({ routine, printedAt, historicalAllocationsUnavailable = false }: { routine: TeacherRoutine; printedAt: string; historicalAllocationsUnavailable?: boolean }) {
   const layout = teacherSheetLayout(routine);
   const source = routine.source;
   const draft = source.kind === "draft";
@@ -36,7 +36,7 @@ export function IndividualRoutineSheets({ routine, printedAt }: { routine: Teach
             <h2 className="teacher-routine-title">Individual Class Routine</h2>
             <p className="teacher-routine-who">
               Course Teacher: <b>{routine.teacher.fullName}</b> <span>({routine.teacher.shortCode})</span>
-              <br />Total Credit Hours: <b>{unitsText(routine.credits.total)}</b>
+              <br />Total Credit Hours: <b>{historicalAllocationsUnavailable ? "Not stored in publication" : unitsText(routine.credits.total)}</b>
             </p>
           </header>
 
@@ -56,7 +56,7 @@ export function IndividualRoutineSheets({ routine, printedAt }: { routine: Teach
 
           <footer className="teacher-routine-foot">
             <p>
-              {draft
+              {historicalAllocationsUnavailable ? <>Historical classes only. Workload allocations were not stored<br />in this publication; current allocations have not been substituted.</> : draft
                 ? <>NB = New Building · This is a working draft. Classes may change<br />before the routine is published. Do not circulate.</>
                 : <>NB = New Building · Total Credit Hours counts a theory course as 3<br />and a one-credit lab as 2, as on the Workload page.</>}
             </p>
