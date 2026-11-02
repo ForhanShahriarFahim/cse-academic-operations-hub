@@ -175,13 +175,16 @@ async function main(){
   const [row]=await db.select().from(s.termContext);await db.delete(s.termContext);
   assert.equal((await terms.createTermAction(null,form({name:"No context"}))).ok,false);await assert.rejects(data.getPortalData());await db.insert(s.termContext).values(row);
   lines.push("Missing context fails closed; no unlocked fallback or synthetic context is created. Historical field/publication data are preserved.");
+  // Put original ID 1 back under a fresh epoch in the owned fixture, so the
+  // replacement really reuses the same ID instead of only changing identity.
+  await db.transaction(async tx=>{await context.lockTermContext(tx,"exclusive");await tx.update(s.academicTerms).set({status:"completed"}).where(eq(s.academicTerms.status,"active"));await tx.update(s.academicTerms).set({status:"active"}).where(eq(s.academicTerms.id,initialTerm));await context.advanceTermGeneration(tx);});
   const oldContext=(await context.captureActiveContext()).writeContext;
   const reset=loadApp<typeof import("../../../src/db/reset-access")>("src/db/reset-access.ts");
   await reset.clearAcademicData(db,"db:reset");
   const empty=await context.readTermContext();assert.equal(empty.state.kind,"none");assert.equal(empty.generation,oldContext.generation+1);
-  const replacement=await ready("Owned replacement after reset");assertOk(await activate(replacement));
+  const replacement=await ready("Owned replacement after reset");assert.equal(replacement,oldContext.activeTermId,"same term ID is reused after the owned reset");assertOk(await activate(replacement));
   assert.equal((await academic.updateAcademicPolicyAction(form(policyValues),oldContext)).outcome?.kind,"stale");
-  lines.push("Owned development replacement takes the context lock first and increments generation atomically before clearing academic rows; preserved access and later term-ID reuse cannot revive an old form. No institutional reset command is used.");
+  lines.push("Owned development replacement takes the context lock first and increments generation atomically before clearing academic rows; preserved access and later reuse of the exact same term ID cannot revive an old form. No institutional reset command is used.");
   report({lines});
 }
 main().then(()=>process.exit(0)).catch(error=>{console.error(error);process.exit(1);});

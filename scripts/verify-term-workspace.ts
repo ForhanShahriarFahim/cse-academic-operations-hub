@@ -24,5 +24,6 @@ const snapshot=buildSnapshot({term:{id:1,name:"Frozen Summer",academicYear:2026,
 const parsed=frozenPublication({...snapshot,privateRoster:"PRIVATE_ROSTER"},1,2)!;
 assert.ok(parsed);assert.equal(JSON.stringify(parsed).includes("PRIVATE_"),false);assert.equal(parsed.metadata.teachers[0].fullName,"Frozen teacher");
 assert.equal(frozenRoutineSource(parsed,null).termName,"Frozen Summer");
+const legacy3=frozenPublication({...snapshot,schemaVersion:3,timeGrid:undefined},1,2);assert.ok(legacy3);assert.equal(legacy3.schemaVersion,3);assert.ok(frozenRoutineSource(legacy3,null).timeGrid.patterns.length>0,"schema 3 uses only its frozen breaks and the known legacy layout");
 for(const bad of [null,{...snapshot,schemaVersion:2},{...snapshot,term:{...snapshot.term,id:2}},{...snapshot,versionNumber:3},{...snapshot,timeGrid:null},{...snapshot,metadata:{...snapshot.metadata,teachers:[{}]}}])assert.equal(frozenPublication(bad,1,2),null);
 console.log("SET-01A domain: dates, identity, numeric/blank policy boundaries, strict contexts, frozen projection, redaction and malformed snapshot refusal passed.");
