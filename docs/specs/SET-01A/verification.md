@@ -20,7 +20,7 @@ Verified application: implementation `0928e4a`, corrections `c5bf6bb`; approval 
 | AC-08 | Passed using each adapter's actual model | PostgreSQL independent-connection barriers observe real blocking PIDs for both switch/save orders and competing activations; PGlite tests real independent async requests queued on its single SQL connection. Active/public reads recheck context. |
 | AC-09 | Passed | Populated forward upgrade, repeated preparation, legacy/managed grids, exact old fields/snapshot hashes; cold PGlite and encrypted PostgreSQL separate-target recovery including schema, journal, sequences and context. Institutional storage was not opened. |
 | AC-10 | Passed | 57 production workflow captures plus 9 delayed-transport pending captures at 1440/390/320px: no page overflow or detected WCAG A/AA/2.1 AA violations. Actual keyboard traversal/labels/focus pass; loading boundary inspected. Existing routine/room/teacher/attendance/extra-load regressions pass. |
-| AC-11 | **Partial — default build failed** | Typecheck, lint, domain and all 27 named safety groups pass across preserved/resumed runs. Final default Turbopack exits 1 in CSS-worker startup/IPC; separately labelled Webpack review build exits 0. No owner exception or delivery acceptance inferred. |
+| AC-11 | **Partial — default build failed; delivery exception accepted** | Typecheck, lint, domain and all 27 named safety groups pass across preserved/resumed runs. Final default Turbopack exits 1 in CSS-worker startup/IPC; separately labelled Webpack review build exits 0. Owner accepted this disclosed delivery exception on 2 November after the explicit acceptance/local-merge request. The default build remains failed; no policy change. |
 
 ## Implementation checks
 
@@ -103,6 +103,6 @@ Planning helper: installed Playwright library with headless Microsoft Edge and `
 
 - Local branch: `codex/set-01a`; application `0928e4a`/`c5bf6bb`, final test/evidence commits in Git log. Local `main` remains `6011e0f`. BUG-28 acceptance/merge is recorded in its own [plan](../BUG-28/plan.md).
 - D-1–D-6 approved unchanged on 1 November: owner replied “Approve.” after proposal `de43546`. Approval is recorded/committed before implementation, per [workflow](../../WORKFLOW.md#issue-lifecycle).
-- Owner implementation approval: **Approved**. Delivery acceptance and local SET-01A merge: **Pending**.
-- Delivery is reviewable at the synthetic control above. AC-11 remains partial; obtain an explicit owner decision on the failed default build before local merge. Prior slice exceptions do not authorize this delivery. No automatic next part.
+- Owner implementation approval: **Approved**. Delivery acceptance: **Accepted**, 2 November 2026; owner replied “accepted” after delivery `f12060a`, runnable preview and the explicit default-build exception/local-merge request. Local SET-01A merge: **Pending**.
+- AC-11 remains partial under this delivery's accepted default-build exception; the default result is not relabelled passing. Acceptance authorizes the bounded local merge. No automatic next part, build-policy change, institutional rollout or remote synchronization.
 - Parent #14 remains open. No GitHub access/update/push/PR or institutional operation. Last remote reconciliation remains 26 October, `0b1e055`.
