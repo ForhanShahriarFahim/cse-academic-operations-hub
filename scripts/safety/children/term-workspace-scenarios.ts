@@ -133,6 +133,12 @@ async function main(){
   const initial=await context.captureActiveContext();const initialTerm=initial.term.id;
   await roleMatrix();await protectedFamilies(lines);await refuseAll();
   const draft=await create(" New   synthetic term ");const summary=await reads.getTermSummary(draft);assert.ok(summary?.editable);assert.equal(summary.policy,null);assert.equal(summary.counts.patterns,0);assert.equal(summary.term.status,"draft");assert.equal(summary.term.managedSetup,true);
+  const malformedCases:Array<[string,(f:FormData)=>Promise<ActionResult>]>=[
+    ["name",f=>terms.createTermAction(null,f)],["termId",f=>terms.editTermAction(null,f)],
+    ["extraClassRate",f=>terms.saveStartingPolicyAction(null,f)],["reason",f=>terms.activateTermAction(null,f)],
+  ];
+  for(const[key,run]of malformedCases)for(const value of ["duplicate",new File(["x"],"synthetic.txt")]){const fd=form({[key]:"original"});if(typeof value==="string")fd.append(key,value);else fd.set(key,value);const before=await fingerprintDatabase(raw);assert.equal((await run(fd)).outcome?.kind,"validation",key);assert.deepEqual(await fingerprintDatabase(raw),before);}
+  const duplicateToken=form({...policyValues,_activeTermId:initial.writeContext.activeTermId,_termGeneration:initial.writeContext.generation});duplicateToken.append("_termGeneration","1");assert.equal((await academic.updateAcademicPolicyAction(duplicateToken)).outcome?.kind,"stale");
   assert.equal((await terms.createTermAction(null,form({name:"new synthetic term",academicYear:2040,startDate:"2040-01-01",endDate:"2040-06-30"}))).outcome?.kind,"validation");
   assert.equal((await terms.saveStartingPolicyAction(null,form({termId:draft,revision:1}))).outcome?.kind,"validation");
   assertOk(await terms.saveStartingPolicyAction(null,form({termId:draft,revision:1,...policyValues})));
@@ -169,6 +175,13 @@ async function main(){
   const [row]=await db.select().from(s.termContext);await db.delete(s.termContext);
   assert.equal((await terms.createTermAction(null,form({name:"No context"}))).ok,false);await assert.rejects(data.getPortalData());await db.insert(s.termContext).values(row);
   lines.push("Missing context fails closed; no unlocked fallback or synthetic context is created. Historical field/publication data are preserved.");
+  const oldContext=(await context.captureActiveContext()).writeContext;
+  const reset=loadApp<typeof import("../../../src/db/reset-access")>("src/db/reset-access.ts");
+  await reset.clearAcademicData(db,"db:reset");
+  const empty=await context.readTermContext();assert.equal(empty.state.kind,"none");assert.equal(empty.generation,oldContext.generation+1);
+  const replacement=await ready("Owned replacement after reset");assertOk(await activate(replacement));
+  assert.equal((await academic.updateAcademicPolicyAction(form(policyValues),oldContext)).outcome?.kind,"stale");
+  lines.push("Owned development replacement takes the context lock first and increments generation atomically before clearing academic rows; preserved access and later term-ID reuse cannot revive an old form. No institutional reset command is used.");
   report({lines});
 }
 main().then(()=>process.exit(0)).catch(error=>{console.error(error);process.exit(1);});

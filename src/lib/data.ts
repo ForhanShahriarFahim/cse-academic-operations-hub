@@ -8,7 +8,7 @@ import { captureActiveContext, assertTermContext, readTermContext } from "./term
 import type { TermWriteContext } from "./term-context-value";
 import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import {
   batches,
   batchTermPlacements,
@@ -272,31 +272,31 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
     offeringRows, groupRows, linkRows, requirementRows, meetingRows, mtRows,
     mrRows, patternRows, dayPlanRows, windowRows, ecRows, allocationRows, versionRows,
     representativeRows, contactRows, reconciliationRows, maintenanceRows,
-  ] = await Promise.all([
-    db.select().from(departments),
-    db.select().from(teachers),
-    db.select().from(rooms),
-    db.select().from(courses),
-    db.select().from(batches),
-    db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId, term.id)),
-    db.select().from(courseOfferings).where(eq(courseOfferings.termId, term.id)),
-    db.select().from(teachingGroups).where(eq(teachingGroups.termId, term.id)),
-    db.select().from(teachingGroupOfferings),
-    db.select().from(teachingRequirements),
-    db.select().from(meetings),
-    db.select().from(meetingTeachers),
-    db.select().from(meetingRooms),
-    db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
-    db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
-    db.select().from(permittedWindows),
-    db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
-    db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
-    db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
+  ] = await databaseReadBatch([
+    () => db.select().from(departments),
+    () => db.select().from(teachers),
+    () => db.select().from(rooms),
+    () => db.select().from(courses),
+    () => db.select().from(batches),
+    () => db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId, term.id)),
+    () => db.select().from(courseOfferings).where(eq(courseOfferings.termId, term.id)),
+    () => db.select().from(teachingGroups).where(eq(teachingGroups.termId, term.id)),
+    () => db.select().from(teachingGroupOfferings),
+    () => db.select().from(teachingRequirements),
+    () => db.select().from(meetings),
+    () => db.select().from(meetingTeachers),
+    () => db.select().from(meetingRooms),
+    () => db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
+    () => db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
+    () => db.select().from(permittedWindows),
+    () => db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
+    () => db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
+    () => db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
       .orderBy(desc(scheduleVersions.versionNumber)),
-    db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
-    db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
-    db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
-    db.select().from(roomUnavailability).orderBy(roomUnavailability.id),
+    () => db.select().from(classRepresentatives).where(eq(classRepresentatives.termId, term.id)),
+    () => db.select().from(departmentContacts).where(eq(departmentContacts.termId, term.id)),
+    () => db.select().from(routineSourceReconciliations).where(eq(routineSourceReconciliations.termId, term.id)),
+    () => db.select().from(roomUnavailability).orderBy(roomUnavailability.id)
   ]);
 
   const deptById = new Map(deptRows.map((d) => [d.id, d]));

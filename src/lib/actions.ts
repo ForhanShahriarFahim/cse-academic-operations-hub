@@ -9,7 +9,7 @@ import type { TermWriteContext } from "./term-context-value";
  * only (spec §18.3). All actions write an audit event.
  */
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import {
   meetings,
   meetingTeachers,
@@ -54,8 +54,8 @@ async function buildCandidateView(groupId: number): Promise<MeetingView | null> 
   const course = data.courses.find((c) => c.id === group.courseId);
   if (!course) return null;
   const links = await db.select().from(teachingGroupOfferings).where(eq(teachingGroupOfferings.teachingGroupId, groupId));
-  const offerings = await Promise.all(
-    links.map((l) => db.select().from(courseOfferings).where(eq(courseOfferings.id, l.offeringId)).then((r) => r[0])),
+  const offerings = await databaseReadBatch(
+    links.map((l) => () => db.select().from(courseOfferings).where(eq(courseOfferings.id, l.offeringId)).then((r) => r[0])),
   );
   const audiences = offerings
     .map((o) => {

@@ -62,6 +62,12 @@ Planning helper: installed Playwright library with headless Microsoft Edge and `
 | Missing policy falls back silently; globally empty grids trigger legacy setup for all terms. | Require explicitly stored starting policy and managed-term backfill exclusion. | Runtime proof pending AC-03/09. |
 | Historical lookup through active loader could relabel or expose old content/private contacts. | Explicit term/version scope, supported frozen snapshot only, public-equivalent redaction and reused projection. | Runtime proof pending AC-04/05. |
 | Initial sketch preselected the activation acknowledgement. | Removed preselection and prefilled reason; example action now requires both explicit inputs. | Revised activation captures and interaction check pass. |
+| Archived teacher sheets initially overflowed the mobile page. | Reused the existing focusable `teacher-routine-sheets` scroll container; native A4 format unchanged. | Production browser rerun in progress. |
+| A soft refresh could preserve old input state while supplying a new context/revision/review. | Keyed operational form subtree by term/generation; draft forms by ID/revision; activation form by fingerprint. New reviews require a fresh acknowledgement. | Actual old-form refusal passed; same-route refresh and final keyed build are being rechecked. |
+| Old regression fixtures relied on an active insertion default and current-schema inserts into pre-0014 storage. | Summer fixture now names `active` explicitly; fixture switches bump generation; legacy time-zone insertion uses its actual old columns. | Room-lifecycle groups pass after correction; remaining time-zone groups are being rechecked. |
+| pg 8.20 warned about overlapping reads on a transaction client. | Request-local batches sequence lazy reads on one transaction while retaining parallel pool reads; explicit transaction readers also sequence. | Typecheck and focused PGlite group pass; PostgreSQL/action/browser reruns in progress. |
+| Owned development replacement could recycle term IDs without invalidating forms. | Reset path locks the retained singleton first and advances generation atomically; no institutional reset operation is performed. | Both-adapter raw replacement/ID-reuse checks pass before read-batch refinement; final rerun in progress. |
+| Native JSONB snapshot check hashed input key order rather than persisted storage. | Browser helper now captures its baseline from the stored JSONB row immediately after fixture setup. | Final browser snapshot-preservation comparison pending. |
 
 ## Delivery and acceptance
 

@@ -47,6 +47,11 @@ const ACCESS_ENTITIES = ["portal_user", "database"];
 /** Record teacher links, then delete the academic data. Returns the reset event id. */
 export async function clearAcademicData(db: ResetDb, command: ResetCommand): Promise<number> {
   return db.transaction(async (tx) => {
+    // A development replacement can reuse term IDs. Invalidate old forms and
+    // order any in-flight writers before clearing rows; keep the singleton.
+    const [context] = await tx.select().from(schema.termContext).where(eq(schema.termContext.id, 1)).for("update");
+    if (!context) throw new Error("Academic term context is unavailable. Apply migrations before replacing development data.");
+    await tx.update(schema.termContext).set({ generation: sql`${schema.termContext.generation} + 1` }).where(eq(schema.termContext.id, 1));
     const current = await tx
       .select({ userId: schema.portalUsers.id, email: schema.portalUsers.email, teacherShortCode: schema.teachers.shortCode })
       .from(schema.portalUsers)

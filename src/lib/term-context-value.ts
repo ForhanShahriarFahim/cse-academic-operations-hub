@@ -1,6 +1,10 @@
 /** Private operational context. Never include this in publication snapshots. */
 export interface TermWriteContext { activeTermId: number; generation: number }
 export function parseTermWriteContext(input: unknown): TermWriteContext | null {
+  if (input instanceof FormData && ["_activeTermId", "_termGeneration"].some(key => {
+    const values = input.getAll(key);
+    return values.length !== 1 || typeof values[0] !== "string" || !/^\d+$/.test(values[0]);
+  })) return null;
   const value = input instanceof FormData
     ? { activeTermId: Number(input.get("_activeTermId")), generation: Number(input.get("_termGeneration")) }
     : input;

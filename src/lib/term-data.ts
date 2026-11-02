@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { and, count, desc, eq, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import { academicTerms, academicPolicies, meetings, teachingGroups, batchTermPlacements, periodPatterns, dayPlans, scheduleVersions } from "@/db/schema";
 import { authorize } from "./auth";
 import { readTermContext } from "./term-context";
@@ -11,7 +11,7 @@ import { isPublishedSnapshot } from "./public-routine";
 // other direct term FKs protect both direct and indirect business descendants.
 const PROTECTED_TABLES = ["batch_term_placements", "class_representatives", "department_contacts", "routine_source_reconciliations", "course_offerings", "teaching_groups", "course_enrollments", "attendance_sessions", "extra_load_classes", "extra_load_manual_summaries", "external_commitments", "workload_allocations", "schedule_versions"] as const;
 export async function termProtectedUse(termId: number) {
-  const counts = await Promise.all(PROTECTED_TABLES.map(async table => {
+  const counts = await databaseReadBatch(PROTECTED_TABLES.map(table => async () => {
     const result = await db.execute<{ count: number }>(sql`select count(*)::int as count from ${sql.identifier(table)} where term_id = ${termId}`);
     return { table, count: Number(result.rows[0]?.count ?? 0) };
   }));
@@ -21,15 +21,15 @@ export async function getTermSummary(termId: number) {
   if (!Number.isSafeInteger(termId) || termId < 1) return null;
   const [term] = await db.select().from(academicTerms).where(eq(academicTerms.id, termId)).limit(1);
   if (!term) return null;
-  const [policies, uses, classes, placements, patterns, plans, versions] = await Promise.all([
-    db.select().from(academicPolicies).where(eq(academicPolicies.termId, termId)).limit(1),
-    termProtectedUse(termId),
-    db.select({ count: count() }).from(meetings).innerJoin(teachingGroups, eq(meetings.teachingGroupId, teachingGroups.id)).where(eq(teachingGroups.termId, termId)),
-    db.select({ count: count() }).from(batchTermPlacements).where(eq(batchTermPlacements.termId, termId)),
-    db.select({ count: count() }).from(periodPatterns).where(eq(periodPatterns.termId, termId)),
-    db.select({ count: count() }).from(dayPlans).where(eq(dayPlans.termId, termId)),
-    db.select({ id: scheduleVersions.id, versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state, publishedAt: scheduleVersions.publishedAt, snapshot: scheduleVersions.snapshot })
-      .from(scheduleVersions).where(eq(scheduleVersions.termId, termId)).orderBy(desc(scheduleVersions.versionNumber)),
+  const [policies, uses, classes, placements, patterns, plans, versions] = await databaseReadBatch([
+    () => db.select().from(academicPolicies).where(eq(academicPolicies.termId, termId)).limit(1),
+    () => termProtectedUse(termId),
+    () => db.select({ count: count() }).from(meetings).innerJoin(teachingGroups, eq(meetings.teachingGroupId, teachingGroups.id)).where(eq(teachingGroups.termId, termId)),
+    () => db.select({ count: count() }).from(batchTermPlacements).where(eq(batchTermPlacements.termId, termId)),
+    () => db.select({ count: count() }).from(periodPatterns).where(eq(periodPatterns.termId, termId)),
+    () => db.select({ count: count() }).from(dayPlans).where(eq(dayPlans.termId, termId)),
+    () => db.select({ id: scheduleVersions.id, versionNumber: scheduleVersions.versionNumber, state: scheduleVersions.state, publishedAt: scheduleVersions.publishedAt, snapshot: scheduleVersions.snapshot })
+      .from(scheduleVersions).where(eq(scheduleVersions.termId, termId)).orderBy(desc(scheduleVersions.versionNumber))
   ]);
   const policy = policies[0] ?? null;
   const ready = validateTermFields(term).ok && policy != null && validateStartingPolicy(policy).ok;

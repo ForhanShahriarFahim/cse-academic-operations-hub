@@ -10,7 +10,7 @@ import { invalid, stale, succeeded, type ActionResult } from "./action-result";
 import { withTermContext } from "./active-term";
 import { lockTermContext, advanceTermGeneration } from "./term-context";
 import { activationEvidence, getTermSummary, hasIdentityDuplicate } from "./term-data";
-import { termIdentityKey, validateStartingPolicy, validateTermFields } from "./term-records";
+import { POLICY_FIELDS, termIdentityKey, validateStartingPolicy, validateTermFields } from "./term-records";
 
 async function managedWrite(mode: "share" | "exclusive", work: () => Promise<ActionResult>) {
   const denied = await guardAction("manage_terms");
@@ -24,9 +24,20 @@ async function managedWrite(mode: "share" | "exclusive", work: () => Promise<Act
 }
 const input = (form: FormData) => Object.fromEntries(form.entries());
 const refresh = () => revalidatePath("/", "layout");
+function malformedFields(form: FormData, keys: readonly string[]) {
+  if (!(form instanceof FormData)) return invalid("Submit a valid term form.");
+  const errors: Record<string,string[]> = {};
+  for (const key of keys) {
+    const values = form.getAll(key);
+    if (values.length > 1 || values.some(value => typeof value !== "string")) errors[key] = ["Submit this field once as text."];
+  }
+  return Object.keys(errors).length ? invalid("Check the submitted fields.", errors) : null;
+}
+const identityFields = ["name", "academicYear", "startDate", "endDate", "effectiveFrom"];
 
 export async function createTermAction(_previous: ActionResult | null, form: FormData): Promise<ActionResult> {
   return managedWrite("exclusive", async () => {
+    const malformed = malformedFields(form, identityFields); if (malformed) return malformed;
     const parsed = validateTermFields(input(form));
     if (!parsed.ok) return invalid("Check the highlighted fields.", parsed.errors);
     if (await hasIdentityDuplicate(parsed.fields.name, parsed.fields.academicYear)) return invalid("That term already exists.", { name: ["Use a different name or academic year."] });
@@ -40,6 +51,7 @@ export async function createTermAction(_previous: ActionResult | null, form: For
 
 export async function editTermAction(_previous: ActionResult | null, form: FormData): Promise<ActionResult> {
   return managedWrite("exclusive", async () => {
+    const malformed = malformedFields(form, [...identityFields,"termId","revision"]); if (malformed) return malformed;
     const id = Number(form.get("termId"));
     const summary = await getTermSummary(id);
     if (!summary || summary.term.revision !== Number(form.get("revision"))) return stale("The term changed. Refresh before editing.");
@@ -59,6 +71,7 @@ export async function editTermAction(_previous: ActionResult | null, form: FormD
 
 export async function saveStartingPolicyAction(_previous: ActionResult | null, form: FormData): Promise<ActionResult> {
   return managedWrite("share", async () => {
+    const malformed = malformedFields(form, [...POLICY_FIELDS,"termId","revision"]); if (malformed) return malformed;
     const denied = await guardAction("manage_policy"); if (denied) return denied;
     const id = Number(form.get("termId"));
     if (!Number.isSafeInteger(id) || id < 1) return invalid("Select a valid draft term.");
@@ -80,6 +93,7 @@ export async function saveStartingPolicyAction(_previous: ActionResult | null, f
 
 export async function activateTermAction(_previous: ActionResult | null, form: FormData): Promise<ActionResult> {
   return managedWrite("exclusive", async () => {
+    const malformed = malformedFields(form, ["termId","revision","generation","previousActiveId","fingerprint","reason","acknowledge"]); if (malformed) return malformed;
     const id = Number(form.get("termId"));
     const reason = String(form.get("reason") ?? "").trim();
     if (!reason || reason.length > 500 || form.get("acknowledge") !== "on") return invalid("Enter a reason and acknowledge the activation effect.", {

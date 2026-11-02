@@ -11,7 +11,7 @@ import type { TermWriteContext } from "./term-context-value";
  */
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import { academicTerms, batches, dayPlans, meetings, periodPatterns, permittedWindows } from "@/db/schema";
 import { auditedChange } from "./auth/audit";
 import { guardAnyAction } from "./auth/action-guard";
@@ -37,10 +37,10 @@ function refresh() {
 }
 
 async function termGrid(termId: number, tx: Tx | typeof db = db): Promise<TimeGrid> {
-  const [patternRows, planRows] = await Promise.all([
-    tx.select().from(periodPatterns).where(eq(periodPatterns.termId, termId)),
-    tx.select().from(dayPlans).where(eq(dayPlans.termId, termId)),
-  ]);
+  const [patternRows, planRows] = await databaseReadBatch([
+    () => tx.select().from(periodPatterns).where(eq(periodPatterns.termId, termId)),
+    () => tx.select().from(dayPlans).where(eq(dayPlans.termId, termId))
+  ], tx !== db);
   return timeGridFromRows(patternRows, planRows);
 }
 

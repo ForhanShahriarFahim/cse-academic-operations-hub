@@ -17,7 +17,7 @@ import { withDisposableCluster } from "./pg-cluster";
 import { factoryFor } from "./postgres.check";
 import { REPO_ROOT } from "./targets";
 
-const { academicPolicies, academicTerms, auditEvents, authSession, authUser, periodPatterns, portalUsers, roleAssignments } = schema;
+const { academicPolicies, auditEvents, authSession, authUser, periodPatterns, portalUsers, roleAssignments } = schema;
 const BOOTSTRAP = path.join(REPO_ROOT, "scripts", "bootstrap-admin.ts");
 const DHAKA = "Etc/GMT-6"; // what PGlite records for Asia/Dhaka (UTC+06, no daylight saving)
 const DHAKA_OFFSET_MS = 6 * 3600_000;
@@ -221,7 +221,9 @@ async function stampLegacyRows({ db, client }: SafetyHandle, values: typeof APP)
     [values.edited.toISOString(), values.login.toISOString()]);
   const [role] = await db.insert(roleAssignments).values({ userId: defaultUser.id, role: "teacher", activeTo: values.roleEnds }).returning({ id: roleAssignments.id });
   const [event] = await db.insert(auditEvents).values({ action: "bug29.legacy", entity: "probe" }).returning({ id: auditEvents.id });
-  const [term] = await db.insert(academicTerms).values({ name: "Upgrade term", academicYear: 2026, startDate: "2026-06-01", endDate: "2026-09-30" }).returning({ id: academicTerms.id });
+  // This deliberately predates 0014: use its actual column list, not the
+  // current Drizzle schema's revision/provenance columns.
+  const { rows: [term] } = await client.query<{ id: number }>("insert into academic_terms(name,academic_year,start_date,end_date,status) values('Upgrade term',2026,'2026-06-01','2026-09-30','active') returning id");
   const [policy] = await db.insert(academicPolicies).values({ termId: term.id }).returning({ id: academicPolicies.id });
   const [backfilled] = await db.insert(periodPatterns).values({ termId: term.id, name: "Backfilled" }).returning({ id: periodPatterns.id });
   const [edited] = await db.insert(periodPatterns).values({ termId: term.id, name: "Edited", createdAt: values.grid, updatedAt: values.grid }).returning({ id: periodPatterns.id });

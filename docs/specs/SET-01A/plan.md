@@ -66,7 +66,7 @@ Owner review after implementation: isolated authenticated administrator and view
 
 - Branch/base: `codex/set-01a` from `6011e0f`; BUG-28 is already accepted and merged. One writer/checklist, no worktree or remote changes.
 - Scope: [D-1–D-6](spec.md) approved unchanged by owner's “Approve.” on 1 November; T-01/T-02 complete.
-- Changes: proposal `de43546`; approval `c6c7bdc` precedes all implementation. Source/schema/action/UI and safety/domain checks are implemented; inspect actual Git log/status for the checkpoint and corrections.
+- Changes: proposal `de43546`; approval `c6c7bdc` precedes implementation `0928e4a`. Corrective checkpoint adds keyed form scopes/reviews, strict malformed-field handling, ordered transaction reads, retained-context replacement epochs, narrow print preview and explicit/legacy fixture boundaries. Inspect actual Git log/status for its hash and later evidence.
 - Next action: finish T-03 recovery evidence and T-07/T-08 regression/browser/native A4 checks, correct findings and present a guarded synthetic preview. No repeated implementation approval is needed. T-09 owner acceptance still precedes local merge.
 - Checks: [verification](verification.md). Focused PGlite/PostgreSQL workspace checks, domain, typecheck and initial lint pass. Full safety suite is running. Default Turbopack build fails in CSS-worker process/IPC startup; separately labelled Webpack review build is finishing. No default-build exception is inferred.
 - No institutional command, worktree or remote sync. Owner delivery acceptance and SET-01A merge remain pending. Static proposal at port 3112 is separate from the upcoming production review preview.

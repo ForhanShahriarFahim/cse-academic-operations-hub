@@ -12,9 +12,12 @@ import { setTeacherStatusAction as teacherStatus } from "@/lib/teacher-actions";
 const TermScope = createContext<{ value: TermWriteContext; report: (r: ActionResult) => ActionResult } | null>(null);
 /** The value comes from the SAME page data as its forms, never the layout's independently loaded term. */
 export function TermWriteProvider({value,children}:{value:TermWriteContext;children:React.ReactNode}) {
- const [notice,setNotice]=useState<string|null>(null);
- function report(result:ActionResult){if(result.outcome?.kind==='stale'&&/term|context/i.test(result.message))setNotice(result.message);return result;}
- return <TermScope.Provider value={{value,report}}>{notice&&<div role="alert" className="no-print mb-4 rounded-md border border-[var(--color-clay)]/40 bg-[var(--color-clay)]/5 p-4 text-sm"><p>{notice}</p><button type="button" onClick={()=>location.reload()} className="mt-2 font-semibold underline">Refresh active workspace</button></div>}{children}</TermScope.Provider>;
+ const contextKey=`${value.activeTermId}:${value.generation}`;
+ const [notice,setNotice]=useState<{contextKey:string;message:string}|null>(null);
+ function report(result:ActionResult){if(result.outcome?.kind==='stale'&&/term|context/i.test(result.message))setNotice({contextKey,message:result.message});return result;}
+ // A soft refresh can preserve client state. Remount forms when their context
+ // changes so A's uncontrolled inputs/undo closures cannot adopt B's token.
+ return <TermScope.Provider key={contextKey} value={{value,report}}>{notice?.contextKey===contextKey&&<div role="alert" className="no-print mb-4 rounded-md border border-[var(--color-clay)]/40 bg-[var(--color-clay)]/5 p-4 text-sm"><p>{notice.message}</p><button type="button" onClick={()=>location.reload()} className="mt-2 font-semibold underline">Refresh active workspace</button></div>}{children}</TermScope.Provider>;
 }
 export function useTermActions(){
  const scope=useContext(TermScope);const context=scope?.value;

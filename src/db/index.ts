@@ -65,6 +65,15 @@ const transactionScope = new AsyncLocalStorage<Transaction>();
 export function inDatabaseTransaction<T>(tx: Transaction, work: () => Promise<T>): Promise<T> {
   return transactionScope.run(tx, work);
 }
+/** pg 8.20 deprecates concurrent queries on one client. Keep pool reads
+ * parallel, but explicitly sequence lazy reads on a transaction connection. */
+export async function databaseReadBatch<T extends readonly (() => unknown)[]>(reads: [...T], forceSerial = false): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const values: unknown[] = [];
+  if (forceSerial || transactionScope.getStore()) {
+    for (const read of reads) values.push(await read());
+  } else values.push(...await Promise.all(reads.map(read => read())));
+  return values as { [K in keyof T]: Awaited<ReturnType<T[K]>> };
+}
 export const db: typeof database = new Proxy(database, {
   get(target, property) {
     const reader = transactionScope.getStore() ?? target;

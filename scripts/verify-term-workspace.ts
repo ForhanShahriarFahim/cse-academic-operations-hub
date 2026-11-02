@@ -18,6 +18,8 @@ for(const bad of [""," ","-1","NaN","Infinity","1e2","1.11","1000"])assert.equal
 assert.equal(validateStartingPolicy({...policy,extraClassRate:"100000000"}).ok,false);
 for(const value of [null,{},"1",{activeTermId:1,generation:0},{activeTermId:1,generation:Infinity},{activeTermId:"1",generation:1}])assert.equal(parseTermWriteContext(value),null);
 assert.deepEqual(parseTermWriteContext({activeTermId:1,generation:2}),{activeTermId:1,generation:2});
+const duplicateContext=new FormData();duplicateContext.set("_activeTermId","1");duplicateContext.set("_termGeneration","2");duplicateContext.append("_termGeneration","3");assert.equal(parseTermWriteContext(duplicateContext),null);
+assert.equal(validateTermFields({...fields,name:new File(["x"],"term.txt")}).ok,false);
 const snapshot=buildSnapshot({term:{id:1,name:"Frozen Summer",academicYear:2026,effectiveFrom:null},versionNumber:2,meetings:[],batches:[],breaks:[],externals:[],issues:[],timeGrid:EMPTY_GRID,metadata:{teachers:[{shortCode:"X",fullName:"Frozen teacher",designation:null,departmentCode:"CSE",phone:"PRIVATE_PHONE",email:"PRIVATE_EMAIL",status:"active"}],courses:[],classRepresentatives:[],queryContacts:[],sourceReconciliations:[]}});
 const parsed=frozenPublication({...snapshot,privateRoster:"PRIVATE_ROSTER"},1,2)!;
 assert.ok(parsed);assert.equal(JSON.stringify(parsed).includes("PRIVATE_"),false);assert.equal(parsed.metadata.teachers[0].fullName,"Frozen teacher");

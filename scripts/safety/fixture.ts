@@ -5,7 +5,7 @@
  * merged/cross-department teaching, attendance, extra load, access, audit,
  * provider state and an immutable published snapshot.
  */
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import * as schema from "../../src/db/schema";
 import { backfillTimeGrids } from "../../src/db/time-grid-backfill";
 import type { SafetyDb } from "./database";
@@ -41,7 +41,7 @@ export async function populateSummerFixture(db: Db): Promise<SummerFixture> {
   ]).returning();
 
   const [term] = await db.insert(schema.academicTerms).values({
-    name: "Summer 2026", academicYear: 2026, startDate: "2026-06-01", endDate: "2026-09-30", effectiveFrom: "2026-06-07",
+    name: "Summer 2026", academicYear: 2026, startDate: "2026-06-01", endDate: "2026-09-30", effectiveFrom: "2026-06-07", status: "active",
   }).returning();
   await db.insert(schema.academicPolicies).values({ termId: term.id, extraClassRate: "200.00", updatedAt: at("2026-06-01T00:00:00Z") });
   const [hsc, diploma, graduating] = await db.insert(schema.batches).values([
@@ -289,7 +289,9 @@ export async function populateSpringFixture(db: Db, summer: SummerFixture): Prom
 /** Fixture-only active-term switch: exactly one term is "active", the rest "completed". */
 export async function activateTerm(db: Db, termId: number): Promise<void> {
   await db.transaction(async (tx) => {
+    await tx.select().from(schema.termContext).where(eq(schema.termContext.id, 1)).for("update");
     await tx.update(schema.academicTerms).set({ status: "completed" });
     await tx.update(schema.academicTerms).set({ status: "active" }).where(eq(schema.academicTerms.id, termId));
+    await tx.update(schema.termContext).set({ generation: sql`${schema.termContext.generation} + 1` }).where(eq(schema.termContext.id, 1));
   });
 }

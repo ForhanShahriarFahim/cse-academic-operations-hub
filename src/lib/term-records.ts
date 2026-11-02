@@ -21,7 +21,7 @@ export function validateTermFields(input: Record<string, unknown>): { ok: true; 
   const startDate = String(input.startDate ?? ""), endDate = String(input.endDate ?? "");
   const effectiveFrom = String(input.effectiveFrom ?? "").trim() || null;
   const errors: Record<string, string[]> = {};
-  if (!name || [...name].length > 120) errors.name = ["Enter a term name of 1–120 characters."];
+  if (typeof input.name !== "string" || !name || [...name].length > 120) errors.name = ["Enter a term name of 1–120 characters."];
   if (!Number.isInteger(academicYear) || academicYear < 1 || academicYear > 9999) errors.academicYear = ["Enter an academic year from 1 to 9999."];
   if (!validTermDate(startDate)) errors.startDate = ["Enter a valid start date."];
   if (!validTermDate(endDate) || validTermDate(startDate) && endDate < startDate) errors.endDate = ["Enter a valid end date on or after the start date."];
