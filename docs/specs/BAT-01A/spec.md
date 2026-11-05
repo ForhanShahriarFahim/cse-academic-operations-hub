@@ -28,7 +28,7 @@ Excluded: next-term wizard or draft-term placement editing, automatic progressio
 
 Dependencies: accepted SET-01A term-context protocol and existing history/publication protections. Parent #6 stays open after A. The owner must approve D-1–D-6 below before application code or migrations.
 
-## Required behavior — proposed decisions
+## Required behavior — approved decisions
 
 ### D-1 — Identity, authority and retention
 
@@ -98,6 +98,6 @@ Dependencies: accepted SET-01A term-context protocol and existing history/public
 
 ## Decisions and sources
 
-D-1–D-6 are **recommendations for owner approval**, not established institutional facts. In particular, administrator-only authority, manual active-term placement, graduation as a planning disposition, inactive versus term hold, and legacy-estimate backfill need explicit approval together. No supplied source establishes individual graduation eligibility or historical verification; neither is invented here. Missing original specification/source sign-off remains [D-04](../../decisions/INSTITUTIONAL_DECISIONS.md#d-04--missing-specification-and-source-sign-off).
+D-1–D-6 were **approved unchanged** by the owner's “Approve” on 5 November after proposal `b9958aa`; approval `b035ed4` precedes implementation. These approve the bounded application behavior, not individual degree eligibility or invented historical verification. Missing original specification/source sign-off remains [D-04](../../decisions/INSTITUTIONAL_DECISIONS.md#d-04--missing-specification-and-source-sign-off).
 
 The user's 5 November “Go for the next task.” starts the handed-off BAT-01A inspection/specification. It does not approve an unpresented implementation. Approval evidence belongs in [plan.md](plan.md).

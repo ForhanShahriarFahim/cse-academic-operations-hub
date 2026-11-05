@@ -74,6 +74,7 @@ export function roomChanges(before: RoomFields, after: RoomFields) {
 export interface RoomMeetingUse {
   id: number; teachingGroupId: number; termName: string; courseCode: string; courseType: string;
   requiredRoomCapability: string | null; audience: string; audienceSize: number | null;
+  audienceKnownSubtotal?:number; audienceVerified?:boolean;
   dayOfWeek: number; startMinutes: number; endMinutes: number; roomRole: string;
   audienceEvidence?: Array<{ label: string; count: number | null }>;
 }
@@ -83,11 +84,12 @@ export interface RoomODUse {
 }
 export interface RoomReferences { meetings: RoomMeetingUse[]; externals: RoomODUse[] }
 export interface RoomImpactItem { severity: "blocker" | "warning" | "existing"; title: string; detail: string; href: string }
-export function roomFit(room: Pick<RoomFields, "roomType" | "capabilities" | "capacity">, use: Pick<RoomMeetingUse, "courseType" | "requiredRoomCapability" | "audienceSize">): string[] {
+export function roomFit(room: Pick<RoomFields, "roomType" | "capabilities" | "capacity">, use: Pick<RoomMeetingUse, "courseType" | "requiredRoomCapability" | "audienceSize"|"audienceKnownSubtotal">): string[] {
   const reasons: string[] = [];
   if (use.courseType === "sessional" && room.roomType !== "lab") reasons.push("Sessional requires a Lab");
   if (use.requiredRoomCapability && !room.capabilities.includes(use.requiredRoomCapability)) reasons.push(`Requires ${use.requiredRoomCapability}`);
-  if (use.audienceSize != null && room.capacity != null && use.audienceSize > room.capacity) reasons.push(`Audience ${use.audienceSize} exceeds ${room.capacity} seats`);
+  const size=use.audienceKnownSubtotal??use.audienceSize;
+  if (size != null && room.capacity != null && size > room.capacity) reasons.push(`Audience ${use.audienceSize==null?"at least ":""}${size} exceeds ${room.capacity} seats`);
   return reasons;
 }
 export function assessRoomEdit(before: RoomFields, after: RoomFields, refs: RoomReferences): RoomImpactItem[] {
@@ -98,12 +100,13 @@ export function assessRoomEdit(before: RoomFields, after: RoomFields, refs: Room
     const push = (severity: RoomImpactItem["severity"], title: string) => items.push({ severity, title, detail: context, href: "/routine" });
     if (use.courseType === "sessional" && after.roomType !== "lab") push(before.roomType === "lab" ? "blocker" : "existing", "Sessional requires a Lab");
     if (use.requiredRoomCapability && !after.capabilities.includes(use.requiredRoomCapability)) push(before.capabilities.includes(use.requiredRoomCapability) ? "blocker" : "existing", `Requires ${use.requiredRoomCapability}`);
-    if (use.audienceSize != null && after.capacity != null && after.capacity < use.audienceSize) {
-      const worse = before.capacity == null || before.capacity >= use.audienceSize || after.capacity < before.capacity;
-      push(worse ? "blocker" : "existing", `Audience ${use.audienceSize} exceeds ${after.capacity} seats`);
+    const size=use.audienceKnownSubtotal??use.audienceSize;
+    if (size != null && after.capacity != null && after.capacity < size) {
+      const worse = before.capacity == null || before.capacity >= size || after.capacity < before.capacity;
+      push(worse ? "blocker" : "existing", `Audience ${use.audienceSize==null?"at least ":""}${size} exceeds ${after.capacity} seats`);
     }
     if (before.capacity != null && after.capacity == null) push("blocker", "Known seats cannot be cleared while an active class uses this room");
-    if (suitabilityChanged && (use.audienceSize == null || after.capacity == null)) push("warning", `Fit unverified: ${use.audienceSize == null ? "audience unknown" : "seats unknown"}`);
+    if (suitabilityChanged && (use.audienceSize == null || use.audienceVerified===false || after.capacity == null)) push("warning", `Fit unverified: ${use.audienceSize == null ? "audience unknown" : use.audienceVerified===false?"count estimate not confirmed":"seats unknown"}`);
     if (suitabilityChanged && use.requiredRoomCapability && !controlled(use.requiredRoomCapability)) push("warning", `Specialist requirement outside the controlled vocabulary: ${use.requiredRoomCapability}`);
   }
   if (suitabilityChanged) for (const use of refs.externals) items.push({ severity: "warning", title: "OD suitability unverified", detail: `${use.termName} · ${use.counterpartDepartment} · ${use.courseLabel ?? use.kind} · no enforceable course/headcount evidence`, href: "/od" });

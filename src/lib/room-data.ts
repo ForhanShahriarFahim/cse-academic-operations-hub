@@ -5,9 +5,10 @@ import { auditEvents, departments, rooms } from "@/db/schema";
 import { authorize, can, getOptionalActor } from "./auth";
 import { positiveInteger } from "./room-records";
 import { readRoomLifecycleEvidence } from "./room-lifecycle-transaction";
+import { cohortRead } from "./term-context";
 export async function getRoomLifecycleEvidence(room: { id: number; code: string }) {
   await authorize("manage_rooms");
-  return readRoomLifecycleEvidence(db, room);
+  return cohortRead(()=>readRoomLifecycleEvidence(db, room));
 }
 
 export async function requireRoomEditor(next: string) {

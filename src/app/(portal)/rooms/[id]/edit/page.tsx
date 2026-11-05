@@ -5,6 +5,7 @@ import { Notice, PageHeader } from "@/components/ui";
 import { RoomForm } from "@/components/rooms/room-form";
 import { getRoomRecord, requireRoomEditor, roomDepartments } from "@/lib/room-data";
 import { readRoomReferences } from "@/lib/room-transaction";
+import { cohortRead } from "@/lib/term-context";
 export const dynamic = "force-dynamic";
 export default async function EditRoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,6 +13,6 @@ export default async function EditRoomPage({ params }: { params: Promise<{ id: s
   const record = await getRoomRecord(id);
   if (!record) notFound();
   if (!Array.isArray(record.capabilities) || record.capabilities.some((token) => typeof token !== "string")) return <Notice tone="warn">This room has unsupported legacy capability data. A correction needs an owner decision. <Link href={`/rooms/${record.id}`}>Back to room</Link></Notice>;
-  const [departments, references] = await Promise.all([roomDepartments(), readRoomReferences(db, record.id)]);
+  const [departments, references] = await Promise.all([roomDepartments(), cohortRead(()=>readRoomReferences(db, record.id))]);
   return <div className="mx-auto max-w-[980px] min-w-0 break-words"><PageHeader context="Rooms" title={`Edit ${record.code}`} description="Review assigned use before saving. Published routines keep their recorded values." /><RoomForm record={record} departments={departments} references={references} /></div>;
 }

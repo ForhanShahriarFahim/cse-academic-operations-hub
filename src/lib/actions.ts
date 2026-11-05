@@ -61,7 +61,7 @@ async function buildCandidateView(groupId: number): Promise<MeetingView | null> 
     .map((o) => {
       const b = o ? data.batches.find((x) => x.id === o.batchId) : null;
       return b
-        ? { batchId: b.id, batchLabel: b.label, stream: b.stream, semester: b.semester, studentCount: b.studentCount }
+        ? { batchId: b.id, batchLabel: b.label, stream: b.stream, semester: b.semester, studentCount: b.studentCount, countStatus:b.countStatus }
         : null;
     })
     .filter((a): a is NonNullable<typeof a> => !!a);

@@ -1,74 +1,19 @@
-import { getPortalData } from "@/lib/data";
-import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
-
-export const dynamic = "force-dynamic";
-
-export default async function BatchesPage() {
-  const data = await getPortalData();
-
-  const streams = [
-    { key: "HSC" as const, title: "HSC stream", note: "Regular teaching Saturday–Tuesday · Friday by approved exception" },
-    { key: "DIPLOMA" as const, title: "Diploma stream", note: "Teaching Friday & Saturday · morning windows provisional" },
-  ];
-
-  return (
-    <div>
-      <PageHeader
-        context="Planning records"
-        title="Batches & semester placements"
-        description={`Each batch's semester in ${data.term.name}. HSC-22B and Diploma-22B are separate batches, and earlier terms keep their own placements.`}
-      />
-      <div className="grid gap-4 xl:grid-cols-2">
-        {streams.map((s) => {
-          const rows = data.batches.filter((b) => b.stream === s.key);
-          return (
-            <Panel key={s.key} title={s.title} sub={s.note}>
-              <div role="region" aria-label="Batches and semesters" tabIndex={0} className="table-region overflow-x-auto"><table className="w-full text-[12.5px]">
-                <thead>
-                  <tr className="border-b border-[var(--color-line-soft)] text-left">
-                    <th className="pb-1.5"><span className="micro-label">Batch</span></th>
-                    <th className="pb-1.5"><span className="micro-label">Semester</span></th>
-                    <th className="pb-1.5"><span className="micro-label">Students</span></th>
-                    <th className="pb-1.5"><span className="micro-label">Meetings/wk</span></th>
-                    <th className="pb-1.5"><span className="micro-label">Status</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((b) => {
-                    const n = data.meetings.filter((m) => m.audiences.some((a) => a.batchId === b.id)).length;
-                    const shared = data.meetings.some(
-                      (m) => m.audiences.some((a) => a.batchId === b.id) && (m.audiences.length > 1 || m.externalAudienceLabel),
-                    );
-                    return (
-                      <tr key={b.id} className="border-b border-[var(--color-line-soft)]/60">
-                        <td className="py-2 font-mono font-bold text-[var(--color-pine)]">{s.key === "HSC" ? "HSC" : "DIP"}-{b.label}</td>
-                        <td className="py-2">
-                          <Badge tone="sage">Sem {b.semester ?? "?"}</Badge>
-                        </td>
-                        <td className="py-2 font-mono">
-                          {b.studentCount ?? <span className="text-[var(--color-clay)]" title="Unknown — never treated as zero">unknown</span>}
-                        </td>
-                        <td className="py-2 font-mono">{n}</td>
-                        <td className="py-2">
-                          {shared && <Badge tone="gold">merged/shared</Badge>}
-                          {b.studentCount == null && <Badge tone="clay">count unverified</Badge>}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table></div>
-            </Panel>
-          );
-        })}
-      </div>
-      <div className="mt-4">
-        <EmptyNote>
-          Sections, lab sub-groups and elective groups aggregate into these batch audiences in this phase.
-          Clash rules: a whole-batch meeting conflicts with any overlapping meeting for the same batch;
-          unknown student overlap (DIP-18B count unverified) produces advisories, never silent approval.
-        </EmptyNote>
-      </div>
-    </div>
-  );
+import Link from "next/link";
+import { Badge, EmptyNote, Notice, PageHeader } from "@/components/ui";
+import { buttonClass, inputClass } from "@/components/account/styles";
+import { getBatchDirectory } from "@/lib/batch-data";
+import { countLabel } from "@/lib/batch-records";
+export const dynamic="force-dynamic";
+export default async function BatchesPage({searchParams}:{searchParams:Promise<{q?:string;stream?:string;status?:string;done?:string}>}){
+  const data=await getBatchDirectory(),query=await searchParams;
+  const q=typeof query.q==="string"?query.q:"",stream=typeof query.stream==="string"?query.stream:"",status=typeof query.status==="string"?query.status:"";
+  const rows=data.records.filter(b=>(!q||`${b.stream} ${b.label} ${b.intake??""}`.toLowerCase().includes(q.toLowerCase()))&&(!stream||b.stream===stream)&&(!status||b.status===status));
+  const cells=(b:typeof rows[number])=>[<Link key="batch" className="font-mono font-bold text-pine underline" href={`/batches/${b.id}`}>{b.stream==="DIPLOMA"?"DIP":b.stream}-{b.label}</Link>,<Badge key="status" tone={b.status==="active"?"sage":"neutral"}>{b.status}</Badge>,<span key="semester">{b.semester==null?"Not placed":`Semester ${b.semester}`}{b.semester!=null&&(b.semester<1||b.semester>8)&&" — legacy value needs review"}</span>,<span key="count">{b.countStatus==null?"No placement":<>{b.studentCount??"Unknown"} <Badge tone={b.countStatus==="verified"?"sage":b.countStatus==="unknown"?"clay":"gold"}>{countLabel(b.countStatus)}</Badge></>}</span>,<span key="shared">{b.shared?<Badge tone="gold">Shared teaching</Badge>:"—"}</span>];
+  return <div className="min-w-0"><PageHeader context={`Planning records · ${data.term?.name??"No active term"}`} title="Batches & semester placements" description="Cohort identity lasts across terms. Semester and student count belong to one term placement." actions={data.editor?<Link href="/batches/new" className={buttonClass.primary}>Add batch</Link>:undefined}/>
+    {query.done&&<Notice tone="success">{query.done}</Notice>}{!data.term&&<EmptyNote>There is no available active academic term. Cohort records and history remain available; placement and count editing require an active term.</EmptyNote>}
+    <form className="my-5 grid min-w-0 gap-3 sm:grid-cols-[2fr_1fr_1fr_auto]"><label className="grid gap-1 text-sm">Find a batch<input className={inputClass} name="q" defaultValue={q}/></label><label className="grid gap-1 text-sm">Stream<select className={inputClass} name="stream" defaultValue={stream}><option value="">All streams</option><option value="HSC">HSC</option><option value="DIPLOMA">Diploma</option></select></label><label className="grid gap-1 text-sm">Cohort status<select className={inputClass} name="status" defaultValue={status}><option value="">All statuses</option>{[...new Set([...data.records.map(b=>b.status),"active","inactive","graduated"])].map(s=><option key={s} value={s}>{s}</option>)}</select></label><button className={`${buttonClass.secondary} self-end`}>Find batches</button></form>
+    <p className="mb-3 text-sm text-muted">{rows.length} cohort{rows.length===1?"":"s"} · {data.term?.name??"Directory"}</p>
+    {!rows.length?<EmptyNote>{data.records.length?<>No batches match. <Link className="underline" href="/batches">Clear filters</Link></>:"No cohort records yet. Add a batch identity, then place it in the active term when its semester is known."}</EmptyNote>:<><div className="hidden rounded-lg border border-[var(--color-line)] bg-sheet md:block"><table className="w-full text-left text-sm"><thead><tr>{["Batch","Cohort status","Semester","Students this term","Teaching"].map(h=><th key={h} className="border-b border-[var(--color-line)] px-3 py-3 text-xs font-semibold text-muted">{h}</th>)}</tr></thead><tbody>{rows.map(b=><tr key={b.id}>{cells(b).map((cell,i)=><td key={i} className="border-b border-[var(--color-line-soft)] px-3 py-4">{cell}</td>)}</tr>)}</tbody></table></div><div className="grid gap-3 md:hidden">{rows.map(b=><article key={b.id} className="ruled rounded-lg bg-sheet p-4"><dl className="grid grid-cols-[80px_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">{cells(b).map((cell,i)=><div key={i} className="contents"><dt className="text-xs text-muted">{["Batch","Status","Placement","Students","Teaching"][i]}</dt><dd className="min-w-0 break-words">{cell}</dd></div>)}</dl></article>)}</div></>}
+    <p className="mt-4 text-sm text-muted">Shared teaching is derived from group membership, including unscheduled groups. Unknown is never zero. Inactive and graduated cohorts keep their history.</p>
+  </div>;
 }

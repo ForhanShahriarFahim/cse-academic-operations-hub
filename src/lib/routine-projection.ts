@@ -14,6 +14,7 @@ export interface RoutineBatch {
   label: string;
   semester: number | null;
   studentCount: number | null;
+  countStatus?: import("./batch-records").CountStatus;
   sortOrder: number;
 }
 

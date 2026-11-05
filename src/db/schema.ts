@@ -269,6 +269,8 @@ export const batches = pgTable(
     status: text("status").notNull().default("active"),
     studentCount: integer("student_count"), // null = unknown, unknown is not zero
     sortOrder: integer("sort_order").notNull().default(0),
+    revision: integer("revision").notNull().default(1),
+    isDraft: boolean("is_draft").notNull().default(false), // only new unused mistakes may be deleted
   },
   (t) => [uniqueIndex("batches_stream_label_uq").on(t.stream, t.label)],
 );
@@ -280,6 +282,12 @@ export const batchTermPlacements = pgTable(
     batchId: integer("batch_id").notNull().references(() => batches.id),
     termId: integer("term_id").notNull().references(() => academicTerms.id),
     semester: integer("semester").notNull(), // 1..8, historical — never overwritten
+    studentCount: integer("student_count"),
+    countSource: text("count_source"),
+    countOrigin: text("count_origin").notNull().default("manual"),
+    countVerifiedAt: timestamp("count_verified_at", { withTimezone: true }),
+    countVerifiedBy: integer("count_verified_by").references(() => portalUsers.id),
+    revision: integer("revision").notNull().default(1),
   },
   (t) => [uniqueIndex("btp_uq").on(t.batchId, t.termId)],
 );

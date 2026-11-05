@@ -262,6 +262,7 @@ async function setDayPlan(input: SetDayPlanInput): Promise<ActionResult> {
     input.batchId == null ? isNull(dayPlans.batchId) : eq(dayPlans.batchId, input.batchId),
   )).limit(1);
   if ((current?.updatedAt.toISOString() ?? null) !== input.expectedUpdatedAt) return stale(CHANGED, "changed");
+  if(!current&&input.batchId!=null){const [batch]=await db.select().from(batches).where(eq(batches.id,input.batchId));if(batch?.status!=="active")return invalid("Reactivate or restore this cohort before adding a new planning exception.",{batchId:["Only active cohorts may be selected for a new exception."]});}
 
   const meetingsNow = await impactMeetings();
   const result = await auditedChange("time_grid.day_plan.set", "day_plan", async (tx) => {
