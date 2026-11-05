@@ -1,10 +1,18 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { academicTerms, batches, batchTermPlacements, courseOfferings, teachingGroupOfferings, teachingGroups } from "@/db/schema";
-import { authorize, can } from "./auth";
+import { authorize, can, getOptionalActor } from "./auth";
+import { redirect } from "next/navigation";
 import { cohortRead, readTermContext } from "./term-context";
 import { countStatus, integerField } from "./batch-records";
 import { batchChanges, batchEvidence, fingerprint } from "./batch-store";
+
+export async function requireBatchEditor(next:string){
+  const actor=await getOptionalActor();
+  if(!actor)redirect(`/login?next=${encodeURIComponent(next)}`);
+  if(!await can(actor,"manage_batches"))redirect("/forbidden");
+  return actor;
+}
 
 export async function getBatchDirectory(){
   const actor=await authorize("view_internal_portal");
@@ -12,7 +20,7 @@ export async function getBatchDirectory(){
   return cohortRead(async()=>{
     const context=await readTermContext();
     const term=context.state.kind==="one"?context.state.term:null;
-    const records=await db.select().from(batches).orderBy(batches.stream,batches.sortOrder,batches.id);
+    const records=await db.select().from(batches).orderBy(desc(batches.stream),desc(batches.sortOrder),batches.id);
     const placements=term?await db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId,term.id)):[];
     const links=term?await db.select({batchId:courseOfferings.batchId,groupId:teachingGroups.id,external:teachingGroups.externalAudienceLabel}).from(teachingGroupOfferings).innerJoin(courseOfferings,eq(courseOfferings.id,teachingGroupOfferings.offeringId)).innerJoin(teachingGroups,eq(teachingGroups.id,teachingGroupOfferings.teachingGroupId)).where(eq(teachingGroups.termId,term.id)):[];
     return {editor,term,context:{generation:context.generation,writeContext:term?{activeTermId:term.id,generation:context.generation}:null},records:records.map(b=>{

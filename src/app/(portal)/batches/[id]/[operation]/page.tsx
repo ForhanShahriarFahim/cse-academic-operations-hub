@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { authorize } from "@/lib/auth";
-import { getBatchDetail } from "@/lib/batch-data";
+import { getBatchDetail, requireBatchEditor } from "@/lib/batch-data";
 import { BatchForm } from "@/components/batches/batch-form";
 import { EmptyNote, PageHeader } from "@/components/ui";
 export const dynamic="force-dynamic";
 export default async function BatchOperation({params}:{params:Promise<{id:string;operation:string}>}){
-  await authorize("manage_batches");const {id,operation}=await params;
+  const {id,operation}=await params;await requireBatchEditor(`/batches/${id}/${operation}`);
   if(!["edit","count","placement","lifecycle"].includes(operation))notFound();
   const data=await getBatchDetail(id);if(!data)notFound();
   const mode=operation==="edit"?"identity":operation as "count"|"placement"|"lifecycle";
