@@ -1,7 +1,7 @@
 # Local delivery plan — 26 October 2026
 
 Status: owner-authorized local-first workflow; BUG-24 accepted and merged locally on 27 October 2026 with the disclosed default-build exception. ROM-01A accepted on 28 October with its disclosed default-build exception; merged locally at `2b363cb`. ROM-01B accepted and merged locally at `850f42a` on 29 October. ROM-01C accepted/merged on 1 November at `0dc096c` with the disclosed default-build exception. BUG-28 accepted (`0520887`) with AC-08 still partial for the disclosed default-build failure, merged `649f292`, receipt `6011e0f`. SET-01A accepted (`7d4fa8f`) and merged locally (`6860f84`) on 2 November; AC-11 remains partial under the disclosed accepted default-build exception. Next suggested owner-started session: BAT-01A inspection/specification. Later scopes remain proposals.
-Updated: 1 November 2026, Asia/Dhaka.
+Updated: 5 November 2026, Asia/Dhaka. Current: owner-started BAT-01A inspection/specification on `codex/bat-01a`; implementation approval pending. The earlier next-session suggestion in the status history has now been taken up for planning only.
 Entry point: [project brief](../PROJECT_BRIEF.md). Execution rules: [workflow](../WORKFLOW.md).
 
 ## Owner working agreement
@@ -49,7 +49,7 @@ Local suffixes below are planning labels under existing GitHub issues. No new Gi
 | Done locally | ROM-01C / #5 | Dated maintenance and conflict/placement enforcement | [Accepted specification/D-1–D-6](../specs/ROM-01C/spec.md), [sole plan/acceptance](../specs/ROM-01C/plan.md); accepted/merged 1 November at `0dc096c` with AC-11 partial under the disclosed default-build exception |
 | Done locally | BUG-28 / #28 | At most one active term, with safe populated migration and concurrency evidence | [Accepted plan/receipt](../specs/BUG-28/plan.md), [verification](../specs/BUG-28/verification.md); acceptance `0520887`, merge `649f292`, receipt `6011e0f`. AC-08 remains partial under the accepted default-build exception; lifecycle UI remains SET-01A |
 | Done locally | SET-01A / #14 | Draft identity/explicit initial policy, reviewed activation and read-only historical publication access | [Approved D-1–D-6](../specs/SET-01A/spec.md), [completed sole checklist/receipt/handoff](../specs/SET-01A/plan.md), [verification](../specs/SET-01A/verification.md); acceptance `7d4fa8f`, local merge `6860f84`, 2 November; final suites/browser/A4 evidence complete, AC-11 partial under accepted default-build exception; parent #14 open |
-| 7 | BAT-01A / #6 | Cohort identity/lifecycle and placement history with term-specific count verification | Count/history migration and graduation/hold definitions |
+| Planning | BAT-01A / #6 | Cohort identity/lifecycle, manual active-term placement and history with term-specific count verification | [Proposed D-1–D-6](../specs/BAT-01A/spec.md), [sole plan/approval](../specs/BAT-01A/plan.md), [sketches](../specs/BAT-01A/mockups/batches.html); owner started planning 5 November, implementation not approved |
 | 8 | BAT-01B / #6 | Preview and confirm next-term rollover, repeat/hold/graduate overrides and time-grid cloning | #28/SET-01A/BAT-01A; earlier term unchanged; calendar clone offered only if calendar exists |
 | 9 | CRS-01A / #7 | Catalog create/edit/lifecycle/history | Academic credits versus workload; historical labels and existing offering impact |
 | 10 | CRS-01B / #7 | Clone/edit term offerings with an added/dropped/changed comparison | Term and cohort foundation; no silent changes to previous offerings |
@@ -85,6 +85,8 @@ This is a dependency-informed order, not a promise that every item takes one ses
 7. Record the local merge and suggested next bounded task. Give a pasteable handoff; stop for the owner to start another session.
 
 ## Current handoff
+
+- **5 November — current:** owner said “Go for the next task.”, starting BAT-01A inspection/specification from local `main` `7437def`. Branch `codex/bat-01a`; [proposed scope](../specs/BAT-01A/spec.md), [sole plan/approval/exact handoff](../specs/BAT-01A/plan.md), [planning verification](../specs/BAT-01A/verification.md). Prepare/review static sketches and obtain actual D-1–D-6 approval before application implementation. Earlier handoff suggestions below are history. No institutional operation, remote sync, extra writer/worktree or BAT-01B work.
 
 - ROM-01A / #5 accepted on 28 October 2026: owner selected “Accept ROM-01A and merge locally” with the default Turbopack failure disclosed. [Acceptance/sole checklist](../specs/ROM-01A/plan.md), [verification](../specs/ROM-01A/verification.md). Merged locally at `2b363cb`, acceptance `44753cb`, completed merge handoff `3c4e7cc`. Parent #5 remains open; no remote synchronization.
 - ROM-01B / #5 accepted on 29 October: owner said “accept and merge. And go for the next task.” Acceptance `57471b3`, merge `850f42a`, receipt `cbdbce9`. [Completed sole plan](../specs/ROM-01B/plan.md), [verification](../specs/ROM-01B/verification.md). Implementation approval `b713996` preceded B code; that approval does not authorize C implementation.

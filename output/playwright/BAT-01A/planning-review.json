@@ -1,0 +1,561 @@
+{
+  "date": "2026-11-05",
+  "browser": "Installed Microsoft Edge / Playwright library (CLI registry download unavailable)",
+  "cases": 63,
+  "rows": [
+    {
+      "name": "directory",
+      "title": "Batches & placements · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "new",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "placement",
+      "title": "Place batch in Spring 2027 · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "count",
+      "title": "Student count for this term · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "lifecycle",
+      "title": "Review graduation · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "states",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-stale",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-no-active",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-denied",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-error",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-pending",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-success",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-safe",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-delete",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-unknown",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-loading",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-empty",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-verified",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-confirmed",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "directory",
+      "title": "Batches & placements · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "new",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "placement",
+      "title": "Place batch in Spring 2027 · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "count",
+      "title": "Student count for this term · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "lifecycle",
+      "title": "Review graduation · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "states",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-stale",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-no-active",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-denied",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-error",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-pending",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-success",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-safe",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-delete",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-unknown",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-loading",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-empty",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-verified",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-confirmed",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "directory",
+      "title": "Batches & placements · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "new",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "placement",
+      "title": "Place batch in Spring 2027 · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "count",
+      "title": "Student count for this term · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "lifecycle",
+      "title": "Review graduation · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "states",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-stale",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-no-active",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-denied",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-error",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-pending",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-success",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-safe",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-delete",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-unknown",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-loading",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "state-empty",
+      "title": "Feedback & protection states · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-verified",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail-confirmed",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "edit",
+      "title": "Add a batch · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    }
+  ],
+  "pageErrors": [],
+  "interactionChecks": [
+    "count acknowledgement and success navigation",
+    "directory no-match and clear",
+    "keyboard skip link and count form traversal"
+  ],
+  "focus": [
+    {
+      "tag": "INPUT",
+      "id": "student-count",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "INPUT",
+      "id": "count-source",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "INPUT",
+      "id": "confirm-count",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "save-estimate",
+      "text": "Save as estimate",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Cancel",
+      "outline": "solid"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "unknown-count",
+      "text": "Set unknown…",
+      "outline": "solid"
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "text": "Skip to content\nACADEMIC OPERATIONS  / CSEAcademic administr",
+      "outline": "none"
+    }
+  ]
+}
