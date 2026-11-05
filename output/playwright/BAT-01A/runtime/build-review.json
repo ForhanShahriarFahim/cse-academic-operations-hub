@@ -1,0 +1,21 @@
+{
+  "applicationCommit": "3e126a6",
+  "approvalCommit": "b035ed4",
+  "defaultBuild": {
+    "command": "npm run build",
+    "result": "failed",
+    "exitCode": 1,
+    "cause": "globals.css worker exits before Turbopack IPC connection; also reproduced with elevated execution"
+  },
+  "separateReviewBuild": {
+    "command": "npm_lifecycle_event=build node node_modules/next/dist/bin/next build --webpack",
+    "result": "passed",
+    "exitCode": 0
+  },
+  "typecheck": "passed",
+  "lint": "passed",
+  "domain": "passed",
+  "browserCaptures": 66,
+  "nativeA4Pages": 10,
+  "ownerAcceptance": "pending; no build exception approved"
+}

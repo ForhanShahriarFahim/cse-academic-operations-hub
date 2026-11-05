@@ -2,7 +2,7 @@
 
 Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/6)
 
-Status: **Approved for implementation — owner “Approve”, 5 November 2026; unchanged proposal `b9958aa`**
+Status: **Implemented for owner inspection; AC-11 partial.** Unchanged scope approved at `b035ed4`; acceptance/local merge pending.
 
 Updated: 5 November 2026, Asia/Dhaka
 

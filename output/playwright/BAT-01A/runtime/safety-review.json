@@ -1,0 +1,161 @@
+{
+  "groups": 29,
+  "results": [
+    {
+      "name": "BAT-01A records (PGlite)",
+      "result": "passed",
+      "recordedRun": "boundary-safety.log"
+    },
+    {
+      "name": "BAT-01A records (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "boundary-safety.log"
+    },
+    {
+      "name": "SET-01A workspace (PGlite)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "SET-01A workspace (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PGlite)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PGlite)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PGlite)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01A rooms (PGlite)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "ROM-01A rooms (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "T-01 isolation",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "BUG-24 environment",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "T-02 PGlite recovery",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "T-03 two-term history",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "T-04 audit atomicity",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "T-06 PostgreSQL",
+      "result": "passed",
+      "recordedRun": "final-safety.log"
+    },
+    {
+      "name": "BUG-29 time zones (PGlite)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-29 time zones (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PGlite)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-48 cluster cleanup (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PGlite)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PGlite)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PGlite)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PostgreSQL)",
+      "result": "passed",
+      "recordedRun": "resumed-safety.log"
+    }
+  ],
+  "firstRunStoppedAt": "BUG-29 legacy catalog expectation: added count_verified_at to explicit post-0007 exclusion, then resumed remaining groups",
+  "postFixDefaultMetadata": "unchanged on successful focused and resumed runs",
+  "initialConfiguredClientIncident": "See docs/specs/BAT-01A/verification.md; no pre-incident row fingerprint is claimed",
+  "additionalBoundaryOrderingsPerAdapter": 10,
+  "boundaryCases": [
+    "publication/delete",
+    "publication/count",
+    "placement/delete",
+    "placement/lifecycle",
+    "count/activation"
+  ]
+}
