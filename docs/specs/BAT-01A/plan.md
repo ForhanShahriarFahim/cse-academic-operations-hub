@@ -4,7 +4,7 @@ Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operat
 
 Specification: [D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [sketches](mockups/batches.html)
 
-Status: **Proposal ready for owner review; implementation not approved**
+Status: **Approved — implementation in progress**
 
 Branch/base: `codex/bat-01a` / inspected local `main` `7437def`
 
@@ -35,15 +35,15 @@ Estimate numbers continue to block demonstrably undersized rooms while confidenc
 ## Approval record
 
 - Planning authorization: owner said **“Go for the next task.”**, 5 November 2026, following the current BAT-01A inspection/specification handoff.
-- Implementation authorization: **Pending**. Present D-1–D-6, sketches, migration tradeoff and checklist; record the owner's actual response and commit approved scope before T-03.
-- Approved scope: none yet beyond inspection/specification. SET-01A acceptance does not approve BAT-01A.
+- Implementation authorization: **Approved**, 5 November 2026. Owner replied **“Approve”** to the explicit D-1–D-6 implementation approval request after proposal `b9958aa`, specification and responsive sketches were presented. This approval record is committed before T-03.
+- Approved scope: unchanged D-1–D-6 / AC-01–AC-11 at `b9958aa`. No institutional migration, remote synchronization, rollover or local merge before delivery acceptance.
 - Material amendments: none; changed authority, graduation/hold definitions, historical editing, draft-term/rollover scope or count migration needs an owner decision.
 - Delivery acceptance/local merge: pending a verified implementation and owner inspection. No institutional operation, remote sync or parent closure authorized.
 
 ## Tasks — sole checklist
 
 - [x] T-01 — Inspect actual baseline and define bounded scope, count migration and lifecycle decisions; AC-01–AC-11.
-- [ ] T-02 — Responsive sketch/document verification complete ([evidence](verification.md)); present D-1–D-6 and obtain actual approval, then commit approval before implementation. Approval remains pending.
+- [x] T-02 — Responsive sketch/document verification complete ([evidence](verification.md)); owner approved unchanged D-1–D-6 (“Approve”, 5 November). Approval committed before implementation.
 - [ ] T-03 — Inventory count consumers and reference creators; implement schema/domain/migration and recover populated disposable copies on both adapters; AC-02/03/05/06/07/08.
 - [ ] T-04 — Implement scoped loaders/actions, context/revision/evidence serialization, atomic audits and lifecycle/deletion protections; AC-01–AC-06/09. Wire existing reference creators into proven race protocol.
 - [ ] T-05 — Integrate per-term counts/confidence across operational/room/scheduling/publication paths and preserve frozen outputs/private boundaries; AC-06–AC-09.
@@ -62,10 +62,10 @@ Owner review path after implementation: synthetic administrator create → place
 
 ## Current checkpoint / exact handoff
 
-- Scope: proposed [D-1–D-6](spec.md); owner implementation approval pending.
+- Scope: approved unchanged [D-1–D-6](spec.md) at proposal `b9958aa`; owner “Approve”, 5 November.
 - Branch/base: `codex/bat-01a` from `7437def`, no worktrees. Inspect actual Git state and local proposal commits when resuming.
 - Completed: T-01 and the documentation/sketch portion of T-02. Proposal checkpoint is titled `docs(BAT-01A): specify cohort lifecycle and term counts (#6)`; inspect the latest Git log for its commit ID. No application/schema/seed/test changes; ignored local review scripts are under `.tmp/bat-01a/`.
-- Next: present concrete D-1–D-6 approval request and wait for actual owner decision. After approval record/commit it before T-03. Do not ask again if unchanged approval arrives in this session or is recorded during handoff.
+- Next: T-03 inventory, schema/domain/migration and disposable-adapter evidence, then continue T-04–T-08 autonomously. Acceptance/local merge remain pending.
 - Verification: [planning record](verification.md): 166 document links; 63 responsive cases plus 3 focused corrected-detail cases; keyboard/interaction and representative visual checks pass. Implementation criteria all pending.
 - Limitations: no institutional facts for individual graduation or historic count verification; proposal deliberately does not assert either. No institutional database opened, remote action, runtime policy change or migration.
 
