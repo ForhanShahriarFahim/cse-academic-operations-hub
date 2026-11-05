@@ -6,6 +6,7 @@ import { loadApp,report,signInAs } from "./controlled-runtime";
 import { selectFingerprint } from "../fingerprint";
 import { setAuditInsertFault } from "../faults";
 import type { BatchResult } from "../../../src/lib/batch-actions";
+import { batchBoundaryRaces } from "./batch-boundary-races";
 const database=loadApp<typeof import("../../../src/db")>("src/db/index.ts"),{db}=database;
 const s=loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
 const actions=loadApp<typeof import("../../../src/lib/batch-actions")>("src/lib/batch-actions.ts");
@@ -157,6 +158,7 @@ async function main(){
   assert.equal((await call({command:"identity",batchId:id,revision:(await record(id)).revision,stream:"HSC",label:"ROLLBACK",intake:"",sortOrder:0,reason:"Audit rollback"})).ok,false);
   assert.deepEqual(await selectFingerprint(raw,"select * from batches"),identityBefore);await setAuditInsertFault(handle,false);
   await concurrency(lines);
+  await batchBoundaryRaces(lines);
   await db.update(s.academicTerms).set({status:"completed"}).where(eq(s.academicTerms.status,"active"));
   assert.equal((await data.getBatchDirectory()).term,null);assert.ok(await data.getBatchDetail(String(id)));
   lines.push("Each direct cohort FK family and structured snapshot independently refuses deletion. Two-term counts use actual portal/all-term room projections without touching previous rows; new frozen confidence round-trips without private metadata; viewers receive no count source/verifier/history; audit failure rolls back identity; zero-active history works.");
