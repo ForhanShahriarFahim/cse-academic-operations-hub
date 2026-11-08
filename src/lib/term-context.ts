@@ -4,6 +4,8 @@ import { academicTerms, termContext } from "@/db/schema";
 import { ActiveTermUnavailable, classifyActiveTerms } from "./term-state";
 import { parseTermWriteContext, type TermWriteContext } from "./term-context-value";
 import type { ActionResult } from "./action-result";
+import { lockTermContext } from "./term-lock";
+export { lockTermContext } from "./term-lock";
 
 export type TermReader = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 export class TermContextChanged extends ActiveTermUnavailable {
@@ -31,13 +33,6 @@ export async function assertTermContext(expected: TermWriteContext, reader: Term
   }
   return current;
 }
-export async function lockTermContext(reader: TermReader, mode: "share" | "exclusive") {
-  const rows = mode === "share"
-    ? await reader.select().from(termContext).where(eq(termContext.id, 1)).for("share")
-    : await reader.select().from(termContext).where(eq(termContext.id, 1)).for("update");
-  if (!rows.length) throw new ActiveTermUnavailable("context");
-  return rows[0];
-}
 export async function activeTermWrite(input: unknown, work: () => Promise<ActionResult>) {
   const expected = parseTermWriteContext(input);
   if (!expected) throw new TermContextChanged("This page has no valid academic term context. No changes were saved. Refresh before continuing.");
@@ -49,4 +44,13 @@ export async function activeTermWrite(input: unknown, work: () => Promise<Action
 }
 export async function advanceTermGeneration(reader: TermReader) {
   await reader.update(termContext).set({ generation: sql`${termContext.generation} + 1` }).where(eq(termContext.id, 1));
+}
+
+/** One response sees one cohort/count epoch. Nested calls use real savepoints
+ * in the existing ambient transaction and never upgrade a shared lock. */
+export async function cohortRead<T>(work: () => Promise<T>): Promise<T> {
+  return db.transaction(tx => inDatabaseTransaction(tx, async () => {
+    await lockTermContext(tx, "share");
+    return work();
+  }));
 }

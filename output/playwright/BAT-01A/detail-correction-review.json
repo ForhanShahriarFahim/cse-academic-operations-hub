@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-05",
+  "browser": "Installed Microsoft Edge / Playwright library (CLI registry download unavailable)",
+  "cases": 3,
+  "rows": [
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 1440,
+      "scroll": 1440,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 390,
+      "scroll": 390,
+      "h1": 1,
+      "axe": []
+    },
+    {
+      "name": "detail",
+      "title": "HSC-22B · BAT-01A proposal",
+      "width": 320,
+      "scroll": 320,
+      "h1": 1,
+      "axe": []
+    }
+  ],
+  "pageErrors": [],
+  "interactionChecks": [
+    "count acknowledgement and success navigation",
+    "directory no-match and clear",
+    "keyboard skip link and count form traversal"
+  ],
+  "focus": [
+    {
+      "tag": "INPUT",
+      "id": "student-count",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "INPUT",
+      "id": "count-source",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "INPUT",
+      "id": "confirm-count",
+      "text": "",
+      "outline": "solid"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "save-estimate",
+      "text": "Save as estimate",
+      "outline": "solid"
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Cancel",
+      "outline": "solid"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "unknown-count",
+      "text": "Set unknown…",
+      "outline": "solid"
+    },
+    {
+      "tag": "BODY",
+      "id": "",
+      "text": "Skip to content\nACADEMIC OPERATIONS  / CSEAcademic administr",
+      "outline": "none"
+    }
+  ]
+}

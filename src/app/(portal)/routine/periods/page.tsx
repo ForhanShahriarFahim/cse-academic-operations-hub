@@ -40,7 +40,7 @@ export default async function DaysAndPeriodsPage({
         initialStream={initialStream}
         context={{
           canEdit,
-          batches: data.batches.map((b) => ({ id: b.id, stream: b.stream, label: b.label })),
+          batches: data.batches.map((b) => ({ id: b.id, stream: b.stream, label: b.label,status:b.status })),
           windows: data.windows.map((w) => ({ batchId: w.batchId, stream: w.stream, dayOfWeek: w.dayOfWeek, startMinutes: w.startMinutes, endMinutes: w.endMinutes })),
           meetings: data.meetings.map((m) => ({
             id: m.id, courseCode: m.courseCode, dayOfWeek: m.dayOfWeek, startMinutes: m.startMinutes, endMinutes: m.endMinutes,

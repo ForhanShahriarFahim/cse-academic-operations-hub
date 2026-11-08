@@ -1,8 +1,9 @@
 import { analyzeSchedule, type BreakRule, type PermittedWindow, type EngineInput } from "./conflicts";
 import type { TimeGrid } from "./time-grid";
-import { knownAudienceSize, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
+import { knownAudienceSubtotal, type MeetingView, type RoomRef, type TeacherRef } from "./serialize";
 
 export interface AutoScheduleGroup {
+  audienceSelectable?:boolean;
   teachingGroupId: number;
   courseCode: string;
   courseTitle: string;
@@ -59,7 +60,7 @@ function allowedByAudience(windows: PermittedWindow[], group: AutoScheduleGroup,
 }
 
 function roomOrder(group: AutoScheduleGroup, rooms: RoomRef[]) {
-  const size = knownAudienceSize({ ...group, id: -1, dayOfWeek: 0, startMinutes: 0, endMinutes: 1, isException: false, exceptionNote: null, customTimeLabel: null, highlightColor: null, rooms: [] });
+  const size = knownAudienceSubtotal(group);
   return rooms
     .filter((room) => group.courseType !== "sessional" || room.roomType === "lab")
     .filter((room) => !group.requiredRoomCapability || room.capabilities.includes(group.requiredRoomCapability))
@@ -92,6 +93,7 @@ export function suggestSchedule(input: {
 
   for (const group of groups) {
     const audience = audienceLabel(group);
+    if(group.audienceSelectable===false){skipped.push({teachingGroupId:group.teachingGroupId,courseCode:group.courseCode,audience,reason:"An audience cohort is inactive, graduated or has an unsupported status. Restore it before scheduling."});continue;}
     if (group.deliveryMode === "teacher_managed") continue;
     const remainingMeetings = Math.max(0, group.requiredMeetings - group.scheduledMeetings);
     if (remainingMeetings === 0) continue;

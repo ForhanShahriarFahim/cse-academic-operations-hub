@@ -50,9 +50,9 @@ export async function populateSummerFixture(db: Db): Promise<SummerFixture> {
     { stream: "HSC", label: "21B", studentCount: 25, sortOrder: 0 },
   ]).returning();
   await db.insert(schema.batchTermPlacements).values([
-    { batchId: hsc.id, termId: term.id, semester: 7 },
+    { batchId: hsc.id, termId: term.id, semester: 7, studentCount:30, countSource:"Synthetic term-specific planning estimate" },
     { batchId: diploma.id, termId: term.id, semester: 3 },
-    { batchId: graduating.id, termId: term.id, semester: 8 },
+    { batchId: graduating.id, termId: term.id, semester: 8, studentCount:25, countSource:"Synthetic term-specific planning estimate" },
   ]);
   await db.insert(schema.classRepresentatives).values({ termId: term.id, batchId: hsc.id, fullName: "Synthetic Representative", phone: "+000-0000-0101" });
   await db.insert(schema.departmentContacts).values({ termId: term.id, fullName: "Synthetic Coordinator", designation: "Coordinator", phone: "+000-0000-0201" });
@@ -201,7 +201,7 @@ export async function populateSpringFixture(db: Db, summer: SummerFixture): Prom
   }).returning();
   await db.insert(schema.academicPolicies).values({ termId: term.id, extraClassRate: "250.00", updatedAt: at("2026-12-20T00:00:00Z") });
   await db.insert(schema.batchTermPlacements).values([
-    { batchId: summer.batchIds.hsc, termId: term.id, semester: 8 },
+    { batchId: summer.batchIds.hsc, termId: term.id, semester: 8, studentCount:30, countSource:"Synthetic Spring estimate, unverified" },
     { batchId: summer.batchIds.diploma, termId: term.id, semester: 3 },
   ]);
   await db.insert(schema.classRepresentatives).values({ termId: term.id, batchId: summer.batchIds.hsc, fullName: "Synthetic Spring Representative", phone: "+000-0000-0102" });

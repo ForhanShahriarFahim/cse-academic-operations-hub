@@ -8,7 +8,7 @@
  */
 import { overlaps, fmtRange, DAY_NAMES } from "./time";
 import { blockingBreaks, isClosedDay, type TimeGrid } from "./time-grid";
-import { knownAudienceSize, meetingStreams, type MeetingView, type ExternalCommitmentView } from "./serialize";
+import { knownAudienceSize, knownAudienceSubtotal, meetingStreams, type MeetingView, type ExternalCommitmentView } from "./serialize";
 import { maintenanceOverlap, physicalOD, type MaintenanceContext } from "./room-maintenance";
 
 export interface BreakRule {
@@ -360,23 +360,24 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
           meetingIds: [m.id],
         });
       }
-      if (size == null) {
+      if (size == null || m.audiences.some(a=>a.countStatus==="unknown"||a.countStatus==="unverified")) {
         issues.push({
           id: `capu-${m.id}-${r.id}`,
           severity: "warning",
           type: "capacity_unverified",
           title: `Unverified audience size in ${r.code}`,
-          detail: `Audience size for ${m.courseCode} is unknown (${r.code} seats ${r.capacity ?? "?"}). Unknown is not zero — verify before unconditional approval.`,
+          detail: `Audience size for ${m.courseCode} is ${size==null?"unknown":`${size}, an unverified estimate`} (${r.code} seats ${r.capacity ?? "?"}). Verify before unconditional approval; unknown is never zero.`,
           dayOfWeek: m.dayOfWeek,
           meetingIds: [m.id],
         });
-      } else if (r.capacity != null && size > r.capacity) {
+      }
+      if (r.capacity != null && knownAudienceSubtotal(m) > r.capacity) {
         issues.push({
           id: `capv-${m.id}-${r.id}`,
           severity: "blocker",
           type: "capacity_violation",
           title: `Capacity exceeded: ${r.code}`,
-          detail: `${m.courseCode} expects ${size} students in ${r.code} (capacity ${r.capacity}).`,
+          detail: `${m.courseCode} has ${size==null?"at least ":""}${knownAudienceSubtotal(m)} students in ${r.code} (capacity ${r.capacity}).`,
           dayOfWeek: m.dayOfWeek,
           meetingIds: [m.id],
         });

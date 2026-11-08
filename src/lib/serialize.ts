@@ -5,6 +5,7 @@
  */
 
 import type { BreakRule, Issue } from "./conflicts";
+import { countStatus, type CountStatus } from "./batch-records";
 import { isTimeGrid, type TimeGrid } from "./time-grid";
 
 export interface TeacherRef {
@@ -32,6 +33,7 @@ export interface AudienceRef {
   stream: "HSC" | "DIPLOMA";
   semester: number | null;
   studentCount: number | null;
+  countStatus?: CountStatus; // absent in immutable legacy publications
 }
 
 export interface MeetingView {
@@ -101,7 +103,7 @@ export function sharingLabel(m: MeetingView): string | null {
 /** Total known audience size; null when any part is unknown. */
 export function knownAudienceSize(m: MeetingView): number | null {
   let total = 0;
-  for (const a of m.audiences) {
+  for (const a of new Map(m.audiences.map(a=>[a.batchId,a])).values()) {
     if (a.studentCount == null) return null;
     total += a.studentCount;
   }
@@ -110,6 +112,11 @@ export function knownAudienceSize(m: MeetingView): number | null {
     total += m.externalStudentCount;
   }
   return total;
+}
+
+/** A partial known subtotal can already disprove room fit. Never fill unknowns with zero in a total. */
+export function knownAudienceSubtotal(m: Pick<MeetingView,"audiences"|"externalAudienceLabel"|"externalStudentCount">): number {
+  return [...new Map(m.audiences.map(a=>[a.batchId,a])).values()].reduce((n,a)=>n+(a.studentCount??0),0)+(m.externalAudienceLabel?m.externalStudentCount??0:0);
 }
 
 export function durationMinutes(m: MeetingView): number {
@@ -134,6 +141,7 @@ export interface PublicationBatch {
   label: string;
   semester: number | null;
   studentCount: number | null;
+  countStatus?: CountStatus;
   sortOrder: number;
 }
 
@@ -214,7 +222,7 @@ export function buildSnapshot(input: {
     term: { ...input.term },
     versionNumber: input.versionNumber,
     meetings: input.meetings,
-    batches: input.batches,
+    batches: input.batches.map(({id,stream,label,semester,studentCount,sortOrder,countStatus})=>({id,stream,label,semester,studentCount,sortOrder,...(countStatus?{countStatus}:{})})),
     breaks: input.breaks,
     externalCommitments: input.externals.filter((item) => item.verificationStatus === "verified"),
     issues: input.issues,
@@ -342,7 +350,7 @@ export interface AssembleInput {
     stream: string;
     studentCount: number | null;
   }>;
-  placements: Array<{ batchId: number; semester: number }>;
+  placements: Array<{ batchId: number; semester: number; studentCount?: number|null; countVerifiedAt?: unknown; countVerifiedBy?:number|null }>;
   meetingTeachers: Array<{ meetingId: number; teacherId: number; role: string }>;
   meetingRooms: Array<{ meetingId: number; roomId: number }>;
   teachers: Array<{
@@ -369,6 +377,7 @@ export function assembleMeetingViews(input: AssembleInput): MeetingView[] {
   const offeringById = new Map(input.offerings.map((o) => [o.id, o]));
   const batchById = new Map(input.batches.map((b) => [b.id, b]));
   const semesterByBatch = new Map(input.placements.map((p) => [p.batchId, p.semester]));
+  const placementByBatch = new Map(input.placements.map(p=>[p.batchId,p]));
   const teacherById = new Map(input.teachers.map((t) => [t.id, t]));
   const roomById = new Map(input.rooms.map((r) => [r.id, r]));
 
@@ -405,12 +414,15 @@ export function assembleMeetingViews(input: AssembleInput): MeetingView[] {
       if (!off) continue;
       const b = batchById.get(off.batchId);
       if (!b) continue;
+      if (audiences.some(a=>a.batchId===b.id)) continue;
+      const placement=placementByBatch.get(b.id);
       audiences.push({
         batchId: b.id,
         batchLabel: b.label,
         stream: b.stream as "HSC" | "DIPLOMA",
         semester: semesterByBatch.get(b.id) ?? null,
-        studentCount: b.studentCount,
+        studentCount: placement?.studentCount ?? null,
+        countStatus: placement ? countStatus({ ...placement,studentCount:placement.studentCount??null }) : "unknown",
       });
     }
 

@@ -1,0 +1,103 @@
+{
+  "kind": "Native Edge A4 output, pypdf metadata/text and Poppler raster review",
+  "reports": [
+    {
+      "file": "public-official.pdf",
+      "pages": [
+        {
+          "page": 1,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 1124
+        },
+        {
+          "page": 2,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 734
+        },
+        {
+          "page": 3,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 580
+        },
+        {
+          "page": 4,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 728
+        }
+      ]
+    },
+    {
+      "file": "archive-official.pdf",
+      "pages": [
+        {
+          "page": 1,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 1124
+        },
+        {
+          "page": 2,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 734
+        },
+        {
+          "page": 3,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 580
+        },
+        {
+          "page": 4,
+          "widthPoints": 841.92,
+          "heightPoints": 594.96,
+          "characters": 728
+        }
+      ]
+    },
+    {
+      "file": "archive-teachers.pdf",
+      "pages": [
+        {
+          "page": 1,
+          "widthPoints": 594.96,
+          "heightPoints": 841.92,
+          "characters": 1054
+        },
+        {
+          "page": 2,
+          "widthPoints": 594.96,
+          "heightPoints": 841.92,
+          "characters": 726
+        }
+      ]
+    }
+  ],
+  "csvCoursesPresentInEveryOutput": [
+    "SYN-4101"
+  ],
+  "privateCountSentinelsAbsent": true,
+  "historicalWorkloadShownAsUnavailable": true,
+  "archivePublicOfficialPixelParity": [
+    {
+      "page": 1,
+      "pngSha256": "27a1b029577e0948674df1f6e8b278e037e707f9eb75a80fde20bed11a844844"
+    },
+    {
+      "page": 2,
+      "pngSha256": "cf6576995e463a27a4300310e96c7fe1fa5ccca2ee95cc29271bfa58b34c3b12"
+    },
+    {
+      "page": 3,
+      "pngSha256": "1fde4c9f5756ca969ec430398448dc2fce6221e626e3158fcf7f240c6e1c0126"
+    },
+    {
+      "page": 4,
+      "pngSha256": "2d2d6e28b096884377bb2bc30a2599904f5159fe3655c47a3e6a5ecadef91ac8"
+    }
+  ]
+}

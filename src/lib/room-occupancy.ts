@@ -2,7 +2,7 @@
 import type { PortalData, RoomRow } from "./data";
 import { ROOM_CAPABILITIES, roomFit } from "./room-records";
 import { validInterval, validWeekday } from "./room-lifecycle";
-import { knownAudienceSize } from "./serialize";
+import { knownAudienceSize,knownAudienceSubtotal } from "./serialize";
 import { STREAMS, streamPlan } from "./time-grid";
 import { academicWeekday, civilDay, dateBounds, maintenanceOnDate } from "./room-maintenance";
 export type Interval = { start: number; end: number };
@@ -69,8 +69,9 @@ export function projectRoomOccupancy(data: Basis, room: Pick<RoomRow, "id" | "is
     const label = `${meeting.courseCode} · ${[...new Map(meeting.audiences.map((a) => [a.batchId, `${a.stream}-${a.batchLabel}`])).values(), meeting.externalAudienceLabel].filter(Boolean).join(" + ") || "Audience unknown"}`;
     if (!validWeekday(meeting.dayOfWeek) || !validInterval(meeting.startMinutes, meeting.endMinutes)) { uncertainty.push({ key: `m${meeting.id}`, day: validWeekday(meeting.dayOfWeek) ? meeting.dayOfWeek : null, label: `${label}: invalid weekday/time` }); continue; }
     const audienceSize = meeting.audiences.length || meeting.externalAudienceLabel ? knownAudienceSize({ ...meeting, audiences: [...new Map(meeting.audiences.map((a) => [a.batchId, a])).values()] }) : null;
-    const alerts = roomFit(room, { courseType: meeting.courseType, requiredRoomCapability: meeting.requiredRoomCapability, audienceSize });
-    if (audienceSize == null || room.capacity == null) alerts.push(`Fit unverified: ${audienceSize == null ? "audience unknown" : "seats unknown"}`);
+    const alerts = roomFit(room, { courseType: meeting.courseType, requiredRoomCapability: meeting.requiredRoomCapability, audienceSize,audienceKnownSubtotal:knownAudienceSubtotal(meeting) });
+    const unverified=meeting.audiences.some(a=>a.countStatus==="unverified"||a.countStatus==="unknown");
+    if (audienceSize == null || unverified || room.capacity == null) alerts.push(`Fit unverified: ${audienceSize == null ? "audience unknown" : unverified?"count estimate not confirmed":"seats unknown"}`);
     const dates = data.maintenance?.meetingDates[meeting.id] ?? data.meetings.find((m) => m.id === meeting.id) as typeof meeting & { effectiveFrom?: string | null; effectiveTo?: string | null };
     bookings.push({ key: `m${meeting.id}`, day: meeting.dayOfWeek, start: meeting.startMinutes, end: meeting.endMinutes, label, detail: `Class #${meeting.id} · full stored interval for every room role`, effective: dates.effectiveFrom || dates.effectiveTo ? `${dates.effectiveFrom ?? "Term start"} – ${dates.effectiveTo ?? "Term end"}` : null, alerts });
   }

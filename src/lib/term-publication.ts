@@ -11,7 +11,8 @@ const ns = nullable(str), nn = nullable(num);
 const stream = (v: unknown) => v === "HSC" || v === "DIPLOMA";
 const teacher = { id:num, shortCode:str, fullName:str, homeDepartmentCode:ns, designation:ns, isExternalCse:bool, role:str };
 const room = { id:num, code:str, building:str, roomType:str, capabilities:[str] as const, capacity:nn };
-const audience = { batchId:num, batchLabel:str, stream, semester:nn, studentCount:nn };
+const confidence = (v:unknown)=>v===undefined||v==="unknown"||v==="unverified"||v==="verified";
+const audience = { batchId:num, batchLabel:str, stream, semester:nn, studentCount:nn, countStatus:confidence };
 const meeting = { id:num, teachingGroupId:num, dayOfWeek:num, startMinutes:num, endMinutes:num,
   courseCode:str, courseTitle:str, courseType:str, courseCredits:num, requiredRoomCapability:ns, owningDepartmentCode:ns,
   deliveryMode:str, isException:bool, exceptionNote:ns, customTimeLabel:ns, highlightColor:ns, pendingReconciliation:bool,
@@ -31,7 +32,7 @@ const grid = { patterns:[{ id:num, name:str, periods:[{start:num,end:num}] as co
   dayPlans:[{id:num,stream,batchId:nn,dayOfWeek:num,patternId:nn,reason:ns,updatedAt:ns}] as const };
 const snapshotShape = { schemaVersion:(v:unknown)=>v===3||v===4, generatedAt:str,
   term:{id:num,name:str,academicYear:num,effectiveFrom:ns}, versionNumber:num, meetings:[meeting] as const,
-  batches:[{id:num,stream,label:str,semester:nn,studentCount:nn,sortOrder:num}] as const,
+  batches:[{id:num,stream,label:str,semester:nn,studentCount:nn,sortOrder:num,countStatus:confidence}] as const,
   breaks:[{id:num,name:str,scope:str,stream:ns,dayOfWeek:nn,startMinutes:num,endMinutes:num}] as const,
   externalCommitments:[external] as const,
   issues:[{id:str,severity:(v:unknown)=>v==="blocker"||v==="warning",type:str,title:str,detail:str,dayOfWeek:nn,meetingIds:[num] as const}] as const,

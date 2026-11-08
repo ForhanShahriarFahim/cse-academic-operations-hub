@@ -13,6 +13,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 };
 
 export const CAPABILITY_LABELS: Record<Capability, string> = {
+  manage_batches: "Manage cohort identity, lifecycle and term counts",
   view_internal_portal: "Open the internal portal",
   view_private_contacts: "See private teacher contacts",
   manage_users: "Manage accounts, sign-in and roles",

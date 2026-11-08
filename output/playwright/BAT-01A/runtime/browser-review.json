@@ -1,0 +1,456 @@
+{
+  "captures": [
+    {
+      "name": "directory-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "directory-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "directory-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "no-matches-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "no-matches-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "no-matches-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "used-detail-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "used-detail-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "used-detail-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "identity-edit-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "identity-edit-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "identity-edit-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "blocked-graduation-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "blocked-graduation-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "blocked-graduation-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "new-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "new-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "new-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "duplicate-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "duplicate-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "duplicate-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "placement-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "placement-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "placement-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "count-review-estimate-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "count-review-estimate-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "count-review-estimate-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "count-review-verify-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "count-review-verify-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "count-review-verify-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "verified-zero-detail-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "verified-zero-detail-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "verified-zero-detail-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "stale-identity-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "stale-identity-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "stale-identity-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "lifecycle-deactivate",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "lifecycle-reactivate",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "lifecycle-graduate",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "lifecycle-restore",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "delete-refusal-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "delete-refusal-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "delete-refusal-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "stale-count-context-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "stale-count-context-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "stale-count-context-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "zero-active-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "zero-active-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "zero-active-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "zero-active-history-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "zero-active-history-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "zero-active-history-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "viewer-history-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "viewer-history-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "viewer-history-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    },
+    {
+      "name": "archive-routine",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "archive-official",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "archive-teachers",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "regression-routine",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "regression-rooms",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "regression-attendance",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": [
+        {
+          "id": "select-name",
+          "impact": "critical",
+          "nodes": [
+            [
+              "tr:nth-child(1) > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ],
+            [
+              ".bg-wash > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ],
+            [
+              "tr:nth-child(3) > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "regression-workload",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "keyboard-focus",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "pending-1440",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "violations": []
+    },
+    {
+      "name": "pending-390",
+      "width": 390,
+      "scrollWidth": 390,
+      "violations": []
+    },
+    {
+      "name": "pending-320",
+      "width": 320,
+      "scrollWidth": 320,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Create, duplicate validation with retained fields and current record navigation",
+    "Manual active placement, reviewed estimate and verified zero through real server actions",
+    "Stale identity refusal with retained input; explicit deactivate/reactivate/graduate/restore; retained-use deletion refusal and unused mistake deletion",
+    "Zero-active directory/history, stale term generation and view-only privacy/control suppression",
+    "Original snapshot hash, frozen public CSV, public/archive redaction and native official/teacher PDFs; routine/room/attendance/workload regressions",
+    "Production skip link and visible keyboard focus; delayed actual POST shows Saving status and disabled fields at all three widths, then succeeds"
+  ],
+  "pageErrors": [],
+  "knownBaselineFindings": [
+    {
+      "screen": "regression-attendance",
+      "violations": [
+        {
+          "id": "select-name",
+          "impact": "critical",
+          "nodes": [
+            [
+              "tr:nth-child(1) > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ],
+            [
+              ".bg-wash > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ],
+            [
+              "tr:nth-child(3) > .min-w-48.px-2.py-1\\.5 > .border-\\[var\\(--color-pine\\)\\]\\/35"
+            ]
+          ]
+        }
+      ],
+      "source": "src/components/attendance-manager.tsx:148; unchanged from base 7437def"
+    }
+  ],
+  "focus": {
+    "tag": "INPUT",
+    "outline": "solid",
+    "shadow": "none"
+  },
+  "publicBeforeHasPrivate": false,
+  "snapshotHashUnchanged": true,
+  "csvUnchanged": true
+}

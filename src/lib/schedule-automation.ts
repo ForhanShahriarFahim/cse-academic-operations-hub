@@ -2,10 +2,13 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { courseOfferings, teachingGroupOfferings, teachingGroups } from "@/db/schema";
 import { getPortalData } from "./data";
-import { assertTermContext } from "./term-context";
+import { assertTermContext, cohortRead } from "./term-context";
 import { suggestSchedule, type AutoScheduleGroup } from "./auto-schedule";
 
 export async function buildAutoSchedulePlan() {
+  return cohortRead(()=>buildAutoScheduleSnapshot());
+}
+async function buildAutoScheduleSnapshot() {
   const data = await getPortalData();
   const [rawGroups, links] = await Promise.all([
     db.select().from(teachingGroups).where(eq(teachingGroups.termId, data.term.id)),
@@ -23,6 +26,7 @@ export async function buildAutoSchedulePlan() {
       stream: batch.stream,
       semester: batch.semester,
       studentCount: batch.studentCount,
+      countStatus: batch.countStatus,
     }));
     const teacherIds = [...new Set(data.allocations.filter((allocation) => allocation.teachingGroupId === coverage.teachingGroupId).map((allocation) => allocation.teacherId))];
     const teachers = data.teachers.filter((teacher) => teacherIds.includes(teacher.id)).map((teacher) => ({
@@ -35,6 +39,7 @@ export async function buildAutoSchedulePlan() {
       role: "instructor",
     }));
     return {
+      audienceSelectable: audiences.every(a=>data.batches.find(b=>b.id===a.batchId)?.status==="active"),
       teachingGroupId: coverage.teachingGroupId,
       courseCode: coverage.courseCode,
       courseTitle: coverage.courseTitle,

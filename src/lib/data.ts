@@ -4,7 +4,8 @@
  */
 import { effectiveLimit } from "./teacher-records";
 import { requireActiveTerm } from "./active-term";
-import { captureActiveContext, assertTermContext, readTermContext } from "./term-context";
+import { captureActiveContext, assertTermContext, readTermContext, cohortRead } from "./term-context";
+import { countStatus, type CountStatus } from "./batch-records";
 import type { TermWriteContext } from "./term-context-value";
 import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
@@ -54,6 +55,8 @@ export interface BatchView {
   label: string;
   intake: string | null;
   studentCount: number | null;
+  countStatus?: CountStatus;
+  status?: string;
   semester: number | null;
   sortOrder: number;
 }
@@ -265,6 +268,9 @@ export async function getPortalDataForSeed(): Promise<PortalData> {
 }
 
 async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
+  return cohortRead(()=>loadPortalDataSnapshot(privateContacts));
+}
+async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalData> {
   const { term, writeContext } = await captureActiveContext();
 
   const [
@@ -434,7 +440,9 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
       stream: b.stream as "HSC" | "DIPLOMA",
       label: b.label,
       intake: b.intake,
-      studentCount: b.studentCount,
+      status: b.status,
+      studentCount: placementRows.find(p=>p.batchId===b.id)?.studentCount ?? null,
+      countStatus: countStatus(placementRows.find(p=>p.batchId===b.id)??{studentCount:null}),
       semester: semesterByBatch.get(b.id) ?? null,
       sortOrder: b.sortOrder,
     }))

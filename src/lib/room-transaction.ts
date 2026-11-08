@@ -2,7 +2,8 @@
 import { createHash } from "node:crypto";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import type { db } from "@/db";
-import { academicTerms, auditEvents, batches, courseOfferings, courses, departments, externalCommitments, meetingRooms, meetings, rooms, teachingGroupOfferings, teachingGroups } from "@/db/schema";
+import { academicTerms, auditEvents, batches, batchTermPlacements, courseOfferings, courses, departments, externalCommitments, meetingRooms, meetings, rooms, teachingGroupOfferings, teachingGroups } from "@/db/schema";
+import { lockTermContext } from "./term-lock";
 import type { Actor } from "./auth/policy";
 import { conflicted, invalid, stale, succeeded, type ActionResult } from "./action-result";
 import { assessRoomEdit, normalizeRoom, positiveInteger, roomChanges, roomFit, type RoomImpactItem, type RoomMeetingUse, type RoomReferences } from "./room-records";
@@ -27,17 +28,18 @@ export async function roomAssignmentGuard(work: () => Promise<void>): Promise<Ac
  * PostgreSQL uses row locks; PGlite serializes transactions on its single connection.
  */
 export async function lockRooms(tx: RoomTransaction, roomIds: number[]) {
+  await lockTermContext(tx, "share");
   const ids = [...new Set(roomIds)].sort((a, b) => a - b);
   if (!ids.length) return [];
   return tx.select().from(rooms).where(inArray(rooms.id, ids)).orderBy(asc(rooms.id)).for("update");
 }
 
 export async function groupEvidence(reader: RoomReader, groupIds: number[]) {
-  if (!groupIds.length) return new Map<number, { audience: string; audienceSize: number | null; audienceEvidence: Array<{ label: string; count: number | null }> }>();
+  if (!groupIds.length) return new Map<number, { audience: string; audienceSize: number | null; audienceKnownSubtotal:number; audienceVerified:boolean; audienceSelectable:boolean; audienceEvidence: Array<{ label: string; count: number | null }> }>();
   const groups = await reader.select().from(teachingGroups).where(inArray(teachingGroups.id, groupIds));
-  const local = await reader.select({ groupId: teachingGroupOfferings.teachingGroupId, batchId: batches.id, label: batches.label, stream: batches.stream, count: batches.studentCount })
+  const local = await reader.select({ groupId: teachingGroupOfferings.teachingGroupId, batchId: batches.id, label: batches.label, stream: batches.stream, status:batches.status, count: batchTermPlacements.studentCount, verifiedAt:batchTermPlacements.countVerifiedAt })
     .from(teachingGroupOfferings).innerJoin(courseOfferings, eq(courseOfferings.id, teachingGroupOfferings.offeringId))
-    .innerJoin(batches, eq(batches.id, courseOfferings.batchId)).where(inArray(teachingGroupOfferings.teachingGroupId, groupIds)).orderBy(batches.id);
+    .innerJoin(batches, eq(batches.id, courseOfferings.batchId)).leftJoin(batchTermPlacements,and(eq(batchTermPlacements.batchId,batches.id),eq(batchTermPlacements.termId,courseOfferings.termId))).where(inArray(teachingGroupOfferings.teachingGroupId, groupIds)).orderBy(batches.id);
   return new Map(groups.map((group) => {
     const audience = [...new Map(local.filter((row) => row.groupId === group.id).map((row) => [row.batchId, row])).values()];
     const hasExternal = !!group.externalAudienceLabel;
@@ -45,6 +47,9 @@ export async function groupEvidence(reader: RoomReader, groupIds: number[]) {
     return [group.id, {
       audience: [...audience.map((row) => `${row.stream}-${row.label}`), ...(hasExternal ? [group.externalAudienceLabel!] : [])].join(" + ") || "Audience unknown",
       audienceSize: known ? audience.reduce((sum, row) => sum + row.count!, 0) + (hasExternal ? group.externalStudentCount! : 0) : null,
+      audienceKnownSubtotal: audience.reduce((sum,row)=>sum+(row.count??0),0)+(hasExternal?group.externalStudentCount??0:0),
+      audienceVerified: known && audience.every(row=>row.verifiedAt!=null),
+      audienceSelectable: audience.every(row=>row.status==="active"),
       audienceEvidence: [...audience.map((row) => ({ label: `${row.stream}-${row.label}`, count: row.count })), ...(hasExternal ? [{ label: group.externalAudienceLabel!, count: group.externalStudentCount }] : [])],
     }];
   }));
@@ -75,9 +80,10 @@ export async function validateRoomAssignment(tx: RoomTransaction, groupId: numbe
     .from(teachingGroups).innerJoin(courses, eq(courses.id, teachingGroups.courseId)).where(eq(teachingGroups.id, groupId));
   const evidence = (await groupEvidence(tx, [groupId])).get(groupId);
   if (!group || !evidence) throw new RoomAssignmentChanged(["Teaching group no longer exists"]);
+  if(!evidence.audienceSelectable)throw new RoomAssignmentChanged(["A cohort is inactive, graduated or has an unsupported status. Reactivate or restore it before new teaching assignments."]);
   const current = roomIds.length ? await tx.select().from(rooms).where(inArray(rooms.id, roomIds)) : [];
   if (!roomIds.length || new Set(roomIds).size !== current.length || current.some((room) => !room.isActive)) throw new RoomAssignmentChanged(["A selected room is unavailable"]);
-  const use: Pick<RoomMeetingUse, "courseType" | "requiredRoomCapability" | "audienceSize"> = { ...group, audienceSize: evidence.audienceSize };
+  const use = { ...group, audienceSize: evidence.audienceSize, audienceKnownSubtotal:evidence.audienceKnownSubtotal };
   const reasons = current.flatMap((room) => roomFit(room, use).map((reason) => `${room.code}: ${reason}`));
   if (reasons.length) throw new RoomAssignmentChanged(reasons);
 }

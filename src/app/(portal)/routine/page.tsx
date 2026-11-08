@@ -52,7 +52,7 @@ export default async function RoutinePage({
       highlightColor: null,
       pendingReconciliation: group.pendingReconciliation,
       audiences: data.batches.filter((b) => batchIds.includes(b.id)).map((b) => ({
-        batchId: b.id, batchLabel: b.label, stream: b.stream, semester: b.semester, studentCount: b.studentCount,
+        batchId: b.id, batchLabel: b.label, stream: b.stream, semester: b.semester, studentCount: b.studentCount, countStatus:b.countStatus,
       })),
       externalAudienceLabel: group.externalAudienceLabel,
       externalStudentCount: group.externalStudentCount,

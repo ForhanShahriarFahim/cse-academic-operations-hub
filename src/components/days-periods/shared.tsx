@@ -7,7 +7,7 @@ import { fmtTime } from "@/lib/time";
 export interface GridContext {
   meetings: ImpactMeeting[];
   windows: WindowLike[];
-  batches: Array<{ id: number; stream: "HSC" | "DIPLOMA"; label: string }>;
+  batches: Array<{ id: number; stream: "HSC" | "DIPLOMA"; label: string; status?:string }>;
   canEdit: boolean;
 }
 

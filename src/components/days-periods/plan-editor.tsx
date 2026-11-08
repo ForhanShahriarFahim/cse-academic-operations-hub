@@ -33,7 +33,7 @@ export function PlanEditor({ grid, target, context, onDone, onCancel }: {
   const [ask, confirmDialog] = useConfirm();
   const stream = target.stream;
   const existing = target.kind === "day" ? streamPlan(grid, stream, target.dayOfWeek) : target.plan;
-  const streamBatches = context.batches.filter((b) => b.stream === stream);
+  const streamBatches = context.batches.filter((b) => b.stream === stream && (target.kind==="exception"&&target.plan?.batchId===b.id || b.status==null || b.status==="active"));
 
   const [batchId, setBatchId] = useState<number | null>(target.kind === "exception" ? target.plan?.batchId ?? streamBatches[0]?.id ?? null : null);
   const [day, setDay] = useState(target.kind === "day" ? target.dayOfWeek : target.plan?.dayOfWeek ?? 6);
@@ -79,6 +79,7 @@ export function PlanEditor({ grid, target, context, onDone, onCancel }: {
 
   const errors = result?.outcome?.kind === "validation" ? result.outcome.fieldErrors : {};
   function save() {
+    if(target.kind==="exception"&&batchId==null)return;
     startTransition(async () => {
       const response = await setDayPlanAction({
         stream, batchId: key.batchId, dayOfWeek: day, patternId,
