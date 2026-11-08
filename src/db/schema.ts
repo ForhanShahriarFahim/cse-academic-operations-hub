@@ -292,6 +292,17 @@ export const batchTermPlacements = pgTable(
   (t) => [uniqueIndex("btp_uq").on(t.batchId, t.termId)],
 );
 
+/** One atomic BAT-01B preparation per destination; no fake placements for holds. */
+export const termRollovers = pgTable("term_rollovers", {
+  id: serial("id").primaryKey(),
+  sourceTermId: integer("source_term_id").notNull().references(() => academicTerms.id),
+  targetTermId: integer("target_term_id").notNull().unique().references(() => academicTerms.id),
+  actorUserId: integer("actor_user_id").notNull().references(() => portalUsers.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  reason: text("reason").notNull(),
+  summary: jsonb("summary").$type<import("@/lib/rollover").RolloverReview>().notNull(),
+}, t => [check("term_rollovers_different_terms_ck", sql`${t.sourceTermId} <> ${t.targetTermId}`)]);
+
 export const classRepresentatives = pgTable(
   "class_representatives",
   {

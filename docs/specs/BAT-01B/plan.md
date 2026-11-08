@@ -4,7 +4,7 @@ Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operat
 
 [Specification D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [responsive sketches](mockups/rollover.html)
 
-Status: **D-1–D-6 approved; implementation authorized after this approval checkpoint is committed.**
+Status: **Approved implementation in progress; approval `513113c` precedes code.**
 
 Branch/base: `codex/bat-01b` from local main `10e3485`; one checkout/writer, no extra worktrees.
 
@@ -39,7 +39,7 @@ Inventory all source grid/count/reference and destination policy/identity/setup/
 ## Tasks — sole checklist
 
 - [x] T-01 — Inspect dependencies and actual domain/schema/action seams; document bounded decisions and AC-01–AC-11.
-- [ ] T-02 — Complete static sketch/document verification, present D-1–D-6, obtain actual approval and commit approval before feature implementation.
+- [x] T-02 — Explicit D-1–D-6 approval recorded/committed `513113c` before code. Static proposal/link checks pass; desktop/mobile/keyboard captures in verification.
 - [ ] T-03 — Inventory writers/readers, implement pure rollover/clone validation and receipt migration; prove populated preservation/reapply/recovery on both adapters. AC-02/03/05/06/08.
 - [ ] T-04 — Implement consistent evidence, independent scoped loaders/actions and atomic audited/replay-protected preparation. AC-01–AC-08.
 - [ ] T-05 — Implement staged responsive editor/review/receipt and safe term integration. AC-01/02/09.
@@ -57,9 +57,9 @@ Provide a guarded synthetic administrator/view-only review path with clearly nam
 
 ## Current checkpoint / exact handoff
 
-- Scope: approved unchanged D-1–D-6 in spec.md; actual response above. No application implementation yet.
+- Scope: approved unchanged D-1–D-6 in spec.md; actual response above. Implementation is in progress under approval `513113c`.
 - Branch/base: `codex/bat-01b`, local main `10e3485`; inspect actual status/log on resume.
-- Completed: T-01; T-02 verification in progress. All later tasks depend on actual concrete approval.
-- Next: commit this actual approval before T-03, then implement approved tasks autonomously; static sketch QA remains a disclosed pending check until recorded.
+- Completed: T-01/T-02. T-03–T-05 implemented; both adapters pass focused migration/action/recovery and first five race orderings. Expanded eight-order race/full-suite/browser review pending. New receipt FK is explicitly integrated into disposable reset; institutional reset refusal is unchanged.
+- Next: complete expanded races/full safety checks and production review, correct findings and record criterion evidence. Required final checks remain T-06/T-07; no delivery acceptance or local merge yet.
 - Verification: [planning evidence](verification.md); no institutional DB opened, no application tests claimed.
 - Handoff: “Resume BAT-01B on codex/bat-01b. Read brief/workflow and this sole plan, spec D-1–D-6 and verification; check actual Git status and approval evidence. The owner requested implementation, but the concrete rollover decisions were subsequently explicitly approved (“Approve D-1–D-6 and implement”). Reuse completed inspection/static checks. After actual approval, commit it, then implement T-03–T-07 using owned synthetic targets, retain count/history/privacy/lifecycle guards and supply runnable review. No institutional operation, remote synchronization, extra worktree/writer or local merge before delivery acceptance.”

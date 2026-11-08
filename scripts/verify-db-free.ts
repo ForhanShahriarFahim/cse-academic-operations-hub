@@ -11,7 +11,7 @@ loader._load=function(name,parent,main){
   return original.call(this,name,parent,main);
 };
 try{
-  for(const name of ["term-lock","room-transaction","room-lifecycle-transaction","room-maintenance-transaction","batch-records","batch-store"])assert.ok(require(path.join(root,"src/lib",name+".ts")));
+  for(const name of ["term-lock","room-transaction","room-lifecycle-transaction","room-maintenance-transaction","batch-records","batch-store","rollover","rollover-store","term-protection"])assert.ok(require(path.join(root,"src/lib",name+".ts")));
   assert.equal(require.cache[dbFile],undefined);
   console.log("Injected adapter helpers import without loading src/db/index.ts; configured storage initialization is blocked by the regression guard.");
 }finally{loader._load=original;}

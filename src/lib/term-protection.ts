@@ -1,0 +1,2 @@
+/** Direct term-owned business records; setup-only policy/grid is excluded. */
+export const TERM_PROTECTED_TABLES = ["batch_term_placements", "class_representatives", "department_contacts", "routine_source_reconciliations", "course_offerings", "teaching_groups", "course_enrollments", "attendance_sessions", "extra_load_classes", "extra_load_manual_summaries", "external_commitments", "workload_allocations", "schedule_versions"] as const;

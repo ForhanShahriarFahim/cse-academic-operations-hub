@@ -1,0 +1,18 @@
+[
+  {
+    "width": 1440,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "overflow": false
+  },
+  {
+    "width": 320,
+    "overflow": false
+  },
+  {
+    "keyboardSkip": true,
+    "proposalFeedback": true
+  }
+]
