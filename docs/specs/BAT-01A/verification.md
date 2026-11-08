@@ -68,7 +68,7 @@ Inspect: create a batch → place it in Summer → save an estimate → review a
 
 Guarded restart: `node node_modules/tsx/dist/cli.mjs scripts/review-batches.ts --serve` after the recorded separate review build. The versioned helper creates its own harness-owned PostgreSQL cluster and uses direct Next start with a pinned synthetic target; it never selects institutional storage. `SAFE01_PG_BIN` defaults to the previously installed `F:/AI/tools/pgsql-17.11/pgsql/bin`. No `npm run dev/start` or institutional prepare/reset/migrate command is needed. Source `scripts/review-batches.ts` owns setup; ignored `.tmp/bat-01a/` contains local browser/print scripts and raw logs. Evidence receipts and captures are versioned in `output/playwright/BAT-01A/runtime/`.
 
-Delivery is local on `codex/bat-01a`; no remote synchronization, institutional migration or local main merge. Owner acceptance must explicitly include the disclosed failed-default-build limitation before merge. Parent #6 remains open; BAT-01B is not started.
+Owner acceptance: **“Approved.”**, 8 November 2026, following the explicit delivery summary of the default-build failure, passing separate Webpack preview and configured-client incident/preservation limits. The disclosed default-build exception is accepted for this delivery; AC-11 remains partial and build policy is unchanged. Local merge is authorized; no remote synchronization or institutional migration. Parent #6 remains open; BAT-01B is not started. See the sole plan for the merge receipt.
 
 ## Configured-client initialization incident
 

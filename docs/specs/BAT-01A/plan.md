@@ -4,11 +4,11 @@ Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operat
 
 Specification: [D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [sketches](mockups/batches.html)
 
-Status: **Implemented and verified for owner inspection; AC-11 partial — acceptance/local merge pending**
+Status: **Accepted by owner; local merge pending. AC-11 remains partial under the accepted default-build exception.**
 
 Branch/base: `codex/bat-01a` / inspected local `main` `7437def`
 
-Updated: 5 November 2026, Asia/Dhaka
+Updated: 8 November 2026, Asia/Dhaka
 
 ## Inspection and proposed approach
 
@@ -38,7 +38,7 @@ Estimate numbers continue to block demonstrably undersized rooms while confidenc
 - Implementation authorization: **Approved**, 5 November 2026. Owner replied **“Approve”** to the explicit D-1–D-6 implementation approval request after proposal `b9958aa`, specification and responsive sketches were presented. This approval record is committed before T-03.
 - Approved scope: unchanged D-1–D-6 / AC-01–AC-11 at `b9958aa`. No institutional migration, remote synchronization, rollover or local merge before delivery acceptance.
 - Material amendments: none; changed authority, graduation/hold definitions, historical editing, draft-term/rollover scope or count migration needs an owner decision.
-- Delivery acceptance/local merge: pending a verified implementation and owner inspection. No institutional operation, remote sync or parent closure authorized.
+- Delivery acceptance: owner replied **“Approved.”**, 8 November 2026, after the delivery summary explicitly disclosed the failed default build, passing separate Webpack preview and corrected configured-client initialization incident (including the absence of a pre-incident row fingerprint). This accepts BAT-01A with those limitations and authorizes its bounded local merge under the standing workflow. AC-11 remains partial; no build-policy change, institutional operation, remote sync, parent closure or BAT-01B implementation is authorized.
 
 ## Tasks — sole checklist
 
@@ -65,8 +65,8 @@ Owner review path after implementation: synthetic administrator create → place
 - Scope: approved unchanged [D-1–D-6](spec.md) at proposal `b9958aa`; owner “Approve”, 5 November.
 - Branch/base: `codex/bat-01a` from `7437def`, no worktrees. Inspect actual Git state and local proposal commits when resuming.
 - Completed: T-01–T-08. Proposal `b9958aa`, actual approval `b035ed4` before implementation `67780ff`, browser corrections `3e126a6`; later test/evidence checkpoints follow. Inspect actual Git log/status for delivery receipt. No remote/worktree/extra writer.
-- Next: T-09 — owner inspection/acceptance, explicitly including the disclosed failed-default-build limitation. Only after actual acceptance record it and merge the bounded branch into local main. Keep #6 open; do not start BAT-01B automatically.
-- Verification: [AC-01–AC-10 evidence and AC-11 partial](verification.md); all 29 named safety groups pass across preserved/resumed runs, including final boundary-race strengthening. 66 real browser captures, keyboard/pending and ten A4 pages verified; inherited attendance/print findings remain explicit. Default Turbopack fails on final source; separate Webpack build passes. No exception accepted yet.
+- Next: T-09 — acceptance recorded on 8 November; merge this bounded delivery into local main, then record the receipt. Keep #6 open; do not start BAT-01B automatically.
+- Verification: [AC-01–AC-10 evidence and AC-11 partial](verification.md); all 29 named safety groups pass across preserved/resumed runs, including final boundary-race strengthening. 66 real browser captures, keyboard/pending and ten A4 pages verified; inherited attendance/print findings remain explicit. Default Turbopack fails on final source; separate Webpack build passes. Owner accepted the disclosed limitation on 8 November; AC-11 stays partial.
 - Safety incident: initial lock integration introduced a transitive configured-DB import in the parent safety harness, initializing the configured PGlite client. No application writes, migrations or reset were issued to it; earlier metadata checks changed. Fixed by database-free `term-lock.ts`, added a blocking import regression and parent-cache guard. Later BUG-29 runs report unchanged default metadata. No pre-incident row fingerprint exists, so byte-for-byte institutional preservation is not asserted. Record this explicitly at delivery.
 - Other limits: no individual graduation or historical count-verification facts are invented. No remote action, worktree or runtime policy change. Institutional migration remains a separate operation.
 
