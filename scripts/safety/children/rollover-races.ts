@@ -46,14 +46,14 @@ export async function rolloverRaces(sourceId:number,choices:RolloverChoice[],bat
     await db.insert(s.academicPolicies).values({termId:t.id});
     const values={sourceId,targetId:t.id,choices:JSON.stringify(planChoices),cloneGrid:"off",reason:"Synthetic race review",command:"preview"};
     const review=await actions.prepareRolloverAction(null,form(values));assert.equal(review.ok,true,review.message);
-    const commit=()=>actions.prepareRolloverAction(null,form({...values,command:"commit",fingerprint:review.review!.fingerprint,confirmation:`${t.name} Â· ${t.academicYear}`,acknowledge:"on"}));
+    const commit=()=>actions.prepareRolloverAction(null,form({...values,command:"commit",fingerprint:review.review!.fingerprint,confirmation:`${t.name} \u00b7 ${t.academicYear}`,acknowledge:"on"}));
     const edit=()=>terms.editTermAction(null,form({termId:t.id,revision:t.revision,name:`${t.name} edited`,academicYear:t.academicYear,startDate:t.startDate,endDate:t.endDate,effectiveFrom:""}));
     const activate=async()=>{const r=await termData.activationEvidence(t.id);return terms.activateTermAction(null,form({termId:t.id,revision:r!.target.term.revision,generation:r!.context.generation,previousActiveId:r!.active?.term.id ?? "",fingerprint:r!.fingerprint,reason:"Synthetic activation race",acknowledge:"on"}));};
     return {t,commit,edit,activate};
   }
   const okay=(r:ActionResult)=>assert.equal(r.ok,true,r.message);
   try {
-    let r=await ready();let pair=await race("academic_terms","update",r.edit,r.commit);okay(pair[0]);assert.equal(pair[1].outcome?.kind,"stale");assert.equal((pair[1] as RolloverResult).review?.targetIdentity,`${r.t.name} edited · ${r.t.academicYear}`);
+    let r=await ready();let pair=await race("academic_terms","update",r.edit,r.commit);okay(pair[0]);assert.equal(pair[1].outcome?.kind,"stale");assert.equal((pair[1] as RolloverResult).review?.targetIdentity,`${r.t.name} edited \u00b7 ${r.t.academicYear}`);
     r=await ready();pair=await race("term_rollovers","insert",r.commit,r.edit);okay(pair[0]);assert.equal(pair[1].ok,false);
     r=await ready();pair=await race("academic_terms","update",r.activate,r.commit);okay(pair[0]);assert.equal(pair[1].ok,false);
     await db.update(s.academicTerms).set({status:"completed"}).where(eq(s.academicTerms.status,"active"));await db.update(s.academicTerms).set({status:"active"}).where(eq(s.academicTerms.id,sourceId));await db.update(s.termContext).set({generation:sql`${s.termContext.generation}+1`});
