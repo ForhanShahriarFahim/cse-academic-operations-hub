@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { eq, sql } from "drizzle-orm";
 import { loadApp } from "./controlled-runtime";
 import type { ActionResult } from "../../../src/lib/action-result";
+import type { RolloverResult } from "../../../src/lib/rollover-actions";
 import type { RolloverChoice } from "../../../src/lib/rollover";
 const database = loadApp<typeof import("../../../src/db")>("src/db/index.ts"), {db} = database;
 const s = loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
@@ -52,7 +53,7 @@ export async function rolloverRaces(sourceId:number,choices:RolloverChoice[],bat
   }
   const okay=(r:ActionResult)=>assert.equal(r.ok,true,r.message);
   try {
-    let r=await ready();let pair=await race("academic_terms","update",r.edit,r.commit);okay(pair[0]);assert.equal(pair[1].outcome?.kind,"stale");
+    let r=await ready();let pair=await race("academic_terms","update",r.edit,r.commit);okay(pair[0]);assert.equal(pair[1].outcome?.kind,"stale");assert.equal((pair[1] as RolloverResult).review?.targetIdentity,`${r.t.name} edited · ${r.t.academicYear}`);
     r=await ready();pair=await race("term_rollovers","insert",r.commit,r.edit);okay(pair[0]);assert.equal(pair[1].ok,false);
     r=await ready();pair=await race("academic_terms","update",r.activate,r.commit);okay(pair[0]);assert.equal(pair[1].ok,false);
     await db.update(s.academicTerms).set({status:"completed"}).where(eq(s.academicTerms.status,"active"));await db.update(s.academicTerms).set({status:"active"}).where(eq(s.academicTerms.id,sourceId));await db.update(s.termContext).set({generation:sql`${s.termContext.generation}+1`});

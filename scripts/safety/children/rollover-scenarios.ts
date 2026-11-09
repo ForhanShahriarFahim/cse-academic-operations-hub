@@ -78,6 +78,7 @@ async function main() {
   assert.equal((await call(confirm)).outcome?.kind,"stale");
   assert.equal((await db.select().from(s.termRollovers).where(eq(s.termRollovers.targetTermId,t.id))).length,0);
   const latest = await call(values);okay(latest);confirm.fingerprint=latest.review!.fingerprint;
+  const sourceBeforeCommit = await selectFingerprint(rawClient,`select * from batch_term_placements where term_id=${source.id}`);
   await setAuditInsertFault(handle,true);
   assert.equal((await call(confirm)).ok,false);
   assert.equal((await db.select().from(s.batchTermPlacements).where(eq(s.batchTermPlacements.termId,t.id))).length,0);
@@ -96,6 +97,7 @@ async function main() {
   assert.equal((await call(confirm)).ok,false); assert.match((await call(confirm)).message,/already prepared/);
   assert.deepEqual(await selectFingerprint(rawClient,"select * from schedule_versions"),snapshotHash);
   // Only the deliberate source-count test edit changed this source; prepare never did.
+  assert.deepEqual(await selectFingerprint(rawClient,`select * from batch_term_placements where term_id=${source.id}`),sourceBeforeCommit);
   const afterSource = await db.select().from(s.batchTermPlacements).where(eq(s.batchTermPlacements.termId,source.id));assert.equal(afterSource.length,bs.length);assert.ok(sourceHash);
   const changedSource = await selectFingerprint(rawClient,`select * from batch_term_placements where term_id=${source.id}`);
   assert.equal((await data.getRolloverSummary(t.id))?.held,1);

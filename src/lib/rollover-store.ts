@@ -61,7 +61,7 @@ export async function rolloverEvidence(tx: BatchTx, plan: RolloverPlan) {
   if (!decisions.length && !(clone && (clone.patterns.length || clone.plans.length || clone.windows.length))) refuse("There are no eligible cohort decisions or time-grid records to prepare.");
   const hash = fingerprint({plan,context,active,terms,policy,sourceData,lifecycle,patterns,plans,windows,targetPatterns,targetPlans,targetWindows});
   const review: RolloverReview = {
-    fingerprint:hash, source:sourceTerm.name, target:targetTerm.name, decisions,
+    fingerprint:hash, source:sourceTerm.name, target:targetTerm.name, targetIdentity:`${targetTerm.name} · ${targetTerm.academicYear}`, decisions,
     grid:{patterns:clone?.patterns.length ?? 0,plans:clone?.plans.length ?? 0,windows:clone?.windows.length ?? 0,excludedExceptions:clone?.excludedExceptions ?? 0,legacyWindows:windows.filter(w => w.termId == null).length},
     warnings:[...(targetTerm.startDate <= sourceTerm.endDate ? ["Source and destination dates overlap; preparation does not change term statuses."] : []), "Copied counts need reconfirmation after activation.", "Adding placements freezes draft identity and starting-policy setup.", "Preparation is recorded once; this wizard cannot append or overwrite.", "Academic calendar copying is unavailable."]
   };

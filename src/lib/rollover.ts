@@ -7,7 +7,7 @@ export interface RolloverChoice { batchId: number; disposition: Disposition; car
 export interface RolloverPlan { sourceId: number; targetId: number; cloneGrid: boolean; reason: string; choices: RolloverChoice[] }
 export interface RolloverCohort { id: number; label: string; stream: string; status: string; semester: number; studentCount: number | null; confidence: string }
 export interface RolloverDecision extends RolloverCohort { disposition: Disposition; destinationSemester: number | null; destinationCount: number | null; reason: string }
-export interface RolloverReview { fingerprint: string; source: string; target: string; decisions: RolloverDecision[]; grid: { patterns: number; plans: number; windows: number; excludedExceptions: number; legacyWindows: number }; warnings: string[] }
+export interface RolloverReview { fingerprint: string; source: string; target: string; targetIdentity?: string; decisions: RolloverDecision[]; grid: { patterns: number; plans: number; windows: number; excludedExceptions: number; legacyWindows: number }; warnings: string[] }
 export const positiveId = (v: unknown): v is number => typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 export const eligibleCohort = (b: RolloverCohort) => b.status === "active" && ["HSC", "DIPLOMA"].includes(b.stream) && Number.isInteger(b.semester) && b.semester >= 1 && b.semester <= 8;
 export const validCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 2147483647;

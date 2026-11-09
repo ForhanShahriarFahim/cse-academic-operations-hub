@@ -2,6 +2,8 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
+import path from "node:path";
+import { REPO_ROOT } from "./safety/targets";
 import { openSync,closeSync,mkdirSync } from "node:fs";
 import { withDisposableCluster } from "./safety/pg-cluster";
 import { postgresDatabase,withHandle } from "./safety/database";
@@ -15,15 +17,18 @@ async function main() {
     let destinationId = 0, sourceId = 0;
     await withHandle(database,async h => {
       await database.migrate(h);const source = await populateSummerFixture(h.db); sourceId = source.termId;
-      await h.exec("update academic_terms set status='completed';update batch_term_placements set student_count=30,count_source='Synthetic source estimate' where student_count is null;insert into academic_terms(name,academic_year,start_date,end_date,status,managed_setup) values('Spring 2027',2027,'2027-01-02','2027-04-30','draft',true)");
+      await h.exec("update batch_term_placements set student_count=30,count_source='Synthetic source estimate' where student_count is null;insert into academic_terms(name,academic_year,start_date,end_date,status,managed_setup) values('Spring 2027',2027,'2027-01-02','2027-04-30','draft',true)");
       destinationId = Number((await h.client.query<{id:number}>("select id from academic_terms where name='Spring 2027'")).rows[0].id);
       await h.client.query("insert into academic_policies(term_id) values($1)",[destinationId]);
-      await h.client.query("insert into period_patterns(term_id,name,periods,breaks) values($1,'Synthetic morning',$2::jsonb,'[]'::jsonb)",[sourceId,JSON.stringify([{start:480,end:540},{start:540,end:600}])]);
-      await h.client.query("insert into day_plans(term_id,stream,day_of_week,pattern_id) select $1,'HSC',0,id from period_patterns where term_id=$1",[sourceId]);
       await h.client.query("insert into auth_session(id,expires_at,token,user_id) values('bat01b-admin',now()+interval '30 days',$1,'synthetic-auth-user')",[session.token]);
       await h.exec("insert into auth_user(id,name,email,email_verified) values('bat01b-viewer','Synthetic viewer','viewer@example.invalid',true);insert into portal_users(email,display_name,status) values('viewer@example.invalid','Synthetic viewer','active');insert into role_assignments(user_id,role,department_id,active_from) select u.id,'read_only_viewer',d.id,'2020-01-01' from portal_users u cross join departments d where u.email='viewer@example.invalid' and d.code='CSE'");
       await h.client.query("insert into auth_session(id,expires_at,token,user_id) values('bat01b-viewer',now()+interval '30 days',$1,'bat01b-viewer')",[session.teacherToken]);
     });
+    // A valid synthetic frozen archive is built through the actual projection loader.
+    // This review fixture is not an application publication or a source sign-off.
+    const snapshot = await database.runChild(path.join(REPO_ROOT,"scripts/safety/children/batch-review-snapshot.ts"));
+    assert.equal(snapshot.status,0,snapshot.stderr);
+    await withHandle(database,async h => {await h.exec("update academic_terms set status='completed' where status='active'");});
     const route = `/terms/${destinationId}/rollover?source=${sourceId}`;
     const control = createServer((req,res) => {
       if (req.url === "/sign-in" || req.url === "/viewer") {res.writeHead(302,{"Set-Cookie":`better-auth.session_token=${req.url === "/viewer" ? session.teacherCookie : session.cookie}; Path=/; HttpOnly; SameSite=Lax`,Location:`http://localhost:3120${route}`});res.end();return;}
@@ -39,7 +44,7 @@ async function main() {
       assert.ok(ready,"Owned BAT-01B production preview ready");
       console.log(`BAT-01B synthetic review: http://localhost:3121 (application localhost:3120; destination #${destinationId}, source #${sourceId})`);
       if (process.argv.includes("--check")) {
-        const child = spawn(process.execPath,[".tmp/bat-01b/runtime-review.cjs"],{env,stdio:"inherit",windowsHide:true});assert.equal(await new Promise<number|null>(r => child.once("exit",r)),0,"BAT-01B browser review");
+        const child = spawn(process.execPath,[path.join(REPO_ROOT,"scripts/review-rollover-browser.cjs")],{env,stdio:"inherit",windowsHide:true});assert.equal(await new Promise<number|null>(r => child.once("exit",r)),0,"BAT-01B browser review");
       }
       if (process.argv.includes("--serve")) await new Promise<void>(r => server.once("exit",() => r()));
     } finally {server.kill();await new Promise<void>(r => {if (server.exitCode != null) r();else server.once("exit",() => r());});closeSync(log);control.close();await database.dispose();}
