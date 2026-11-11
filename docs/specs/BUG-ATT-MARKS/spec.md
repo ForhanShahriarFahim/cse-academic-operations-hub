@@ -2,21 +2,21 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **proposed; owner rule decisions and implementation approval pending**.
+Status: **approved for implementation; verification and owner delivery acceptance pending**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-att-marks` from local `main` `db01442`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-01 and the duplicate-guard portion of F-08. This local bug slice overlaps ATT-03 / #10 and ATT-04 / #11; it does not complete either parent. No new remote issue has been created.
 
 ## Authorization and decisions
 
-The owner said **"Go for the next task then."** after the recommendation to inspect/specify BUG-ATT-MARKS and settle its rule decisions. This authorizes this planning pass. It does not answer the open institutional rule or approve the concrete specification below. [Workflow](../../WORKFLOW.md) requires actual approval before implementation and committing the approved plan first.
+The owner replied **"Approve and implement"** on 11 November 2026 after the concrete specification and D-1/D-2 recommendations were presented. This approves the unchanged scope in planning commit `2b71d8d`, including the captured-roster UI correction, exact-duplicate semantics and stated limits. This approval record is committed before implementation per [workflow](../../WORKFLOW.md). Delivery acceptance/local merge remain separate.
 
 | ID | Decision required | Recommendation proposed for approval |
 |---|---|---|
 | D-1 | Which sessions count for a late-added student? | Count only sessions containing a stored attendance record for that student. A missing record means **not in this session**, never an inferred absence. Apply consistently to Midterm, Final and Semester. Explicit stored absences still count. |
 | D-2 | What counts as an accidental duplicate? | Refuse creation when the same term and teaching group already have a session on the same date with the same start/end pair, comparing missing times as equal. Teacher and phase changes do not bypass the guard. Different time pairs remain allowed. No override in this slice; corrections/lifecycle remain ATT-03. |
 
-D-1 uses the captured roster, not inferred enrolment dates: a backdated session created after enrolment includes whoever was captured when it was created. The current model has no enrolment-effective date. D-2 is an exact-duplicate guard, not an overlap detector: a timed session and an untimed session, or different time pairs, can coexist. Historical duplicates are not automatically identified, removed or merged. These boundaries require owner approval along with the recommendations.
+D-1 uses the captured roster, not inferred enrolment dates: a backdated session created after enrolment includes whoever was captured when it was created. The current model has no enrolment-effective date. D-2 is an exact-duplicate guard, not an overlap detector: a timed session and an untimed session, or different time pairs, can coexist. Historical duplicates are not automatically identified, removed or merged. These boundaries were included in the approved specification.
 
 ## Inspected baseline and reproduction
 
@@ -61,7 +61,7 @@ Existing stored sessions, attendance records and audit history remain unchanged.
 ## Sole task checklist
 
 - [x] T-01 — Inspect current implementation, domain/architecture rules and handoff; reproduce summary defect in memory; prepare this specification and UI sketch.
-- [ ] T-02 — Obtain actual approval of D-1, D-2 and this scope; record the reply and commit the approved plan before application/test implementation.
+- [x] T-02 — Obtain actual approval of D-1, D-2 and this scope; record the reply and commit the approved plan before application/test implementation.
 - [ ] T-03 — Add failing domain and production-path synthetic attendance scenarios, including old-session UI payload and duplicate creation baseline (AC-01–AC-07).
 - [ ] T-04 — Implement shared captured-record summaries and session UI membership/save handling (AC-01–AC-04, AC-08).
 - [ ] T-05 — Implement serialized exact-duplicate refusal and prove both-adapter outcomes, PostgreSQL race and audit rollback (AC-05–AC-07).
@@ -76,4 +76,4 @@ Planning evidence only: in-memory reproduction above passed as a demonstration o
 
 Documentation checks: all four local links in this record resolve; required combined-record sections and the single primary checklist are present. The entry-point/delivery-plan diff was reviewed and `git diff --check` passed. The planning commit contains only this record and those two pointer updates; inspect `git log -1` and the working tree at resume.
 
-Next action: owner reviews this document and answers **"Approve D-1 and D-2 as recommended and implement"**, or supplies different rules. Then record actual approval, commit that approved plan and continue T-03–T-06 on this branch. Implementation and local merge are not yet approved. Keep the historical BUG-25 institutional migration reminder separate. GitHub remains unchanged; last live main-reference read in the preceding review was `0b1e055` on 11 November, while full issue reconciliation remains dated 26 October.
+Next action: approval above authorizes T-03–T-06 on this branch after committing this approval record. Local merge still requires owner delivery acceptance. Keep the historical BUG-25 institutional migration reminder separate. GitHub remains unchanged; last live main-reference read in the preceding review was `0b1e055` on 11 November, while full issue reconciliation remains dated 26 October.
