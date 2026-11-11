@@ -93,6 +93,39 @@ Read `node_modules/next/dist/docs/` on Server Functions before step 4–5 (AGENT
 - The result box in the publish panel now has `role="status"`/`"alert"` so the outcome is announced.
 - Test callers: `fresh-term-actions.ts` supplies the latest version a freshly rendered page would show; `batch-boundary-races.ts` passes it explicitly.
 
+## Verification (11 November 2026)
+
+Code under test: `88d4b68` (implementation `ea53f0a` plus one test-fixture change). All database work used disposable targets under `.tmp`; the safety runner reported the default PGlite directory metadata unchanged and never opened.
+
+| ID | Result | Evidence |
+|---|---|---|
+| AC-01 | Pass | `BUG-25 publications` group, PGlite and PostgreSQL 17.11: duplicate number refused with 23505, rows unchanged |
+| AC-02 | Pass | Same group: second published row refused by insert and by update; several superseded rows and a published row in another term accepted |
+| AC-03 | Pass | PostgreSQL: second publisher observed waiting on the first publisher's lock (blocking PID) while the first was held at its insert; one success (version 3), one `stale`; one new row, one published row, one audit event. PGlite: second request queued behind the open publication, same outcome |
+| AC-04 | Pass | Older id, `null`, missing, string, 0, negative, fractional, NaN, object and unknown id all return `stale`; version rows and audit count unchanged |
+| AC-05 | Pass | Versions 1 and 2 on an empty managed term: numbering, supersede, snapshot number and audit before/after asserted |
+| AC-06 | Pass | Full `test:safety`: all 33 groups passed, including audit, history, active-term, workspace, cohort and maintenance groups that call `publishAction` |
+| AC-07 | Pass | Populated 0016→0017 on both adapters: every table row and sequence fingerprint identical; repeat migration identical. Recovery groups pass |
+| AC-08 | Pass | Planted duplicate number, then planted second published row: real migrator refuses with 23514 and the named counts; schema, rows and journal fingerprint identical; applies after removal |
+| AC-09 | Pass, text evidence only | Disposable `ux:review --fresh --publishable` copy on :3100. Tab B published version 3. Tab A (still showing version 2) then published: alert "Version 3 was published by UX Reviewer on 11 Nov 2026, 12:37 while this page was open. Nothing was published. …"; history then listed v3 published, v2 superseded, v1 draft and no v4. At 375 px the alert sits inside the viewport with no page overflow. No console errors. Screenshots timed out in the browser pane, so no image captures exist |
+| AC-10 | Pass | `typecheck`, `lint`, `test:domain` pass; default `npm run build` passes; `test:safety` with `SAFE01_PG_BIN` passes (33 groups, none pending) |
+| AC-11 | Pass | No institutional command run; no push, PR or GitHub write. Issue #25 was read once |
+
+Red-before-green: with the migration applied but the old `publishAction`, the PGlite group failed at the stale-page step ("Version 3 published" where `stale` was required).
+
+Limits and things to know:
+
+- The first full safety run failed in `SET-01A workspace`: its fixture planted a second `published` row in a term that already had one, which `0017` now refuses. The row is now planted as `superseded` (`88d4b68`); the archive redaction assertions it serves are unchanged. The suite was then re-run in full.
+- `typecheck` and `lint` were re-run after that fixture change; `test:domain` and `build` were not (the change is one string in a safety script outside both).
+- `test:ux`, `test:ui` and print suites were not run; the only UI change is one prop, a refresh call and an ARIA role on the publish panel.
+- The backstop path (unique violation → `stale`) is exercised on PostgreSQL only; PGlite cannot interleave a second writer.
+- A stale cluster directory owned by a still-running process (PID 14912) from an earlier session was skipped by the harness cleanup; it is not from this work.
+- `0017` has not been applied to the institutional database. Before that: cold backup, then `db:migrate`. If the preflight refuses, stop; the correction needs an owner decision.
+
+## Handoff
+
+State: delivered for owner inspection on `codex/bug-25`; not merged. Review path: `npm run ux:review -- --fresh --publishable`, open `/publications` in two tabs, publish in one, then publish in the other. Next: owner accepts or returns findings; on acceptance record it here and merge into local `main`; keep #25's remote state for the next synchronization. Open question D-2 (`effectiveTo` meaning) stays for GOV-01.
+
 ## Observations (not changed)
 
 - A clean seed stores version 1 as `draft`, so the first real publication is version 2 and the draft row stays. Unique numbering is compatible with this.
