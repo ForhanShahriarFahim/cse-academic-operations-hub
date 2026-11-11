@@ -4,7 +4,7 @@ Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operat
 
 [Specification D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [responsive sketches](mockups/rollover.html)
 
-Status: **Implemented and verified for owner inspection; AC-11 partial for the disclosed failed default build. Acceptance/local merge pending.**
+Status: **Accepted by the owner on 11 November 2026 and merged into local `main`; receipt below. Parent #6 stays open.**
 
 Branch/base: `codex/bat-01b` from local main `10e3485`; one checkout/writer, no extra worktrees.
 
@@ -45,7 +45,7 @@ Inventory all source grid/count/reference and destination policy/identity/setup/
 - [x] T-05 — Implement staged responsive editor/review/receipt and safe term integration. AC-01/02/09.
 - [x] T-06 — Verify persisted raw actions, rollback, privacy, all specified both-ordering races and full safety inventory on owned disposable targets. AC-01–AC-08/10.
 - [x] T-07 — Run required final checks, inspect production UI/keyboard/pending/desktop/mobile and frozen print/CSV regression; correct findings and deliver runnable review. AC-09–AC-11.
-- [ ] T-08 — Obtain actual delivery acceptance, merge only this slice into local main and record receipt/next owner-started session. Keep parent #6 open if any parent requirements remain.
+- [x] T-08 — Obtain actual delivery acceptance, merge only this slice into local main and record receipt/next owner-started session. Keep parent #6 open if any parent requirements remain.
 
 ## Verification and delivery
 
@@ -66,3 +66,13 @@ Provide a guarded synthetic administrator/view-only review path with clearly nam
 - Safety: no institutional migration/preparation/reset/census/recovery or remote operation. Configured DB import regression and final focused/resumed metadata checks pass. Keep raw logs/private runtime state ignored; version only synthetic evidence.
 
 Next-session prompt: “Resume BAT-01B / #6 delivery review on codex/bat-01b. D-1–D-6 approval 513113c precedes implementation f753b8d/correction 7e6c28a and browser evidence 459f6a3; inspect later final evidence commits and actual Git status. T-01–T-07 are complete. Read verification and its 31-group receipt, default Turbopack failure, distinct passing Webpack preview and inherited no-active context/print finding. Reuse recorded passing checks; rerun only changed/failed/uncertain behavior. Owner review is localhost:3121; restart only with scripts/review-rollover.ts on owned synthetic targets. Fix owner findings within approved scope. Obtain actual delivery acceptance including the disclosed default-build limitation before recording/merging into local main; keep #6 open. No institutional operation, extra worktree/writer, remote sync or automatic next feature. After acceptance/merge, update handoff and suggest CRS-01A inspection/specification for an owner-started session.”
+
+## Acceptance and merge receipt — 11 November 2026
+
+- Owner instruction after the [11 November code and plan review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md): **“commit the review document also accept BAT-01B.”** The review and its build note (recorded default-build failures; one passing default build in the review session) were presented before this instruction.
+- Review correction inside approved scope: `de16bc8` logs unexpected rolled-back failures on the server (finding F-10); results and messages are unchanged.
+- Final checks on `de16bc8`: `npm run typecheck`, `npm run lint`, `npm run test:domain` and the default `npm run build` (banner “Next.js 16.3.4 (Turbopack)”, compiled successfully, exit 0) all pass in the review session. AC-11’s default-build condition is therefore met on final code; the earlier CSS-worker failures were not reproduced here and remain recorded as intermittent/environment-specific history in [verification](verification.md). No build-policy change.
+- Not re-run for the correction: `test:safety` and the browser/print suites. Their recorded passing evidence predates `de16bc8`, which adds two `console.error` calls only.
+- Open review question Q-1 (Graduate is selectable for any semester 1–8) was not answered; behaviour stays as approved in D-2. Any restriction needs its own approved scope.
+- Merge: acceptance commit precedes a no-fast-forward merge of `codex/bat-01b` into local `main`; hashes are in the brief’s current-work pointer. No remote sync, institutional migration or other operation.
+- Next: owner-started session. Suggested order is in the review’s work packages; nothing further is authorized by this acceptance.
