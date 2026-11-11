@@ -2,9 +2,9 @@
 
 Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/6)
 
-Status: **D-1–D-6 approved by owner on 8 November 2026; implementation authorized.**
+Status: **Implemented for owner inspection under unchanged D-1–D-6 approval. AC-11 partial; delivery acceptance/local merge pending.**
 
-Updated: 8 November 2026, Asia/Dhaka
+Updated: 11 November 2026, Asia/Dhaka; D-1–D-6 approval remains 8 November.
 
 [Sole plan/approval/checklist](plan.md) · [verification](verification.md) · [responsive proposal](mockups/rollover.html)
 

@@ -4,11 +4,11 @@ Parent: [BAT-01 / #6](https://github.com/ForhanShahriarFahim/cse-academic-operat
 
 [Specification D-1–D-6 / AC-01–AC-11](spec.md) · [verification](verification.md) · [responsive sketches](mockups/rollover.html)
 
-Status: **Approved implementation in progress; approval `513113c` precedes code.**
+Status: **Implemented and verified for owner inspection; AC-11 partial for the disclosed failed default build. Acceptance/local merge pending.**
 
 Branch/base: `codex/bat-01b` from local main `10e3485`; one checkout/writer, no extra worktrees.
 
-Updated: 9 November 2026, Asia/Dhaka
+Updated: 11 November 2026, Asia/Dhaka
 
 ## Inspection and proposed approach
 
@@ -43,8 +43,8 @@ Inventory all source grid/count/reference and destination policy/identity/setup/
 - [x] T-03 — Inventory writers/readers, implement pure rollover/clone validation and receipt migration; prove populated preservation/reapply/recovery on both adapters. AC-02/03/05/06/08.
 - [x] T-04 — Implement consistent evidence, independent scoped loaders/actions and atomic audited/replay-protected preparation. AC-01–AC-08.
 - [x] T-05 — Implement staged responsive editor/review/receipt and safe term integration. AC-01/02/09.
-- [ ] T-06 — Verify persisted raw actions, rollback, privacy, all specified both-ordering races and full safety inventory on owned disposable targets. AC-01–AC-08/10.
-- [ ] T-07 — Run required final checks, inspect production UI/keyboard/pending/desktop/mobile and frozen print/CSV regression; correct findings and deliver runnable review. AC-09–AC-11.
+- [x] T-06 — Verify persisted raw actions, rollback, privacy, all specified both-ordering races and full safety inventory on owned disposable targets. AC-01–AC-08/10.
+- [x] T-07 — Run required final checks, inspect production UI/keyboard/pending/desktop/mobile and frozen print/CSV regression; correct findings and deliver runnable review. AC-09–AC-11.
 - [ ] T-08 — Obtain actual delivery acceptance, merge only this slice into local main and record receipt/next owner-started session. Keep parent #6 open if any parent requirements remain.
 
 ## Verification and delivery
@@ -57,9 +57,12 @@ Provide a guarded synthetic administrator/view-only review path with clearly nam
 
 ## Current checkpoint / exact handoff
 
-- Scope: approved unchanged D-1–D-6 in spec.md; actual response above. Implementation is in progress under approval `513113c`.
-- Branch/base: `codex/bat-01b`, local main `10e3485`; inspect actual status/log on resume.
-- Completed: T-01–T-05. Approval `513113c`, implementation `f753b8d`, review corrections `7e6c28a`. Both adapters pass migration/action/recovery and all eight race orderings in recorded runs. Final metadata/source-preservation assertions pass on both adapters. Production browser (39 captures) and frozen CSV/native A4 parity pass; full 31-group safety inventory remains in progress. New receipt FK is explicitly integrated into disposable reset; institutional reset refusal is unchanged.
-- Next: complete the full safety inventory, record final evidence, commit delivery and leave a fresh owned preview for owner inspection. Required final checks remain T-06/T-07; no delivery acceptance or local merge yet.
-- Verification: [evidence](verification.md). Domain, typecheck/lint and distinct Webpack production builds pass; default Turbopack CSS-worker failure remains explicit. Durable current logs/status files are `.tmp/bat-01b/{full-safety,final-rollover,browser,review-build,final-lint}.{log,exit}`. No institutional DB operation or remote sync.
-- Handoff: “Resume BAT-01B on codex/bat-01b. Read brief/workflow and this sole plan, spec D-1–D-6 and verification; check actual Git status and approval evidence. The owner requested implementation, but the concrete rollover decisions were subsequently explicitly approved (“Approve D-1–D-6 and implement”). Reuse completed inspection/static checks. Approval is already committed at 513113c. Resume T-06/T-07 from durable logs/status files; reuse recorded passing checks and rerun only changed/failed/uncertain checks. Finish browser/CSV/A4 evidence and give the owner a fresh guarded synthetic review at localhost:3121 using scripts/review-rollover.ts --serve. Retain count/history/privacy/lifecycle guards. No institutional operation, remote synchronization, extra worktree/writer or local merge before delivery acceptance.”
+- Scope: unchanged D-1–D-6 approved explicitly on 8 November, committed `513113c` before code. No material scope amendment.
+- Branch/base: `codex/bat-01b` from local main `10e3485`; no extra worktree/writer or remote sync.
+- Completed: T-01–T-07. Implementation `f753b8d`, review corrections `7e6c28a`, browser/print evidence `459f6a3`; final evidence/checkpoint follows. Historical timestamp-fixture integration adds migration-0016's receipt timestamp to the existing later-feature exclusions; current catalogs still check every instant column.
+- Verification: all 31 named safety groups pass across preserved/resumed runs, including both adapters, eight rollover race orderings each, full recovery and reset/access preservation. Typecheck/domain/lint pass; 39 production captures and 16 native before/after PDF pages plus frozen CSV parity pass. [Evidence/receipt](verification.md). Default Turbopack CSS-worker build fails; separate Webpack production build passes. AC-11 is partial; no BAT-01B exception has been accepted.
+- Owner review: http://localhost:3121/ (application 3120), guarded `scripts/review-rollover.ts --serve` restart in verification. Fixture is synthetic and owned; no-active context intentionally demonstrates preparation from a completed source. Existing broad warning/leading print page is preserved and disclosed.
+- Next: T-08 only — owner inspection/findings and actual acceptance explicitly including the failed-default-build limitation, then record acceptance before bounded local merge. Parent #6 stays open. Do not start CRS-01A or another feature automatically.
+- Safety: no institutional migration/preparation/reset/census/recovery or remote operation. Configured DB import regression and final focused/resumed metadata checks pass. Keep raw logs/private runtime state ignored; version only synthetic evidence.
+
+Next-session prompt: “Resume BAT-01B / #6 delivery review on codex/bat-01b. D-1–D-6 approval 513113c precedes implementation f753b8d/correction 7e6c28a and browser evidence 459f6a3; inspect later final evidence commits and actual Git status. T-01–T-07 are complete. Read verification and its 31-group receipt, default Turbopack failure, distinct passing Webpack preview and inherited no-active context/print finding. Reuse recorded passing checks; rerun only changed/failed/uncertain behavior. Owner review is localhost:3121; restart only with scripts/review-rollover.ts on owned synthetic targets. Fix owner findings within approved scope. Obtain actual delivery acceptance including the disclosed default-build limitation before recording/merging into local main; keep #6 open. No institutional operation, extra worktree/writer, remote sync or automatic next feature. After acceptance/merge, update handoff and suggest CRS-01A inspection/specification for an owner-started session.”

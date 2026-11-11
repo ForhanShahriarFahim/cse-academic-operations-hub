@@ -2,7 +2,7 @@
 
 Parent [#6](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/6) · [specification](spec.md) · [sole plan/approval/checklist](plan.md)
 
-Updated: 9 November 2026, Asia/Dhaka. Branch `codex/bat-01b`, base local main `10e3485`. Approval `513113c` (owner “Approve D-1–D-6 and implement”, 8 November) precedes implementation `f753b8d` and correction `7e6c28a`; later verification checkpoints follow. Acceptance/local merge pending.
+Updated: 11 November 2026, Asia/Dhaka; passing application evidence recorded 9 November. Branch `codex/bat-01b`, base local main `10e3485`. Approval `513113c` (owner “Approve D-1–D-6 and implement”, 8 November) precedes implementation `f753b8d` and correction `7e6c28a`; later verification checkpoints follow. Acceptance/local merge pending.
 
 ## Recorded results
 
@@ -16,9 +16,9 @@ Updated: 9 November 2026, Asia/Dhaka. Branch `codex/bat-01b`, base local main `1
 | AC-08 | Populated 0015→0016 preservation/reapply and PGlite cold/PostgreSQL encrypted separate-target recovery pass, including receipt/schema/sequences/frozen data. The import regression blocks configured DB imports through injected helpers. Final focused run reports unchanged default PGlite metadata. |
 | AC-09 | 39 production captures at 1440/390/320px pass document-overflow and WCAG 2 A/AA + 2.1 AA axe checks; no recorded page errors. Real pending, invalid-grid/policy, review, source/target stale, changed-row highlighting, Back preservation, saved receipt, separate activation, source history, denied viewer and safe-summary paths pass. Feedback receives focus after stale results. |
 | AC-10 | Frozen CSV bytes and stored snapshots/attendance/claim rows remain identical. Eight native PDF pages per state (16 before/after total) have identical text and rendered pixels. All distinct rendered pages inspected; inherited no-active print banner noted below. |
-| AC-11 | Typecheck/domain/lint and a separately labelled Webpack production build pass. Default Turbopack fails in CSS-worker IPC; no passing default build or accepted BAT-01B exception exists. Full 31-group safety inventory is still running; do not mark it passed yet. |
+| AC-11 | Typecheck/domain/lint and a separately labelled Webpack production build pass. Default Turbopack fails in CSS-worker IPC; no passing default build or accepted BAT-01B exception exists. All 31 named safety groups pass across preserved/resumed runs. The initial run passed 20 before the historical BUG-29 catalog needed its existing later-feature exclusion extended for the new receipt timestamp. Both corrected time-zone groups and all nine remaining groups pass; all 45 current instant columns are checked. AC-11 remains partial solely for the default-build failure. |
 
-Focused final adapter evidence is `.tmp/bat-01b/final-rollover.log` with exit 0. Final UI build is `.tmp/bat-01b/review-build.log` with exit 0. Browser log/exit are `.tmp/bat-01b/browser.{log,exit}`; exit 0. Source/target stale identities are checked through real production actions and the production browser. The full safety log/status is `.tmp/bat-01b/full-safety.{log,exit}`; only a matching completed run's exit is authoritative.
+Focused final adapter evidence is `.tmp/bat-01b/final-rollover.log` with exit 0. Final UI build is `.tmp/bat-01b/review-build.log` with exit 0. Browser log/exit are `.tmp/bat-01b/browser.{log,exit}`; exit 0. Source/target stale identities are checked through real production actions and the production browser. The preserved initial inventory is `.tmp/bat-01b/full-safety.log` (20 passing groups, then the historical-fixture failure). Remaining groups resume by prefix in `.tmp/bat-01b/remaining-{BUG-29,AUTH-02,BUG-48,BUG-26,TCH-01,BUG-27}.{log,exit}`; `remaining-safety.exit` is 0; all six resumed prefix runs also have exit 0. No rerun of the first 20 is required. Only a matching completed run's exit is authoritative.
 
 ## Browser, CSV and native print artifacts
 
@@ -40,7 +40,7 @@ This host's npm PowerShell entry did not forward `npm run build -- --webpack`; t
 - Injected rollover helpers import only the pure schema/domain/evidence modules. `verify-db-free.ts` rejects any configured DB import, including these helpers. No institutional migration, preparation, reset, direct census or recovery operation was performed.
 - Term create/edit/activation and cohort identity/count/lifecycle take exclusive context first. Starting-policy setup takes shared context then its term row; routine/grid/reference/room/publication writers participate through existing shared-context guards. Rollover takes exclusive context before sorted term/cohort/placement locks. Review reads take shared context consistently.
 - New placements generate ID-based carry provenance and clear verifier/time; private source text is excluded from review/receipt. Public serialization and archive whitelists are unchanged; no ledger details enter publication/CSV/print projections. Internal view-only summaries contain aggregate dispositions only.
-- The new receipt FK is explicitly included in `clearAcademicData`'s non-cascading academic truncate. The guarded disposable reset check plants a receipt and verifies its removal while preserving access. Institutional target refusal remains unchanged; full-suite reset-group result pending.
+- The new receipt FK is explicitly included in `clearAcademicData`'s non-cascading academic truncate. The guarded disposable reset check plants a receipt and verifies its removal while preserving access. Both reset/access-preservation groups pass, including the planted receipt and unchanged institutional-target refusal.
 
 ## Existing findings — proposals only
 
@@ -52,4 +52,4 @@ After the recorded separate Webpack production build, run `node node_modules/tsx
 
 Open [synthetic control/sign-in](http://localhost:3121/), then **Sign in as synthetic administrator**. Review Summer 2026 → Spring 2027, progress one cohort, repeat another and explicitly hold/graduate the semester-8 cohort. Optionally copy the empty destination grid, review counts as estimates, type the destination identity and acknowledge. Inspect the saved receipt and unchanged source history, then use the separate activation review. **View-only account** demonstrates denial and the safe term summary. Restarting the owned runner gives a fresh fixture because preparation is one-time.
 
-Acceptance must include the disclosed default-build limitation before local merge. Parent #6 remains open. No institutional operation, worktree, extra writer, remote synchronization or next-feature implementation.
+Final handoff review on 11 November rechecked all saved exit files, the complete group inventory, capture manifests, local links/whitespace and the delivery diff. Passing application checks were retained rather than repeated without a changed concern. Acceptance must include the disclosed default-build limitation before local merge. Parent #6 remains open. No institutional operation, worktree, extra writer, remote synchronization or next-feature implementation.
