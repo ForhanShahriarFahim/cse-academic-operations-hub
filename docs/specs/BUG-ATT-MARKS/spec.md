@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **accepted by owner on 11 November 2026; local merge and requested GitHub synchronization next**.
+Status: **accepted and merged into local main at `713c1b6` on 11 November 2026; requested GitHub synchronization in progress**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-att-marks` from local `main` `db01442`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-01 and the duplicate-guard portion of F-08. This local bug slice overlaps ATT-03 / #10 and ATT-04 / #11; it does not complete either parent. No new remote issue has been created.
@@ -108,3 +108,7 @@ Captures: [desktop](../../../output/playwright/BUG-ATT-MARKS/desktop.png), [mobi
 ## Owner acceptance — 11 November 2026
 
 The owner replied **"accepted"** to delivery `1946c01`, accepting implementation `38b923f` and the disclosed focused-verification/build-warning limits. The same message explicitly requests a GitHub push and marking completed open issues. This authorizes recording acceptance, merging this bounded delivery into local `main`, reconciling/pushing preserved history and updating actual issue/checklist status at this synchronization boundary. It does not authorize another implementation package or institutional database operations. The acceptance commit precedes the local merge; a merge/synchronization receipt will follow. Parents #10/#11 stay open for their remaining scope.
+
+## Local merge receipt
+
+Acceptance `a95c154` precedes local merge `713c1b6` on 11 November 2026. Implementation `38b923f` and verification `1946c01` are preserved in local `main`; merge was clean with no conflict/code changes and no checks repeated. Branch `codex/bug-att-marks` is retained. Owner-requested GitHub synchronization and completed-issue reconciliation are now authorized boundary work. No institutional database operation or next feature implementation is authorized.
