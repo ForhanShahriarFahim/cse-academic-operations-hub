@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**BUG-25 / #25 — specification proposed 11 November on `codex/bug-25`, awaiting owner approval; no code or migration yet.** [Specification, acceptance criteria and decisions D-1–D-3](specs/BUG-25/spec.md). Next: owner approves or amends; record approval there and commit before implementation.
+**BUG-25 / #25 — approved 11 November ("Approve as recommended") and in implementation on `codex/bug-25`.** [Specification, acceptance criteria, decisions and plan](specs/BUG-25/spec.md). No institutional migration is authorized.
 
 **No issue in implementation. HARDEN-01 — accepted and merged locally at `20b74e8` on 11 November** (acceptance `4b5fb3f`, implementation `831a943`). Decision-free review corrections only; no schema change. [Scope, evidence and limits](specs/HARDEN-01/record.md). PostgreSQL safety groups and browser suites were not run for it. **Next:** owner-started session; suggested BUG-25 / #25, after an off-machine backup and the two open rule decisions (late-enrolment attendance, extra-load basis) in the [review](reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md).
 

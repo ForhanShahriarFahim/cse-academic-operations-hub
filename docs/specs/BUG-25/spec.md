@@ -4,7 +4,7 @@ Combined specification and plan outline for a small bug slice ([workflow](../../
 
 - Issue: [#25](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/25) (SAFE-01 follow-up F-03); review finding [F-05](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), package 3.
 - Branch/base: `codex/bug-25` from local `main` `9ec8245`. One checkout, one writer.
-- Status: **proposed 11 November 2026 — awaiting owner approval. No code, migration or database command has been run.**
+- Status: **approved 11 November 2026.** The owner replied "Approve as recommended" to the presented specification, acceptance criteria and decisions: D-1 refuse with `stale`; D-2 `effectiveTo` not changed in BUG-25 (open, decide with GOV-01); D-3 schema change and lock design approved. Scope is this document as proposed in `58e6306`. Applying `0017` to the institutional database is not authorized here.
 
 ## Problem and inspected baseline
 
