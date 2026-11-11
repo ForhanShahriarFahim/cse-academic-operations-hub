@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **approved for implementation; verification and owner delivery acceptance pending**.
+Status: **implemented and verified; owner delivery acceptance/local merge pending**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-att-marks` from local `main` `db01442`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-01 and the duplicate-guard portion of F-08. This local bug slice overlaps ATT-03 / #10 and ATT-04 / #11; it does not complete either parent. No new remote issue has been created.
@@ -11,7 +11,7 @@ Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), 
 
 The owner replied **"Approve and implement"** on 11 November 2026 after the concrete specification and D-1/D-2 recommendations were presented. This approves the unchanged scope in planning commit `2b71d8d`, including the captured-roster UI correction, exact-duplicate semantics and stated limits. This approval record is committed before implementation per [workflow](../../WORKFLOW.md). Delivery acceptance/local merge remain separate.
 
-| ID | Decision required | Recommendation proposed for approval |
+| ID | Decision | Approved rule |
 |---|---|---|
 | D-1 | Which sessions count for a late-added student? | Count only sessions containing a stored attendance record for that student. A missing record means **not in this session**, never an inferred absence. Apply consistently to Midterm, Final and Semester. Explicit stored absences still count. |
 | D-2 | What counts as an accidental duplicate? | Refuse creation when the same term and teaching group already have a session on the same date with the same start/end pair, comparing missing times as equal. Teacher and phase changes do not bypass the guard. Different time pairs remain allowed. No override in this slice; corrections/lifecycle remain ATT-03. |
@@ -62,18 +62,45 @@ Existing stored sessions, attendance records and audit history remain unchanged.
 
 - [x] T-01 — Inspect current implementation, domain/architecture rules and handoff; reproduce summary defect in memory; prepare this specification and UI sketch.
 - [x] T-02 — Obtain actual approval of D-1, D-2 and this scope; record the reply and commit the approved plan before application/test implementation.
-- [ ] T-03 — Add failing domain and production-path synthetic attendance scenarios, including old-session UI payload and duplicate creation baseline (AC-01–AC-07).
-- [ ] T-04 — Implement shared captured-record summaries and session UI membership/save handling (AC-01–AC-04, AC-08).
-- [ ] T-05 — Implement serialized exact-duplicate refusal and prove both-adapter outcomes, PostgreSQL race and audit rollback (AC-05–AC-07).
-- [ ] T-06 — Run required code checks and affected safety/browser checks; review preservation, permission boundaries and diff; record results/limits here (AC-01–AC-10).
-- [ ] T-07 — Commit bounded delivery and provide a synthetic owner-inspection path. After actual owner acceptance, merge locally and update the handoff; parents #10/#11 stay open.
+- [x] T-03 — Add failing domain and production-path synthetic attendance scenarios, including old-session UI payload and duplicate creation baseline (AC-01–AC-07).
+- [x] T-04 — Implement shared captured-record summaries and session UI membership/save handling (AC-01–AC-04, AC-08).
+- [x] T-05 — Implement serialized exact-duplicate refusal and prove both-adapter outcomes, PostgreSQL race and audit rollback (AC-05–AC-07).
+- [x] T-06 — Run required code checks and affected safety/browser checks; review preservation, permission boundaries and diff; record results/limits here (AC-01–AC-10).
+- [x] T-07 — Commit bounded delivery and provide the synthetic owner-inspection path below. Owner delivery acceptance and local merge remain pending; parents #10/#11 stay open.
 
 Verification will extend the owned `.tmp/safe-01` fixtures/controlled-runtime children and safety runner, never import the configured client from an unpinned probe. Use `SAFE01_PG_BIN` for the installed disposable PostgreSQL cluster. Use the guarded `ux:review` synthetic target for UI checks; do not casually run `dev`, `start`, `test:ui` or `db:*`. Full-suite repetition is needed only where changed paths/failures/uncertainty justify it. No schema change means no migration/recovery operation in this slice.
 
-## Verification and current handoff
+## Verification — 11 November 2026
 
-Planning evidence only: in-memory reproduction above passed as a demonstration of the existing defect. No application change, database action, full suite, browser run or build was performed in this planning pass. Duplicate creation and the UI refusal still need runtime reproduction on synthetic data.
+Approval `fd527d0` precedes implementation `38b923f`. Changes: shared `summarizeAttendance`, captured-only controls/payloads, and advisory-lock namespace `61027` before roster/duplicate reads. No schema/configuration change. Review found no remaining defect within this scope.
 
-Documentation checks: all four local links in this record resolve; required combined-record sections and the single primary checklist are present. The entry-point/delivery-plan diff was reviewed and `git diff --check` passed. The planning commit contains only this record and those two pointer updates; inspect `git log -1` and the working tree at resume.
+| Criteria | Evidence/result |
+|---|---|
+| AC-01, AC-02 | Pass. `npm run test:domain`, including late enrolment, explicit absence, phase separation, present/late/excused, empty/all-excused, both maxima and rounding. Actual loader on both adapters gives the late student 0/0 Midterm, 1/1 Final, 100% and full marks. |
+| AC-03, AC-04 | Pass. Both-adapter persisted-row checks: captured-only saves succeed, crafted added-student payloads fail atomically, reads do not backfill, removed students' records and original fixture attendance remain unchanged. Production browser: add A, create/save session 1, add B, save session 1, reload; B stays “Not in this session” with no selector. Remove A: Save/Mark all present disabled, no selectors, preservation explanation visible. Re-enrol A: original captured Present record reused. |
+| AC-05, AC-06 | Pass. `SAFE01_PG_BIN=F:\AI\tools\pgsql-17.11\pgsql\bin` with `npm run test:safety -- BUG-ATT-MARKS`: both PGlite and PostgreSQL 17.11 pass. Duplicate refusal across phase/teacher changes and null times; different times/dates/groups and other-term data do not falsely block. PostgreSQL race observes the second creator's blocking PID while the first is held at insert; exactly one session, roster capture and audit, and one conflict. PGlite queues the second request behind the first. |
+| AC-07 | Pass. Assigned teacher succeeds; invalid input, anonymous, viewer, unassigned teacher, wrong-term create/save and stale context write nothing. Injected audit failure rolls creation back; retry succeeds. |
+| AC-08 | Pass. Production build on guarded synthetic target, Edge at 1440×1000 and 375×900. Late B shows 0/0, 1/1, 100%, 10/10; duplicate creation across phase change is refused with input preserved. No page-wide overflow; keyboard ArrowDown/ArrowUp changes/restores attendance. axe WCAG 2 A/AA returns zero violations at both widths. Three captures below were visually reviewed. |
+| AC-09 | Pass. `npm run typecheck`, `npm run lint`, `npm run test:domain`, default `npm run build` (Next.js 16.3.4 Turbopack), both attendance safety groups and existing `npm run test:safety -- T-03` pass. T-03 verifies two-term loader/export parity, retained history, repeated migrations, 13 cross-term action refusals and time-grid guards. |
+| AC-10 | Pass. Successful safety runs report institutional/default PGlite metadata unchanged and never opened. Browser/production preview is pinned to `.tmp/ux-review/pglite`; no institutional operation, application migration, reset, GitHub write or history rewrite. Synthetic harness fixtures apply migrations only to owned disposable targets. |
 
-Next action: approval above authorizes T-03–T-06 on this branch after committing this approval record. Local merge still requires owner delivery acceptance. Keep the historical BUG-25 institutional migration reminder separate. GitHub remains unchanged; last live main-reference read in the preceding review was `0b1e055` on 11 November, while full issue reconciliation remains dated 26 October.
+Red-before-green: the new PGlite production-action scenario failed on the old create action because the second same-key request inserted an extra session, captured records and audit event instead of refusing with no write. The earlier planning reproduction ran the exact old summary block in memory and showed the false 5/10 result. New summary-helper unit assertions were not separately run against an old exported helper (none existed).
+
+Limits and execution corrections:
+
+- Full `test:safety`, `test:ux`, `test:ui`, print/export suites and real-provider sessions were not re-run. Evidence here is the focused attendance groups, existing T-03, domain checks and direct browser workflows; no new print/export surface exists.
+- Sandbox PostgreSQL access initially failed with `EACCES`; the same owned checks pass with elevated localhost access. Sandbox browser launch and build worker also required elevated execution.
+- A build run alongside the development review server compiled but then failed on malformed generated `.next/dev/types` files. Both processes were stopped, only `.next/dev` was removed, and the default build alone passed. No bundler/settings change. Build-generated `next-env.d.ts` changes were restored to the committed baseline. The final browser review used that passing production build, not concurrent development compilation.
+- The successful build retains the existing dynamic-filesystem tracing warning at `src/db/target.ts:36`; that file was not changed. Browser console showed only the existing missing `favicon.ico` 404, with no workflow errors. The first browser wait used the wrong success text; it was corrected to the real “Attendance saved for …” message and the complete workflow passed.
+- The exact-duplicate guard protects the portal create action; direct SQL is not constrained. Different time pairs and timed versus untimed sessions can coexist as approved. Existing duplicates and policy/versioning remain deferred.
+
+Captures: [desktop](../../../output/playwright/BUG-ATT-MARKS/desktop.png), [mobile](../../../output/playwright/BUG-ATT-MARKS/mobile.png), [empty-session mobile](../../../output/playwright/BUG-ATT-MARKS/empty-mobile.png). Mobile tables retain their internal horizontal scrolling; the whole page does not overflow.
+
+## Owner inspection and exact handoff
+
+- Branch `codex/bug-att-marks`, base `db01442`, plan `2b71d8d`, approval `fd527d0`, implementation/evidence `38b923f`. This verification/handoff is a subsequent documentation checkpoint. Inspect the actual Git log/status when resuming.
+- Host-local production preview: `http://localhost:3100/attendance`, guarded synthetic `.tmp/ux-review/pglite`. In the selected first BAN-1201 group, synthetic `ATT-UI-A` and `ATT-UI-B` are enrolled. Choose 1 May Midterm: A has Present; B is not in that session. Choose 2 May Final: both are captured. B's summary is 0/0 Midterm, 1/1 Final, 100%, 10/10. Duplicate 2 May 09:00–10:00 is refused even if phase changes.
+- The ignored host-local launcher `.tmp/BUG-ATT-MARKS/start-review.ts` starts the passing production build with `reviewEnvironment`, an explicitly resolved review target and production mode, bypassing configured-data `prestart`. If stopped, run `node node_modules/tsx/dist/cli.mjs .tmp/BUG-ATT-MARKS/start-review.ts`. It needs the existing review target/session. For a fresh environment use the guarded `npm run ux:review` preparation instead, sequentially with build; never open a second PGlite process while a review server is using that directory.
+- Synthetic browser authentication is in ignored `.tmp/ux-review/session.local.json` (`cookie` field for `better-auth.session_token` on localhost); isolated CLI storage state is `.tmp/ux-review/attendance-browser-state.local.json`. Do not commit either. CLI browser is closed; production review server remains available for owner inspection. Browser scripts are ignored under `.tmp/BUG-ATT-MARKS`; tracked captures and this record retain the results.
+- **Next action: owner inspects/accepts this delivery.** After actual acceptance, record it, merge the bounded branch into local `main`, then update the brief/sequence with the merge receipt. Do not push or advance another package automatically. Parents #10/#11 remain open. Suggested later package: BUG-LOAD-BASIS, after its separate rule decision/specification.
+- BUG-25 institutional migration `0017` remains unapplied under its separate backed-up operation. GitHub remains unchanged; last live main-reference read was `0b1e055` on 11 November, full issue reconciliation 26 October.
