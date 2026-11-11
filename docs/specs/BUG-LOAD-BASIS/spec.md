@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **inspection/specification complete; implementation approval pending**.
+Status: **approved for implementation; verification/delivery pending**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-load-basis` from clean local `main` `97a7a78`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-02. F-04 is already delivered by [HARDEN-01](../HARDEN-01/record.md) and is excluded. No new GitHub issue created.
@@ -11,13 +11,13 @@ Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), 
 
 The owner's **“Go for the next task.”** authorizes this inspection/specification under the current [handoff](../../PROJECT_BRIEF.md) and [workflow](../../WORKFLOW.md). It does not establish approval of this newly prepared implementation scope.
 
-On 11 November the owner answered the eligibility question: **“Workload credit-hours: a one-credit sessional counts as 2 (Recommended)”**. D-1 is decided. The remaining proposed behavior below must be approved as a concrete package before code changes.
+On 11 November the owner answered the eligibility question: **“Workload credit-hours: a one-credit sessional counts as 2 (Recommended)”**. D-1 is decided. The owner then replied **“Approved.”** on 11 November 2026 to the concrete package at planning commit `71815d8`, including D-2/D-3 and the UI sketch. This approval covers the unchanged specification below. This approval record is committed before implementation; delivery acceptance/local merge remain separate.
 
 | ID | Status | Rule |
 |---|---|---|
 | D-1 | Owner confirmed | Extra-load eligibility uses workload credit-hours, strictly greater than the term's threshold (default 15). A sole one-credit sessional normally contributes 2 recorded workload units. Catalog credits remain a separate metric. |
-| D-2 | Proposed for approval | Use existing allocation units as the single source for both workload and eligibility, including explicit co-teaching splits and external allocation records. Never reconstruct units from meetings, course types, policy multipliers or external commitment credits. |
-| D-3 | Proposed for approval | Remove the two ineffective theory/sessional credit controls from active-term policy editing; preserve their stored values server-side and show them as read-only legacy metadata. Draft starting-policy setup retains its explicit legacy fields, clearly labelled as unused metadata, to preserve SET-01A's existing setup/activation contract. Full removal/versioned replacement belongs to SET-01B/CRS-01. |
+| D-2 | Approved | Use existing allocation units as the single source for both workload and eligibility, including explicit co-teaching splits and external allocation records. Never reconstruct units from meetings, course types, policy multipliers or external commitment credits. |
+| D-3 | Approved | Remove the two ineffective theory/sessional credit controls from active-term policy editing; preserve their stored values server-side and show them as read-only legacy metadata. Draft starting-policy setup retains its explicit legacy fields, clearly labelled as unused metadata, to preserve SET-01A's existing setup/activation contract. Full removal/versioned replacement belongs to SET-01B/CRS-01. |
 
 D-2 preserves the workload page's existing treatment of unverified external allocations: recorded units count, with a known-minimum/pending-verification explanation. No new requirement for verified external work is introduced. Unallocated external commitment credits and meeting-only assignments contribute zero units. Missing allocations must be corrected through a separately approved allocation workflow, not silently invented here. D-3 does not implement allocation defaults or convert stored allocations when policy metadata changes.
 
@@ -67,7 +67,7 @@ Existing class entries, label snapshots, manual top-sheet rows and audit history
 ## Sole checklist
 
 - [x] T-01 — Inspect current handoff/code and reproduce F-02 without database access; record owner D-1 and concrete proposed scope.
-- [ ] T-02 — Obtain actual approval of this specification (including D-2/D-3 and UI sketch), record it and commit approved plan **before code**.
+- [x] T-02 — Obtain actual approval of this specification (including D-2/D-3 and UI sketch), record it and commit approved plan **before code**.
 - [ ] T-03 — Implement shared allocation totals, loader/action parity, eligibility and claim-access UI; AC-01–04/06–07.
 - [ ] T-04 — Clarify/preserve legacy policy values and draft contract; AC-05/07.
 - [ ] T-05 — Run meaningful domain/action regressions on disposable targets, required final checks, two-term history and focused production browser/A4 review; fix findings and record criterion evidence/limits; AC-01–09.
@@ -77,4 +77,4 @@ Existing class entries, label snapshots, manual top-sheet rows and audit history
 
 Planning verification: synthetic execution confirms current 15/catalog versus 16/workload mismatch. Documentation links/content/whitespace and planning diff reviewed before checkpoint. No app server, build, database command, migration or test suite was run for this documentation-only package; implementation acceptance criteria remain unverified.
 
-Next action: present this proposed package and obtain actual owner implementation approval under WORKFLOW steps 4–5. D-1 is already answered and must not be asked again. Once scope is approved, record actual approval and commit it before changing code, then carry T-03–T-06 through autonomously. Inspect Git/status at handoff; branch/base are above. Keep all work on this branch/checkout. No institutional operation or remote synchronization is authorized; acceptance/local merge are separate gates.
+Next action: approval of planning commit `71815d8` is recorded above; commit this approval before code, then carry T-03–T-06 through autonomously. D-1–D-3 are approved and must not be asked again. Inspect Git/status at handoff; branch/base are above. Keep all work on this branch/checkout. No institutional operation or remote synchronization is authorized; acceptance/local merge are separate gates.
