@@ -79,7 +79,7 @@ async function view() {
       rate: extra.policy.extraClassRate,
       classes: sortNumbers(extra.classes.map((row) => row.id)),
       manual: sortNumbers(extra.manualSummaries.map((row) => row.id)),
-      summaries: extra.teacherSummaries.map((row) => [row.teacher.shortCode, row.assignedCredits, row.classCount, row.amount]),
+      summaries: extra.teacherSummaries.map((row) => [row.teacher.shortCode, row.assignedWorkloadUnits, row.classCount, row.amount]),
     },
     workloads: [...workloads.values()].map((row) => [row.teacherId, row.workloadUnits, row.weeklyContactMinutes]).sort(),
     publicRoutine: published ? { term: published.source.termName, version: published.source.versionNumber } : null,

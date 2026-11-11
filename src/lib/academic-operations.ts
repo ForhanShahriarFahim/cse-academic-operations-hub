@@ -20,6 +20,7 @@ import { hasCapability } from "./auth/policy";
 import { redirect } from "next/navigation";
 import { summarizeAttendance } from "./attendance";
 import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
+import { allocationTotals } from "./workload";
 
 export interface TeachingGroupOption {
   id: number;
@@ -28,7 +29,6 @@ export interface TeachingGroupOption {
   courseType: string;
   audience: string;
   teacherIds: number[];
-  assignedCredits: number;
 }
 
 export async function getAcademicPolicy(termId: number): Promise<ExtraLoadPolicy> {
@@ -45,7 +45,6 @@ export async function getAcademicPolicy(termId: number): Promise<ExtraLoadPolicy
 
 export function groupOptions(data: PortalData): TeachingGroupOption[] {
   return data.coverage.map((coverage) => {
-    const course = data.courses.find((row) => row.code === coverage.courseCode);
     const teacherIds = [...new Set([
       ...data.allocations.filter((allocation) => allocation.teachingGroupId === coverage.teachingGroupId).map((allocation) => allocation.teacherId),
       ...data.meetings.filter((meeting) => meeting.teachingGroupId === coverage.teachingGroupId).flatMap((meeting) => meeting.teachers.map((teacher) => teacher.id)),
@@ -57,24 +56,8 @@ export function groupOptions(data: PortalData): TeachingGroupOption[] {
       courseType: coverage.courseType,
       audience: coverage.audience,
       teacherIds,
-      assignedCredits: course?.credits ?? 0,
     };
   }).sort((a, b) => a.courseCode.localeCompare(b.courseCode) || a.audience.localeCompare(b.audience));
-}
-
-export function teacherCreditLoads(data: PortalData, groups = groupOptions(data)): Map<number, number> {
-  const loads = new Map<number, number>();
-  for (const group of groups) {
-    for (const teacherId of group.teacherIds) {
-      loads.set(teacherId, (loads.get(teacherId) ?? 0) + group.assignedCredits);
-    }
-  }
-  for (const external of data.externals) {
-    if (external.teacherId && external.credits != null) {
-      loads.set(external.teacherId, (loads.get(external.teacherId) ?? 0) + external.credits);
-    }
-  }
-  return loads;
 }
 
 export async function getExtraLoadData(from?: string, to?: string) {
@@ -86,7 +69,10 @@ export async function getExtraLoadData(from?: string, to?: string) {
     redirect("/forbidden");
   }
   const groups = groupOptions(data).filter((group) => canReview || actor.teacherId != null && group.teacherIds.includes(actor.teacherId));
-  const loads = teacherCreditLoads(data, groups);
+  // Compute on the full active-term allocation set, then scope returned totals.
+  const loads = new Map([...allocationTotals(data.allocations)]
+    .filter(([teacherId]) => canReview || teacherId === actor.teacherId)
+    .map(([teacherId, total]) => [teacherId, total.workloadUnits]));
   const where = from && to
     ? and(eq(extraLoadClasses.termId, data.term.id), gte(extraLoadClasses.classDate, from), lte(extraLoadClasses.classDate, to))
     : eq(extraLoadClasses.termId, data.term.id);
@@ -107,11 +93,12 @@ export async function getExtraLoadData(from?: string, to?: string) {
     const entries = classes.filter((row) => row.teacherId === teacher.id);
     return {
       teacher,
-      assignedCredits: loads.get(teacher.id) ?? 0,
+      assignedWorkloadUnits: loads.get(teacher.id) ?? 0,
+      hasUnverifiedExternal: data.externals.some((entry) => entry.teacherId === teacher.id && entry.verificationStatus === "pending"),
       classCount: entries.length,
       amount: paymentForClasses(entries.length, policy.extraClassRate),
     };
-  }).filter((row) => row.assignedCredits > 0 || row.classCount > 0);
+  }).filter((row) => row.assignedWorkloadUnits > 0 || row.classCount > 0);
   const manualSummaries = (canReview ? manualRows : []).map((row) => ({
     ...row,
     rateOverride: row.rateOverride == null ? null : Number(row.rateOverride),

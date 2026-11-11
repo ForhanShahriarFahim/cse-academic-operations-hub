@@ -16,8 +16,8 @@ export const DEFAULT_ACADEMIC_POLICY: ExtraLoadPolicy = {
   sessionalAttendanceMarks: 5,
 };
 
-export function isExtraLoadEligible(assignedCredits: number, threshold: number) {
-  return assignedCredits > threshold;
+export function isExtraLoadEligible(workloadUnits: number, threshold: number) {
+  return workloadUnits > threshold;
 }
 
 export function paymentForClasses(classCount: number, rate: number, amountOverride?: number | null) {
