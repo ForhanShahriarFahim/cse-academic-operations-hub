@@ -63,11 +63,13 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
   const groupTeachers = teachers.filter((teacher) => selectedGroup.teacherIds.includes(teacher.id));
   const summaryByStudent = useMemo(() => new Map(summaries.map((row) => [row.studentId, row])), [summaries]);
 
+  const capturedIds = new Set(activeSession?.records.map((record) => record.studentId));
+  const sessionRoster = roster.filter((student) => capturedIds.has(student.id));
+
   function statusFor(studentId: number): AttendanceStatus {
-    const key = `${effectiveSessionId}:${studentId}`;
-    return statusOverrides[key]
-      ?? activeSession?.records.find((record) => record.studentId === studentId)?.status as AttendanceStatus
-      ?? "absent";
+    const record = activeSession?.records.find((record) => record.studentId === studentId);
+    if (!record) throw new Error("Student is not captured in this attendance session.");
+    return statusOverrides[`${effectiveSessionId}:${studentId}`] ?? record.status as AttendanceStatus;
   }
 
   function selectSession(id: number) {
@@ -94,7 +96,7 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
       </div>
     </section>
 
-    {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
+    {result && <p role={result.ok ? "status" : "alert"} className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
 
     {canManageRosters && <div className="grid gap-4 xl:grid-cols-2">
       <section className="ruled rounded-lg">
@@ -135,17 +137,18 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
 
     <section className="ruled rounded-lg">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line-soft)] px-4 py-3">
-        <div><h2 className="font-display text-[15px] font-semibold">Take attendance</h2><p className="mt-0.5 text-[11.5px] text-muted">Late counts as attended; excused is excluded from the denominator.</p></div>
+        <div><h2 className="font-display text-[15px] font-semibold">Take attendance</h2><p className="mt-0.5 text-[11.5px] text-muted">Late counts as attended; excused is excluded from the denominator. Only students captured when this session was created can be marked.</p></div>
         <div className="flex flex-wrap gap-1.5">{sessions.map((session) => <button key={session.id} onClick={() => selectSession(session.id)} className={`rounded-md border px-2.5 py-1.5 text-[11px] font-semibold ${session.id === effectiveSessionId ? "border-[var(--color-pine)] bg-[var(--color-pine)] text-white" : "border-[var(--color-line)] bg-white"}`}>{session.classDate} · {session.phase}</button>)}</div>
       </header>
       {!activeSession ? <p className="p-8 text-center text-[12px] text-muted">Create a session to take attendance.</p> : <>
         {canTakeAttendance && <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-line-soft)] px-4 py-2.5">
           <span className="mr-auto text-[12px]"><strong>{activeSession.classDate}</strong> · {activeSession.phase}{activeSession.startMinutes != null && activeSession.endMinutes != null ? ` · ${fmtRange(activeSession.startMinutes, activeSession.endMinutes)}` : ""}</span>
-          <button onClick={() => setStatusOverrides((current) => ({ ...current, ...Object.fromEntries(roster.map((student) => [`${effectiveSessionId}:${student.id}`, "present" as AttendanceStatus])) }))} className="inline-flex items-center gap-1 rounded-md border border-[var(--color-pine)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--color-pine)]"><CheckCheck size={12} />Mark all present</button>
-          <button disabled={pending} onClick={() => run(() => saveAttendanceAction(activeSession.id, roster.map((student) => ({ studentId: student.id, status: statusFor(student.id) }))))} className="inline-flex items-center gap-1 rounded-md bg-[var(--color-pine)] px-3 py-1.5 text-[11px] font-semibold text-white"><Save size={12} />Save</button>
+          <button disabled={pending || sessionRoster.length === 0} onClick={() => setStatusOverrides((current) => ({ ...current, ...Object.fromEntries(sessionRoster.map((student) => [`${effectiveSessionId}:${student.id}`, "present" as AttendanceStatus])) }))} className="inline-flex items-center gap-1 rounded-md border border-[var(--color-pine)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--color-pine)]"><CheckCheck size={12} />Mark all present</button>
+          <button disabled={pending || sessionRoster.length === 0} onClick={() => run(() => saveAttendanceAction(activeSession.id, sessionRoster.map((student) => ({ studentId: student.id, status: statusFor(student.id) }))))} className="inline-flex items-center gap-1 rounded-md bg-[var(--color-pine)] px-3 py-1.5 text-[11px] font-semibold text-white"><Save size={12} />Save</button>
           <button type="button" aria-label="Delete this attendance session" title="Delete session" onClick={async () => { if (await ask({ title: "Delete this attendance session?", body: "The session and every mark recorded in it will be removed. Students' other sessions are not affected.", confirmLabel: "Delete session" })) run(() => deleteAttendanceSessionAction(activeSession.id)); }} className="rounded p-1.5 text-[var(--color-clay)]"><Trash2 size={13} aria-hidden="true" /></button>
         </div>}
-        <div role="region" aria-label="Attendance marks for this session" tabIndex={0} className="table-region max-h-[560px] overflow-auto"><table className="routine-table text-[12.5px]"><thead className="sticky top-0 z-10"><tr>{["SL.", "Student ID", "Student name", "Phone number", "Department", "Attendance"].map((h) => <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.map((student, index) => <tr key={student.id} className={index % 2 ? "bg-wash" : "bg-white"}><td className="px-3 py-2 text-center font-mono">{String(index + 1).padStart(2, "0")}</td><td className="px-3 py-2 font-mono">{student.studentCode}</td><td className="px-3 py-2 font-medium">{student.fullName}</td><td className="px-3 py-2 font-mono">{student.phone ?? "—"}</td><td className="px-3 py-2">{student.homeDepartmentLabel ?? "—"}</td><td className="min-w-48 px-2 py-1.5"><select disabled={!canTakeAttendance} value={statusFor(student.id)} onChange={(event) => setStatusOverrides((current) => ({ ...current, [`${effectiveSessionId}:${student.id}`]: event.target.value as AttendanceStatus }))} className={`${control} border-[var(--color-pine)]/35`}><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option></select></td></tr>)}</tbody></table></div>
+        {sessionRoster.length === 0 && <p className="px-4 py-3 text-[12px] text-muted">No current roster students belong to this session. Existing attendance records are preserved.</p>}
+        <div role="region" aria-label="Attendance marks for this session" tabIndex={0} className="table-region max-h-[560px] overflow-auto"><table className="routine-table text-[12.5px]"><thead className="sticky top-0 z-10"><tr>{["SL.", "Student ID", "Student name", "Phone number", "Department", "Attendance"].map((h) => <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.map((student, index) => <tr key={student.id} className={index % 2 ? "bg-wash" : "bg-white"}><td className="px-3 py-2 text-center font-mono">{String(index + 1).padStart(2, "0")}</td><td className="px-3 py-2 font-mono">{student.studentCode}</td><td className="px-3 py-2 font-medium">{student.fullName}</td><td className="px-3 py-2 font-mono">{student.phone ?? "—"}</td><td className="px-3 py-2">{student.homeDepartmentLabel ?? "—"}</td><td className="min-w-48 px-2 py-1.5">{capturedIds.has(student.id) ? <select aria-label={`Attendance for ${student.fullName}`} disabled={!canTakeAttendance || pending} value={statusFor(student.id)} onChange={(event) => setStatusOverrides((current) => ({ ...current, [`${effectiveSessionId}:${student.id}`]: event.target.value as AttendanceStatus }))} className={`${control} border-[var(--color-pine)]/35`}><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option></select> : <span className="text-[12px] text-muted">Not in this session</span>}</td></tr>)}</tbody></table></div>
       </>}
     </section>
 
