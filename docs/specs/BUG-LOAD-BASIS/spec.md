@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **delivered for owner inspection; acceptance/local merge pending. AC-08 is partial (default build fails); browser evidence uses the disclosed shared-client review harness.**
+Status: **accepted by the owner on 11 November 2026; local merge pending. AC-08 remains partial (default build fails); browser evidence uses the disclosed shared-client review harness.**
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-load-basis` from clean local `main` `97a7a78`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-02. F-04 is already delivered by [HARDEN-01](../HARDEN-01/record.md) and is excluded. No new GitHub issue created.
@@ -109,3 +109,9 @@ Verification limits: full `test:safety`, `test:ux`, `test:ui`, real-provider ses
 - Review authentication is in ignored `.tmp/BUG-LOAD-BASIS/browser-state.local.json`; the existing browser session is `load-basis` (Edge). The existing `.tmp/ux-review/session.local.json` supplies the pinned reviewer secret/cookie. Never commit either. UI scripts and source PDFs stay ignored; reviewed PNGs below preserve evidence.
 - Captures: [desktop](../../../output/playwright/BUG-LOAD-BASIS/desktop.png), [mobile](../../../output/playwright/BUG-LOAD-BASIS/mobile.png), [workload](../../../output/playwright/BUG-LOAD-BASIS/workload.png), [policy panel](../../../output/playwright/BUG-LOAD-BASIS/settings-mobile.png), [teacher A4](../../../output/playwright/BUG-LOAD-BASIS/teacher-print.png), [native top-sheet Letter](../../../output/playwright/BUG-LOAD-BASIS/top-sheet-letter.png), [top-sheet A4](../../../output/playwright/BUG-LOAD-BASIS/top-sheet-a4.png), [ranged A4](../../../output/playwright/BUG-LOAD-BASIS/top-sheet-ranged-a4.png). All eight visually reviewed.
 - **Next action:** present this bounded delivery and both limitations; obtain actual owner acceptance before merging locally. No push, GitHub update, institutional operation or automatic next package. BUG-25 migration `0017` remains separate/unapplied. Suggested later owner-started inspection: the newly reproduced production-PGlite bootstrap finding, with its own specification/approval, before advancing to CRS-01A. The Turbopack worker failure remains a separate build/environment investigation.
+
+## Owner acceptance — 11 November 2026
+
+The owner replied **“accepted.”** after delivery `4a90014`, accepting implementation/captures `2033d3a` and the disclosed verification limits: default Turbopack build failure (AC-08 partial), unmodified Webpack/PGlite stale reads, and browser evidence using the shared synthetic-client harness. This accepts the bounded delivery under those explicit limits; it does not turn either failing check into a pass or authorize a bootstrap/build-policy repair. Under the local-first workflow, this authorizes recording acceptance and merging the issue branch into local `main`. This acceptance record is committed before the merge.
+
+No push, GitHub update, institutional database operation or next implementation package is authorized. Migration `0017` remains separate/unapplied. After the merge, record the receipt and suggest the separate production-PGlite investigation for a later owner-started session. The earlier inspection handoff above is historical and superseded by this acceptance.
