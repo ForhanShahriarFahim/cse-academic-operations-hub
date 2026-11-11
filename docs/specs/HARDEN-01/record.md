@@ -30,7 +30,7 @@ F-01 late-enrolment rule (Q-5), F-02 eligibility basis (Q-2), F-03 student ident
 
 ## Verification
 
-Implementation `831a943` on `codex/harden-01`, 11 November 2026. **Status: implemented for owner inspection; acceptance and local merge pending.**
+Implementation `831a943` on `codex/harden-01`, 11 November 2026. **Status: accepted by the owner on 11 November 2026 (“Accept and merge”, after the verification table and its pending items were presented); merged into local `main` by the commit that follows this record.** PostgreSQL safety groups, the remaining PGlite groups and browser/print suites remain pending.
 
 | Check | Result |
 |---|---|
