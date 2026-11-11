@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **accepted and merged into local main at `713c1b6` on 11 November 2026; requested GitHub synchronization in progress**.
+Status: **accepted and merged into local main at `713c1b6` on 11 November 2026; owner-requested GitHub synchronization completed at the recorded boundary**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-att-marks` from local `main` `db01442`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-01 and the duplicate-guard portion of F-08. This local bug slice overlaps ATT-03 / #10 and ATT-04 / #11; it does not complete either parent. No new remote issue has been created.
@@ -18,7 +18,7 @@ The owner replied **"Approve and implement"** on 11 November 2026 after the conc
 
 D-1 uses the captured roster, not inferred enrolment dates: a backdated session created after enrolment includes whoever was captured when it was created. The current model has no enrolment-effective date. D-2 is an exact-duplicate guard, not an overlap detector: a timed session and an untimed session, or different time pairs, can coexist. Historical duplicates are not automatically identified, removed or merged. These boundaries were included in the approved specification.
 
-## Inspected baseline and reproduction
+## Inspected baseline and reproduction (planning base `db01442`)
 
 - [ADR-001](../../architecture/ADR-001-academic-operations-boundaries.md) already says sessions capture their roster at creation and later saves may update only captured students. [Attendance requirements](../../PRODUCT_REQUIREMENTS.md#7-attendance-solution) preserve present/late/excused semantics and propose duplicate prevention.
 - `src/lib/academic-operations.ts:getAttendanceData` maps all group sessions to each current student, substituting `absent` for a missing record. `src/lib/attendance.ts:attendanceMark` then calculates a mark from that invented absence.
@@ -66,7 +66,7 @@ Existing stored sessions, attendance records and audit history remain unchanged.
 - [x] T-04 — Implement shared captured-record summaries and session UI membership/save handling (AC-01–AC-04, AC-08).
 - [x] T-05 — Implement serialized exact-duplicate refusal and prove both-adapter outcomes, PostgreSQL race and audit rollback (AC-05–AC-07).
 - [x] T-06 — Run required code checks and affected safety/browser checks; review preservation, permission boundaries and diff; record results/limits here (AC-01–AC-10).
-- [x] T-07 — Commit bounded delivery and provide the synthetic owner-inspection path below. Owner delivery acceptance and local merge remain pending; parents #10/#11 stay open.
+- [x] T-07 — Commit bounded delivery and provide the synthetic owner-inspection path below. Owner accepted at `a95c154`, local merge `713c1b6`; parents #10/#11 stay open.
 
 Verification will extend the owned `.tmp/safe-01` fixtures/controlled-runtime children and safety runner, never import the configured client from an unpinned probe. Use `SAFE01_PG_BIN` for the installed disposable PostgreSQL cluster. Use the guarded `ux:review` synthetic target for UI checks; do not casually run `dev`, `start`, `test:ui` or `db:*`. Full-suite repetition is needed only where changed paths/failures/uncertainty justify it. No schema change means no migration/recovery operation in this slice.
 
@@ -102,7 +102,7 @@ Captures: [desktop](../../../output/playwright/BUG-ATT-MARKS/desktop.png), [mobi
 - Host-local production preview: `http://localhost:3100/attendance`, guarded synthetic `.tmp/ux-review/pglite`. In the selected first BAN-1201 group, synthetic `ATT-UI-A` and `ATT-UI-B` are enrolled. Choose 1 May Midterm: A has Present; B is not in that session. Choose 2 May Final: both are captured. B's summary is 0/0 Midterm, 1/1 Final, 100%, 10/10. Duplicate 2 May 09:00–10:00 is refused even if phase changes.
 - The ignored host-local launcher `.tmp/BUG-ATT-MARKS/start-review.ts` starts the passing production build with `reviewEnvironment`, an explicitly resolved review target and production mode, bypassing configured-data `prestart`. If stopped, run `node node_modules/tsx/dist/cli.mjs .tmp/BUG-ATT-MARKS/start-review.ts`. It needs the existing review target/session. For a fresh environment use the guarded `npm run ux:review` preparation instead, sequentially with build; never open a second PGlite process while a review server is using that directory.
 - Synthetic browser authentication is in ignored `.tmp/ux-review/session.local.json` (`cookie` field for `better-auth.session_token` on localhost); isolated CLI storage state is `.tmp/ux-review/attendance-browser-state.local.json`. Do not commit either. CLI browser is closed; production review server remains available for owner inspection. Browser scripts are ignored under `.tmp/BUG-ATT-MARKS`; tracked captures and this record retain the results.
-- **Next action: owner inspects/accepts this delivery.** After actual acceptance, record it, merge the bounded branch into local `main`, then update the brief/sequence with the merge receipt. Do not push or advance another package automatically. Parents #10/#11 remain open. Suggested later package: BUG-LOAD-BASIS, after its separate rule decision/specification.
+- **Historical inspection handoff (superseded by owner acceptance below).** After actual acceptance, record it, merge the bounded branch into local `main`, then update the brief/sequence with the merge receipt. Do not push or advance another package automatically. Parents #10/#11 remain open. Suggested later package: BUG-LOAD-BASIS, after its separate rule decision/specification.
 - BUG-25 institutional migration `0017` remains unapplied under its separate backed-up operation. GitHub remains unchanged; last live main-reference read was `0b1e055` on 11 November, full issue reconciliation 26 October.
 
 ## Owner acceptance — 11 November 2026
@@ -112,3 +112,7 @@ The owner replied **"accepted"** to delivery `1946c01`, accepting implementation
 ## Local merge receipt
 
 Acceptance `a95c154` precedes local merge `713c1b6` on 11 November 2026. Implementation `38b923f` and verification `1946c01` are preserved in local `main`; merge was clean with no conflict/code changes and no checks repeated. Branch `codex/bug-att-marks` is retained. Owner-requested GitHub synchronization and completed-issue reconciliation are now authorized boundary work. No institutional database operation or next feature implementation is authorized.
+
+## GitHub synchronization receipt
+
+The owner-requested normal push published main through `905480a`; GitHub #24/#25/#28 are closed as completed. Partial attendance parents #10/#11 remain open with completed items checked and this delivery linked; the wider accepted slices/index were reconciled as documented in the [synchronization receipt](../../operations/GITHUB_SYNC_2026-11-11.md). This final documentation checkpoint is part of the same requested push boundary. No next implementation or institutional operation was performed.
