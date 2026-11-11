@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **accepted by the owner on 11 November 2026; local merge pending. AC-08 remains partial (default build fails); browser evidence uses the disclosed shared-client review harness.**
+Status: **accepted and merged into local `main` at `e46173c` on 11 November 2026. AC-08 remains partial (default build fails); browser evidence uses the disclosed shared-client review harness.**
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-load-basis` from clean local `main` `97a7a78`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-02. F-04 is already delivered by [HARDEN-01](../HARDEN-01/record.md) and is excluded. No new GitHub issue created.
@@ -115,3 +115,9 @@ Verification limits: full `test:safety`, `test:ux`, `test:ui`, real-provider ses
 The owner replied **“accepted.”** after delivery `4a90014`, accepting implementation/captures `2033d3a` and the disclosed verification limits: default Turbopack build failure (AC-08 partial), unmodified Webpack/PGlite stale reads, and browser evidence using the shared synthetic-client harness. This accepts the bounded delivery under those explicit limits; it does not turn either failing check into a pass or authorize a bootstrap/build-policy repair. Under the local-first workflow, this authorizes recording acceptance and merging the issue branch into local `main`. This acceptance record is committed before the merge.
 
 No push, GitHub update, institutional database operation or next implementation package is authorized. Migration `0017` remains separate/unapplied. After the merge, record the receipt and suggest the separate production-PGlite investigation for a later owner-started session. The earlier inspection handoff above is historical and superseded by this acceptance.
+
+## Local merge receipt and next-session handoff
+
+Acceptance `593f6b9` precedes local merge `e46173c` on 11 November 2026. Planning `71815d8`, implementation approval `2c90c7b`, implementation/captures `2033d3a` and verification `4a90014` are preserved in local `main`; `codex/bug-load-basis` is retained. The merge had no conflicts and its application/test/capture tree is identical to the accepted branch. No checks were repeated for this unchanged merge; documentation links/whitespace and receipt were checked separately. Default-build failure, shared-client browser limitation and all pending suites remain recorded above.
+
+No remote synchronization or institutional operation occurred. No issue is in implementation. `0017` remains a separate backed-up institutional operation. **Suggested next owner-started session:** inspect and reproduce the production Webpack/PGlite stale-read/client-lifetime finding from this record, prepare one bounded specification/plan and obtain approval before changing bootstrap code. Keep the Turbopack worker investigation separate unless the owner explicitly selects it. Do not start either package or CRS-01A automatically.
