@@ -23,6 +23,8 @@ export default async function PublicationsPage() {
   const blockers = issues.filter((i) => i.severity === "blocker").length;
   const warnings = issues.filter((i) => i.severity === "warning").length;
   const published = data.versions.find((v) => v.state === "published");
+  // The server compares this with the latest version under its publication lock (BUG-25).
+  const latestVersionId = data.versions.reduce<(typeof data.versions)[number] | null>((top, v) => !top || v.versionNumber > top.versionNumber || (v.versionNumber === top.versionNumber && v.id > top.id) ? v : top, null)?.id ?? null;
   const draftMeetingCount = data.meetings.length;
   const deltas = published ? draftMeetingCount - published.meetingCount : 0;
 
@@ -87,7 +89,7 @@ export default async function PublicationsPage() {
 
         <div className="xl:col-span-2 space-y-4">
           <Panel title="Publish new revision" sub="Full server-side validation runs before the version is cut">
-            <PublishPanel disabled={blockers > 0} blockerCount={blockers} />
+            <PublishPanel disabled={blockers > 0} blockerCount={blockers} latestVersionId={latestVersionId} />
           </Panel>
           <Panel title="Publication guarantees">
             <ul className="space-y-1.5 text-[12px] leading-relaxed text-ink-2">

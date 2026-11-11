@@ -707,7 +707,11 @@ export const scheduleVersions = pgTable("schedule_versions", {
   publishedBy: text("published_by"),
   changeSummary: text("change_summary"),
   snapshot: jsonb("snapshot"), // immutable meeting snapshot when published
-});
+}, (t) => [
+  // BUG-25: one number per term, and at most one published version per term.
+  uniqueIndex("schedule_versions_term_version_uq").on(t.termId, t.versionNumber),
+  uniqueIndex("schedule_versions_one_published_uq").on(t.termId).where(sql`${t.state} = 'published'`),
+]);
 
 export const auditEvents = pgTable(
   "audit_events",

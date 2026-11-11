@@ -1,6 +1,6 @@
 /** Actual publication/lifecycle/deletion/activation requests, both adapter ordering models. */
 import assert from "node:assert/strict";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Pool } from "pg";
 import { loadApp } from "./controlled-runtime";
 import type { BatchResult } from "../../../src/lib/batch-actions";
@@ -17,6 +17,8 @@ export async function batchBoundaryRaces(lines:string[]){
   const records=loadApp<typeof import("../../../src/lib/term-records")>("src/lib/term-records.ts");
   const form=(v:Record<string,unknown>)=>{const f=new FormData();for(const[k,value]of Object.entries(v))f.set(k,String(value));return f;};
   const call=(v:Record<string,unknown>)=>actions.saveBatchAction(null,form(v));
+  // BUG-25: each publication request states the latest version its page showed.
+  const latest=async()=>(await db.select({id:s.scheduleVersions.id}).from(s.scheduleVersions).where(eq(s.scheduleVersions.termId,(await context.captureActiveContext()).term.id)).orderBy(desc(s.scheduleVersions.versionNumber)).limit(1))[0]?.id??null;
   const ok=(r:BatchResult)=>{assert.equal(r.ok,true,r.message);return r.outcome?.kind==="success"?r.outcome.entityId!:0;};
   const token=async()=>{const c=await context.captureActiveContext();return {_activeTermId:c.term.id,_termGeneration:c.writeContext.generation};};
   async function draft(name:string){const id=ok(await terms.createTermAction(null,form({name,academicYear:2045,startDate:"2045-01-01",endDate:"2045-06-30"})));ok(await terms.saveStartingPolicyAction(null,form({termId:id,revision:1,...Object.fromEntries(records.POLICY_FIELDS.map(k=>[k,k==="extraClassRate"?200:1]))})));return id;}
@@ -53,17 +55,17 @@ export async function batchBoundaryRaces(lines:string[]){
   try{
     let current=(await context.captureActiveContext()).writeContext;
     const a=await create("BOUND-PUB-FIRST"),deleteA=await lifecycle(a,"delete");
-    let results=await race("schedule_versions","insert",()=>routine.publishAction("Synthetic publication first",current),()=>call(deleteA));ok(results[0]);assert.equal(results[1].ok,false);assert.match(results[1].message,/retained/);
+    let results=await race("schedule_versions","insert",async()=>routine.publishAction("Synthetic publication first",current,await latest()),()=>call(deleteA));ok(results[0]);assert.equal(results[1].ok,false);assert.match(results[1].message,/retained/);
     const b=await create("BOUND-DELETE-FIRST"),deleteB=await lifecycle(b,"delete");
-    results=await race("batches","delete",()=>call(deleteB),()=>routine.publishAction("Synthetic deletion first",current));ok(results[0]);ok(results[1]);
+    results=await race("batches","delete",()=>call(deleteB),async()=>routine.publishAction("Synthetic deletion first",current,await latest()));ok(results[0]);ok(results[1]);
     let published=(await db.select().from(s.scheduleVersions).where(eq(s.scheduleVersions.termId,target))).find(v=>v.state==="published")!;
     assert.ok(!(published.snapshot as {batches:Array<{id:number}>}).batches.some(row=>row.id===b));
     const c=await create("BOUND-COUNT");ok(await call(await placement(c)));ok(await call(await count(c,20)));
     let change=await count(c,30);
-    results=await race("schedule_versions","insert",()=>routine.publishAction("Synthetic frozen count first",current),()=>call(change));ok(results[0]);ok(results[1]);
+    results=await race("schedule_versions","insert",async()=>routine.publishAction("Synthetic frozen count first",current,await latest()),()=>call(change));ok(results[0]);ok(results[1]);
     published=(await db.select().from(s.scheduleVersions).where(eq(s.scheduleVersions.termId,target))).find(v=>v.state==="published")!;
     assert.equal((published.snapshot as {batches:Array<{id:number;studentCount:number}>}).batches.find(row=>row.id===c)!.studentCount,20);
-    change=await count(c,40);results=await race("batch_term_placements","update",()=>call(change),()=>routine.publishAction("Synthetic updated count first",current));ok(results[0]);ok(results[1]);
+    change=await count(c,40);results=await race("batch_term_placements","update",()=>call(change),async()=>routine.publishAction("Synthetic updated count first",current,await latest()));ok(results[0]);ok(results[1]);
     published=(await db.select().from(s.scheduleVersions).where(eq(s.scheduleVersions.termId,target))).find(v=>v.state==="published")!;
     assert.equal((published.snapshot as {batches:Array<{id:number;studentCount:number}>}).batches.find(row=>row.id===c)!.studentCount,40);
     const d=await create("BOUND-PLACE-FIRST"),placeD=await placement(d),deleteD=await lifecycle(d,"delete");

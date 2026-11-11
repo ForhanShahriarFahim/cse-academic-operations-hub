@@ -1,6 +1,6 @@
 "use server";
 
-import { withActiveTermContext as withTermContext } from "./active-term";
+import { requireActiveTerm, withActiveTermContext as withTermContext } from "./active-term";
 import type { TermWriteContext } from "./term-context-value";
 
 /**
@@ -24,7 +24,7 @@ import {
   attendanceSessions,
   workloadAllocations,
 } from "@/db/schema";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, sql } from "drizzle-orm";
 import { getPortalData } from "./data";
 import { analyzeSchedule } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
@@ -32,8 +32,8 @@ import { fmtDate, parseTimeToMinutes } from "./time";
 import { auditedChange } from "./auth/audit";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
-import { conflicted, type ActionResult, type ResultIssue } from "./action-result";
-import { isForeignKeyViolation } from "./db-errors";
+import { conflicted, stale, type ActionResult, type ResultIssue } from "./action-result";
+import { isForeignKeyViolation, isUniqueViolation } from "./db-errors";
 import { lockRooms, RoomAssignmentChanged, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
 import { assertActiveRooms, lockMoveRooms, retainAssignedRooms } from "./room-lifecycle-transaction";
 import { assertGroupMaintenanceClear, assertMeetingMaintenanceClear, assertMaintenanceClear } from "./room-maintenance-transaction";
@@ -505,12 +505,38 @@ function blockedDelete(error: unknown, what: "class" | "commitment"): ActionResu
 // Publication — atomic version cut with full server-side validation
 // ---------------------------------------------------------------------------
 
-export async function publishAction(changeSummary: string, context?: TermWriteContext): Promise<ActionResult> {
-  return withTermContext(() => publishActionInTerm(changeSummary), context);
+/** First key of the per-term publication advisory lock (BUG-25); the second key is the term id. */
+const PUBLICATION_LOCK = 61025;
+const publishedAtText = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dhaka", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+const PUBLICATION_PAGE_STALE = "The version list on this page is out of date. Nothing was published. Refresh the page, review the current version, then publish again if a new version is still needed.";
+
+/**
+ * `expectedLatestVersionId` is the highest-numbered version the approver's page
+ * showed (null when it showed none). It is untrusted input: anything but the
+ * current latest version, including a missing value, publishes nothing.
+ */
+export async function publishAction(changeSummary: string, context?: TermWriteContext, expectedLatestVersionId?: number | null): Promise<ActionResult> {
+  return withTermContext(() => publishActionInTerm(changeSummary, expectedLatestVersionId), context);
 }
-async function publishActionInTerm(changeSummary: string): Promise<ActionResult> {
+async function publishActionInTerm(changeSummary: string, expectedLatestVersionId: unknown): Promise<ActionResult> {
   const actor = await actionActor("approve_publication");
   if ("ok" in actor) return actor;
+  // BUG-25: publications of one term run one at a time. Lock order: term context
+  // (share, already held) -> this lock -> room rows. Only publishers take this
+  // lock, and they take it before any draft read, so a waiting publisher sees
+  // the winner's committed version. It is released when the transaction ends.
+  const activeTerm = await requireActiveTerm();
+  await db.execute(sql`select pg_advisory_xact_lock(${PUBLICATION_LOCK}::integer, ${activeTerm.id}::integer)`);
+  const [latest] = await db.select().from(scheduleVersions)
+    .where(eq(scheduleVersions.termId, activeTerm.id))
+    .orderBy(desc(scheduleVersions.versionNumber), desc(scheduleVersions.id)).limit(1);
+  const expected = expectedLatestVersionId === null || (typeof expectedLatestVersionId === "number" && Number.isSafeInteger(expectedLatestVersionId) && expectedLatestVersionId > 0)
+    ? expectedLatestVersionId : undefined;
+  if (expected === undefined || (latest?.id ?? null) !== expected) {
+    return stale(expected !== undefined && latest?.state === "published" && latest.publishedAt
+      ? `Version ${latest.versionNumber} was published by ${latest.publishedBy ?? "another approver"} on ${publishedAtText.format(latest.publishedAt)} while this page was open. Nothing was published. Review the current version, then publish again if a new version is still needed.`
+      : PUBLICATION_PAGE_STALE);
+  }
   const data = await getPortalData();
   const issues = analyzeSchedule({
     meetings: data.meetings,
@@ -529,9 +555,6 @@ async function publishActionInTerm(changeSummary: string): Promise<ActionResult>
     };
   }
 
-  const [latest] = await db.select().from(scheduleVersions)
-    .where(eq(scheduleVersions.termId, data.term.id))
-    .orderBy(desc(scheduleVersions.versionNumber)).limit(1);
   const nextVersion = (latest?.versionNumber ?? 0) + 1;
   const snapshot = buildSnapshot({
     meetings: data.meetings,
@@ -551,7 +574,8 @@ async function publishActionInTerm(changeSummary: string): Promise<ActionResult>
   });
 
   // Atomic state transition: supersede the old published version, insert new.
-  const publicationFailure = await roomAssignmentGuard(async () => { await db.transaction(async (tx) => {
+  let publicationFailure: ActionResult | null;
+  try { publicationFailure = await roomAssignmentGuard(async () => { await db.transaction(async (tx) => {
     const maintenanceCheck = await checkPublicationMaintenance(tx, data);
     await tx.update(scheduleVersions)
       .set({ state: "superseded", effectiveTo: data.term.effectiveFrom })
@@ -581,7 +605,12 @@ async function publishActionInTerm(changeSummary: string): Promise<ActionResult>
       after: { versionNumber: nextVersion, state: "published", meetingCount: data.meetings.length },
       detail: { version: nextVersion, warnings: issues.length, maintenanceCheck },
     });
-  }); });
+  }); }); } catch (error) {
+    // Backstop: a version row written outside the lock. The savepoint above is
+    // already rolled back, so the supersede and audit rows are not kept.
+    if (isUniqueViolation(error)) return stale("Another version was saved for this routine at the same moment. Nothing was published. Refresh the page, review the current version, then publish again if a new version is still needed.");
+    throw error;
+  }
   if (publicationFailure) return publicationFailure;
 
   revalidatePath("/", "layout");

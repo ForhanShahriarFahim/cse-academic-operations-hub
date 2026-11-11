@@ -3,6 +3,7 @@
  * context at submission; production modules remain untouched. SET-01A scenarios
  * deliberately use raw actions for missing/stale/ABA checks, never this adapter.
  */
+import { desc, eq } from "drizzle-orm";
 import { loadApp } from "./controlled-runtime";
 const arity: Record<string,number> = {
   createMeetingAction:1,moveMeetingAction:4,updateMeetingAction:2,deleteMeetingAction:1,
@@ -24,6 +25,11 @@ export function freshTermActions<T extends object>(module:T):T {
         const form=args[1] as FormData;
         form.set("_activeTermId",String(expected.activeTermId));form.set("_termGeneration",String(expected.generation));
       }else args[arity[key]]=expected;
+      // BUG-25: a freshly rendered Publications page also carries the latest version it shows.
+      if(key==="publishAction"&&args[2]===undefined){
+        const {db}=loadApp<typeof import("../../../src/db")>("src/db/index.ts"),s=loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
+        args[2]=(await db.select({id:s.scheduleVersions.id}).from(s.scheduleVersions).where(eq(s.scheduleVersions.termId,expected.activeTermId)).orderBy(desc(s.scheduleVersions.versionNumber),desc(s.scheduleVersions.id)).limit(1))[0]?.id??null;
+      }
       return (value as (...parameters:unknown[])=>unknown)(...args);
     };
   }});

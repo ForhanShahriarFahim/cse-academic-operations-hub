@@ -3,12 +3,15 @@
 import { useTermActions } from "@/components/term-write-context";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { FileCheck2, ShieldAlert } from "lucide-react";
 import { type ActionResult } from "@/lib/actions";
 import { useConfirm } from "@/components/confirm-dialog";
 
-export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; blockerCount: number }) {
+/** `latestVersionId` is the highest-numbered version this page shows; the server refuses if a newer one exists (BUG-25). */
+export function PublishPanel({ disabled, blockerCount, latestVersionId }: { disabled: boolean; blockerCount: number; latestVersionId: number | null }) {
   const { publishAction } = useTermActions();
+  const router = useRouter();
   const [ask, confirmDialog] = useConfirm();
   const [summary, setSummary] = useState("");
   const [result, setResult] = useState<ActionResult | null>(null);
@@ -28,8 +31,10 @@ export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; bl
         onClick={async () => {
           if (!await ask({ title: "Publish the working draft as a new version?", body: "Students and teachers will see this version on the public routine from its effective date. The current version is kept in the archive, not deleted, and a published version cannot be edited.", confirmLabel: "Publish version", tone: "primary" })) return;
           startTransition(async () => {
-            const r = await publishAction(summary.trim());
+            const r = await publishAction(summary.trim(), latestVersionId);
             setResult(r);
+            // Show the version that appeared meanwhile; the message stays visible.
+            if (r.outcome?.kind === "stale") router.refresh();
           });
         }}
         className="flex items-center gap-2 rounded-md bg-[var(--color-pine)] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[var(--color-pine-2)] disabled:cursor-not-allowed disabled:opacity-45"
@@ -43,7 +48,7 @@ export function PublishPanel({ disabled, blockerCount }: { disabled: boolean; bl
         </p>
       )}
       {result && (
-        <div className={`rounded-md border px-3 py-2.5 text-[12px] ${
+        <div role={result.ok ? "status" : "alert"} className={`rounded-md border px-3 py-2.5 text-[12px] ${
           result.ok
             ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]"
             : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"

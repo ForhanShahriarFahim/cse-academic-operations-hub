@@ -30,7 +30,7 @@ export function useTermActions(){
   createExternalAction: (formData: Parameters<typeof a0.createExternalAction>[0]) => a0.createExternalAction(formData, context).then(report),
   verifyExternalAction: (id: Parameters<typeof a0.verifyExternalAction>[0]) => a0.verifyExternalAction(id, context).then(report),
   deleteExternalAction: (id: Parameters<typeof a0.deleteExternalAction>[0]) => a0.deleteExternalAction(id, context).then(report),
-  publishAction: (changeSummary: Parameters<typeof a0.publishAction>[0]) => a0.publishAction(changeSummary, context).then(report),
+  publishAction: (changeSummary: Parameters<typeof a0.publishAction>[0], expectedLatestVersionId: number | null) => a0.publishAction(changeSummary, context, expectedLatestVersionId).then(report),
   updateAcademicPolicyAction: (formData: Parameters<typeof a1.updateAcademicPolicyAction>[0]) => a1.updateAcademicPolicyAction(formData, context).then(report),
   createExtraLoadClassAction: (formData: Parameters<typeof a1.createExtraLoadClassAction>[0]) => a1.createExtraLoadClassAction(formData, context).then(report),
   deleteExtraLoadClassAction: (id: Parameters<typeof a1.deleteExtraLoadClassAction>[0]) => a1.deleteExtraLoadClassAction(id, context).then(report),
