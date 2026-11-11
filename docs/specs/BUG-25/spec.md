@@ -126,7 +126,7 @@ Limits and things to know:
 
 **Accepted 11 November 2026:** the owner replied "Accept and merge" to the delivery summary, which disclosed the changed SET-01A fixture, text-only browser evidence, the suites not run and that `0017` is not applied to institutional data. Acceptance covers local merge only.
 
-State at delivery: on `codex/bug-25`; not merged. Review path: `npm run ux:review -- --fresh --publishable`, open `/publications` in two tabs, publish in one, then publish in the other. Next: owner accepts or returns findings; on acceptance record it here and merge into local `main`; keep #25's remote state for the next synchronization. Open question D-2 (`effectiveTo` meaning) stays for GOV-01.
+Merged into local `main` at `3e98902` on 11 November 2026; branch `codex/bug-25` retained. No push, PR or GitHub update; #25 stays open remotely until the next synchronization. `0017` is still not applied to the institutional database. Review path: `npm run ux:review -- --fresh --publishable`, open `/publications` in two tabs, publish in one, then publish in the other. Next (owner-started session): before using the portal on institutional data, take a cold backup and run `db:migrate` to apply `0017`; stop if its preflight refuses. Suggested next package from the review: BUG-ATT-MARKS or BUG-LOAD-BASIS, each needing its open rule decision first. Open question D-2 (`effectiveTo` meaning) stays for GOV-01.
 
 ## Observations (not changed)
 
