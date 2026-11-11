@@ -18,7 +18,7 @@ import { assertTermContext } from "./term-context";
 import { can, requireActor } from "./auth";
 import { hasCapability } from "./auth/policy";
 import { redirect } from "next/navigation";
-import { attendanceMark, type AttendanceStatus } from "./attendance";
+import { summarizeAttendance } from "./attendance";
 import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
 
 export interface TeachingGroupOption {
@@ -176,24 +176,7 @@ export async function getAttendanceData(selectedGroupId?: number) {
     })),
   }));
   const maximum = selectedGroup.courseType === "sessional" ? policy.sessionalAttendanceMarks : policy.theoryAttendanceMarks;
-  const summaries = roster.map((student) => {
-    const statusesFor = (phase?: "midterm" | "final") => sessions
-      .filter((session) => !phase || session.phase === phase)
-      .map((session) => session.records.find((record) => record.studentId === student.id)?.status ?? "absent") as AttendanceStatus[];
-    const midterm = statusesFor("midterm");
-    const final = statusesFor("final");
-    const semester = statusesFor();
-    const attended = semester.filter((status) => status === "present" || status === "late").length;
-    const counted = semester.filter((status) => status !== "excused").length;
-    return {
-      studentId: student.id,
-      midterm: { attended: midterm.filter((s) => s === "present" || s === "late").length, total: midterm.filter((s) => s !== "excused").length },
-      final: { attended: final.filter((s) => s === "present" || s === "late").length, total: final.filter((s) => s !== "excused").length },
-      semester: { attended, total: counted, percentage: counted ? Math.round(attended / counted * 1000) / 10 : 0 },
-      mark: attendanceMark(semester, maximum),
-      maximum,
-    };
-  });
+  const summaries = roster.map((student) => summarizeAttendance(student.id, sessions, maximum));
   await assertTermContext(data.writeContext);
   return { data, policy, groups, selectedGroup, roster, sessions, summaries };
 }

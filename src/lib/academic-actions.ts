@@ -3,7 +3,7 @@
 import { withActiveTermContext as withTermContext } from "./active-term";
 import type { TermWriteContext } from "./term-context-value";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
@@ -24,7 +24,7 @@ import { parseStudentCsv, ATTENDANCE_STATUSES } from "./attendance";
 import { getAttendanceData, getExtraLoadData } from "./academic-operations";
 import { getActiveTerm } from "./data";
 import { isExtraLoadEligible } from "./extra-load";
-import { parseTimeToMinutes } from "./time";
+import { fmtRange, parseTimeToMinutes } from "./time";
 import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
 import { auditedChange } from "./auth/audit";
@@ -34,7 +34,7 @@ import { assertGroupMaintenanceClear } from "./room-maintenance-transaction";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
-import { invalid, stale } from "./action-result";
+import { conflicted, invalid, stale } from "./action-result";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -267,6 +267,7 @@ async function deactivateStudentActionInTerm(studentId: number, teachingGroupId:
 export async function createAttendanceSessionAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
   return withTermContext(() => createAttendanceSessionActionInTerm(formData), context ?? formData);
 }
+const ATTENDANCE_CREATE_LOCK = 61027;
 async function createAttendanceSessionActionInTerm(formData: FormData): Promise<ActionResult> {
   const teachingGroupId = Number(formData.get("teachingGroupId"));
   const denied = await guardAction("take_attendance", { kind: "teaching_group", teachingGroupId });
@@ -276,13 +277,29 @@ async function createAttendanceSessionActionInTerm(formData: FormData): Promise<
   const startMinutes = formData.get("startTime") ? parseTimeToMinutes(String(formData.get("startTime"))) : null;
   const endMinutes = formData.get("endTime") ? parseTimeToMinutes(String(formData.get("endTime"))) : null;
   const teacherId = numberField(formData, "teacherId");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(classDate) || !["midterm", "final"].includes(phase)) return { ok: false, message: "Choose a group, date, and assessment phase." };
+  if ((startMinutes == null) !== (endMinutes == null) || (startMinutes != null && endMinutes != null && endMinutes <= startMinutes)) return { ok: false, message: "Enter both times, with end after start, or leave both blank." };
+  // The shared term-context lock is already held by withTermContext. Serialize
+  // creators before reading the roster or duplicate key; release at outer commit.
+  await db.execute(sql`select pg_advisory_xact_lock(${ATTENDANCE_CREATE_LOCK}::integer, ${teachingGroupId}::integer)`);
   const source = await getAttendanceData(teachingGroupId);
-  if (!source.selectedGroup || !/^\d{4}-\d{2}-\d{2}$/.test(classDate) || !["midterm", "final"].includes(phase)) return { ok: false, message: "Choose a group, date, and assessment phase." };
+  if (!source.selectedGroup) return { ok: false, message: "Choose a group, date, and assessment phase." };
   if (classDate < source.data.term.startDate || classDate > source.data.term.endDate) return { ok: false, message: `Choose a date within ${source.data.term.name}.` };
   if (source.roster.length === 0) return { ok: false, message: "Add or import students before creating an attendance session." };
-  if ((startMinutes == null) !== (endMinutes == null) || (startMinutes != null && endMinutes != null && endMinutes <= startMinutes)) return { ok: false, message: "Enter both times, with end after start, or leave both blank." };
   if (teacherId != null && !source.selectedGroup.teacherIds.includes(teacherId)) {
     return { ok: false, message: "Choose a teacher assigned to this course group." };
+  }
+  const [duplicate] = await db.select({ id: attendanceSessions.id }).from(attendanceSessions).where(and(
+    eq(attendanceSessions.termId, source.data.term.id),
+    eq(attendanceSessions.teachingGroupId, teachingGroupId),
+    eq(attendanceSessions.classDate, classDate),
+    startMinutes == null ? isNull(attendanceSessions.startMinutes) : eq(attendanceSessions.startMinutes, startMinutes),
+    endMinutes == null ? isNull(attendanceSessions.endMinutes) : eq(attendanceSessions.endMinutes, endMinutes),
+  )).limit(1);
+  if (duplicate) {
+    const time = startMinutes != null && endMinutes != null ? fmtRange(startMinutes, endMinutes) : "time not specified";
+    const message = `An attendance session already exists on ${classDate} (${time}). Open that session to take attendance; nothing was created.`;
+    return conflicted(message, [{ severity: "blocker", title: "Attendance session already exists", detail: message }]);
   }
   await auditedChange("attendance.session.create", "attendance_session", async (tx) => {
     const [session] = await tx.insert(attendanceSessions).values({

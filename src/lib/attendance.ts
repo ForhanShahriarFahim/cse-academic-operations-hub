@@ -87,3 +87,32 @@ export function attendanceMark(statuses: AttendanceStatus[], maximum: number): n
   return Math.round((attended / counted.length) * maximum * 100) / 100;
 }
 
+export interface AttendanceSessionInput {
+  phase: string;
+  records: ReadonlyArray<{ studentId: number; status: string }>;
+}
+
+/** A session applies only to its captured students; missing records are not absences. */
+export function summarizeAttendance(studentId: number, sessions: readonly AttendanceSessionInput[], maximum: number) {
+  const statusesFor = (phase?: "midterm" | "final"): AttendanceStatus[] => sessions
+    .filter((session) => !phase || session.phase === phase)
+    .flatMap((session) => {
+      const record = session.records.find((record) => record.studentId === studentId);
+      return record ? [record.status as AttendanceStatus] : [];
+    });
+  const totals = (statuses: AttendanceStatus[]) => ({
+    attended: statuses.filter((status) => status === "present" || status === "late").length,
+    total: statuses.filter((status) => status !== "excused").length,
+  });
+  const semester = statusesFor();
+  const { attended, total } = totals(semester);
+  return {
+    studentId,
+    midterm: totals(statusesFor("midterm")),
+    final: totals(statusesFor("final")),
+    semester: { attended, total, percentage: total ? Math.round(attended / total * 1000) / 10 : 0 },
+    mark: attendanceMark(semester, maximum),
+    maximum,
+  };
+}
+

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import "./verify-room-records";
-import { attendanceMark, parseStudentCsv } from "../src/lib/attendance";
+import { attendanceMark, parseStudentCsv, summarizeAttendance } from "../src/lib/attendance";
 import { csvCell } from "../src/lib/routine-csv";
 import { computeWorkloads } from "../src/lib/workload";
 import { amountInWords, isExtraLoadEligible, paymentForClasses } from "../src/lib/extra-load";
@@ -17,6 +17,25 @@ assert.equal(roster[1].audienceType, "merged");
 assert.equal(attendanceMark(["present", "late", "absent", "excused"], 10), 6.67);
 assert.equal(attendanceMark(["present", "absent"], 5), 2.5);
 assert.equal(attendanceMark(["excused"], 10), 0);
+
+const capturedSessions = [
+  { phase: "midterm", records: [{ studentId: 1, status: "present" }] },
+  { phase: "final", records: [{ studentId: 1, status: "absent" }, { studentId: 2, status: "present" }] },
+];
+assert.deepEqual(summarizeAttendance(2, capturedSessions, 10), {
+  studentId: 2, midterm: { attended: 0, total: 0 }, final: { attended: 1, total: 1 },
+  semester: { attended: 1, total: 1, percentage: 100 }, mark: 10, maximum: 10,
+});
+assert.equal(summarizeAttendance(1, capturedSessions, 10).mark, 5, "explicit absence still counts");
+assert.equal(summarizeAttendance(2, capturedSessions, 5).mark, 5, "sessional maximum");
+for (const sessions of [[], [{ phase: "midterm", records: [{ studentId: 2, status: "excused" }] }]]) {
+  assert.deepEqual(summarizeAttendance(2, sessions, 10).semester, { attended: 0, total: 0, percentage: 0 });
+  assert.equal(summarizeAttendance(2, sessions, 10).mark, 0);
+}
+assert.equal(summarizeAttendance(999, capturedSessions, 10).mark, 0, "no captured records");
+const mixed = ["present", "late", "absent", "excused"].map((status) => ({ phase: "midterm", records: [{ studentId: 2, status }] }));
+assert.equal(summarizeAttendance(2, mixed, 10).mark, 6.67);
+assert.equal(summarizeAttendance(2, mixed, 10).semester.percentage, 66.7);
 
 assert.equal(isExtraLoadEligible(15, 15), false);
 assert.equal(isExtraLoadEligible(15.01, 15), true);
