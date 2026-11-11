@@ -1,0 +1,80 @@
+# BUG-LOAD-BASIS — consistent extra-load eligibility
+
+Combined specification, sole checklist, verification and handoff for a bounded bug slice.
+
+Status: **inspection/specification complete; implementation approval pending**.
+Updated: 11 November 2026 (Asia/Dhaka).
+Branch/base: `codex/bug-load-basis` from clean local `main` `97a7a78`; one checkout/writer.
+Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-02. F-04 is already delivered by [HARDEN-01](../HARDEN-01/record.md) and is excluded. No new GitHub issue created.
+
+## Authorization and decisions
+
+The owner's **“Go for the next task.”** authorizes this inspection/specification under the current [handoff](../../PROJECT_BRIEF.md) and [workflow](../../WORKFLOW.md). It does not establish approval of this newly prepared implementation scope.
+
+On 11 November the owner answered the eligibility question: **“Workload credit-hours: a one-credit sessional counts as 2 (Recommended)”**. D-1 is decided. The remaining proposed behavior below must be approved as a concrete package before code changes.
+
+| ID | Status | Rule |
+|---|---|---|
+| D-1 | Owner confirmed | Extra-load eligibility uses workload credit-hours, strictly greater than the term's threshold (default 15). A sole one-credit sessional normally contributes 2 recorded workload units. Catalog credits remain a separate metric. |
+| D-2 | Proposed for approval | Use existing allocation units as the single source for both workload and eligibility, including explicit co-teaching splits and external allocation records. Never reconstruct units from meetings, course types, policy multipliers or external commitment credits. |
+| D-3 | Proposed for approval | Remove the two ineffective theory/sessional credit controls from active-term policy editing; preserve their stored values server-side and show them as read-only legacy metadata. Draft starting-policy setup retains its explicit legacy fields, clearly labelled as unused metadata, to preserve SET-01A's existing setup/activation contract. Full removal/versioned replacement belongs to SET-01B/CRS-01. |
+
+D-2 preserves the workload page's existing treatment of unverified external allocations: recorded units count, with a known-minimum/pending-verification explanation. No new requirement for verified external work is introduced. Unallocated external commitment credits and meeting-only assignments contribute zero units. Missing allocations must be corrected through a separately approved allocation workflow, not silently invented here. D-3 does not implement allocation defaults or convert stored allocations when policy metadata changes.
+
+## Inspected baseline and reproduction
+
+- [Requirements](../../PRODUCT_REQUIREMENTS.md), domain table, already distinguish catalog credits from workload credit-hours and state eligibility strictly above 15 workload credit-hours. [ADR-001](../../architecture/ADR-001-academic-operations-boundaries.md) preserves term boundaries, explicit records and historical claim labels.
+- `src/lib/academic-operations.ts:groupOptions` assigns full course catalog credits to each group. `teacherCreditLoads` sums these for every assigned teacher, then adds raw external commitment credits. Meeting assignments can therefore receive full catalog credits even without an allocation, and split allocations are ignored.
+- `src/lib/workload.ts:computeWorkloads` sums explicit allocation units, including recorded external units; timetable cells only contribute contact time. `src/db/seed-summer-2026.ts` records 2 units for a one-credit sessional, with shared-policy co-teaching represented explicitly. Splits must retain their recorded units rather than receive 2 each.
+- Reproduced on 11 November without importing the application or opening a database: extracted the exact current `teacherCreditLoads` function, transpiled with installed TypeScript and ran it in a Node VM using synthetic groups. A teacher with 14 theory credits/units plus a one-credit sessional allocated 2 units gets catalog total 15 and **ineligible**, while their workload is 16 and the owner-confirmed basis makes them **eligible**. The script asserted both totals; browser/action reproduction is pending implementation verification.
+- Page eligibility count, teacher selector, print-center table and `createExtraLoadClassAction` use the incorrect load map. The action checks assignment, permission, active term and audits the insert; these boundaries must remain.
+- `PolicyManager` offers editable theory/sessional values that no workload/eligibility calculation reads. Draft setup also requires them through `POLICY_FIELDS`; changing that activation contract is outside this bounded fix.
+- HARDEN-01 already carries actual catalog credits on allocations and removes course-code inference. Do not redo F-04.
+- Installed Next.js `node_modules/next/dist/docs/01-app/02-guides/server-actions.md` was consulted for the planned server-action/refreshed-page boundary. No application code changed during planning.
+
+## Outcome and scope
+
+Included: one shared pure allocation-total calculation used by workload and extra-load, server-enforced eligibility on that basis, accurate labels/precision, continued access to recorded claims, legacy-policy clarification, focused checks and delivery evidence.
+
+Excluded: schema changes/migrations, institutional database operations, allocation editing/backfill, changes to catalog credits or source import, individual teacher advisory limits, claim approval/payment lifecycle, new external verification rules, rate/attendance changes, effective-policy history, public snapshots, unrelated bugs, GitHub synchronization. BUG-25 migration `0017` remains separate/unapplied.
+
+Existing class entries, label snapshots, manual top-sheet rows and audit history are preserved. Eligibility is recalculated for new submissions from the active term's current allocations; prior claims are never removed or invalidated. Existing payment calculations continue using the current term rate as today; policy history is still SET-01B, and this delivery must not claim historical rate immutability.
+
+## Required behavior and UI sketch
+
+1. Extract/reuse a database-free workload-total helper that sums allocation `units` per teacher. Use it in `computeWorkloads` and extra-load loading. Count each allocation row once, including approved `shared_policy`/`split`/`external` rows. Do not multiply merged groups by their audiences or recurring meetings. Multiple legitimate allocations remain additive; this slice does not deduplicate or repair allocation data.
+2. Build totals from all active-term allocations before applying actor visibility filters. Do not use the actor-filtered group list as the basis. Keep teaching-group assignment checks for the selected claim, server authorization, active-term context, audit atomicity and refresh. Anonymous, denied, wrong-term and stale requests retain existing refusals and write nothing.
+3. Apply the same strict `>` comparison to server submission, page count and client selector. At exactly 15 refuse; at 15.01 allow. Use up to two decimals for workload totals/refusals because allocation units have two decimal places; never display an eligible 15.01 as an apparently ineligible 15.0. The term-wide extra-load threshold is separate from a teacher's advisory workload limit.
+4. Desktop preserves the existing form/print-center/ledger layout. Example: `Eligible teachers: 1 · workload credit-hours > 15`; selector `Teacher (16 workload credit-hours)`; print-center header `Workload credit-hours`. Help: `Eligibility uses recorded workload allocations, including recorded external work. A sole one-credit sessional normally counts as 2; shared teaching follows its recorded allocation.` Show the pending-external/known-minimum caveat when applicable, without exposing other teachers' private records.
+5. Keep eligible teachers available for new submissions. Print-center rows include eligible teachers **and teachers with recorded claims** in the selected projection; label below-threshold claim holders `Existing claims only`, with a working print link. A reduced or zero current allocation must not make an existing claim inaccessible. Ledger/manual rows, date filtering and teacher/top-sheet print contents and amounts stay consistent; prints do not reapply eligibility to stored entries.
+6. Mobile uses the same fields, explanations and statuses in the existing scrollable table, with no page-wide overflow. Pending submission prevents duplicate clicks; refusal preserves entered values; feedback has a suitable live region. Keyboard labels/focus remain usable. No new page or claim workflow is introduced.
+7. Active-term policy shows `Extra-load threshold (workload credit-hours)` plus rate and attendance settings. Read-only legacy values explain `These values do not change recorded workload allocations or eligibility.` The server reads/preserves these two stored fields, ignoring any forged replacement values; remaining editable fields retain validation and audited writes. Preserve defaults only for the existing missing-policy compatibility path. Draft policy keeps explicit values and the same validation/activation rules, with matching legacy labels/help. Replace the misleading policy caption promising immutable historical calculations with an accurate term-scoped/current-policy explanation.
+
+## Acceptance criteria
+
+| ID | Observable condition | Verification |
+|---|---|---|
+| AC-01 | The reproduction teacher is 16 units/eligible on both pages and can submit a valid assigned-group claim; catalog total stays 15. | Pure regression plus disposable production-action/loader test. |
+| AC-02 | Exactly threshold refuses; 15.01 succeeds and is displayed accurately; own advisory limit does not change eligibility. | Domain/action checks and UI capture. |
+| AC-03 | Split/shared teaching, merged audiences, repeated meetings, unscheduled allocations and external allocations follow the same recorded totals on both surfaces. Meeting-only/unallocated external credits add zero; no double count or inferred units. | Table-driven domain cases; integration parity and actor-filtered teacher view. |
+| AC-04 | Existing claims remain visible/printable below threshold or at zero; date-filtered class counts/payments and manual rows remain unchanged. | Disposable fixture, browser print links, teacher/top-sheet projection and native A4 checks. |
+| AC-05 | Legacy policy metadata cannot change through active-term edits/forged payloads; supported fields still save, audit and validate. Draft explicit setup/activation remains supported and clearly explained. | Action/loader checks and existing SET-01A workspace regression. |
+| AC-06 | Permission, assignment, active-term/stale and audit rollback protections hold; unrelated teacher data is not returned to teacher-only views. | Relevant denied/wrong-term/stale/injected-audit checks on disposable adapters. |
+| AC-07 | Desktop/mobile labels, precise totals, legacy explanation, existing-claims status, keyboard and feedback work without overflow; print totals/labels are consistent. | Production browser captures and native A4 inspection. |
+| AC-08 | Typecheck, lint, domain, default build and focused safety groups pass; two-term history stays intact. Unrun suites/limits are explicit. | Required commands, focused checks on PGlite and PostgreSQL plus existing T-03. |
+| AC-09 | No institutional storage operation, schema change, allocation rewrite or GitHub update; documentation/diff are reviewed. | Guarded-target evidence, Git/diff and documentation checks. |
+
+## Sole checklist
+
+- [x] T-01 — Inspect current handoff/code and reproduce F-02 without database access; record owner D-1 and concrete proposed scope.
+- [ ] T-02 — Obtain actual approval of this specification (including D-2/D-3 and UI sketch), record it and commit approved plan **before code**.
+- [ ] T-03 — Implement shared allocation totals, loader/action parity, eligibility and claim-access UI; AC-01–04/06–07.
+- [ ] T-04 — Clarify/preserve legacy policy values and draft contract; AC-05/07.
+- [ ] T-05 — Run meaningful domain/action regressions on disposable targets, required final checks, two-term history and focused production browser/A4 review; fix findings and record criterion evidence/limits; AC-01–09.
+- [ ] T-06 — Commit verified delivery, present runnable owner inspection path and exact handoff; await acceptance before local merge. No automatic next package or remote sync.
+
+## Verification and exact handoff
+
+Planning verification: synthetic execution confirms current 15/catalog versus 16/workload mismatch. Documentation links/content/whitespace and planning diff reviewed before checkpoint. No app server, build, database command, migration or test suite was run for this documentation-only package; implementation acceptance criteria remain unverified.
+
+Next action: present this proposed package and obtain actual owner implementation approval under WORKFLOW steps 4–5. D-1 is already answered and must not be asked again. Once scope is approved, record actual approval and commit it before changing code, then carry T-03–T-06 through autonomously. Inspect Git/status at handoff; branch/base are above. Keep all work on this branch/checkout. No institutional operation or remote synchronization is authorized; acceptance/local merge are separate gates.
