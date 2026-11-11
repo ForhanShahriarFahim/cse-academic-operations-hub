@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and handoff for a bounded bug slice.
 
-Status: **implemented and verified; owner delivery acceptance/local merge pending**.
+Status: **accepted by owner on 11 November 2026; local merge and requested GitHub synchronization next**.
 Updated: 11 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-att-marks` from local `main` `db01442`; one checkout/writer.
 Source: [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md), F-01 and the duplicate-guard portion of F-08. This local bug slice overlaps ATT-03 / #10 and ATT-04 / #11; it does not complete either parent. No new remote issue has been created.
@@ -104,3 +104,7 @@ Captures: [desktop](../../../output/playwright/BUG-ATT-MARKS/desktop.png), [mobi
 - Synthetic browser authentication is in ignored `.tmp/ux-review/session.local.json` (`cookie` field for `better-auth.session_token` on localhost); isolated CLI storage state is `.tmp/ux-review/attendance-browser-state.local.json`. Do not commit either. CLI browser is closed; production review server remains available for owner inspection. Browser scripts are ignored under `.tmp/BUG-ATT-MARKS`; tracked captures and this record retain the results.
 - **Next action: owner inspects/accepts this delivery.** After actual acceptance, record it, merge the bounded branch into local `main`, then update the brief/sequence with the merge receipt. Do not push or advance another package automatically. Parents #10/#11 remain open. Suggested later package: BUG-LOAD-BASIS, after its separate rule decision/specification.
 - BUG-25 institutional migration `0017` remains unapplied under its separate backed-up operation. GitHub remains unchanged; last live main-reference read was `0b1e055` on 11 November, full issue reconciliation 26 October.
+
+## Owner acceptance — 11 November 2026
+
+The owner replied **"accepted"** to delivery `1946c01`, accepting implementation `38b923f` and the disclosed focused-verification/build-warning limits. The same message explicitly requests a GitHub push and marking completed open issues. This authorizes recording acceptance, merging this bounded delivery into local `main`, reconciling/pushing preserved history and updating actual issue/checklist status at this synchronization boundary. It does not authorize another implementation package or institutional database operations. The acceptance commit precedes the local merge; a merge/synchronization receipt will follow. Parents #10/#11 stay open for their remaining scope.
