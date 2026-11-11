@@ -69,34 +69,30 @@ export function computeWorkloads(
   }
 
   // Units and catalog credits come from explicit allocation records only.
-  const creditSeen = new Map<number, Set<string>>();
+  const creditSeen = new Map<number, Map<string, number | null>>();
   for (const a of allocations) {
     const w = ensure(a.teacherId);
     w.workloadUnits += a.units;
     if (a.externalDepartment) w.externalUnits += a.units;
     else w.localUnits += a.units;
     if (a.courseCode) {
-      const set = creditSeen.get(a.teacherId) ?? new Set<string>();
-      if (!set.has(a.courseCode)) {
-        set.add(a.courseCode);
-        creditSeen.set(a.teacherId, set);
-      }
+      const seen = creditSeen.get(a.teacherId) ?? new Map<string, number | null>();
+      if (seen.get(a.courseCode) == null) seen.set(a.courseCode, a.courseCredits ?? null);
+      creditSeen.set(a.teacherId, seen);
       const cset = coursesByTeacher.get(a.teacherId) ?? new Set<string>();
       cset.add(a.courseCode);
       coursesByTeacher.set(a.teacherId, cset);
     }
   }
 
-  // Catalog credits: distinct assigned course credits (lookup by allocation
-  // course code — computed by caller-supplied credits map is avoided; the
-  // caller embeds credits via courseTitle rows, so we approximate from the
-  // allocation's course via meetings where possible).
+  // Catalog credits: each distinct assigned course once, from the course record
+  // carried on the allocation, else from a scheduled meeting of that course.
+  // Credits are never inferred from course-code text; unknown counts as 0.
   for (const [tid, set] of creditSeen) {
     const w = ensure(tid);
     let credits = 0;
-    for (const code of set) {
-      const meeting = meetings.find((m) => m.courseCode === code);
-      credits += meeting?.courseCredits ?? (code.includes("(A)") ? 2 : code.includes("(B)") ? 4 : 3);
+    for (const [code, known] of set) {
+      credits += known ?? meetings.find((m) => m.courseCode === code)?.courseCredits ?? 0;
     }
     w.catalogCredits = credits;
   }

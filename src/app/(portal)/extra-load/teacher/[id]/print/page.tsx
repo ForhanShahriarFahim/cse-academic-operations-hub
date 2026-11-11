@@ -5,6 +5,7 @@ import { INSTITUTION } from "@/lib/constants";
 import { getExtraLoadData } from "@/lib/academic-operations";
 import { can, requireActor } from "@/lib/auth";
 import { fmtTime } from "@/lib/time";
+import { validTermDate } from "@/lib/term-records";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,8 @@ export default async function TeacherExtraLoadPrintPage({ params, searchParams }
   const canViewOwn = actor.teacherId === teacherId && await can(actor, "submit_extra_load", { kind: "teacher", teacherId });
   if (!await can(actor, "view_payment_reports") && !canViewOwn) redirect("/forbidden");
   const query = await searchParams;
-  const source = await getExtraLoadData(query.from, query.to);
+  const ranged = validTermDate(query.from ?? "") && validTermDate(query.to ?? "");
+  const source = ranged ? await getExtraLoadData(query.from, query.to) : await getExtraLoadData();
   const teacher = source.data.teachers.find((row) => row.id === teacherId);
   if (!teacher) notFound();
   const entries = source.classes.filter((row) => row.teacherId === teacherId);

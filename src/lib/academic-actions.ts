@@ -33,6 +33,8 @@ import { retainAssignedRooms } from "./room-lifecycle-transaction";
 import { assertGroupMaintenanceClear } from "./room-maintenance-transaction";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
+import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
+import { invalid, stale } from "./action-result";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -52,18 +54,10 @@ async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<Act
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
   const term = await getActiveTerm();
-  const values = {
-    theoryCreditHours: numberField(formData, "theoryCreditHours"),
-    sessionalCreditHours: numberField(formData, "sessionalCreditHours"),
-    extraLoadThresholdCredits: numberField(formData, "extraLoadThresholdCredits"),
-    extraClassRate: numberField(formData, "extraClassRate"),
-    theoryAttendanceMarks: numberField(formData, "theoryAttendanceMarks"),
-    sessionalAttendanceMarks: numberField(formData, "sessionalAttendanceMarks"),
-  };
-  if (Object.values(values).some((value) => value == null || value < 0)) {
-    return { ok: false, message: "Enter valid non-negative policy values." };
-  }
-  const numericValues = Object.fromEntries(Object.entries(values).map(([key, value]) => [key, String(value)]));
+  // Same bounds as a draft term's starting policy, so no value can overflow its column.
+  const parsed = validateStartingPolicy(Object.fromEntries(POLICY_FIELDS.map((key) => [key, formData.get(key)])));
+  if (!parsed.ok) return invalid("Enter valid non-negative policy values.", parsed.errors);
+  const numericValues = parsed.values;
   await auditedChange("policy.update", "academic_policy", async (tx) => {
     const [previous] = await tx.select().from(academicPolicies).where(eq(academicPolicies.termId, term.id)).limit(1);
     const [updated] = await tx.insert(academicPolicies).values({ termId: term.id, ...numericValues })
@@ -140,7 +134,12 @@ async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<
   const rateOverride = numberField(formData, "rateOverride");
   const amountOverride = numberField(formData, "amountOverride");
   const notes = String(formData.get("notes") ?? "").trim() || null;
-  if (!teacherName || classCount == null || !Number.isInteger(classCount) || classCount < 0) return { ok: false, message: "Enter a teacher name and whole-number class count." };
+  if (!teacherName || teacherName.length > 200 || classCount == null || !Number.isInteger(classCount) || classCount < 0 || classCount > 10_000) return { ok: false, message: "Enter a teacher name and whole-number class count." };
+  // Checked as text: binary floating point cannot test "two decimal places" reliably.
+  const moneyText = (name: string, digits: number) => new RegExp(`^(?:\d{1,${digits}}(?:\.\d{1,2})?)?$`).test(String(formData.get(name) ?? "").trim());
+  if (!moneyText("rateOverride", 8) || !moneyText("amountOverride", 10)) {
+    return { ok: false, message: "Enter rate and amount as non-negative numbers with at most two decimal places, or leave them blank." };
+  }
   await auditedChange("extra_load.manual.create", "extra_load_manual_summary", async (tx) => {
     const [row] = await tx.insert(extraLoadManualSummaries).values({
       termId: term.id, teacherName, classCount,
@@ -251,9 +250,12 @@ export async function deactivateStudentAction(studentId: number, teachingGroupId
 async function deactivateStudentActionInTerm(studentId: number, teachingGroupId: number): Promise<ActionResult> {
   const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
   if (denied) return denied;
+  if (!Number.isSafeInteger(studentId) || studentId <= 0) return stale("This student is not on the roster. Reload the page.", "missing");
   const term = await getActiveTerm();
+  const where = and(eq(courseEnrollments.termId, term.id), eq(courseEnrollments.teachingGroupId, teachingGroupId), eq(courseEnrollments.studentId, studentId));
+  const [enrolled] = await db.select({ id: courseEnrollments.id }).from(courseEnrollments).where(where).limit(1);
+  if (!enrolled) return stale("This student is not on the roster. Reload the page.", "missing");
   await auditedChange("enrollment.deactivate", "student", async (tx) => {
-    const where = and(eq(courseEnrollments.termId, term.id), eq(courseEnrollments.teachingGroupId, teachingGroupId), eq(courseEnrollments.studentId, studentId));
     const [previous] = await tx.select().from(courseEnrollments).where(where).limit(1);
     const [updated] = await tx.update(courseEnrollments).set({ status: "inactive" }).where(where).returning();
     return { result: null, entityId: studentId, before: previous ?? null, after: updated ?? null };

@@ -101,8 +101,9 @@ async function createMeetingActionInTerm(formData: FormData): Promise<ActionResu
   const dayOfWeek = Number(formData.get("dayOfWeek"));
   const start = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
   const end = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
-  const teacherIds = formData.getAll("teacherIds").map((v) => Number(v)).filter((n) => n > 0);
-  const roomIds = formData.getAll("roomIds").map((v) => Number(v)).filter((n) => n > 0);
+  const selectedIds = (name: string) => [...new Set(formData.getAll(name).map((v) => Number(v)))].filter((n) => Number.isSafeInteger(n) && n > 0);
+  const teacherIds = selectedIds("teacherIds");
+  const roomIds = selectedIds("roomIds");
   const isException = formData.get("isException") === "on";
   const exceptionNote = String(formData.get("exceptionNote") ?? "").trim() || null;
   const customTimeLabel = String(formData.get("customTimeLabel") ?? "").trim() || null;
@@ -370,12 +371,19 @@ async function createExternalActionInTerm(formData: FormData): Promise<ActionRes
   if (denied) return denied;
   const kind = String(formData.get("kind") ?? "");
   const counterpartDepartment = String(formData.get("counterpartDepartment") ?? "").trim();
-  const teacherId = Number(formData.get("teacherId")) || null;
+  const optionalId = (name: string): number | null | undefined => {
+    const raw = String(formData.get(name) ?? "").trim();
+    if (!raw) return null;
+    return /^\d+$/.test(raw) && Number.isSafeInteger(Number(raw)) && Number(raw) > 0 ? Number(raw) : undefined;
+  };
+  const teacherId = optionalId("teacherId");
+  const roomId = optionalId("roomId");
+  if (teacherId === undefined || roomId === undefined) return { ok: false, message: "Choose a teacher and room from the lists, or leave them blank." };
   if (teacherId) {
     const [teacher] = await db.select({ status: teachers.status, shortCode: teachers.shortCode }).from(teachers).where(eq(teachers.id, teacherId)).limit(1);
-    if (teacher && teacher.status === "inactive") return { ok: false, message: `${teacher.shortCode} is inactive. Reactivate on the teacher page before recording new work.` };
+    if (!teacher) return { ok: false, message: "That teacher record no longer exists. Reload and choose again." };
+    if (teacher.status === "inactive") return { ok: false, message: `${teacher.shortCode} is inactive. Reactivate on the teacher page before recording new work.` };
   }
-  const roomId = Number(formData.get("roomId")) || null;
   const dayRaw = formData.get("dayOfWeek");
   const dayOfWeek = dayRaw === "" || dayRaw == null ? null : Number(dayRaw);
   const start = formData.get("startTime") ? parseTimeToMinutes(String(formData.get("startTime"))) : null;
@@ -389,7 +397,8 @@ async function createExternalActionInTerm(formData: FormData): Promise<ActionRes
     return { ok: false, message: "Invalid commitment kind." };
   }
   if (!counterpartDepartment) return { ok: false, message: "Counterpart department is required." };
-  if (kind !== "unresolved_note" && (dayOfWeek == null || start == null || end == null || end <= start)) {
+  if (creditsRaw && !/^\d{1,2}(?:\.\d)?$/.test(creditsRaw)) return { ok: false, message: "Enter credits from 0 to 99.9 with at most one decimal place, or leave blank." };
+  if (kind !== "unresolved_note" && (dayOfWeek == null || !Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6 || start == null || end == null || end <= start)) {
     return { ok: false, message: "Structured commitments need a day and a valid time range." };
   }
 
