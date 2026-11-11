@@ -89,6 +89,9 @@ async function cseDepartmentId(): Promise<number | null> {
 
 async function resourceContext(resource?: Resource): Promise<{ departmentId: number | null; teacherId: number | null; teachingGroupId: number | null } | null> {
   if (!resource || resource.kind === "term") return { departmentId: await cseDepartmentId(), teacherId: null, teachingGroupId: null };
+  // A malformed id names no resource: deny without sending it to the database.
+  const ids = Object.values(resource).filter((value) => typeof value === "number");
+  if (ids.some((id) => !Number.isSafeInteger(id) || id <= 0)) return null;
   if (resource.kind === "department") return { departmentId: resource.departmentId, teacherId: null, teachingGroupId: null };
   if (resource.kind === "teacher") {
     const [row] = await db.select({ departmentId: teachers.homeDepartmentId }).from(teachers).where(eq(teachers.id, resource.teacherId)).limit(1);

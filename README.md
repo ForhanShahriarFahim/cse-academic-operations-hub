@@ -157,7 +157,7 @@ Sign-in needs `BETTER_AUTH_URL` (the exact origin of this app) and `BETTER_AUTH_
 
 No public sign-up is enabled. Without `BETTER_AUTH_URL` and `BETTER_AUTH_SECRET`, internal access stays closed and `/login` shows a setup notice. Password sign-in locks for 15 minutes after 5 wrong passwords in a row, and is throttled per client address. Behind a proxy, the client address comes from `X-Forwarded-For`; trusting that header is a deployment decision (DEP-01).
 
-> Important: run only one database-using project process against `.data/pglite` at a time. Stop the development server before running a separate migration, preparation, or reset command.
+> Important: run only one database-using project process against `.data/pglite-summer-2026` at a time. Stop the development server before running a separate migration, preparation, or reset command.
 
 > **Stored times.** Every database time is `timestamp with time zone`, so it is one exact instant whatever the server or session time zone ([BUG-29](docs/specs/BUG-29/spec.md)). Screens and prints show instants in Asia/Dhaka.
 >

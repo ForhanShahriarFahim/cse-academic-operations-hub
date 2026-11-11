@@ -136,6 +136,8 @@ export interface AllocationView {
   policyNote: string | null;
   courseCode: string | null;
   courseTitle: string | null;
+  /** Catalog credits of the allocated course; absent when the allocation has no course. */
+  courseCredits?: number | null;
   teachingGroupId: number | null;
   externalDepartment: string | null;
   externalCommitmentId: number | null;
@@ -427,6 +429,7 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
       policyNote: a.policyNote,
       courseCode: course?.code ?? null,
       courseTitle: course?.title ?? null,
+      courseCredits: course ? Number(course.credits) : null,
       teachingGroupId: a.teachingGroupId,
       externalDepartment: ec?.counterpartDepartment ?? null,
       externalCommitmentId: a.externalCommitmentId,

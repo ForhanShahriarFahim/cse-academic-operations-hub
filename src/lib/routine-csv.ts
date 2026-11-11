@@ -26,8 +26,13 @@ const HEADERS = [
   "warning_codes",
 ] as const;
 
-function csvCell(value: string | number | boolean | null | undefined): string {
-  const text = value == null ? "" : String(value);
+/**
+ * One CSV cell. Text that a spreadsheet would run as a formula (leading =, +, -, @,
+ * tab or carriage return) is prefixed with an apostrophe so it stays text.
+ */
+export function csvCell(value: string | number | boolean | null | undefined): string {
+  const raw = value == null ? "" : String(value);
+  const text = typeof value === "string" && /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
