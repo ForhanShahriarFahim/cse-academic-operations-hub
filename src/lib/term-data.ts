@@ -6,12 +6,12 @@ import { authorize } from "./auth";
 import { readTermContext } from "./term-context";
 import { validateStartingPolicy, validateTermFields } from "./term-records";
 import { isPublishedSnapshot } from "./public-routine";
+import { TERM_PROTECTED_TABLES } from "./term-protection";
 
 // Setup-only policy/grid/windows and audit do not freeze draft identity. All
 // other direct term FKs protect both direct and indirect business descendants.
-const PROTECTED_TABLES = ["batch_term_placements", "class_representatives", "department_contacts", "routine_source_reconciliations", "course_offerings", "teaching_groups", "course_enrollments", "attendance_sessions", "extra_load_classes", "extra_load_manual_summaries", "external_commitments", "workload_allocations", "schedule_versions"] as const;
 export async function termProtectedUse(termId: number) {
-  const counts = await databaseReadBatch(PROTECTED_TABLES.map(table => async () => {
+  const counts = await databaseReadBatch(TERM_PROTECTED_TABLES.map(table => async () => {
     const result = await db.execute<{ count: number }>(sql`select count(*)::int as count from ${sql.identifier(table)} where term_id = ${termId}`);
     return { table, count: Number(result.rows[0]?.count ?? 0) };
   }));

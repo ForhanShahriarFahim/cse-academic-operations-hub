@@ -35,6 +35,7 @@ const ADDED_AFTER_BUG29 = new Set([
   "room_unavailability.start_date", "room_unavailability.end_date", // 0012 (ROM-01C): absent before BUG-29
   "room_unavailability.created_at", "room_unavailability.updated_at",
   "batch_term_placements.count_verified_at", // 0015 (BAT-01A)
+  "term_rollovers.created_at", // 0016 (BAT-01B): absent from the pre-0007 fixture
 ]);
 const JOURNAL_LENGTH = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
 

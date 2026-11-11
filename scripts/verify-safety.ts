@@ -24,6 +24,7 @@ import { checkRoomLifecycle, checkRoomLifecyclePostgres } from "./safety/room-li
 import { checkRoomMaintenance, checkRoomMaintenancePostgres } from "./safety/room-maintenance.check";
 import { checkActiveTerms, checkActiveTermsPostgres } from "./safety/active-term.check";
 import { checkTermWorkspace, checkTermWorkspacePostgres } from "./safety/term-workspace.check";
+import { checkRollover, checkRolloverPostgres } from "./safety/rollover.check";
 import { checkBatches, checkBatchesPostgres } from "./safety/batch.check";
 
 function metadataFingerprint(directory: string): string {
@@ -48,6 +49,8 @@ async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
+    ["BAT-01B rollover (PGlite)", () => checkRollover()],
+    ["BAT-01B rollover (PostgreSQL)", () => checkRolloverPostgres(process.env.SAFE01_PG_BIN), true],
     ["BAT-01A records (PGlite)", () => checkBatches()],
     ["BAT-01A records (PostgreSQL)", () => checkBatchesPostgres(process.env.SAFE01_PG_BIN), true],
     ["SET-01A workspace (PGlite)", () => checkTermWorkspace()],

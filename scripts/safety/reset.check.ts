@@ -88,6 +88,12 @@ async function scenario(factory: DatabaseFactory, lines: string[]): Promise<void
       await db.insert(schema.roomUnavailability).values({ roomId: room.id, startDate: "2026-06-13", endDate: "2026-06-13", weekdays: [0], startMinutes: 540, endMinutes: 600, reason: "Synthetic reset fixture maintenance" });
     });
     const planted = await withHandle(database, ({ db }) => plantAccess(db));
+    await withHandle(database, async ({ db }) => {
+      const [source] = await db.select().from(schema.academicTerms).limit(1);
+      const [actor] = await db.select().from(schema.portalUsers).limit(1);
+      const [destination] = await db.insert(schema.academicTerms).values({name:"Synthetic rollover reset target",academicYear:2027,startDate:"2027-01-01",endDate:"2027-05-01",status:"draft"}).returning();
+      await db.insert(schema.termRollovers).values({sourceTermId:source.id,targetTermId:destination.id,actorUserId:actor.id,reason:"Synthetic reset receipt",summary:{fingerprint:"synthetic",source:source.name,target:destination.name,decisions:[],grid:{patterns:0,plans:0,windows:0,excludedExceptions:0,legacyWindows:0},warnings:[]}});
+    });
     const before = await withHandle(database, async ({ client }) => ({
       fingerprint: await fingerprintDatabase(client), access: await accessRows(client), roles: await departmentCodes(client),
     }));
@@ -110,6 +116,7 @@ async function scenario(factory: DatabaseFactory, lines: string[]): Promise<void
     assert.match(reset.stdout, new RegExp(`Not re-linked: ${planted.orphanEmail.replace(/\./g, "\\.")} \\(teacher ZZQ`));
     await withHandle(database, async ({ client, db }) => {
       assert.equal(await accessRows(client), before.access, "accounts, passwords, sessions, links or roles changed");
+      assert.equal((await db.select().from(schema.termRollovers)).length, 0, "explicit disposable reset clears rollover receipts before term identity reuse");
       assert.equal((await db.select().from(schema.roomUnavailability)).length, 0, "explicit disposable reset includes maintenance without a cascading truncate");
       assert.deepEqual(await departmentCodes(client), before.roles, "a role changed department");
       const [linked] = await db.select({ code: schema.teachers.shortCode }).from(schema.portalUsers)

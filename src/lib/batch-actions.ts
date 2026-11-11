@@ -33,6 +33,8 @@ export async function saveBatchAction(_previous:BatchResult|null,form:FormData):
     return result;
   }))) as BatchResult;}catch(error){
     if(error instanceof TermContextChanged)return stale(error.message);
+    // The person sees a safe message; the server keeps the cause for diagnosis.
+    console.error("Batch change failed and was rolled back",error);
     return invalid("The batch change could not be saved. Your input is kept. Review and try again.");
   }
 }

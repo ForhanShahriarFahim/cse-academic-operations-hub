@@ -1,0 +1,177 @@
+{
+  "issue": "BAT-01B / #6",
+  "approvalCommit": "513113c",
+  "implementationCommits": [
+    "f753b8d",
+    "7e6c28a"
+  ],
+  "browserEvidenceCommit": "459f6a3",
+  "evidenceDate": "2026-11-09",
+  "handoffDate": "2026-11-11",
+  "safetyGroups": [
+    {
+      "name": "BAT-01B rollover (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BAT-01B rollover (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BAT-01A records (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BAT-01A records (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "SET-01A workspace (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "SET-01A workspace (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BUG-28 active terms (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01C maintenance (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01B lifecycle (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01A rooms (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "ROM-01A rooms (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "T-01 isolation",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BUG-24 environment",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "T-02 PGlite recovery",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "T-03 two-term history",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "T-04 audit atomicity",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "T-06 PostgreSQL",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/full-safety.log"
+    },
+    {
+      "name": "BUG-29 time zones (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-29.log"
+    },
+    {
+      "name": "BUG-29 time zones (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-29.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-AUTH-02.log"
+    },
+    {
+      "name": "AUTH-02 accounts (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-AUTH-02.log"
+    },
+    {
+      "name": "BUG-48 cluster cleanup (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-48.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-26.log"
+    },
+    {
+      "name": "BUG-26 reset keeps access (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-26.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-TCH-01.log"
+    },
+    {
+      "name": "TCH-01 teacher records (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-TCH-01.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PGlite)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-27.log"
+    },
+    {
+      "name": "BUG-27 blocked deletes (PostgreSQL)",
+      "result": "passed",
+      "localLog": ".tmp/bat-01b/remaining-BUG-27.log"
+    }
+  ],
+  "safetySummary": "All 31 named groups pass across preserved/resumed runs. Initial full run stopped after 20 at a historical schema fixture; the later receipt timestamp exclusion was corrected, then the failed and unrun 11 groups passed.",
+  "focusedRolloverExit": 0,
+  "browserExit": 0,
+  "browserCaptures": 39,
+  "printBeforeAfterPages": 16,
+  "defaultBuild": "failed: Turbopack CSS-worker IPC; AC-11 partial, no accepted BAT-01B exception",
+  "separateWebpackReviewBuild": "passed",
+  "institutionalMigration": false,
+  "remoteSynchronization": false
+}

@@ -31,7 +31,7 @@ interface ResetDetail {
  * of these makes the reset fail loudly instead of being emptied silently.
  */
 const ACADEMIC_TABLES = sql.raw(`
-  schedule_versions, attendance_records, attendance_sessions,
+  term_rollovers, schedule_versions, attendance_records, attendance_sessions,
   course_enrollments, extra_load_classes, extra_load_manual_summaries, students,
   class_representatives, department_contacts, routine_source_reconciliations,
   academic_policies, workload_allocations, meeting_rooms, meeting_teachers, meetings,

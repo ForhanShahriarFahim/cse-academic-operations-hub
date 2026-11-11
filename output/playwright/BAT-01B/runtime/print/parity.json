@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "official",
+    "page": 1,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "6bcce42b30d064924157f646ffc697f8fd250a0552fcd4f0dba32216b47adaef",
+    "textIdentical": true
+  },
+  {
+    "kind": "official",
+    "page": 2,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "746e2570c5e8b3431d1a90f3bd028007ea40fab5261898aaa7daac595051b077",
+    "textIdentical": true
+  },
+  {
+    "kind": "official",
+    "page": 3,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "cb64656fff5f915844731af2ca1942ed918136aa1437ebca4688ec31ea497744",
+    "textIdentical": true
+  },
+  {
+    "kind": "official",
+    "page": 4,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "e311e8c8119c3015024992246af5b5e701328d3f3d8d232f19ef9f2710a2ee62",
+    "textIdentical": true
+  },
+  {
+    "kind": "official",
+    "page": 5,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "c22159e4988dc0332bfc964509a0c9f6e6f496e83d068043199ca072362815ee",
+    "textIdentical": true
+  },
+  {
+    "kind": "teachers",
+    "page": 1,
+    "widthPt": 841.91998,
+    "heightPt": 594.95996,
+    "renderPixelsIdentical": true,
+    "sha256": "6bcce42b30d064924157f646ffc697f8fd250a0552fcd4f0dba32216b47adaef",
+    "textIdentical": true
+  },
+  {
+    "kind": "teachers",
+    "page": 2,
+    "widthPt": 594.95996,
+    "heightPt": 841.91998,
+    "renderPixelsIdentical": true,
+    "sha256": "ea6b501339bf9eac5f7d38a42e62d75160ccfeb6b83743ad543afb8895e12925",
+    "textIdentical": true
+  },
+  {
+    "kind": "teachers",
+    "page": 3,
+    "widthPt": 594.95996,
+    "heightPt": 841.91998,
+    "renderPixelsIdentical": true,
+    "sha256": "bbfc45363a8eb5e8cf6534f0a886a105450b70d839eb4b690c93e90ae8f2dfab",
+    "textIdentical": true
+  }
+]
