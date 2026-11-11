@@ -40,6 +40,8 @@ export async function prepareRolloverAction(_previous: RolloverResult | null, fo
     }));
   } catch (e) {
     if (e instanceof RolloverRefusal) return invalid(e.message);
+    // The person sees a safe message; the server keeps the cause for diagnosis.
+    console.error("Rollover preparation failed and was rolled back", e);
     return invalid("Preparation could not be saved. No changes were committed. Your input is kept; review and try again.");
   }
 }
