@@ -149,7 +149,8 @@ async function main(){
   assert.equal((await reads.getTermSummary(blocked))!.editable,false);assert.equal((await terms.editTermAction(null,form({termId:blocked,revision:2,name:"No"}))).ok,false);
   const portal=await data.getPortalData();const snapshot=buildSnapshot({term:portal.term,versionNumber:50,meetings:portal.meetings,batches:portal.batches,breaks:portal.breaks,externals:portal.externals,issues:[],timeGrid:portal.timeGrid,metadata:portal.publicationMetadata});
   snapshot.metadata.teachers.forEach(t=>{t.phone="PRIVATE_SENTINEL_PHONE";t.email="PRIVATE_SENTINEL_EMAIL";});
-  const [version]=await db.insert(s.scheduleVersions).values({termId:initialTerm,versionNumber:50,state:"published",publishedAt:new Date(),snapshot:{...snapshot,privateRoster:"PRIVATE_SENTINEL_ROSTER"}}).returning();
+  // BUG-25: the term already has its one published version; this frozen archive row is superseded history.
+  const [version]=await db.insert(s.scheduleVersions).values({termId:initialTerm,versionNumber:50,state:"superseded",publishedAt:new Date(),snapshot:{...snapshot,privateRoster:"PRIVATE_SENTINEL_ROSTER"}}).returning();
   const saved=JSON.stringify(version.snapshot),frozen=await archive.getTermPublication(initialTerm,version.id);assert.ok(frozen);assert.equal(JSON.stringify(frozen).includes("PRIVATE_SENTINEL"),false);
   assert.equal(await archive.getTermPublication(draft,version.id),null);
   signInAs(null);await assert.rejects(archive.getTermPublication(initialTerm,version.id),auth.AuthenticationError);signInAs("admin@example.invalid");

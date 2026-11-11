@@ -84,6 +84,15 @@ Excluded (no change in this slice):
 
 Read `node_modules/next/dist/docs/` on Server Functions before step 4–5 (AGENTS.md).
 
+## Implementation notes
+
+- Approval `9f0f065`; implementation `ea53f0a`.
+- `publishAction(changeSummary, context, expectedLatestVersionId)`. The advisory lock key is `(61025, term id)`.
+- The out-of-date check runs before draft validation, so an approver on an old page is told about the newer version even when the draft also has blockers.
+- `0017` uses `CREATE UNIQUE INDEX IF NOT EXISTS` because earlier safety groups replay later migrations.
+- The result box in the publish panel now has `role="status"`/`"alert"` so the outcome is announced.
+- Test callers: `fresh-term-actions.ts` supplies the latest version a freshly rendered page would show; `batch-boundary-races.ts` passes it explicitly.
+
 ## Observations (not changed)
 
 - A clean seed stores version 1 as `draft`, so the first real publication is version 2 and the draft row stays. Unique numbering is compatible with this.
