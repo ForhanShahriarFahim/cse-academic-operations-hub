@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import "./verify-room-records";
 import { attendanceMark, parseStudentCsv, summarizeAttendance } from "../src/lib/attendance";
 import { csvCell } from "../src/lib/routine-csv";
-import { computeWorkloads } from "../src/lib/workload";
+import { allocationTotals, computeWorkloads, formatWorkloadUnits } from "../src/lib/workload";
 import { amountInWords, isExtraLoadEligible, paymentForClasses } from "../src/lib/extra-load";
 
 const roster = parseStudentCsv(`STUDENT'S ID,STUDENT'S NAME,PHONE NUMBER,Department,Audience Type
@@ -61,5 +61,33 @@ assert.equal(computeWorkloads([], [allocation("CSE-1102", 1)], () => false).get(
 assert.equal(computeWorkloads([], [allocation("CSE-4000(B)", 6)], () => false).get(7)!.catalogCredits, 6);
 assert.equal(computeWorkloads([], [allocation("CSE-4000(A)", null)], () => false).get(7)!.catalogCredits, 0);
 assert.equal(computeWorkloads([], [allocation("CSE-1102", 1), { ...allocation("CSE-1102", 1), id: 2 }], () => false).get(7)!.catalogCredits, 1);
+
+// BUG-LOAD-BASIS: monetary eligibility follows recorded units, preserving splits
+// and decimal boundaries independently of catalog credits and contact minutes.
+const theory = { ...allocation("SYN-14", 14), units: 14 };
+const sessional = { ...allocation("SYN-LAB", 1), id: 2, teachingGroupId: 2, units: 2 };
+assert.equal(computeWorkloads([], [theory, sessional], () => false).get(7)!.catalogCredits, 15);
+for (const [units, expected, eligible] of [[14, 16, true], [13, 15, false], [13.01, 15.01, true], [12.99, 14.99, false]] as const) {
+  const entries = [{ ...theory, units }, sessional];
+  const total = allocationTotals(entries).get(7)!.workloadUnits;
+  assert.equal(total, expected);
+  assert.equal(isExtraLoadEligible(total, 15), eligible);
+  assert.equal(computeWorkloads([], entries, () => false, () => 30).get(7)!.workloadUnits, total);
+}
+assert.equal(formatWorkloadUnits(15.01), "15.01"); assert.equal(formatWorkloadUnits(16), "16");
+for (const entries of [[14.9, 0.1], [14.7, 0.1, 0.1, 0.1], Array.from({ length: 150 }, () => 0.1)]) {
+  const total = allocationTotals(entries.map(units => ({ ...theory, units }))).get(7)!.workloadUnits;
+  assert.equal(total, 15); assert.equal(isExtraLoadEligible(total, 15), false);
+}
+const shared = [
+  { ...sessional, units: 0.75, allocationMethod: "split" },
+  { ...sessional, teacherId: 8, units: 1.25, allocationMethod: "split" },
+  { ...theory, teacherId: 8, units: 3, externalDepartment: "EEE", externalCommitmentId: 20, teachingGroupId: null, allocationMethod: "external" },
+];
+assert.deepEqual(allocationTotals(shared).get(8), { workloadUnits: 4.25, localUnits: 1.25, externalUnits: 3 });
+assert.equal(allocationTotals(shared).get(7)!.workloadUnits, 0.75);
+const sharedPolicy = [{ ...sessional, allocationMethod: "shared_policy" }];
+assert.equal(allocationTotals(sharedPolicy).get(7)!.workloadUnits, 2);
+assert.equal(allocationTotals([]).size, 0);
 
 console.log("Domain verification passed: workload credits, CSV cells, CSV import, attendance, eligibility, payment, and amount wording.");

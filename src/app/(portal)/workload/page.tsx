@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPortalData } from "@/lib/data";
-import { computeWorkloads } from "@/lib/workload";
+import { computeWorkloads, formatWorkloadUnits } from "@/lib/workload";
 import { WORKLOAD_ADVISORY_UNITS } from "@/lib/constants";
 import { PageHeader, Panel, StatusText, TableRegion } from "@/components/ui";
 import { PrintButton } from "@/components/print-button";
@@ -77,12 +77,12 @@ export default async function WorkloadPage() {
                         <i style={{ width: `${Math.min(100, (w.workloadUnits / scale) * 100)}%` }} />
                         <b style={{ left: `${(limit / scale) * 100}%` }} />
                       </span>
-                      <span className="font-semibold">{w.workloadUnits.toFixed(1)}</span>
+                      <span className="font-semibold">{formatWorkloadUnits(w.workloadUnits)}</span>
                     </td>
                     <td>
                       <span className="flex flex-col gap-0.5">
                         {over
-                          ? <StatusText tone="warn">Over by {(w.workloadUnits - limit).toFixed(1)}</StatusText>
+                          ? <StatusText tone="warn">Over by {formatWorkloadUnits(w.workloadUnits - limit)}</StatusText>
                           : <StatusText tone="muted">{w.workloadUnits === limit ? "At limit" : "Within limit"}</StatusText>}
                         {t.advisoryLoadUnits != null ? <span className="text-[12px] text-muted">Own limit {limit.toFixed(1)}</span> : null}
                         {externalPending ? <StatusText tone="pending">External teaching not yet confirmed</StatusText> : null}
@@ -92,7 +92,7 @@ export default async function WorkloadPage() {
                     <td className="num">{w.weeklyMeetings}</td>
                     <td className="num">{w.distinctCourses}</td>
                     <td className="num">{w.catalogCredits.toFixed(1)}</td>
-                    <td className="num">{w.localUnits.toFixed(1)} / {w.externalUnits.toFixed(1)}</td>
+                    <td className="num">{formatWorkloadUnits(w.localUnits)} / {formatWorkloadUnits(w.externalUnits)}</td>
                   </tr>
                 );
               })}

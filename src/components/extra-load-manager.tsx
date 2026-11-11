@@ -9,6 +9,8 @@ import { FileText, Plus, Printer, Trash2 } from "lucide-react";
 import { fmtRange } from "@/lib/time";
 import type { ActionResult } from "@/lib/actions";
 import { useConfirm } from "@/components/confirm-dialog";
+import { isExtraLoadEligible } from "@/lib/extra-load";
+import { formatWorkloadUnits } from "@/lib/workload";
 
 interface Teacher { id: number; fullName: string; shortCode: string; designation: string | null }
 interface Group { id: number; courseCode: string; courseTitle: string; audience: string; teacherIds: number[] }
@@ -17,7 +19,7 @@ interface Entry {
   classDate: string; startMinutes: number; endMinutes: number;
   courseCodeSnapshot: string; batchLabelSnapshot: string;
 }
-interface Summary { teacher: Teacher; assignedCredits: number; classCount: number; amount: number }
+interface Summary { teacher: Teacher; assignedWorkloadUnits: number; hasUnverifiedExternal: boolean; classCount: number; amount: number }
 interface Manual { id: number; teacherName: string; classCount: number; amount: number; notes: string | null }
 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[12.5px]";
@@ -38,7 +40,8 @@ export function ExtraLoadManager({
 }) {
   const { createExtraLoadClassAction, createManualTopSheetRowAction, deleteExtraLoadClassAction, deleteManualTopSheetRowAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
-  const eligible = summaries.filter((row) => row.assignedCredits > threshold);
+  const eligible = summaries.filter((row) => isExtraLoadEligible(row.assignedWorkloadUnits, threshold));
+  const printable = summaries.filter((row) => isExtraLoadEligible(row.assignedWorkloadUnits, threshold) || row.classCount > 0);
   const [teacherId, setTeacherId] = useState(eligible[0]?.teacher.id ?? 0);
   const [from, setFrom] = useState(termStart);
   const [to, setTo] = useState(termEnd);
@@ -58,20 +61,23 @@ export function ExtraLoadManager({
 
   return (
     <div className="space-y-4">{confirmDialog}
-      {result && <p className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
+      {result && <p role="status" aria-live="polite" className={`rounded-md border px-3 py-2 text-[12px] ${result.ok ? "border-[var(--color-pine)]/30 bg-[var(--color-pine)]/5 text-[var(--color-pine)]" : "border-[var(--color-clay)]/30 bg-[var(--color-clay)]/5 text-[var(--color-clay)]"}`}>{result.message}</p>}
+
+      <p className="text-[12.5px] text-ink-2">Eligibility uses recorded workload allocations, including recorded external work. A sole one-credit sessional normally counts as 2; shared teaching follows its recorded allocation.</p>
+      {summaries.some((row) => row.hasUnverifiedExternal) && <p className="text-[12px] text-muted">External teaching is pending verification for the teachers marked below. Their recorded total is a known minimum, not a confirmed university-wide figure.</p>}
 
       <div className={canSubmit ? "grid gap-4 xl:grid-cols-[1.05fr_1.35fr]" : "grid gap-4"}>
         {canSubmit && <section className="ruled rounded-lg">
           <header className="border-b border-[var(--color-line-soft)] px-4 py-3">
             <h2 className="font-display text-[15px] font-semibold">Record a daily extra class</h2>
-            <p className="mt-0.5 text-[11.5px] text-muted">Only teachers above {threshold.toFixed(1)} assigned credits are eligible.</p>
+            <p className="mt-0.5 text-[11.5px] text-muted">Only teachers above {formatWorkloadUnits(threshold)} workload credit-hours are eligible.</p>
           </header>
           <form ref={classForm} className="grid gap-3 p-4" onSubmit={(event) => { event.preventDefault(); submit(classForm.current!, createExtraLoadClassAction); }}>
             <label>
               <span className="micro-label mb-1 block">Teacher</span>
               <select name="teacherId" value={teacherId} onChange={(event) => setTeacherId(Number(event.target.value))} className={control} required>
                 {eligible.length === 0 && <option value="">No teacher is currently above the threshold</option>}
-                {eligible.map((row) => <option key={row.teacher.id} value={row.teacher.id}>{row.teacher.shortCode} · {row.teacher.fullName} ({row.assignedCredits.toFixed(1)} cr.)</option>)}
+                {eligible.map((row) => <option key={row.teacher.id} value={row.teacher.id}>{row.teacher.shortCode} · {row.teacher.fullName} ({formatWorkloadUnits(row.assignedWorkloadUnits)} workload credit-hours){row.hasUnverifiedExternal ? " · external pending" : ""}</option>)}
               </select>
             </label>
             <label>
@@ -101,11 +107,14 @@ export function ExtraLoadManager({
               <label><span className="micro-label mb-1 block">From</span><input type="date" value={from} min={termStart} max={termEnd} onChange={(e) => setFrom(e.target.value)} className={control} /></label>
               <label><span className="micro-label mb-1 block">To</span><input type="date" value={to} min={termStart} max={termEnd} onChange={(e) => setTo(e.target.value)} className={control} /></label>
             </div>
-            <div role="region" aria-label="Teachers above the credit threshold" tabIndex={0} className="table-region overflow-x-auto">
-              <table className="w-full text-[12px]">
-                <thead><tr className="border-b border-[var(--color-line)] text-left"><th className="py-1.5">Teacher</th><th>Credits</th><th>Classes</th><th>Amount</th><th className="text-right">Sheet</th></tr></thead>
-                <tbody>{eligible.map((row) => <tr key={row.teacher.id} className="border-b border-[var(--color-line-soft)]">
-                  <td className="py-2 font-medium">{row.teacher.fullName}</td><td className="font-mono">{row.assignedCredits.toFixed(1)}</td><td className="font-mono">{row.classCount}</td><td className="font-mono">৳{row.amount.toLocaleString()}</td>
+            <div role="region" aria-label="Eligible teachers and existing claims" tabIndex={0} className="table-region overflow-x-auto">
+              <table className="w-full min-w-[560px] text-[12px] [&_th]:px-2 [&_td]:px-2">
+                <thead><tr className="border-b border-[var(--color-line)] text-left"><th className="py-1.5">Teacher</th><th>Workload credit-hours</th><th>Classes</th><th>Amount</th><th className="text-right">Sheet</th></tr></thead>
+                <tbody>{printable.length === 0 ? <tr><td colSpan={5} className="py-4 text-muted">No eligible teachers or recorded claims.</td></tr> : printable.map((row) => <tr key={row.teacher.id} className="border-b border-[var(--color-line-soft)]">
+                  <td className="py-2 font-medium">{row.teacher.fullName}
+                    {!isExtraLoadEligible(row.assignedWorkloadUnits, threshold) && <span className="block text-[11px] text-muted">Existing claims only</span>}
+                    {row.hasUnverifiedExternal && <span className="block text-[11px] text-muted">External teaching pending verification</span>}
+                  </td><td className="font-mono">{formatWorkloadUnits(row.assignedWorkloadUnits)}</td><td className="font-mono">{row.classCount}</td><td className="font-mono">৳{row.amount.toLocaleString()}</td>
                   <td className="text-right"><Link href={`/extra-load/teacher/${row.teacher.id}/print?from=${from}&to=${to}`} target="_blank" className="inline-flex items-center gap-1 text-[var(--color-pine)] hover:underline"><FileText size={12} />Print</Link></td>
                 </tr>)}</tbody>
               </table>
@@ -138,7 +147,7 @@ export function ExtraLoadManager({
             <label><span className="micro-label mb-1 block">Note</span><input name="notes" placeholder="optional" className={control} /></label>
             <button disabled={pending} className="col-span-2 rounded-md border border-[var(--color-pine)] px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)]">Add manual row</button>
           </form>
-          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-muted">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
+          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-muted">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button aria-label={`Remove manual row for ${row.teacherName}`} onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
         </div>
       </section>}
     </div>

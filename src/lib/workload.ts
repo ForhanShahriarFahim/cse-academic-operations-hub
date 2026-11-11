@@ -24,6 +24,28 @@ export interface TeacherWorkload {
   alerts: string[];
 }
 
+/** Recorded units have two decimal places. Sum hundredths to keep the strict
+ * extra-load threshold stable (e.g. 14.9 + 0.1 must stay exactly 15). */
+export function allocationTotals(allocations: Pick<AllocationView, "teacherId" | "units" | "externalDepartment">[]) {
+  const totals = new Map<number, { workloadUnits: number; localUnits: number; externalUnits: number }>();
+  for (const allocation of allocations) {
+    const total = totals.get(allocation.teacherId) ?? { workloadUnits: 0, localUnits: 0, externalUnits: 0 };
+    const units = Math.round(allocation.units * 100);
+    total.workloadUnits += units;
+    if (allocation.externalDepartment) total.externalUnits += units;
+    else total.localUnits += units;
+    totals.set(allocation.teacherId, total);
+  }
+  for (const total of totals.values()) {
+    total.workloadUnits /= 100; total.localUnits /= 100; total.externalUnits /= 100;
+  }
+  return totals;
+}
+
+export function formatWorkloadUnits(units: number): string {
+  return Number(units.toFixed(2)).toString();
+}
+
 export function computeWorkloads(
   meetings: MeetingView[],
   allocations: AllocationView[],
@@ -69,12 +91,9 @@ export function computeWorkloads(
   }
 
   // Units and catalog credits come from explicit allocation records only.
+  for (const [id, total] of allocationTotals(allocations)) Object.assign(ensure(id), total);
   const creditSeen = new Map<number, Map<string, number | null>>();
   for (const a of allocations) {
-    const w = ensure(a.teacherId);
-    w.workloadUnits += a.units;
-    if (a.externalDepartment) w.externalUnits += a.units;
-    else w.localUnits += a.units;
     if (a.courseCode) {
       const seen = creditSeen.get(a.teacherId) ?? new Map<string, number | null>();
       if (seen.get(a.courseCode) == null) seen.set(a.courseCode, a.courseCredits ?? null);

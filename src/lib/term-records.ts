@@ -3,8 +3,8 @@ export interface TermFields {
 }
 export const POLICY_FIELDS = ["theoryCreditHours", "sessionalCreditHours", "extraLoadThresholdCredits", "extraClassRate", "theoryAttendanceMarks", "sessionalAttendanceMarks"] as const;
 export const POLICY_LABELS: Record<typeof POLICY_FIELDS[number], string> = {
-  theoryCreditHours: "Theory course credits", sessionalCreditHours: "Sessional course credits",
-  extraLoadThresholdCredits: "Extra-load threshold", extraClassRate: "Payment per extra class (Tk)",
+  theoryCreditHours: "Legacy theory value (unused metadata)", sessionalCreditHours: "Legacy sessional value (unused metadata)",
+  extraLoadThresholdCredits: "Extra-load threshold (workload credit-hours)", extraClassRate: "Payment per extra class (Tk)",
   theoryAttendanceMarks: "Theory attendance marks", sessionalAttendanceMarks: "Sessional attendance marks",
 };
 export function validTermDate(value: string): boolean {

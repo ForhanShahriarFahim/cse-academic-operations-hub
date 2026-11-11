@@ -24,6 +24,7 @@ import { parseStudentCsv, ATTENDANCE_STATUSES } from "./attendance";
 import { getAttendanceData, getExtraLoadData } from "./academic-operations";
 import { getActiveTerm } from "./data";
 import { isExtraLoadEligible } from "./extra-load";
+import { formatWorkloadUnits } from "./workload";
 import { fmtRange, parseTimeToMinutes } from "./time";
 import type { ActionResult } from "./actions";
 import { buildAutoSchedulePlan } from "./schedule-automation";
@@ -54,13 +55,20 @@ async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<Act
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
   const term = await getActiveTerm();
-  // Same bounds as a draft term's starting policy, so no value can overflow its column.
-  const parsed = validateStartingPolicy(Object.fromEntries(POLICY_FIELDS.map((key) => [key, formData.get(key)])));
+  // Legacy metadata is no longer editable here, including via a forged payload.
+  // Preserve it inside the audited transaction; only the four live settings are parsed.
+  const parsed = validateStartingPolicy({
+    ...Object.fromEntries(POLICY_FIELDS.map((key) => [key, formData.get(key)])),
+    theoryCreditHours: "3", sessionalCreditHours: "2",
+  });
   if (!parsed.ok) return invalid("Enter valid non-negative policy values.", parsed.errors);
-  const numericValues = parsed.values;
+  const { theoryCreditHours: _theory, sessionalCreditHours: _sessional, ...numericValues } = parsed.values;
   await auditedChange("policy.update", "academic_policy", async (tx) => {
     const [previous] = await tx.select().from(academicPolicies).where(eq(academicPolicies.termId, term.id)).limit(1);
-    const [updated] = await tx.insert(academicPolicies).values({ termId: term.id, ...numericValues })
+    const [updated] = await tx.insert(academicPolicies).values({ termId: term.id, ...numericValues,
+      theoryCreditHours: previous?.theoryCreditHours ?? _theory,
+      sessionalCreditHours: previous?.sessionalCreditHours ?? _sessional,
+    })
       .onConflictDoUpdate({ target: academicPolicies.termId, set: { ...numericValues, updatedAt: new Date() } }).returning();
     return { result: null, entityId: term.id, before: previous ?? null, after: updated };
   });
@@ -84,12 +92,12 @@ async function createExtraLoadClassActionInTerm(formData: FormData): Promise<Act
   const notes = String(formData.get("notes") ?? "").trim() || null;
   const source = await getExtraLoadData();
   const group = source.groups.find((row) => row.id === teachingGroupId);
-  const assignedCredits = source.loads.get(teacherId) ?? 0;
+  const assignedWorkloadUnits = source.loads.get(teacherId) ?? 0;
   if (!Number.isInteger(teacherId) || !group || !group.teacherIds.includes(teacherId)) {
     return { ok: false, message: "Choose a course assigned to that teacher." };
   }
-  if (!isExtraLoadEligible(assignedCredits, source.policy.extraLoadThresholdCredits)) {
-    return { ok: false, message: `Extra load starts above ${source.policy.extraLoadThresholdCredits} credits; this teacher currently has ${assignedCredits.toFixed(1)}.` };
+  if (!isExtraLoadEligible(assignedWorkloadUnits, source.policy.extraLoadThresholdCredits)) {
+    return { ok: false, message: `Extra load starts above ${source.policy.extraLoadThresholdCredits} workload credit-hours; this teacher currently has ${formatWorkloadUnits(assignedWorkloadUnits)}.` };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(classDate) || classDate < source.data.term.startDate || classDate > source.data.term.endDate) {
     return { ok: false, message: `Choose a date within ${source.data.term.name}.` };
