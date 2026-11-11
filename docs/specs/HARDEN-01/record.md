@@ -30,4 +30,17 @@ F-01 late-enrolment rule (Q-5), F-02 eligibility basis (Q-2), F-03 student ident
 
 ## Verification
 
-Recorded at the end of this file when the work is done. `test:safety` and the browser suites need owned disposable databases and are **pending**, not passed, unless stated otherwise below.
+Implementation `831a943` on `codex/harden-01`, 11 November 2026. **Status: implemented for owner inspection; acceptance and local merge pending.**
+
+| Check | Result |
+|---|---|
+| `npm run typecheck`, `npm run lint` | Pass |
+| `npm run test:domain` | Pass, including new workload-credit and CSV-cell assertions in `scripts/verify-domain.ts` (AC-01, AC-02) |
+| `npm run build` (default; banner "Next.js 16.3.4 (Turbopack)") | Pass, exit 0 |
+| Focused `test:safety` groups on owned disposable PGlite targets: BUG-28 active terms, SET-01A workspace, T-04 audit atomicity, BUG-27 blocked deletes, BAT-01B rollover, BAT-01A records, T-03 two-term history | All 7 pass; each run reports the default PGlite directory metadata unchanged |
+| PostgreSQL safety groups, remaining PGlite groups, browser/print suites | **Pending — not run** |
+
+Limits of this evidence: AC-03 to AC-08 have no new dedicated test; they are covered by typecheck, reading and the existing action scenarios above continuing to pass. The new domain assertions were not first run against the old code. No screen was inspected in a browser; the only visible changes are refusal messages for invalid input.
+
+Behaviour changes an inspector may notice: an active-term policy value with more than one decimal place (two for the rate) is now refused instead of rounded; a workload row whose course record is missing shows 0 catalog credits instead of a guessed 3.
+
