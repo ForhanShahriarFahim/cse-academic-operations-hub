@@ -17,7 +17,7 @@ const databaseUrl = target.mode === "postgresql" ? target.url : undefined;
 
 const globalForDb = globalThis as typeof globalThis & {
   __pundraPostgresqlPool?: Pool;
-  __pundraPglite?: PGlite;
+  __pundraPgliteRuntime?: { directory: string; client: PGlite };
 };
 
 export const databaseMode = databaseUrl ? "postgresql" : "pglite";
@@ -43,11 +43,18 @@ if (databaseUrl) {
   const dataDirectory = isBuild
     ? "memory://"
     : (target as Extract<typeof target, { mode: "pglite" }>).directory;
-  if (!isBuild && !dataDirectory.startsWith("memory://")) mkdirSync(path.dirname(dataDirectory), { recursive: true });
-  const client = globalForDb.__pundraPglite ?? new PGlite(dataDirectory);
+  // Next can compile this bootstrap into multiple server modules. Embedded
+  // clients must share one live store in production too, before readiness awaits.
+  // Build workers must neither consume nor replace that runtime client.
+  const cached = isBuild ? undefined : globalForDb.__pundraPgliteRuntime;
+  if (cached && cached.directory !== dataDirectory) {
+    throw new Error("PGlite target changed; restart the process before selecting another database.");
+  }
+  if (!cached && !isBuild && !dataDirectory.startsWith("memory://")) mkdirSync(path.dirname(dataDirectory), { recursive: true });
+  const client = cached?.client ?? new PGlite(dataDirectory);
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForDb.__pundraPglite = client;
+  if (!isBuild && !cached) {
+    globalForDb.__pundraPgliteRuntime = { directory: dataDirectory, client };
   }
 
   database = drizzlePglite(client, { schema }) as unknown as NodePgDatabase<typeof schema>;

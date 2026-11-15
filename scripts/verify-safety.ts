@@ -29,6 +29,7 @@ import { checkBatches, checkBatchesPostgres } from "./safety/batch.check";
 import { checkPublications, checkPublicationsPostgres } from "./safety/publication.check";
 import { checkAttendance, checkAttendancePostgres } from "./safety/attendance.check";
 import { checkLoadBasis, checkLoadBasisPostgres } from "./safety/load-basis.check";
+import { checkPgliteLifetime } from "./safety/pglite-lifetime.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -52,6 +53,7 @@ async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
+    ["BUG-PGLITE-LIFETIME bootstrap", checkPgliteLifetime],
     ["BUG-LOAD-BASIS eligibility (PGlite)", () => checkLoadBasis()],
     ["BUG-LOAD-BASIS eligibility (PostgreSQL)", () => checkLoadBasisPostgres(process.env.SAFE01_PG_BIN), true],
     ["BUG-ATT-MARKS attendance (PGlite)", () => checkAttendance()],
