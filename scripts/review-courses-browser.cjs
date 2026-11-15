@@ -1,0 +1,62 @@
+/* global axe */
+/** Guarded synthetic production QA, launched only by review-courses.ts --check. */
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { chromium } = require('playwright');
+const { Client } = require('pg');
+(async () => {
+  const target = new URL(process.env.DATABASE_URL); assert.ok(['127.0.0.1', 'localhost'].includes(target.hostname)); assert.equal(target.pathname, '/safe01_crs01a_browser');
+  const client = new Client({ connectionString: process.env.DATABASE_URL }); await client.connect();
+  const browser = await chromium.launch({ channel: 'msedge', headless: true }), context = await browser.newContext(), page = await context.newPage();
+  const base = 'http://localhost:3126', control = 'http://localhost:3127', out = 'output/playwright/CRS-01A/runtime'; fs.mkdirSync(out, { recursive: true });
+  const captures = [], errors = [], checks = [], hash = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex'); page.on('pageerror', error => errors.push(String(error)));
+  const before = {}; for (const table of ['schedule_versions', 'attendance_sessions', 'attendance_records', 'workload_allocations', 'extra_load_classes']) before[table] = hash((await client.query(`select * from ${table} order by id`)).rows);
+  const term = (await client.query("select * from academic_terms where status='active'")).rows[0], version = (await client.query('select * from schedule_versions order by id limit 1')).rows[0];
+  const archive = `${base}/terms/${term.id}/publications/${version.id}`;
+  async function capture(name) {
+    for (const width of [1440, 390, 320]) {
+      await page.setViewportSize({ width, height: 1000 }); await page.evaluate(() => document.fonts.ready); await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+      const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })));
+      assert.deepEqual(violations, [], `${name} accessibility ${width}`); const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth); assert.equal(overflow, false, `${name} overflow ${width}`);
+      await page.screenshot({ path: `${out}/${name}-${width}.png`, fullPage: true }); captures.push({ name, width, overflow, violations });
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 });
+  }
+  async function navigate(route) { await page.goto(base + route); await page.locator('main h1').waitFor(); }
+  async function submit(name = 'Save changes') { await page.getByRole('button', { name, exact: true }).click(); }
+  async function lifecycle(code, command) { await page.getByLabel('Reason (required)', { exact: true }).fill('Synthetic browser lifecycle review'); await page.getByLabel(`Type ${code} to confirm`, { exact: true }).fill(code); await page.getByLabel('I reviewed this course and its current all-term impact.', { exact: true }).check(); await submit(command); }
+  try {
+    await page.goto(control + '/sign-in'); await page.getByRole('heading', { name: 'Courses & offerings', exact: true }).waitFor(); await capture('catalog');
+    const used = (await client.query("select * from courses where code='SYN-4101'")).rows[0];
+    const csv = await page.request.get(archive + '/export'); assert.ok(csv.ok()); const csvBefore = await csv.body();
+    for (const kind of ['official', 'teachers']) { await page.goto(archive + '/' + kind); await page.locator('main h1').waitFor(); await page.evaluate(() => document.fonts.ready); await page.pdf({ path: `${out}/before-${kind}.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true }); }
+    await navigate('/courses'); await page.pdf({ path: `${out}/catalog-before.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true });
+    await page.getByRole('link', { name: 'Add course', exact: true }).click(); await page.getByRole('heading', { name: 'Add course', exact: true }).waitFor(); await capture('add');
+    await submit('Add course'); await page.getByText('Check the highlighted fields.', { exact: true }).waitFor(); await capture('validation');
+    await page.getByLabel('Code', { exact: true }).fill('UI 4000(a)'); await page.getByLabel('Title', { exact: true }).fill('Synthetic browser sessional'); await page.getByLabel('Academic credits', { exact: true }).fill('1'); await page.getByLabel('Type', { exact: true }).selectOption('sessional'); await page.getByLabel('Owning department', { exact: true }).selectOption('unknown'); await page.getByLabel('Curriculum semester', { exact: true }).selectOption('4'); await page.getByLabel('Specialist requirement', { exact: true }).selectOption('computer');
+    await client.query('begin'); await client.query('select id from term_context for update'); const pending = submit('Add course'); await page.getByRole('button', { name: 'Saving…', exact: true }).waitFor(); await capture('pending'); await client.query('commit'); await pending;
+    await page.getByRole('heading', { name: 'UI-4000(A)', exact: true }).waitFor(); await page.getByText('Course added. No term offering or teaching group has been created.', { exact: true }).waitFor(); await capture('created');
+    const created = (await client.query("select * from courses where code='UI-4000(A)'")).rows[0]; assert.equal(created.credits, '1.0'); assert.equal(created.needs_lab, true); assert.equal((await client.query('select * from course_offerings where course_id=$1', [created.id])).rowCount, 0);
+    await page.getByRole('link', { name: 'Edit course', exact: true }).click(); await page.getByLabel('Academic credits', { exact: true }).fill('2'); await page.getByLabel('Title', { exact: true }).fill('W'.repeat(200)); await page.getByLabel('Administrative reason (required)', { exact: true }).fill('Synthetic unused credit correction'); await capture('unused-edit'); await submit(); await page.getByRole('heading', { name: 'UI-4000(A)', exact: true }).waitFor(); await capture('long-title-detail'); await navigate('/courses?status=all'); await capture('long-title-catalog'); await navigate(`/courses/${created.id}`);
+    // Two rendered editors, then the first one's stale save.
+    await page.getByRole('link', { name: 'Edit course', exact: true }).click(); const other = await context.newPage(); await other.goto(base + `/courses/${created.id}/edit`); await other.getByLabel('Title', { exact: true }).fill('Synthetic competing editor'); await other.getByLabel('Administrative reason (required)', { exact: true }).fill('Synthetic newer edit'); await other.getByRole('button', { name: 'Save changes', exact: true }).click(); await other.getByRole('heading', { name: 'UI-4000(A)', exact: true }).waitFor(); await other.close();
+    await page.getByLabel('Title', { exact: true }).fill('Preserved stale title input'); await page.getByLabel('Administrative reason (required)', { exact: true }).fill('Synthetic stale attempt'); await submit(); await page.getByText('Someone else changed this course. Review the latest values before saving.', { exact: true }).waitFor(); assert.equal(await page.getByLabel('Title', { exact: true }).inputValue(), 'Preserved stale title input'); await capture('stale');
+    page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', { name: 'Reload latest', exact: true }).click(); await page.getByLabel('Title', { exact: true }).waitFor(); assert.equal(await page.getByLabel('Title', { exact: true }).inputValue(), 'Synthetic competing editor');
+    await navigate(`/courses/${created.id}`); await lifecycle('UI-4000(A)', 'Deactivate course'); await page.getByText('Course deactivated. All history and references are retained.', { exact: true }).waitFor(); await capture('inactive'); await lifecycle('UI-4000(A)', 'Reactivate course'); await page.getByText('Course reactivated. No offering or group was created.', { exact: true }).waitFor(); await capture('reactivated');
+    await navigate(`/courses/${used.id}/edit`); assert.equal(await page.getByLabel('Code · Read-only', { exact: true }).isDisabled(), true); await page.getByLabel('Title', { exact: true }).fill('Synthetic corrected live theory'); await page.getByLabel('Administrative reason (required)', { exact: true }).fill('Synthetic acknowledged title correction'); await submit(); await page.getByLabel('Apply this title correction to live records.', { exact: false }).waitFor(); await capture('title-impact'); await page.getByLabel('Apply this title correction to live records.', { exact: false }).check(); await submit(); await page.getByRole('heading', { name: 'SYN-4101', exact: true }).waitFor(); await capture('used-detail');
+    await lifecycle('SYN-4101', 'Deactivate course'); await page.getByText('Unresolved teaching/planning use or unsupported snapshot evidence prevents deactivation.', { exact: true }).waitFor(); await capture('blocked-deactivation');
+    await page.getByRole('link', { name: 'Change history', exact: true }).click(); await page.getByRole('heading', { name: 'SYN-4101 · Change history', exact: true }).waitFor(); await page.getByText('Synthetic acknowledged title correction', { exact: false }).waitFor(); await capture('history');
+    await navigate('/courses?q=no-matching-code&status=all'); await capture('filter-empty'); await navigate('/courses?status=all'); await capture('all-status'); await page.pdf({ path: `${out}/catalog-after.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true });
+    // Real keyboard traversal from the search input to Apply filters.
+    await page.getByLabel('Search code or title', { exact: true }).focus(); await page.keyboard.press('Tab'); assert.equal(await page.locator(':focus').getAttribute('id'), 'course-status'); await page.keyboard.press('Tab'); assert.equal(await page.locator(':focus').innerText(), 'Apply filters'); checks.push('Keyboard search → status → apply focus path passes.');
+    const afterCsv = await page.request.get(archive + '/export'); assert.ok(afterCsv.ok()); assert.ok(csvBefore.equals(await afterCsv.body()));
+    for (const kind of ['official', 'teachers']) { await page.goto(archive + '/' + kind); await page.locator('main h1').waitFor(); await page.evaluate(() => document.fonts.ready); await page.pdf({ path: `${out}/after-${kind}.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true }); }
+    for (const [table, fp] of Object.entries(before)) assert.equal(hash((await client.query(`select * from ${table} order by id`)).rows), fp, table);
+    await page.request.post(control + '/mode/none'); await navigate('/courses'); await page.getByText('Select an active academic term to see scheduling completeness.', { exact: false }).waitFor(); await capture('no-active-term'); await page.request.post(control + '/mode/one');
+    await page.goto(control + '/viewer'); await page.getByRole('heading', { name: 'Courses & offerings', exact: true }).waitFor(); assert.equal(await page.getByRole('link', { name: 'Add course', exact: true }).count(), 0); await capture('viewer'); await navigate(`/courses/${used.id}`); assert.equal(await page.getByRole('heading', { name: 'Recorded use', exact: true }).count(), 0); assert.equal(await page.getByRole('link', { name: 'Edit course', exact: true }).count(), 0); await capture('viewer-detail'); await navigate(`/courses/${used.id}/edit`); assert.ok(page.url().endsWith('/forbidden')); await capture('denied'); await navigate(`/courses/${used.id}/history`); assert.ok(page.url().endsWith('/forbidden'));
+    assert.deepEqual(errors, []); checks.push('Real HTTP/action create, error/pending/stale input preservation, unused edit, lifecycle, used-title acknowledgement, history, empty/filter/no-term/viewer/denied states pass. All snapshots, attendance, allocations and claims unchanged; archived CSV byte-identical; native A4 before/after captured.');
+    fs.writeFileSync(`${out}/review.json`, JSON.stringify({ captures, checks, errors }, null, 2)); console.log(JSON.stringify({ captures: captures.length, checks, errors }));
+  } catch (error) { fs.writeFileSync(`${out}/failure.txt`, await page.locator('body').innerText()); await page.screenshot({ path: `${out}/failure.png`, fullPage: true }); throw error; }
+  finally { await client.query('rollback').catch(() => {}); await browser.close(); await client.end(); }
+})().catch(error => { console.error(error); process.exit(1); });

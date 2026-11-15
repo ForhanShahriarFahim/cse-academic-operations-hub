@@ -76,10 +76,11 @@ export async function readRoomReferences(reader: RoomReader, roomId: number): Pr
 
 /** Caller already holds ALL involved room locks. Re-read course/audience and current rooms. */
 export async function validateRoomAssignment(tx: RoomTransaction, groupId: number, roomIds: number[]) {
-  const [group] = await tx.select({ courseType: courses.courseType, requiredRoomCapability: courses.requiredRoomCapability })
+  const [group] = await tx.select({ courseType: courses.courseType, requiredRoomCapability: courses.requiredRoomCapability, courseActive: courses.isActive })
     .from(teachingGroups).innerJoin(courses, eq(courses.id, teachingGroups.courseId)).where(eq(teachingGroups.id, groupId));
   const evidence = (await groupEvidence(tx, [groupId])).get(groupId);
   if (!group || !evidence) throw new RoomAssignmentChanged(["Teaching group no longer exists"]);
+  if (!group.courseActive) throw new RoomAssignmentChanged(["The course is inactive. Reactivate it before new teaching assignments."]);
   if(!evidence.audienceSelectable)throw new RoomAssignmentChanged(["A cohort is inactive, graduated or has an unsupported status. Reactivate or restore it before new teaching assignments."]);
   const current = roomIds.length ? await tx.select().from(rooms).where(inArray(rooms.id, roomIds)) : [];
   if (!roomIds.length || new Set(roomIds).size !== current.length || current.some((room) => !room.isActive)) throw new RoomAssignmentChanged(["A selected room is unavailable"]);

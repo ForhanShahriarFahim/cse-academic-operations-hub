@@ -7,7 +7,7 @@ Inspection/checks: [verification.md](verification.md). Design: [mockups/index.ht
 
 ## Problem and inspected baseline
 
-Inspected clean local `main` at `bc25757`, after accepted BUG-PGLITE-LIFETIME merge `57be6ea`. Work uses `codex/crs-01a`, one writer/checkout. This is a proposal; the owner requested inspection/specification, not implementation. No institutional database was opened, queried or counted. Last remote reconciliation remains 11 November; no remote request was needed.
+Inspected clean local `main` at `bc25757`, after accepted BUG-PGLITE-LIFETIME merge `57be6ea`. Work uses `codex/crs-01a`, one writer/checkout. The inspection preceded implementation approval; the owner approved the unchanged scope/design and D-1–D-6 on 15 November (approval checkpoint `50acb88`). No institutional database was opened, queried or counted. Last remote reconciliation remains 11 November; no remote request was needed.
 
 | Evidence | Actual behavior / implication |
 | --- | --- |
@@ -30,9 +30,9 @@ Included: global catalog directory, create/detail/edit/history routes, lifecycle
 
 Excluded: offering creation/edit/cancellation/cloning (CRS-01B), group/audience/teacher/workload/coverage construction (CRS-01C), retrospective academic corrections, course versions/effective dates, automatic replacement/supersession or code reuse, permanent deletion, bulk import/export, curriculum/programme redesign, policy conversion controls, source reclassification, broader loader performance work (PERF-01), print redesign, institutional operations, dependency/bundler/runtime changes and remote synchronization. New courses intentionally have no offering, group, allocation, coverage requirement or meeting; say so after creation.
 
-## Decisions proposed for owner approval
+## Owner-approved decisions
 
-All six decisions remain **proposed**. Approval must cover these tradeoffs, particularly D-2's live historical title behavior and D-3's restriction on academic changes.
+All six decisions were **approved on 15 November 2026**; the actual owner message and scope are recorded in [plan.md](plan.md), committed at `50acb88` before implementation. D-2 intentionally changes live historical titles; D-3 freezes used academic facts.
 
 | ID | Concrete recommendation | Boundary / consequence |
 | --- | --- | --- |
@@ -111,4 +111,4 @@ Title edits intentionally alter live label projections; they must not alter stor
 
 ## Sources and unresolved authority
 
-[Requirements §11](../../PRODUCT_REQUIREMENTS.md#11-course-catalog-offerings-and-completeness), [glossary](../../../CONTEXT.md), [ADR-001](../../architecture/ADR-001-academic-operations-boundaries.md), [local sequence](../../plans/LOCAL_DELIVERY_2026-10-26.md) and accepted [BUG-LOAD-BASIS](../BUG-LOAD-BASIS/spec.md) define boundaries. D-1–D-6 above require actual owner approval. Source corrections/classification, policy authority and curriculum versioning remain unresolved/deferred; no answer is invented from a parser or old summary. If the owner requests changing a used course's academic facts or freezing every old working title, amend this proposal before implementation.
+[Requirements §11](../../PRODUCT_REQUIREMENTS.md#11-course-catalog-offerings-and-completeness), [glossary](../../../CONTEXT.md), [ADR-001](../../architecture/ADR-001-academic-operations-boundaries.md), [local sequence](../../plans/LOCAL_DELIVERY_2026-10-26.md) and accepted [BUG-LOAD-BASIS](../BUG-LOAD-BASIS/spec.md) define boundaries. D-1–D-6 above have actual owner approval recorded in the plan; material amendments still require a decision. Source corrections/classification, policy authority and curriculum versioning remain unresolved/deferred; no answer is invented from a parser or old summary. If the owner requests changing a used course's academic facts or freezing every old working title, amend this proposal before implementation.

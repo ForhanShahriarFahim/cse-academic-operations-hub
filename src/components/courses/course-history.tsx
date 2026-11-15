@@ -1,0 +1,15 @@
+"use client";
+import { useState, useTransition } from "react";
+import { loadCourseChangesAction } from "@/lib/course-actions";
+import type { CourseChange } from "@/lib/course-data";
+import { COURSE_LABELS, type CourseField } from "@/lib/course-records";
+import { fmtInstant } from "@/lib/auth/display";
+import { CourseEvidence } from "./course-evidence";
+import { buttonClass } from "@/components/account/styles";
+export function CourseHistory({ id, initial }: { id: number; initial: { changes: CourseChange[]; next: number | null } }) {
+  const [page, setPage] = useState(initial), [error, setError] = useState("");
+  const [pending, start] = useTransition();
+  const value = (field: string, v: unknown) => v == null ? "Unknown / none" : typeof v === "boolean" ? field === "isActive" ? v ? "Active" : "Inactive" : v ? "Yes" : "No" : String(v);
+  const labels: Record<string, string> = { "course.create": "Course added", "course.update": "Course edited", "course.deactivate": "Course deactivated", "course.reactivate": "Course reactivated" };
+  return <section className="ruled min-w-0 rounded-lg p-4" aria-label="Catalog changes"><h2 className="font-display text-lg font-semibold">Catalog changes</h2><ol className="mt-3 grid gap-4">{page.changes.map(event => <li key={event.id} className="min-w-0 border-t border-[var(--color-line)] pt-3 text-sm"><p className="break-words"><strong>{labels[event.action] ?? event.action}</strong> · {fmtInstant(event.at)} · {event.actor}</p><dl className="mt-2 grid gap-2">{Object.keys(event.after ?? {}).map(field => <div key={field} className="grid min-w-0 gap-1 break-words md:grid-cols-[160px_minmax(0,1fr)]"><dt className="font-semibold">{COURSE_LABELS[field as CourseField] ?? (field === "isActive" ? "Status" : field)}</dt><dd>{event.before ? `${value(field, event.before[field])} → ` : ""}{value(field, event.after?.[field])}</dd></div>)}</dl>{event.reason && <p className="mt-2 break-words">Reason: {event.reason}</p>}{event.acknowledgedImpact && <details className="mt-2"><summary className="cursor-pointer">Acknowledged all-term impact</summary><CourseEvidence evidence={event.acknowledgedImpact} /></details>}</li>)}</ol>{!page.changes.length && <p className="mt-3 text-sm">No catalog-management changes are recorded. Imported records have no fabricated baseline event.</p>}{!page.next && page.changes.length > 0 && !page.changes.some(event => event.action === "course.create") && <p className="mt-3 text-sm text-muted">Earlier catalog changes were not recorded.</p>}{error && <p role="alert" className="mt-3 text-sm">{error}</p>}{page.next && <button className={`${buttonClass.secondary} mt-4`} type="button" disabled={pending} onClick={() => start(async () => { try { const older = await loadCourseChangesAction(id, page.next!); setPage(current => ({ changes: [...current.changes, ...older.changes], next: older.next })); setError(""); } catch { setError("Changes could not be loaded. Reload to check your access."); } })}>{pending ? "Loading…" : "Load older"}</button>}</section>;
+}
