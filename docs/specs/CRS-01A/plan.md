@@ -1,7 +1,7 @@
 # CRS-01A — Implementation plan and sole checklist
 
 Parent: CRS-01 / #7. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md). Sketches: [mockups/index.html](mockups/index.html).
-Status: **Inspection/specification prepared; implementation approval pending.**
+Status: **Owner approved; implementation in progress.**
 Branch / base: `codex/crs-01a` / `bc2575785e39ceab0e65c01bd3335b3465283128`.
 Updated: 15 November 2026, Asia/Dhaka.
 
@@ -25,7 +25,7 @@ Lock order: standalone catalog write → exclusive singleton context → course 
 ## Approval record
 
 - Owner instruction on 15 November: **“CRS-01A catalog inspection and specification”.** This authorizes the inspection/proposal and review sketches only.
-- Implementation authorization: **Pending.** No owner approval of D-1–D-6 has been received.
+- Implementation authorization: **Approved, 15 November 2026 (Asia/Dhaka).** Owner replied **“approved.”** after the review summary linked this specification and sketches, identified D-1–D-6 and highlighted live historical title correction and frozen used academic fields. This approves the unchanged catalog-only scope, six decisions, design, implementation and verification plan; delivery acceptance remains separate.
 - Proposed approval package: this plan, [specification](spec.md), all six decisions and [sketches](mockups/index.html), particularly live historical title correction versus frozen academic facts.
 - Record the actual owner message/date/scope and commit the approved plan **before** implementing. A draft checkpoint is not approval. Approval of unchanged scope persists across handoffs.
 - Material amendments: none; do not infer missing institutional classifications or a build exception from silence.
@@ -33,7 +33,7 @@ Lock order: standalone catalog write → exclusive singleton context → course 
 ## Tasks — one checklist
 
 - [x] T-01 — Inspect clean base, current handoff, requirements/source/code/installed Next guides; define bounded specification, permission/history/credit/lifecycle decisions and responsive sketches. Documentation checks are recorded in verification.
-- [ ] T-02 — Obtain actual D-1–D-6/scope/design approval; record it and commit approved plan before implementation. No feature work before this gate.
+- [x] T-02 — Obtain actual D-1–D-6/scope/design approval; record it and commit approved plan before implementation. Owner approval recorded above; approval checkpoint precedes feature work.
 - [ ] T-03 — Implement pure rules, revision migration, injected evidence/transactions, capability and atomic audits; verify legacy preservation and both adapter migration/recovery paths. AC-01, AC-03–07.
 - [ ] T-04 — Implement global directory/create/detail/edit/history/lifecycle and narrowly necessary serialized status/assignment integrations. AC-01–05, AC-08–09.
 - [ ] T-05 — Run focused server/action/adapter/race/history regressions, required typecheck/lint/domain/default build; guarded synthetic production desktop/mobile/keyboard/axe and applicable CSV/A4 parity. Correct findings and record evidence/limits. AC-01–10.
@@ -52,8 +52,8 @@ No institutional migration or backup operation, reset, additional worktree/write
 ## Current checkpoint / exact handoff
 
 - Inspection started from clean `main` at `bc25757`; accepted BUG-PGLITE-LIFETIME is in its ancestry. Current branch is `codex/crs-01a`.
-- T-01 is complete; T-02 is next. Only issue docs/static mockups/captures and the two current-work pointers change. No implementation, database operation, schema/source/seed/dependency change or remote request.
+- T-01 and T-02 are complete. Owner approved the unchanged package on 15 November; T-03 implementation is next after committing this approval record. No institutional operation or remote request is authorized.
 - Evidence: [verification.md](verification.md). Actual checkpoint hash comes from Git; inspect status/log on resume instead of treating a document as a clean-tree assertion.
-- Next action: owner reviews proposal and D-1–D-6. **Do not implement until actual approval has been recorded and committed.** If amended, revise the concrete package first.
+- Next action: implement T-03–T-05 after committing approval, then present T-06 delivery for owner inspection/acceptance. Return material amendments for a decision.
 
 Next-session prompt: “Resume CRS-01A / #7 on codex/crs-01a, base bc25757. Read current brief/workflow and docs/specs/CRS-01A/{spec,plan,verification}.md plus static sketches. Inspect actual Git state. The 15 November owner instruction authorized inspection/specification only; check for actual subsequent D-1–D-6 approval and commit it before feature code. Proposed scope: global catalog create/edit/deactivate/reactivate/history; academic credits distinct from workload; used academic fields/code frozen; acknowledged title correction changes live old-term views but never captured publication/claim labels; unresolved teaching use blocks deactivation. No deletion, offering/group wizard, academic versioning or reclassification. Reuse T-01 evidence, keep one checklist/writer/checkout and preserve institutional storage. After implementation verify both adapters/races/history, required checks and synthetic desktop/mobile/A4, disclose default Turbopack status separately from Webpack preview, obtain acceptance before local merge. No remote sync, migration 0017, automatic CRS-01B or separate build investigation.”
