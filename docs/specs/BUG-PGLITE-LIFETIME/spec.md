@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and next-session handoff.
 
-Status: **accepted by the owner; local merge pending. AC-06 remains partial under the disclosed default-build limitation.**
+Status: **accepted and merged into local `main` at `57be6ea` on 15 November 2026. AC-06 remains partial under the accepted default-build limitation.**
 Updated: 15 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-pglite-lifetime` from clean local `main` `575b830`; one checkout/writer.
 Source: [BUG-LOAD-BASIS runtime finding](../BUG-LOAD-BASIS/spec.md#implementation-verification--11-november-2026). Local bug identifier; no GitHub issue created or remote query made.
@@ -74,7 +74,7 @@ No print projection/template changes are proposed, so a full print capture suite
 - [x] T-02 — Obtain actual owner approval of this concrete scope, record it here and commit the approved plan before application changes.
 - [x] T-03 — Add a permanent guarded duplicated-bootstrap/build-isolation regression; establish red baseline, then implement runtime reuse/identity guard and green checks. Covers AC-01–03.
 - [x] T-04 — Run required/focused checks and ordinary compiled production persistence/restart verification; fix in-scope findings and record criterion evidence/limits. Covers AC-04–07; AC-06 remains partial with the default-build failure disclosed below.
-- [x] T-05 — Review/commit the bounded delivery, provide a runnable owner inspection path and obtain acceptance. Owner accepted delivery `7c8f064` on 15 November; local merge pending. Leave CRS-01A for the next owner-started session.
+- [x] T-05 — Review/commit the bounded delivery, provide a runnable owner inspection path and obtain acceptance. Owner accepted delivery `7c8f064` on 15 November; acceptance `4f563c0` precedes local merge `57be6ea`. Leave CRS-01A for the next owner-started session.
 
 ## Verification and exact handoff
 
@@ -104,12 +104,16 @@ Captures: [first save after reload](../../../output/playwright/BUG-PGLITE-LIFETI
 
 ## Owner inspection and exact handoff
 
-- Branch `codex/bug-pglite-lifetime`, base `575b830`; plan `c13c4ed`, actual approval `4a8067d` before code. Delivery commit contains this record, bootstrap/test changes and synthetic captures. Inspect actual Git/status on resume. No push, PR, GitHub issue update, institutional operation, acceptance or merge.
+- Retained branch `codex/bug-pglite-lifetime`, base `575b830`; plan `c13c4ed`, actual approval `4a8067d` before implementation/delivery `7c8f064`. Acceptance `4f563c0` precedes local merge `57be6ea`; checkout is now local `main`. Inspect actual Git/status on resume. No push, PR, GitHub issue update or institutional operation.
 - Open the already signed-in isolated Edge review window at `http://localhost:3100/extra-load`. Synthetic Summer fixture retains its original 4 July class, plus the three new classes on 8/9/10 July. Settings show rate **203.75**. Existing manual override remains 4 classes/Tk 1,000; ledger total is 8 classes/Tk 1,815. This fixture is unrelated to institutional data.
 - Ignored launcher: `node node_modules/tsx/dist/cli.mjs .tmp/BUG-PGLITE-LIFETIME/start-review.ts`. It starts ordinary compiled Next on port 3100, guarded target `.tmp/ux-review/pglite-lifetime-preview`, no `--require` or client injection. Synthetic authentication state is in `.tmp/BUG-PGLITE-LIFETIME/browser-state.local.json`; keep it private/ignored. A different browser needs that synthetic state and will otherwise show sign-in. Do not run `npm start`/prestart against configured institutional storage for inspection.
 - Review scripts and persisted independent-read checker are in ignored `.tmp/BUG-PGLITE-LIFETIME`; permanent lifetime regression is `scripts/safety/pglite-lifetime.check.ts`, invoked with `node node_modules/tsx/dist/cli.mjs scripts/verify-safety.ts BUG-PGLITE-LIFETIME`. Do not run preparation/inspection clients while the preview owns its directory. Restart existing development processes when adopting the new runtime registry; the old BUG-LOAD-BASIS client preload is not supported or needed.
-- **Next action:** record acceptance before merging this bounded branch into local `main`; suggest CRS-01A inspection/specification for a new owner-started session. The Turbopack worker investigation remains separate unless selected. Migration `0017` remains a separate backed-up institutional operation.
+- **Next action:** no issue in implementation. Suggest CRS-01A inspection/specification for a new owner-started session; do not start it automatically. The Turbopack worker investigation remains separate unless selected. Migration `0017` remains a separate backed-up institutional operation.
 
 ## Owner acceptance — 15 November 2026
 
 The owner replied **“Accept.”** after delivery `7c8f064` was presented with the passing checks, synthetic preview/evidence and explicit default Turbopack CSS-worker build failure. Acceptance covers this bounded delivery and that disclosed limitation; AC-06 remains partial, and the passing Webpack build is separate evidence. This authorizes the workflow's local merge, not a bundler-policy change, next-package implementation, institutional operation or remote synchronization. Acceptance is committed before the merge. No source changes or new test uncertainty require repeating the recorded verification.
+
+Local merge receipt: acceptance `4f563c0`, merge `57be6ea` into `main` on 15 November. One checkout, retained issue branch, no conflicts or application changes at merge; no tests repeated. This documentation-only receipt updates the current pointer and delivery sequence; links/content/whitespace and preservation of older handoffs are checked. Remote synchronization and institutional migration remain separate.
+
+Suggested next-session prompt: “Inspect and specify CRS-01A / #7 catalog create/edit/lifecycle/history from current local main. Read the current handoff and relevant installed Next documentation; use one branch/checkout, preserve historical labels and existing offering impact, prepare one bounded specification/plan and applicable desktop/mobile sketches, then obtain actual approval before implementation. Do not open institutional storage or synchronize remotely. Keep the accepted Turbopack build limitation explicit and its investigation separate.”
