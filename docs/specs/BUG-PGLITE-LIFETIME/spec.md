@@ -2,7 +2,7 @@
 
 Combined specification, sole checklist, verification and next-session handoff.
 
-Status: **implemented and verified; ready for owner inspection/acceptance. AC-06 is partial because the default Turbopack build fails.**
+Status: **accepted by the owner; local merge pending. AC-06 remains partial under the disclosed default-build limitation.**
 Updated: 15 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-pglite-lifetime` from clean local `main` `575b830`; one checkout/writer.
 Source: [BUG-LOAD-BASIS runtime finding](../BUG-LOAD-BASIS/spec.md#implementation-verification--11-november-2026). Local bug identifier; no GitHub issue created or remote query made.
@@ -74,7 +74,7 @@ No print projection/template changes are proposed, so a full print capture suite
 - [x] T-02 — Obtain actual owner approval of this concrete scope, record it here and commit the approved plan before application changes.
 - [x] T-03 — Add a permanent guarded duplicated-bootstrap/build-isolation regression; establish red baseline, then implement runtime reuse/identity guard and green checks. Covers AC-01–03.
 - [x] T-04 — Run required/focused checks and ordinary compiled production persistence/restart verification; fix in-scope findings and record criterion evidence/limits. Covers AC-04–07; AC-06 remains partial with the default-build failure disclosed below.
-- [x] T-05 — Review/commit the bounded delivery, provide a runnable owner inspection path and request acceptance. **Acceptance/local merge remain pending**; leave CRS-01A for the next owner-started session.
+- [x] T-05 — Review/commit the bounded delivery, provide a runnable owner inspection path and obtain acceptance. Owner accepted delivery `7c8f064` on 15 November; local merge pending. Leave CRS-01A for the next owner-started session.
 
 ## Verification and exact handoff
 
@@ -108,4 +108,8 @@ Captures: [first save after reload](../../../output/playwright/BUG-PGLITE-LIFETI
 - Open the already signed-in isolated Edge review window at `http://localhost:3100/extra-load`. Synthetic Summer fixture retains its original 4 July class, plus the three new classes on 8/9/10 July. Settings show rate **203.75**. Existing manual override remains 4 classes/Tk 1,000; ledger total is 8 classes/Tk 1,815. This fixture is unrelated to institutional data.
 - Ignored launcher: `node node_modules/tsx/dist/cli.mjs .tmp/BUG-PGLITE-LIFETIME/start-review.ts`. It starts ordinary compiled Next on port 3100, guarded target `.tmp/ux-review/pglite-lifetime-preview`, no `--require` or client injection. Synthetic authentication state is in `.tmp/BUG-PGLITE-LIFETIME/browser-state.local.json`; keep it private/ignored. A different browser needs that synthetic state and will otherwise show sign-in. Do not run `npm start`/prestart against configured institutional storage for inspection.
 - Review scripts and persisted independent-read checker are in ignored `.tmp/BUG-PGLITE-LIFETIME`; permanent lifetime regression is `scripts/safety/pglite-lifetime.check.ts`, invoked with `node node_modules/tsx/dist/cli.mjs scripts/verify-safety.ts BUG-PGLITE-LIFETIME`. Do not run preparation/inspection clients while the preview owns its directory. Restart existing development processes when adopting the new runtime registry; the old BUG-LOAD-BASIS client preload is not supported or needed.
-- **Next action:** owner inspection/acceptance, explicitly retaining the default-build limitation. Only after actual acceptance record it and merge this bounded branch into local `main`; suggest CRS-01A inspection/specification for a new owner-started session. The Turbopack worker investigation remains separate unless selected. Migration `0017` remains a separate backed-up institutional operation.
+- **Next action:** record acceptance before merging this bounded branch into local `main`; suggest CRS-01A inspection/specification for a new owner-started session. The Turbopack worker investigation remains separate unless selected. Migration `0017` remains a separate backed-up institutional operation.
+
+## Owner acceptance — 15 November 2026
+
+The owner replied **“Accept.”** after delivery `7c8f064` was presented with the passing checks, synthetic preview/evidence and explicit default Turbopack CSS-worker build failure. Acceptance covers this bounded delivery and that disclosed limitation; AC-06 remains partial, and the passing Webpack build is separate evidence. This authorizes the workflow's local merge, not a bundler-policy change, next-package implementation, institutional operation or remote synchronization. Acceptance is committed before the merge. No source changes or new test uncertainty require repeating the recorded verification.
