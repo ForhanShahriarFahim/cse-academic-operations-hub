@@ -1,0 +1,30 @@
+{
+  "issue": "BUG-PGLITE-LIFETIME",
+  "date": "2026-11-15",
+  "runtime": "Next.js 16.3.4, production Webpack build, local PGlite",
+  "syntheticDataOnly": true,
+  "clientPreload": false,
+  "databaseInjection": false,
+  "firstProcess": {
+    "newClassDates": ["2026-07-08", "2026-07-09"],
+    "policyRates": [201.25, 203.75],
+    "actionRefreshAndHardReload": "passed",
+    "routes": ["/extra-load", "/settings", "/extra-load", "/settings"]
+  },
+  "secondProcess": {
+    "oldClassDatesPreserved": ["2026-07-08", "2026-07-09"],
+    "policyRatePreserved": 203.75,
+    "newClassDateAfterRestart": "2026-07-10",
+    "newSaveAndHardReload": "passed",
+    "mobileViewport": [375, 900],
+    "pageOverflow": false
+  },
+  "independentReadAfterServerStopped": {
+    "notes": ["LIFETIME-first", "LIFETIME-second", "LIFETIME-after-restart"],
+    "dates": ["2026-07-08", "2026-07-09", "2026-07-10"],
+    "policyRate": 203.75,
+    "extraLoadCreateAudits": 3,
+    "policyUpdateAudits": 2
+  },
+  "limitation": "Default Turbopack CSS-worker build fails; passing Webpack runtime evidence is separate. Single local process ownership only."
+}
