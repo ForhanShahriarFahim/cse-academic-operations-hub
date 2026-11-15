@@ -2,14 +2,14 @@
 
 Combined specification, sole checklist, verification and next-session handoff.
 
-Status: **inspection/specification complete; implementation approval pending.**
+Status: **approved for implementation; verification and delivery acceptance pending.**
 Updated: 15 November 2026 (Asia/Dhaka).
 Branch/base: `codex/bug-pglite-lifetime` from clean local `main` `575b830`; one checkout/writer.
 Source: [BUG-LOAD-BASIS runtime finding](../BUG-LOAD-BASIS/spec.md#implementation-verification--11-november-2026). Local bug identifier; no GitHub issue created or remote query made.
 
 ## Authorization
 
-The owner's **“What is the next task? Go for it.”** on 15 November starts the inspection/specification explicitly suggested in the previous handoff. Under [AGENTS.md](../../../AGENTS.md) and the [workflow](../../WORKFLOW.md#issue-lifecycle), present this concrete package for actual implementation approval and commit that approval before bootstrap changes. This document is a proposal, not an approval receipt. Acceptance/local merge remain separate.
+The owner's **“What is the next task? Go for it.”** on 15 November started the inspection/specification explicitly suggested in the previous handoff. The owner then replied **“Approved.”** on 15 November 2026 to the concrete package committed at `c13c4ed`. This authorizes the unchanged scope and technical decisions below. This approval record is committed before implementation under [AGENTS.md](../../../AGENTS.md) and the [workflow](../../WORKFLOW.md#issue-lifecycle). Acceptance/local merge remain separate.
 
 ## Problem and inspected evidence
 
@@ -71,7 +71,7 @@ No print projection/template changes are proposed, so a full print capture suite
 ## Sole checklist and implementation sequence
 
 - [x] T-01 — Inspect clean local main, previous finding, bootstrap/target/environment and installed documentation; reproduce on disposable data; prepare this package.
-- [ ] T-02 — Obtain actual owner approval of this concrete scope, record it here and commit the approved plan before application changes.
+- [x] T-02 — Obtain actual owner approval of this concrete scope, record it here and commit the approved plan before application changes.
 - [ ] T-03 — Add a permanent guarded duplicated-bootstrap/build-isolation regression; establish red baseline, then implement runtime reuse/identity guard and green checks. Covers AC-01–03.
 - [ ] T-04 — Run required/focused checks and ordinary compiled production persistence/restart verification; fix in-scope findings and record criterion evidence/limits. Covers AC-04–07.
 - [ ] T-05 — Review/commit the bounded delivery, provide a runnable owner inspection path and request acceptance. Merge locally only after actual acceptance; leave CRS-01A for the next owner-started session.
@@ -80,4 +80,4 @@ No print projection/template changes are proposed, so a full print capture suite
 
 Planning checks: real-client diagnostic passes with production writer/read counts 1/0, development reuse and build memory isolation; institutional metadata unchanged. Documentation-only tracked changes; no app server/build/database-preparation command, institutional census, migration/reset or GitHub operation. Documentation links/whitespace/content and the planning diff are checked before committing. Application checks and HTTP/restart behavior remain pending implementation, not passed.
 
-Next action: present this proposal for approval. If approved unchanged, record the owner's actual message/date, commit that record on `codex/bug-pglite-lifetime`, then perform T-03 onward. Inspect Git/status before resuming; base `575b830`. The ignored diagnostic is supporting local evidence, not the permanent regression. Do not restart the old BUG-LOAD-BASIS shared-client harness as proof of this fix. Default Turbopack's earlier CSS-worker failure remains a separate known limitation until a new required run establishes its current result. No acceptance, local merge, institutional operation or remote sync has been authorized by this planning checkpoint.
+Next action: after committing this actual approval record on `codex/bug-pglite-lifetime`, perform T-03 onward autonomously. Inspect Git/status before resuming; base `575b830`, planning commit `c13c4ed`. The ignored diagnostic is supporting local evidence, not the permanent regression. Do not restart the old BUG-LOAD-BASIS shared-client harness as proof of this fix. Default Turbopack's earlier CSS-worker failure remains a separate known limitation until a new required run establishes its current result. No acceptance, local merge, institutional operation or remote sync has been authorized by implementation approval.
