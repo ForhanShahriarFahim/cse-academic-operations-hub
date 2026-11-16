@@ -53,6 +53,8 @@ Last remote reconciliation remains 11 November 2026. No remote synchronization i
 
 ## Current checkpoint / exact handoff
 
+- **Merge receipt, 16 November 2026:** acceptance `836f4fc` merged into local `main` at `2156fac` (`--no-ff`, branch `codex/perf-01` retained). No conflicts or source corrections; no tests repeated for the merge. No push/PR/issue update; parent #7 open. Next authorized step is CRS-01B inspection/specification only. The entries below are the pre-acceptance handoff, kept as history.
+
 - Branch `codex/perf-01`, base `d6e3cdb`, one writer/checkout. CRS-01A accepted/merged separately. Synthetic owner review is running at [control/sign-in](http://localhost:3127); [routine](http://localhost:3126/routine?stream=HSC&view=day&day=0&batch=all) after sign-in. No institutional target or remote operation.
 - T-01–T-05 complete; proposal `f254962`, actual approval `a8cb252` precedes baseline `8d28335` and implementation `e5a0e31`. Final evidence/helper checkpoint is the commit containing this handoff; actual hashes/status come from Git. T-06 owner delivery acceptance remains pending.
 - Next: owner inspects this committed delivery and explicitly accepts the remaining default-build failure if acceptable; record/commit actual acceptance before bounded local main merge. Separate Webpack build and compiled review pass. Do not request unchanged implementation approval again, silently accept the build failure or begin CRS-01B.
