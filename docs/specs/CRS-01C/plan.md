@@ -52,6 +52,8 @@ Delivery is local. Last remote reconciliation remains 11 November 2026.
 
 ## Current checkpoint / exact handoff
 
+- **17 November, session stopped at a usage limit (supersedes the bullets below).** Approved and implemented through T-05 code: capability, rules + domain test, store, loader/actions, pages/forms/history/links, CRS-01C safety groups (PGlite and PostgreSQL with lock races both PASS, including the schedule-handoff scenario added afterwards, re-run on PGlite only), typecheck, lint and default build pass. **Not finished:** `node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --check` fails on its second run at an assertion not yet read (first run reached the Routine builder step with no app defect found; see `output/playwright/CRS-01C/runtime/failure.png`). No captures recorded, AC-11 unverified, neighbouring safety groups (CRS-01B, CRS-01A, T-03, load-basis) not re-run, verification.md and the T-03 to T-06 checkboxes not updated, delivery not requested. Next: read the failing assertion, fix script or app, finish T-06/T-07.
+
 - Branch `codex/crs-01c`, base `3832d33`, one writer/checkout. Planning package only: specification, this plan, inspection record and six static sketches. No application, test, schema or dependency change.
 - Next: the owner reviews the sketches and approves or amends D-1–D-8. Record the actual approval and commit it; only then start T-03. Do not start CRS-01D.
 

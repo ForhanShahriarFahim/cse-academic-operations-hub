@@ -12,6 +12,7 @@ const s = loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
 const actions = loadApp<typeof import("../../../src/lib/class-group-actions")>("src/lib/class-group-actions.ts");
 const data = loadApp<typeof import("../../../src/lib/class-group-data")>("src/lib/class-group-data.ts");
 const portal = loadApp<typeof import("../../../src/lib/data")>("src/lib/data.ts");
+const routine = loadApp<typeof import("../../../src/lib/actions")>("src/lib/actions.ts");
 const context = loadApp<typeof import("../../../src/lib/term-context")>("src/lib/term-context.ts");
 const listPage = loadApp<typeof import("../../../src/app/(portal)/terms/[id]/groups/page")>("src/app/(portal)/terms/[id]/groups/page.tsx");
 const client = (db as unknown as { $client: import("../database").Queryable }).$client;
@@ -255,6 +256,15 @@ async function main() {
   const [empty] = await db.insert(s.academicTerms).values({ name: "Spring 2027", academicYear: 2027, startDate: "2027-03-01", endDate: "2027-06-30", status: "draft" }).returning();
   assert.ok((await html(empty.id)).includes("No offerings yet")); await assert.rejects(html(2147483000), /not-found/);
   lines.push("Server-rendered list page: editor sees class groups, states, the ungrouped offerings and actions; the active term shows merged classes, crediting and scheduling status; filters narrow rows; a view-only role reads the list with no create, open or history controls; completed terms render read-only; a term without offerings explains the missing step; an unknown term is not found.");
+  // AC-08 schedule handoff: the existing Routine action places a class for a group created here.
+  ok(await edit(fresh.id, summer.id, { teachers: [[sya.id, "2.50"]] }));
+  const captured = await context.captureActiveContext(), [room] = await db.select().from(s.rooms).where(eq(s.rooms.code, "SX-101"));
+  const placed = await routine.createMeetingAction(form({ teachingGroupId: fresh.id, dayOfWeek: 0, startTime: "10:30", endTime: "11:45", teacherIds: sya.id, roomIds: room.id, _activeTermId: captured.term.id, _termGeneration: captured.writeContext.generation }));
+  assert.equal(placed.ok, true, placed.message + JSON.stringify(placed.issues ?? []));
+  const scheduled = await groupOf(fresh.id, summer.id); assert.equal(scheduled.schedule, "partial"); assert.equal(scheduled.usage.meetings, 1); assert.deepEqual(scheduled.lockedTeacherIds, [sya.id]);
+  assert.equal((await portal.getPortalData()).coverage.find(row => row.teachingGroupId === fresh.id)!.status, "partial");
+  assert.equal(kind(await noWrite(() => edit(fresh.id, summer.id, { teachers: [] }))), "conflict"); assert.equal(kind(await noWrite(() => remove(fresh.id, summer.id))), "conflict");
+  lines.push("Schedule handoff: the existing Routine builder action places a class for a class group created here; the group then reports partial scheduling, and its teacher and the group itself can no longer be removed.");
   report({ lines });
 }
 main().then(() => process.exit(0)).catch(error => { console.error(error); process.exit(1); });
