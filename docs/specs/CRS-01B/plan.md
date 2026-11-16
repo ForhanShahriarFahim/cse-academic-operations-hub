@@ -1,7 +1,7 @@
 # CRS-01B — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md). Design: [mockups/index.html](mockups/index.html).
-Status: **Proposed; owner approval of scope, design and D-1–D-7 pending. No implementation approved.**
+Status: **Approved for implementation on 16 November 2026; implementation in progress.**
 Branch/base: `codex/crs-01b` / `f0c4d8c` (local `main`).
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -27,13 +27,13 @@ No schema, backfill or recovery operation is proposed. Read the installed Next.j
 ## Approval record
 
 - Owner on 16 November said “Go for the next task.” and, asked how to proceed, selected **“Accept, merge, plan CRS-01B”**. This accepted PERF-01 (`836f4fc`, merged `2156fac`, receipt `f0c4d8c`) and authorizes this inspection/specification package only.
-- **Implementation approval: pending.** Record the owner's actual words, date and any amendments to D-1–D-7 here, and commit that record before any application or test code.
+- **CRS-01B implementation approved, 16 November 2026 (Asia/Dhaka).** After proposal `935b309` presented the specification, D-1–D-7, AC-01–AC-10, sole checklist and mockups, the owner replied **“Approve and implement”** with no amendments. This authorizes the unchanged implementation and verification scope; delivery acceptance remains separate. This approval checkpoint precedes application/test implementation.
 - No remote issue update, push/PR, institutional operation, extra worktree/writer or CRS-01C authorized.
 
 ## Tasks — one checklist
 
 - [x] T-01 — Inspect post-PERF-01 base, requirements, issue #7, schema, seed, rollover, catalog and term seams. Write scope, D-1–D-7, acceptance criteria, this plan and static mockups. Planning-document checks are in verification.
-- [ ] T-02 — Obtain and record actual owner approval (or amendments); commit the approved plan before implementation.
+- [x] T-02 — Owner “Approve and implement” recorded on 16 November, no amendments; this approved plan is committed before application/test implementation.
 - [ ] T-03 — Capability, pure records module and domain tests for basis, proposal, comparison and parsing. Confirm lock modes of neighbouring writers. AC-03, part of AC-05.
 - [ ] T-04 — Store, actions and audit events for start / add / cancel / restore / remove; both-adapter safety groups, preservation fingerprints and real PostgreSQL races. AC-01, AC-04, AC-06, AC-07, AC-08.
 - [ ] T-05 — Pages, forms, history, links from term and courses pages; all states at 1440/390/320, keyboard and print. AC-02, AC-05, AC-09.

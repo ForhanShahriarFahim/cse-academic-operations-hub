@@ -7,7 +7,7 @@ Inspection/checks: [verification.md](verification.md). Design: [mockups/index.ht
 
 ## Problem and inspected baseline
 
-Inspected clean local `main` at `f0c4d8c`, after the accepted PERF-01 merge `2156fac`. Work uses `codex/crs-01b`, one writer/checkout. This is a proposal: **no implementation is approved**. No institutional database was opened, queried or counted. Last remote reconciliation remains 11 November; issue #7 and its one comment were read (no write).
+Inspected clean local `main` at `f0c4d8c`, after the accepted PERF-01 merge `2156fac`. Work uses `codex/crs-01b`, one writer/checkout. No institutional database was opened, queried or counted. Last remote reconciliation remains 11 November; issue #7 and its one comment were read (no write).
 
 | Evidence | Actual behavior / implication |
 | --- | --- |
@@ -30,9 +30,9 @@ Included: a term-addressed offerings page with per-cohort lists and comparison; 
 
 Excluded: teaching groups, merged or external audiences, teachers, workload units, coverage requirements, meetings and rooms (CRS-01C); enrollment and attendance; changing an offering's course or cohort (remove and add instead); changing a cancelled/completed offering in a completed term; automatic status changes at term activation or completion; offerings for held or graduated cohorts; curriculum/programme modelling; bulk import/export; print redesign; schema migration (see D-6); institutional operations, pending migrations `0017`/`0018`, dependency/bundler changes and remote synchronization.
 
-## Decisions for owner approval
+## Owner-approved decisions
 
-None of these is approved yet. Each row is a concrete recommendation; approval or amendment is recorded in [plan.md](plan.md) before implementation.
+All seven decisions were **approved unchanged on 16 November 2026**; the actual owner message is recorded in [plan.md](plan.md) and committed before implementation.
 
 | ID | Recommendation | Boundary / consequence |
 | --- | --- | --- |
