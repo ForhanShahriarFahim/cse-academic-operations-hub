@@ -94,6 +94,7 @@ export interface RoomRow {
 
 export interface CourseRow {
   id: number;
+  isActive: boolean;
   code: string;
   title: string;
   credits: number;
@@ -551,6 +552,7 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
     })),
     courses: courseRows.map((c) => ({
       id: c.id,
+      isActive: c.isActive,
       code: c.code,
       title: c.title,
       credits: Number(c.credits),

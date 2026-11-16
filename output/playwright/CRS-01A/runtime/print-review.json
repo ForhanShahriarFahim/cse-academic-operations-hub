@@ -1,0 +1,22 @@
+{
+  "official": {
+    "pages": 4,
+    "textIdentical": true,
+    "renderedPagesIdentical": 4,
+    "renderedSha256": [
+      "edee05145234c73d46d22c1fc3a92fc8401d8a8756b3aa0b751f28af577d3e79",
+      "0511a4b270b1452d40c41db96bce35e4b6cafb7abb1d6c9f8dcfd67661969333",
+      "b87fb5345d0f175e1c3c413f2db6e496b2bbc1f8ff8badb98e40f2daa540fef5",
+      "89aa9db0250171ee541c120e80221fee070e53ea5dae47733a38c88060315017"
+    ]
+  },
+  "teachers": {
+    "pages": 2,
+    "textIdentical": true,
+    "renderedPagesIdentical": 2,
+    "renderedSha256": [
+      "695198667ff2efd5c9bdba051f46e342e2b6c1afbceaf0e04b5fc1b14baf2abb",
+      "1f4878cc69a19090f6cdb5fb6ad1b95d51e8dca0b0c7348c44d4bfcbb4f16987"
+    ]
+  }
+}

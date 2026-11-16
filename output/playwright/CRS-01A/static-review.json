@@ -1,0 +1,218 @@
+[
+  {
+    "page": "catalog",
+    "width": 1440,
+    "title": "Courses & offerings — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "add",
+    "width": 1440,
+    "title": "Add course — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "edit",
+    "width": 1440,
+    "title": "Correct course title — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "detail",
+    "width": 1440,
+    "title": "CSE-1102 — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "lifecycle",
+    "width": 1440,
+    "title": "Review course lifecycle — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "history",
+    "width": 1440,
+    "title": "Course change history — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "states",
+    "width": 1440,
+    "title": "Feedback & recovery — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "index",
+    "width": 1440,
+    "title": "Catalog management — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "catalog",
+    "width": 390,
+    "title": "Courses & offerings — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "add",
+    "width": 390,
+    "title": "Add course — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "edit",
+    "width": 390,
+    "title": "Correct course title — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "detail",
+    "width": 390,
+    "title": "CSE-1102 — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "lifecycle",
+    "width": 390,
+    "title": "Review course lifecycle — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "history",
+    "width": 390,
+    "title": "Course change history — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "states",
+    "width": 390,
+    "title": "Feedback & recovery — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "index",
+    "width": 390,
+    "title": "Catalog management — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "catalog",
+    "width": 320,
+    "title": "Courses & offerings — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "add",
+    "width": 320,
+    "title": "Add course — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "edit",
+    "width": 320,
+    "title": "Correct course title — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "detail",
+    "width": 320,
+    "title": "CSE-1102 — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "lifecycle",
+    "width": 320,
+    "title": "Review course lifecycle — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "history",
+    "width": 320,
+    "title": "Course change history — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "states",
+    "width": 320,
+    "title": "Feedback & recovery — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  },
+  {
+    "page": "index",
+    "width": 320,
+    "title": "Catalog management — CRS-01A proposal",
+    "overflow": false,
+    "main": 1,
+    "h1": 1,
+    "images": true
+  }
+]

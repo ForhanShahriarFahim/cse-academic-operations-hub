@@ -10,11 +10,13 @@ const stamp = () => new Intl.DateTimeFormat("en-GB", {
  * Heading that appears only on paper for working-draft ledgers: institution,
  * page, term, publication state, and the moment of printing (Asia/Dhaka).
  */
-export function PrintHeader({ title, termName, publishedVersion }: {
+export function PrintHeader({ title, termName, publishedVersion, publicationState }: {
   title: string;
   termName: string;
   /** Published version of the active term, or null while only a draft exists. */
   publishedVersion: number | null;
+  /** Global ledgers can explain absent/ambiguous term context without claiming publication state. */
+  publicationState?: string;
 }) {
   const [printedAt, setPrintedAt] = useState("");
   useEffect(() => {
@@ -35,7 +37,7 @@ export function PrintHeader({ title, termName, publishedVersion }: {
           <p className="text-[9pt]">Department of Computer Science &amp; Engineering</p>
         </div>
         <p className="text-right text-[8.5pt] leading-snug">
-          {title} · {termName}<br />{state}<br />Printed {printedAt} (Asia/Dhaka)
+          {title} · {termName}<br />{publicationState ?? state}<br />Printed {printedAt} (Asia/Dhaka)
         </p>
       </div>
     </div>

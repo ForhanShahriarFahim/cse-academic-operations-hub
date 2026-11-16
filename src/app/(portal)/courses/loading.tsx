@@ -1,0 +1,1 @@
+export default function CoursesLoading() { return <div role="status" aria-label="Loading course catalog" className="grid gap-4"><p>Loading course catalog…</p>{[1, 2, 3].map(id => <div key={id} className="h-20 animate-pulse rounded bg-wash" aria-hidden="true" />)}</div>; }

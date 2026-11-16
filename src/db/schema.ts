@@ -356,7 +356,8 @@ export const courses = pgTable("courses", {
   needsLab: boolean("needs_lab").notNull().default(false),
   requiredRoomCapability: text("required_room_capability"),
   isActive: boolean("is_active").notNull().default(true),
-});
+  revision: integer("revision").notNull().default(1),
+}, (t) => [index("courses_canonical_code_idx").on(sql`upper(btrim(${t.code}))`), check("courses_revision_positive", sql`${t.revision} > 0`)]);
 
 // ---------------------------------------------------------------------------
 // Course offerings and teaching groups

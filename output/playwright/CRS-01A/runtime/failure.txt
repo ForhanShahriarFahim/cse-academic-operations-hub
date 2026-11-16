@@ -1,0 +1,118 @@
+Skip to content
+Pundra Academic Operations
+Department of CSE
+Summer 2026
+Version 1 published
+Dashboard
+
+Routine
+
+Routine builder
+Days & periods
+Validation
+Publications
+
+Planning records
+
+Teachers
+Workload
+Courses & offerings
+Batches
+Rooms
+External commitments
+
+Classes
+
+Attendance
+Extra class load
+
+Administration
+
+Academic terms
+Decisions & settings
+People & access
+
+Public
+
+Public routine
+(opens in a new tab)
+↗
+Synthetic Admin
+System administrator
+My account
+Sign out
+← Course details
+
+Global course catalog
+
+Edit UI-4000(A)
+
+Correct the definition while preserving recorded use and captured history.
+
+Code
+
+Canonical candidate: UI-4000(A). Codes and earlier aliases stay reserved.
+
+Title
+
+Plain text, 1–200 characters. No classification is inferred from the title.
+
+Academic credits
+
+Academic credits only: >0 to 999.9, at most one decimal. Workload units are assigned per group.
+
+Type
+Theory
+Sessional
+Thesis or project
+
+Choose explicitly; existing classifications are retained.
+
+Owning department
+Choose…
+Unknown
+CSE · Synthetic Computing
+EEE · Synthetic Electrical
+
+Choose explicitly. This does not grant editor permission.
+
+Curriculum semester
+Choose…
+1
+2
+3
+4
+5
+6
+7
+8
+
+Curriculum semester; independent of course digits and active term.
+
+Specialist requirement
+None
+computer
+microprocessor
+networking
+laboratory
+
+Specialist suitability is checked independently. None adds no specialist constraint.
+
+Lab required · Yes
+
+Sessional courses require a lab. Existing imported lab requirements are retained.
+
+Title correction: Synthetic browser sessional → WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW. Live working views in all terms, including old terms, use the corrected title. Published snapshots and existing claim labels keep their captured values.
+
+Recorded use
+
+0 offerings · 0 teaching groups · 0 meetings · 0 workload allocations · 0 enrollments · 0 attendance sessions · 0 captured extra-load classes · 0 saved routine snapshots
+
+No known recorded course use.
+
+Administrative reason (required)
+
+Up to 300 plain-text characters. Keep personal/student details out.
+
+Cancel
+Save changes
