@@ -5,7 +5,7 @@ Updated: 16 November 2026, Asia/Dhaka.
 Status/approval, sole task checklist and exact handoff: [plan.md](plan.md).
 Inspection/checks: [verification.md](verification.md). Design: [mockups/index.html](mockups/index.html).
 
-**Status: proposed. Nothing here is approved or built.** D-1–D-8 are recommendations for the owner to approve or amend.
+**Status: D-1–D-8 approved unchanged by the owner on 16 November 2026** (actual message in [plan.md](plan.md)).
 
 Wording: the code and glossary say *teaching group*; the portal already shows it to users as **class group** (CRS-01B). This document uses “class group” for what users see.
 
@@ -34,7 +34,7 @@ Included: a term-addressed class-groups page with completeness and filters; crea
 
 Excluded: starting a whole term's class groups from the previous term and comparing teachers between terms (proposed as CRS-01D, see D-1); scheduling, rooms and meeting teachers (existing Routine builder); scheduling a draft term before activation; splitting one cohort into sections; cross-listed classes that join different course codes; changing a group's course; a cancelled/closed state for groups that already have classes or attendance; enrollment, attendance and extra-load records; external commitments (OD-01); policy rules that compute units; bulk import/export; schema migration (D-8); institutional operations, pending migrations `0017`/`0018`, dependency/bundler changes and remote synchronization.
 
-## Decisions for the owner
+## Owner-approved decisions
 
 | ID | Recommendation | Boundary / consequence |
 | --- | --- | --- |
