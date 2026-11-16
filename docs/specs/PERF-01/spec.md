@@ -1,7 +1,7 @@
 # PERF-01 — Bound term reads and reuse operation-local evidence
 
 Local package from F-11 in the [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md#5-proposed-work-packages-ready-to-pick-up); before CRS-01B / #7. No new GitHub issue or synchronization requested.
-Status: Proposed; inspection/planning authorized, implementation pending.
+Status: Approved for implementation on 16 November; actual owner authorization is in [plan.md](plan.md).
 Updated: 16 November 2026, Asia/Dhaka.
 Sole checklist/approval/handoff: [plan.md](plan.md). Inspection and check limits: [verification.md](verification.md).
 

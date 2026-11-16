@@ -1,7 +1,7 @@
 # PERF-01 — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md).
-Status: **Proposed; owner authorized planning only.**
+Status: **Approved; implementation in progress.**
 Branch/base: `codex/perf-01` / `d6e3cdb9d86bcce37ac583313c67f1de7d672c9d` (local `main`).
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -26,13 +26,13 @@ No database schema/backfill/recovery operation is proposed: this is a read/helpe
 
 - Owner on 16 November selected **“Accept, merge locally, and plan PERF-01”** after the explicit CRS-01A delivery question. This authorizes CRS-01A acceptance/local merge and this inspection/specification package.
 - CRS-01A is accepted at `6dfad40`, merged at `246d9fa`; merge receipt/base `d6e3cdb`. Accepted default-build exception is specific to CRS-01A, not future delivery acceptance.
-- **PERF-01 implementation approval: pending.** Present the concrete spec, D-1–D-4 and this checklist. Record actual approval and commit it before any application/test implementation. A proposed-doc checkpoint does not establish approval.
+- **PERF-01 implementation approved, 16 November 2026 (Asia/Dhaka).** Owner replied **“Approve and implement”** after proposal `f254962` presented this specification, D-1–D-4 and sole checklist. This authorizes unchanged implementation and verification scope; delivery acceptance remains separate. This approval checkpoint precedes application/test implementation.
 - No remote issue, push/PR, institutional operation, extra worktree/writer or CRS-01B authorized. Unchanged approval, once obtained, persists across handoffs.
 
 ## Tasks — one checklist
 
 - [x] T-01 — Inspect post-CRS-01A base, current requirements/review/source seams, installed Next guidance and existing safety harness. Define scope, D-1–D-4, measurable parity/cardinality criteria and this plan. Planning-document checks are in verification.
-- [ ] T-02 — Obtain actual scope/D-1–D-4 approval, record it and commit approved plan before implementation.
+- [x] T-02 — Owner “Approve and implement” recorded on 16 November; commit this approved plan before application/test implementation.
 - [ ] T-03 — On the approved unchanged base, capture synthetic 2/20-term outputs/read counts and multi-cohort snapshot/evidence baseline using owned targets; then implement scoped routine reads and manual-create helper reuse. AC-01–02, AC-05–06.
 - [ ] T-04 — Implement enrollment union pushdown and rollover-local snapshot read/digest reuse. Keep independent callers fresh and all-term evidence exact. Prove counters, empty/overlap cases, unchanged fingerprints and freshness/races. AC-03–06.
 - [ ] T-05 — Run required typecheck/lint/domain/default build, focused both-adapter checks/history, guarded compiled desktop/mobile/keyboard/accessibility flows and relevant archived CSV/A4 parity. Review diff, correct findings and record exact evidence/limitations. AC-01–08.
@@ -53,8 +53,8 @@ Last remote reconciliation remains 11 November 2026. No remote synchronization i
 ## Current checkpoint / exact handoff
 
 - Planning branch `codex/perf-01`, base `d6e3cdb`, one writer/checkout. CRS-01A acceptance/merge complete; review remains synthetic at `http://localhost:3127` while its launcher is running.
-- T-01 complete; T-02 is the next gate. No application/test/schema/seed/dependency changes or PERF-01 performance runs. The planning checkpoint is the commit containing this package; obtain actual hash/status from Git.
-- Present D-1–D-4 and request implementation approval. No repeated approval of CRS-01A is needed. If approved, record/commit approval, capture base measurements before changing queries, then proceed autonomously through the approved tasks.
+- T-01–T-02 complete; proposal `f254962`, actual approval is the commit containing this record. No implementation/baseline changes yet. Next: T-03 baseline on unchanged application source, then approved implementation.
+- Do not request unchanged implementation approval again. Capture base measurements before changing queries, then proceed autonomously through T-03–T-05. Owner delivery acceptance is still required for T-06/local merge.
 - Limitations: static inspection is not profiling; 2/20-term metrics, parity, adapter/race checks and UI checks are pending implementation. Default build has a known inherited failure, not an accepted PERF-01 exception.
 
-Next-session prompt: “Resume PERF-01 on codex/perf-01, base d6e3cdb. Read current brief/workflow and docs/specs/PERF-01/{spec,plan,verification}.md. Inspect actual Git state and approval record. Owner authorized planning on 16 November; implementation remains pending unless actual later approval is recorded. Keep routine reads term-scoped but cohort safety all-term; use one manual-create portal load and one rollover-local fresh snapshot source with unchanged evidence/fingerprints. Capture unmodified-base synthetic measurements before optimization. No global/framework cache, parser/schema/index/UI changes, institutional operation, extra writer/worktree, remote sync or CRS-01B. Keep #7 open and report default-build failures separately.”
+Next-session prompt: “Resume PERF-01 on codex/perf-01, base d6e3cdb. Read current brief/workflow and docs/specs/PERF-01/{spec,plan,verification}.md. Inspect actual Git state and approval record. Owner approved unchanged D-1–D-4 and implementation on 16 November with “Approve and implement”, after proposal f254962; approval checkpoint precedes application changes. Do not ask to repeat approval. Keep routine reads term-scoped but cohort safety all-term; use one manual-create portal load and one rollover-local fresh snapshot source with unchanged evidence/fingerprints. Capture unmodified-base synthetic measurements before optimization. No global/framework cache, parser/schema/index/UI changes, institutional operation, extra writer/worktree, remote sync or CRS-01B. Keep #7 open and report default-build failures separately.”
