@@ -46,7 +46,7 @@ Required application commands are intentionally deferred for documentation-only 
 ## Delivery and acceptance
 
 - Planning package was approved by the owner on 15 November; approval checkpoint `50acb88` precedes implementation. Delivery acceptance remains separate in the plan.
-- No local merge or remote sync. Parent #7 stays open; no next part automatically started.
+- Local merge `246d9fa` follows acceptance `6dfad40` on 16 November; no conflicts/source corrections or repeated application checks. No remote sync or institutional operation. Parent #7 stays open; owner explicitly requested PERF-01 planning.
 - Delivery accepted on 16 November after checkpoint `6d1bacf`: owner selected “Accept, merge locally, and plan PERF-01” following explicit disclosure of the failed default Turbopack build and passing separate Webpack build. AC-10 remains partial under this accepted limitation. Local merge follows the acceptance commit; no application changes or repeated application suites are needed for that merge. Resume checks also include passing focused ESLint for both review helpers.
 
 ## Implementation verification — 15 November 2026

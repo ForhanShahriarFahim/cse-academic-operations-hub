@@ -1,7 +1,7 @@
 # CRS-01A — Implementation plan and sole checklist
 
 Parent: CRS-01 / #7. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md). Sketches: [mockups/index.html](mockups/index.html).
-Status: **Owner accepted; local merge pending.**
+Status: **Accepted and merged locally at `246d9fa`.**
 Branch / base: `codex/crs-01a` / `bc2575785e39ceab0e65c01bd3335b3465283128`.
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -38,7 +38,7 @@ Lock order: standalone catalog write → exclusive singleton context → course 
 - [x] T-03 — Implement pure rules, revision migration, injected evidence/transactions, capability and atomic audits; verify legacy preservation and both adapter migration/recovery paths. AC-01, AC-03–07.
 - [x] T-04 — Implement global directory/create/detail/edit/history/lifecycle and narrowly necessary serialized status/assignment integrations. AC-01–05, AC-08–09.
 - [x] T-05 — Run focused server/action/adapter/race/history regressions, required typecheck/lint/domain/default build; guarded synthetic production desktop/mobile/keyboard/axe and applicable CSV/A4 parity. Correct findings and record evidence/limits. AC-01–10.
-- [ ] T-06 — Review/commit bounded delivery; give owner runnable synthetic inspection path; obtain actual acceptance (including any disclosed limitation), record it, then merge locally into `main`. Keep #7 open and leave CRS-01B/PERF-01 for an owner-started session.
+- [x] T-06 — Delivery/evidence `6d1bacf`; owner accepted the disclosed default-build limitation and requested local merge plus PERF-01 planning on 16 November. Acceptance `6dfad40` precedes merge `246d9fa`. Parent #7 stays open; PERF-01 implementation is not authorized.
 
 ## Verification and delivery strategy
 
@@ -57,6 +57,7 @@ No institutional migration or backup operation, reset, additional worktree/write
 - 16 November resume: owner said “go for the next task”. This requests progression but does not explicitly accept the remaining default-build limitation; do not fabricate acceptance. Final outstanding evidence/helper diff reviewed, 152 local file links resolve, receipt records 63 captures with zero overflow/violations/errors, representative desktop/mobile images inspected, browser helper syntax and typecheck pass. Prior application/adapter/build checks were not repeated. Before CRS-01B, the existing review recommends PERF-01 inspection/specification; no implementation scope is approved for it.
 - Evidence and execution corrections: [verification.md](verification.md). Actual checkpoint hash/status come from Git. No application changes may be inferred from a document's clean-tree claim.
 - Runnable synthetic owner review: `node node_modules/tsx/dist/cli.mjs scripts/review-courses.ts --serve`, then [control/sign-in](http://localhost:3127) / [Courses](http://localhost:3126/courses). The launcher owns a disposable PostgreSQL cluster; no old PGlite preload. See verification for exact build and `--check` paths.
-- Next action: commit the actual 16 November acceptance above, then merge the bounded delivery into local `main`. Owner now explicitly requests PERF-01 inspection/specification after merge; implementation needs its own approved plan. Parent #7 remains open. No institutional migrations `0017`/`0018`, database operation or remote sync.
+- Merge receipt: accepted delivery merged into local `main` at `246d9fa`, without conflicts or source corrections. No application checks repeated for the merge. Retain branch `codex/crs-01a`; no remote synchronization or institutional operation. Default build remains an accepted limitation, not a passing check.
+- Next action: owner-authorized PERF-01 inspection/specification in this chat, before CRS-01B. Implementation needs its own approved plan. Parent #7 remains open. No institutional migrations `0017`/`0018`, database operation or remote sync.
 
-Next-session prompt: “Resume CRS-01A / #7 on codex/crs-01a, base bc25757. Read current brief/workflow and docs/specs/CRS-01A/{spec,plan,verification}.md. Inspect actual Git state and any outstanding final verification. Owner approved unchanged scope/design and D-1–D-6 on 15 November, committed as 50acb88 before implementation; do not ask to repeat that approval. Catalog create/edit/deactivate/reactivate/history is implemented, with used academic fields frozen, fresh title/lifecycle fingerprints, immutable captured labels and all-term blockers. Complete pending verification if any, then support owner inspection/acceptance; the default Turbopack CSS-worker failure remains distinct from the passing Webpack build and needs explicit delivery acceptance. After acceptance, record/commit it before a bounded local main merge. Keep parent #7 open. No next slice, academic versioning/reclassification, institutional operation, migration 0017/0018, extra worktree/writer, remote sync or separate build investigation.”
+Next-session prompt: “CRS-01A is accepted (6dfad40) and merged locally (246d9fa); default Turbopack failure is an accepted limitation, separate Webpack build passes. Read the current brief and PERF-01 plan for the owner-authorized next inspection/specification. Keep #7 open. No PERF-01 implementation without approved scope, CRS-01B, academic versioning/reclassification, institutional operation, migration 0017/0018, extra worktree/writer or remote sync.”
