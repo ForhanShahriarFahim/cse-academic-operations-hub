@@ -1,0 +1,302 @@
+{
+  "captures": [
+    {
+      "name": "list-not-started",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-not-started",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-not-started",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-validation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-validation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-validation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-started",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-started",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-started",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-stale",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-stale",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "start-stale",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add-validation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add-validation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add-validation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-cancelled",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-cancelled",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-cancelled",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change-cancelled",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change-cancelled",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "change-cancelled",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-filtered",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-filtered",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-filtered",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "linked",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "linked",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "linked",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Reviewed start created exactly the four ticked offerings as planned rows after a validation round that kept the ticks.",
+    "A stale start review is refused with the plain stale message; nothing is saved.",
+    "Out-of-semester add required the explicit tick and reason, then created one planned offering.",
+    "Cancel, restore and draft removal each needed a reason; removal also needed the typed course code.",
+    "Active-term offerings in class groups show no cancel/remove control; Courses & offerings links to both terms.",
+    "A view-only account reads the list and comparison with no controls; direct editor URLs redirect to the forbidden page.",
+    "Archived CSV bytes, source-term offerings and every preserved table (groups, links, meetings, allocations, enrollments, attendance, claims, snapshots, placements, courses, terms, term context) are identical after the whole flow."
+  ],
+  "errors": []
+}

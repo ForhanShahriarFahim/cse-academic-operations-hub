@@ -1,7 +1,7 @@
 import { and, desc, eq, lt, or } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { auditEvents, courses, departments, scheduleVersions } from "@/db/schema";
+import { academicTerms, auditEvents, courses, departments, scheduleVersions } from "@/db/schema";
 import { authorize, can, getOptionalActor } from "./auth";
 import { cohortRead, readTermContext } from "./term-context";
 import { courseInteger, courseKey } from "./course-records";
@@ -27,7 +27,9 @@ export async function getCourseDirectory() {
     const context = await readTermContext();
     const term = context.state.kind === "one" ? context.state.term : null;
     const [published] = term ? await db.select({ number: scheduleVersions.versionNumber }).from(scheduleVersions).where(and(eq(scheduleVersions.termId, term.id), eq(scheduleVersions.state, "published"))).limit(1) : [];
-    return { editor, term, publishedVersion: published?.number ?? null, termProblem: context.state.kind, records: records.map(({ record, owner }) => ({ ...record, owner, duplicate: (counts.get(courseKey(record.code)) ?? 0) > 1 })) };
+    // CRS-01B: terms being prepared also have an offerings page; identity only, no term is selected by this list.
+    const draftTerms = await db.select({ id: academicTerms.id, name: academicTerms.name }).from(academicTerms).where(eq(academicTerms.status, "draft")).orderBy(academicTerms.startDate, academicTerms.id);
+    return { editor, term, draftTerms, publishedVersion: published?.number ?? null, termProblem: context.state.kind, records: records.map(({ record, owner }) => ({ ...record, owner, duplicate: (counts.get(courseKey(record.code)) ?? 0) > 1 })) };
   });
 }
 export async function getCourseDetail(value: string) {

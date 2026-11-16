@@ -24,6 +24,7 @@ The application supports Spring and Summer sessions, preserves historical batch-
 - Manual top-sheet entries for teachers who maintain their detailed records offline.
 - Separate catalog credits, approved workload units, and scheduled contact minutes.
 - Global course catalog with administrator create/edit, explicit deactivation/reactivation and change history; used academic definitions are protected, and acknowledged title corrections retain captured publication/claim labels.
+- Term offerings per cohort: start from what the previous term offered at the same stream and semester, compare carried/added/dropped/changed, then add, cancel, restore or (in a draft) remove offerings with reasons and history.
 - Draft and immutable published routine CSV exports generated from the same projection shown on screen.
 - Immutable routine publication with an independent public/print viewer and browser Print/PDF output.
 - PostgreSQL production mode and zero-configuration PGlite development mode.
@@ -62,6 +63,14 @@ Open **Courses & offerings** to search the global catalog, filter Active/Inactiv
 Recorded use freezes code and academic fields. Deactivation refuses unresolved teaching/planning obligations and unsupported snapshot evidence, retains all history, and prevents new manual/automatic class assignments. Reactivation creates no offering or group. Term offering/group management remains a later delivery. Catalog access works without an active term; scheduling completeness remains a separate active-term report.
 
 Review this delivery only with the guarded synthetic launcher `node node_modules/tsx/dist/cli.mjs scripts/review-courses.ts --serve`, then open `http://localhost:3127`. It requires PostgreSQL client tools and a compiled production build; see [CRS-01A verification](docs/specs/CRS-01A/verification.md). Do not use institutional `dev`, `start` or migration commands for this review. The new `0018` migration and earlier institutional `0017` rollout require separately authorized backup/preflight/migration work.
+
+### Maintain term offerings
+
+Open a term's **Term offerings** from **Courses & offerings** or from the term page (`/terms/<id>/offerings`). It works for a draft term being prepared and for the active term; completed terms are read-only. Every internal viewer sees each cohort's offerings and the comparison with the previous term. System and academic administrators in global/CSE scope can use **Start from previous term**, which proposes what the source term offered at the same stream and curriculum semester and creates only the ticked, missing offerings. It never changes an existing offering in any term.
+
+Individual changes need a reason: cancel and restore in either term, remove only in a draft. An offering that already belongs to a class group cannot be cancelled or removed here. Adding a course outside the cohort's curriculum semester needs an explicit tick and a reason. Offering a course freezes its academic fields in the catalog and keeps it active; an offered cohort cannot be graduated until its offerings are cancelled or the term is completed. Teachers, class groups and timetable are not created by this workflow.
+
+Review this delivery only with the guarded synthetic launcher `node node_modules/tsx/dist/cli.mjs scripts/review-offerings.ts --serve`, then open `http://localhost:3127`. It requires PostgreSQL client tools and a compiled production build; see [CRS-01B verification](docs/specs/CRS-01B/verification.md).
 
 ### Build and publish a routine
 
@@ -320,6 +329,7 @@ cse-academic-operations-hub/
 | `/rooms/[id]/occupancy` | Weekly or active-term selected-date agenda, exact union utilization/gaps after dated maintenance and A4 internal planning print |
 | `/batches` | Batch and term-semester placements |
 | `/courses` | Catalog, offerings, and coverage |
+| `/terms/[id]/offerings` | Term offerings per cohort, comparison with the previous term, changes and history |
 | `/od` | External teaching and room commitments |
 | `/publications` | Immutable version publication and history |
 | `/settings` | Term policy and pending decisions |
