@@ -64,6 +64,7 @@ New shared evidence exists only inside one locked invocation and is rebuilt at c
 - Owner authorized inspection/specification on 16 November: “Accept, merge locally, and plan PERF-01”. That message separately accepted CRS-01A, recorded `6dfad40` and merged `246d9fa`; base/receipt `d6e3cdb`.
 - PERF-01 implementation approved on 16 November: owner “Approve and implement”, committed `a8cb252` before baseline `8d28335` and implementation `e5a0e31`. Final verification/evidence checkpoint is the commit containing this handoff. Delivery acceptance remains pending; no PERF-01 merge or remote synchronization. No external issue was created. Partial parent CRS-01 / #7 remains open.
 - Institutional database, migrations `0017`/`0018`, backup/reset, build-policy changes and next-feature implementation are outside scope.
+- Delivery accepted on 16 November after checkpoint `3ff7c68`: owner selected “Accept, merge, plan CRS-01B” following explicit disclosure of the failed default Turbopack build and passing separate Webpack build. AC-08 remains partial under this accepted limitation. Local merge follows the acceptance commit; no application changes or repeated application suites are needed for that merge.
 
 ## Compiled browser, print and execution review
 

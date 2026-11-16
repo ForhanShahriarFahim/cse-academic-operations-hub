@@ -1,7 +1,7 @@
 # PERF-01 — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md).
-Status: **Implemented and verified; owner inspection/acceptance pending.**
+Status: **Accepted by the owner on 16 November 2026; local `main` merge follows this acceptance commit.**
 Branch/base: `codex/perf-01` / `d6e3cdb9d86bcce37ac583313c67f1de7d672c9d` (local `main`).
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -28,6 +28,7 @@ No database schema/backfill/recovery operation is proposed: this is a read/helpe
 - CRS-01A is accepted at `6dfad40`, merged at `246d9fa`; merge receipt/base `d6e3cdb`. Accepted default-build exception is specific to CRS-01A, not future delivery acceptance.
 - **PERF-01 implementation approved, 16 November 2026 (Asia/Dhaka).** Owner replied **“Approve and implement”** after proposal `f254962` presented this specification, D-1–D-4 and sole checklist. This authorizes unchanged implementation and verification scope; delivery acceptance remains separate. This approval checkpoint precedes application/test implementation.
 - No remote issue, push/PR, institutional operation, extra worktree/writer or CRS-01B authorized. Unchanged approval, once obtained, persists across handoffs.
+- **PERF-01 delivery accepted, 16 November 2026 (Asia/Dhaka).** After delivery `3ff7c68`, the owner said “Go for the next task.” and, asked explicitly how to proceed given that the default Turbopack build still fails while the separate Webpack build passes, selected **“Accept, merge, plan CRS-01B”**. This accepts PERF-01 including the default-build failure (AC-08 partial), authorizes the bounded local `main` merge and authorizes CRS-01B inspection/specification only. The accepted build exception is specific to PERF-01 and does not change build policy. CRS-01B implementation, institutional operations and remote synchronization are not authorized.
 
 ## Tasks — one checklist
 
@@ -36,7 +37,7 @@ No database schema/backfill/recovery operation is proposed: this is a read/helpe
 - [x] T-03 — Both unchanged-base adapter receipts captured at/after baseline checkpoint `8d28335`; deterministic fixture correction recaptured original source before final comparison. Scoped SQL dependant/window reads and manual-create portal/audience reuse implemented; complete outputs and real row counts pass on both adapters. AC-01–02; broader AC-05–06 verification continues in T-05.
 - [x] T-04 — All-term enrollment union pushdown and invocation-local snapshot read/digest reuse implemented. Both adapters prove overlap/empty cases, exact cohort/rollover fingerprint parity, fresh same-ID snapshot change and real stale confirmation. Existing both-adapter cohort races pass; remaining affected regressions are T-05.
 - [x] T-05 — Typecheck/lint/domain, all 13 selected safety groups, 117 production browser captures and archived CSV/14-page A4 parity pass. Separate Webpack build passes; default Turbopack fails outside sandbox at CSS-worker startup, so AC-08 remains partial. Diff and representative images reviewed; execution corrections/limits are in verification.
-- [ ] T-06 — Commit bounded verified delivery, provide runnable review/evidence, obtain actual owner acceptance (including unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01B for the owner to start.
+- [x] T-06 — Bounded verified delivery committed at `3ff7c68` with runnable review/evidence; actual owner acceptance (including the failed default build) recorded on 16 November in the commit containing this line; local `main` merge and its receipt follow. #7 stays open. The owner's same answer started CRS-01B inspection/specification, not its implementation.
 
 ## Verification and delivery
 
