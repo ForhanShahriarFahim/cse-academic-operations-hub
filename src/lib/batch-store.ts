@@ -1,6 +1,6 @@
 /** BAT-01A evidence and writes. Caller owns context lock and transaction. */
 import { createHash } from "node:crypto";
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or } from "drizzle-orm";
 import type { db } from "@/db";
 import { academicTerms, auditEvents, batches, batchTermPlacements, classRepresentatives, courseEnrollments, courseOfferings, dayPlans, departments, meetingRooms, meetings, permittedWindows, rooms, scheduleVersions, students, teachingGroupOfferings, teachingGroups } from "@/db/schema";
 import type { Actor } from "./auth/policy";
@@ -16,7 +16,19 @@ export interface BatchEvidence {
   totals: Record<string,number>;
   snapshots:number; uncertainSnapshots:number;
 }
-export async function batchEvidence(reader: BatchReader, record: BatchRecord): Promise<BatchEvidence> {
+/** One caller-owned evidence invocation only. Never retain across preview/commit
+ * or transactions; snapshot writes require a new source even at the same ID. */
+export async function readBatchSnapshots(reader: BatchReader) {
+  const versions = await reader.select().from(scheduleVersions).orderBy(scheduleVersions.id);
+  const digests = new Map<number, string>();
+  return { versions, digest(version: typeof versions[number]) {
+    let value = digests.get(version.id);
+    if (value === undefined) { value = fingerprint(version.snapshot); digests.set(version.id, value); }
+    return value;
+  } };
+}
+type BatchSnapshots = Awaited<ReturnType<typeof readBatchSnapshots>>;
+export async function batchEvidence(reader: BatchReader, record: BatchRecord, source?: BatchSnapshots): Promise<BatchEvidence> {
   const references: BatchEvidence["references"] = [];
   const totals: Record<string,number> = {};
   const placements=await reader.select({p:batchTermPlacements,t:academicTerms}).from(batchTermPlacements).innerJoin(academicTerms,eq(academicTerms.id,batchTermPlacements.termId)).where(eq(batchTermPlacements.batchId,record.id)).orderBy(batchTermPlacements.id);
@@ -30,8 +42,9 @@ export async function batchEvidence(reader: BatchReader, record: BatchRecord): P
   for(const {m,t} of events)references.push({key:`meeting:${m.id}:${m.status}`,termId:t.id,term:t.name,detail:`Meeting #${m.id} · ${m.status}`,href:"/routine",blocksLifecycle:t.status!=="completed"&&m.status!=="cancelled"});
   const home=await reader.select({id:students.id}).from(students).where(eq(students.homeBatchId,record.id));
   const homeIds=home.map(s=>s.id);
-  const enrollments=await reader.select({e:courseEnrollments,t:academicTerms}).from(courseEnrollments).innerJoin(academicTerms,eq(academicTerms.id,courseEnrollments.termId)).orderBy(courseEnrollments.id);
-  for(const {e,t}of enrollments.filter(({e})=>groupIds.includes(e.teachingGroupId)||homeIds.includes(e.studentId)))references.push({key:`enrollment:${e.id}:${e.status}`,termId:t.id,term:t.name,detail:`Enrollment reference #${e.id} · ${e.status}`,href:"/attendance",blocksLifecycle:t.status!=="completed"&&e.status!=="inactive"});
+  const enrollmentScope=[...(groupIds.length?[inArray(courseEnrollments.teachingGroupId,groupIds)]:[]),...(homeIds.length?[inArray(courseEnrollments.studentId,homeIds)]:[])];
+  const enrollments=enrollmentScope.length?await reader.select({e:courseEnrollments,t:academicTerms}).from(courseEnrollments).innerJoin(academicTerms,eq(academicTerms.id,courseEnrollments.termId)).where(or(...enrollmentScope)).orderBy(courseEnrollments.id):[];
+  for(const {e,t}of enrollments)references.push({key:`enrollment:${e.id}:${e.status}`,termId:t.id,term:t.name,detail:`Enrollment reference #${e.id} · ${e.status}`,href:"/attendance",blocksLifecycle:t.status!=="completed"&&e.status!=="inactive"});
   totals.placements=placements.length;totals.offerings=offerings.length;totals.groupLinks=links.length;totals.meetings=events.length;totals.homeStudents=home.length;
   totals.enrollments=references.filter(r=>r.key.startsWith("enrollment:")).length;
   for(const [name,table,column] of [["representatives",classRepresentatives,classRepresentatives.batchId],["windows",permittedWindows,permittedWindows.batchId],["dayPlans",dayPlans,dayPlans.batchId]] as const)totals[name]=(await reader.select({id:table.id}).from(table).where(eq(column,record.id))).length;
@@ -40,10 +53,11 @@ export async function batchEvidence(reader: BatchReader, record: BatchRecord): P
     for(const value of [event.before,event.after])if(value&&typeof value==="object"&&"stream"in value&&"label"in value&&typeof value.stream==="string"&&typeof value.label==="string")aliases.push({stream:value.stream,label:value.label});
   }
   let snapshots=0,uncertainSnapshots=0;
-  for(const version of await reader.select().from(scheduleVersions).orderBy(scheduleVersions.id)){
+  const saved=source??await readBatchSnapshots(reader);
+  for(const version of saved.versions){
     const evidence=snapshotBatchEvidence(version.snapshot,record.id,aliases);
     if(evidence==="reference"){
-      snapshots++;references.push({key:`snapshot:${version.id}:${fingerprint(version.snapshot)}`,termId:version.termId,term:`Term #${version.termId}`,detail:`Saved routine version ${version.versionNumber}`,href:`/terms/${version.termId}`,blocksLifecycle:false});
+      snapshots++;references.push({key:`snapshot:${version.id}:${saved.digest(version)}`,termId:version.termId,term:`Term #${version.termId}`,detail:`Saved routine version ${version.versionNumber}`,href:`/terms/${version.termId}`,blocksLifecycle:false});
     }else if(evidence==="uncertain")uncertainSnapshots++;
   }
   return {references,totals,snapshots,uncertainSnapshots};

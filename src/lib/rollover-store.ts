@@ -2,7 +2,7 @@
 import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { academicPolicies, academicTerms, auditEvents, batches, batchTermPlacements, dayPlans, periodPatterns, permittedWindows, termContext, termRollovers } from "@/db/schema";
 import type { Actor } from "./auth/policy";
-import { auditBatch, batchEvidence, fingerprint, type BatchTx } from "./batch-store";
+import { auditBatch, batchEvidence, fingerprint, readBatchSnapshots, type BatchTx } from "./batch-store";
 import { countStatus } from "./batch-records";
 import { classifyActiveTerms } from "./term-state";
 import { TERM_PROTECTED_TABLES } from "./term-protection";
@@ -39,9 +39,11 @@ export async function rolloverEvidence(tx: BatchTx, plan: RolloverPlan) {
   let decisions: ReturnType<typeof rolloverDecisions>;
   try { decisions = rolloverDecisions(sourceData.cohorts, plan.choices); } catch (e) { return refuse((e as Error).message); }
   const lifecycle: unknown[] = [];
-  for (const d of decisions.filter(d => d.disposition === "graduate")) {
+  const graduating = decisions.filter(d => d.disposition === "graduate");
+  const snapshots = graduating.length ? await readBatchSnapshots(tx) : undefined;
+  for (const d of graduating) {
     const record = sourceData.records.find(r => r.b.id === d.id)!.b;
-    const evidence = await batchEvidence(tx, record);
+    const evidence = await batchEvidence(tx, record, snapshots);
     const blocks = evidence.references.filter(r => r.blocksLifecycle);
     if (blocks.length) refuse(`${d.stream}-${d.label}: resolve ongoing planning or teaching before graduation. ${blocks.map(r => `${r.term}: ${r.detail}`).join("; ")}`);
     lifecycle.push({record,evidence});

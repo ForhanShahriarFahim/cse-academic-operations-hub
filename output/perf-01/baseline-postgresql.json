@@ -439,7 +439,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 5,
@@ -470,7 +470,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 1,
@@ -501,7 +501,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 2,
@@ -532,7 +532,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 3,
@@ -567,7 +567,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           }
         ],
         "dayPlans": [
@@ -578,7 +578,7 @@
             "dayOfWeek": 0,
             "patternId": 1,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 2,
@@ -587,7 +587,7 @@
             "dayOfWeek": 1,
             "patternId": 2,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 3,
@@ -596,7 +596,7 @@
             "dayOfWeek": 2,
             "patternId": 2,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 4,
@@ -605,7 +605,7 @@
             "dayOfWeek": 3,
             "patternId": 3,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 5,
@@ -614,7 +614,7 @@
             "dayOfWeek": 6,
             "patternId": 4,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 6,
@@ -623,7 +623,7 @@
             "dayOfWeek": 0,
             "patternId": 5,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 7,
@@ -632,7 +632,7 @@
             "dayOfWeek": 6,
             "patternId": 4,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 8,
@@ -641,7 +641,7 @@
             "dayOfWeek": 0,
             "patternId": 5,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 9,
@@ -650,7 +650,7 @@
             "dayOfWeek": 0,
             "patternId": 1,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 10,
@@ -659,7 +659,7 @@
             "dayOfWeek": 1,
             "patternId": 2,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           }
         ]
       },
@@ -1382,7 +1382,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 5,
@@ -1413,7 +1413,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 1,
@@ -1444,7 +1444,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 2,
@@ -1475,7 +1475,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 3,
@@ -1510,7 +1510,7 @@
                 "blocksClasses": true
               }
             ],
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           }
         ],
         "dayPlans": [
@@ -1521,7 +1521,7 @@
             "dayOfWeek": 0,
             "patternId": 1,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 2,
@@ -1530,7 +1530,7 @@
             "dayOfWeek": 1,
             "patternId": 2,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 3,
@@ -1539,7 +1539,7 @@
             "dayOfWeek": 2,
             "patternId": 2,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 4,
@@ -1548,7 +1548,7 @@
             "dayOfWeek": 3,
             "patternId": 3,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 5,
@@ -1557,7 +1557,7 @@
             "dayOfWeek": 6,
             "patternId": 4,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 6,
@@ -1566,7 +1566,7 @@
             "dayOfWeek": 0,
             "patternId": 5,
             "reason": null,
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 7,
@@ -1575,7 +1575,7 @@
             "dayOfWeek": 6,
             "patternId": 4,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 8,
@@ -1584,7 +1584,7 @@
             "dayOfWeek": 0,
             "patternId": 5,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 9,
@@ -1593,7 +1593,7 @@
             "dayOfWeek": 0,
             "patternId": 1,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           },
           {
             "id": 10,
@@ -1602,7 +1602,7 @@
             "dayOfWeek": 1,
             "patternId": 2,
             "reason": "Carried over from class hours set before term grids.",
-            "updatedAt": "2026-11-16T03:59:55.699Z"
+            "updatedAt": "2026-01-01T00:00:00.000Z"
           }
         ]
       },

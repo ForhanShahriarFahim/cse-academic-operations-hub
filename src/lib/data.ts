@@ -35,7 +35,7 @@ import {
   departmentContacts,
   routineSourceReconciliations,
 } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray, isNull, or } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { can, getOptionalActor } from "./auth";
 import { publicMetadata } from "./public-routine";
@@ -275,6 +275,10 @@ async function loadPortalData(privateContacts: boolean): Promise<PortalData> {
 }
 async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalData> {
   const { term, writeContext } = await captureActiveContext();
+  // Ownership is the group's term, including cancelled meetings and legacy
+  // cross-term offering links. Keep the existing projection rules below.
+  const termGroupIds = db.select({ id: teachingGroups.id }).from(teachingGroups).where(eq(teachingGroups.termId, term.id));
+  const termMeetingIds = db.select({ id: meetings.id }).from(meetings).where(inArray(meetings.teachingGroupId, termGroupIds));
 
   const [
     deptRows, teacherRows, roomRows, courseRows, batchRows, placementRows,
@@ -290,14 +294,14 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
     () => db.select().from(batchTermPlacements).where(eq(batchTermPlacements.termId, term.id)),
     () => db.select().from(courseOfferings).where(eq(courseOfferings.termId, term.id)),
     () => db.select().from(teachingGroups).where(eq(teachingGroups.termId, term.id)),
-    () => db.select().from(teachingGroupOfferings),
-    () => db.select().from(teachingRequirements),
-    () => db.select().from(meetings),
-    () => db.select().from(meetingTeachers),
-    () => db.select().from(meetingRooms),
+    () => db.select().from(teachingGroupOfferings).where(inArray(teachingGroupOfferings.teachingGroupId, termGroupIds)),
+    () => db.select().from(teachingRequirements).where(inArray(teachingRequirements.teachingGroupId, termGroupIds)),
+    () => db.select().from(meetings).where(inArray(meetings.teachingGroupId, termGroupIds)),
+    () => db.select().from(meetingTeachers).where(inArray(meetingTeachers.meetingId, termMeetingIds)),
+    () => db.select().from(meetingRooms).where(inArray(meetingRooms.meetingId, termMeetingIds)),
     () => db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
     () => db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
-    () => db.select().from(permittedWindows),
+    () => db.select().from(permittedWindows).where(or(eq(permittedWindows.termId, term.id), isNull(permittedWindows.termId))),
     () => db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
     () => db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
     () => db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))

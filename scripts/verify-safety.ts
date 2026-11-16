@@ -8,6 +8,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { DEFAULT_PGLITE_DIR } from "./safety/targets";
 import { checkIsolation } from "./safety/isolation.check";
+import { checkPerformance, checkPerformancePostgres } from "./safety/performance.check";
 import { checkDatabaseEnvironment } from "./safety/environment.check";
 import { checkRecovery } from "./safety/recovery.check";
 import { checkHistory } from "./safety/history.check";
@@ -54,6 +55,8 @@ async function main() {
   const before = metadataFingerprint(DEFAULT_PGLITE_DIR);
   // [name, check, needs SAFE01_PG_BIN]
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
+    ["PERF-01 reads (PGlite)", () => checkPerformance()],
+    ["PERF-01 reads (PostgreSQL)", () => checkPerformancePostgres(process.env.SAFE01_PG_BIN), true],
     ["CRS-01A catalog (PGlite)", checkCourses],
     ["CRS-01A catalog (PostgreSQL)", () => checkCoursesPostgres(process.env.SAFE01_PG_BIN), true],
     ["BUG-PGLITE-LIFETIME bootstrap", checkPgliteLifetime],

@@ -10,7 +10,7 @@ import { freshTermActions } from "./fresh-term-actions";
 import type { RolloverPlan } from "../../../src/lib/rollover";
 
 type Query = { queryString: string; execute: (...args: unknown[]) => Promise<unknown> };
-type Read = { table: string; rows: number; sql: string };
+type Read = { table: string; rows: number; sql: string; candidateAudience: boolean };
 let reads: Read[] = [], hashes = 0;
 const payloads = new Set<string>();
 for (const prepared of [PglitePreparedQuery, NodePgPreparedQuery]) {
@@ -18,7 +18,7 @@ for (const prepared of [PglitePreparedQuery, NodePgPreparedQuery]) {
   prototype.execute = async function (...args) {
     const result = await original.apply(this, args);
     const table = /^select\b[\s\S]*?\bfrom "([a-z_]+)"/.exec(this.queryString)?.[1];
-    if (table && !/^select count\(/i.test(this.queryString)) reads.push({ table, rows: Array.isArray(result) ? result.length : (result as { rows?: unknown[] })?.rows?.length ?? 0, sql: this.queryString });
+    if (table && !/^select count\(/i.test(this.queryString)) reads.push({ table, rows: Array.isArray(result) ? result.length : (result as { rows?: unknown[] })?.rows?.length ?? 0, sql: this.queryString, candidateAudience: table === "teaching_group_offerings" && Array.isArray(result) && result.some(row => row != null && typeof row === "object" && "offering" in row) });
     return result;
   };
 }
@@ -44,10 +44,14 @@ async function measure<T>(work: () => Promise<T>) {
   reads = []; hashes = 0;
   const value = await work();
   const tables = Object.fromEntries([...new Set(reads.map(r => r.table))].sort().map(table => [table, { calls: reads.filter(r => r.table === table).length, rows: reads.filter(r => r.table === table).reduce((n, r) => n + r.rows, 0) }]));
-  return { value, tables, hashes, portalLoads: reads.filter(r => /^select "id", "code", "name" from "departments"/.test(r.sql)).length, queries: reads.filter(r => targeted.includes(r.table)).map(r => r.sql) };
+  return { value, tables, hashes, candidateAudiences: reads.filter(r => r.candidateAudience).map(r => r.rows), portalLoads: reads.filter(r => /^select "id", "code", "name" from "departments"/.test(r.sql)).length, queries: reads.filter(r => targeted.includes(r.table)).map(r => r.sql) };
 }
 async function locked<T>(work: (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>) {
   return db.transaction(tx => inDatabaseTransaction(tx, async () => { await lockTermContext(tx, "exclusive"); return work(tx); }));
+}
+async function freezeFixtureTimes() {
+  const columns = await db.execute<{ table_name: string; column_name: string }>(sql`select table_name,column_name from information_schema.columns where table_schema='public' and column_name in ('created_at','updated_at') and data_type like 'timestamp%'`);
+  for (const c of columns.rows) await db.execute(sql`update ${sql.identifier(c.table_name)} set ${sql.identifier(c.column_name)}='2026-01-01T00:00:00Z'`);
 }
 async function main() {
   signInAs("admin@example.invalid");
@@ -79,6 +83,7 @@ async function main() {
   // its foreign offering exactly as before. A teacher-managed group has no meetings.
   const [unscheduled] = await db.insert(s.teachingGroups).values({ termId: term.id, courseId: courses[0].id, deliveryMode: "teacher_managed" }).returning();
   await db.insert(s.teachingGroupOfferings).values({ teachingGroupId: unscheduled.id, offeringId: first.o.id });
+  await freezeFixtureTimes();
   const two = await measure(() => portal.getPortalData());
   signInAs("perf-viewer@example.invalid"); const viewerTwo = await measure(() => portal.getPortalData()); signInAs("admin@example.invalid");
   for (let n = 2; n < 20; n++) await noise(n);
@@ -109,8 +114,7 @@ async function main() {
   payloads.add(JSON.stringify(version.snapshot));
   // Stabilize database-generated creation/update instants in this synthetic
   // fixture, rather than masking timestamps or evidence fingerprints in parity.
-  const columns = await db.execute<{ table_name: string; column_name: string }>(sql`select table_name,column_name from information_schema.columns where table_schema='public' and column_name in ('created_at','updated_at') and data_type like 'timestamp%'`);
-  for (const c of columns.rows) await db.execute(sql`update ${sql.identifier(c.table_name)} set ${sql.identifier(c.column_name)}='2026-01-01T00:00:00Z'`);
+  await freezeFixtureTimes();
   const plan: RolloverPlan = { sourceId: source.id, targetId: target.id, cloneGrid: false, reason: "Synthetic bounded reads", choices: graduates.map(b => ({ batchId: b.id, disposition: "graduate", carryCount: false, reason: "Synthetic graduation", graduateConfirmed: true })) };
   const graduation = await measure(() => locked(async tx => (await rollover.rolloverEvidence(tx, plan)).review));
   const held = await measure(() => locked(async tx => (await rollover.rolloverEvidence(tx, { ...plan, choices: plan.choices.map(c => ({ ...c, disposition: "hold" })) })).review));
@@ -119,6 +123,10 @@ async function main() {
   payloads.add(JSON.stringify(changedVersion.snapshot));
   const changedGraduation = await measure(() => locked(async tx => (await rollover.rolloverEvidence(tx, plan)).review));
   assert.notEqual(changedGraduation.value.fingerprint, graduation.value.fingerprint, "New operation sees changed payload at the same version ID");
+  const rolloverActions = loadApp<typeof import("../../../src/lib/rollover-actions")>("src/lib/rollover-actions.ts");
+  const stale = await rolloverActions.prepareRolloverAction(null, form({ sourceId: source.id, targetId: target.id, cloneGrid: "off", choices: JSON.stringify(plan.choices), reason: plan.reason, command: "commit", fingerprint: graduation.value.fingerprint, confirmation: `${target.name} · ${target.academicYear}`, acknowledge: "on" }));
+  assert.equal(stale.outcome?.kind, "stale", "Actual confirmation refuses a preview made before a same-ID payload change");
+  assert.equal(stale.review?.fingerprint, changedGraduation.value.fingerprint);
   // Empty selected term: no dependant-table fallback to an unrestricted read.
   await db.update(s.academicTerms).set({ status: "completed" }).where(eq(s.academicTerms.id, term.id));
   const [emptyTerm] = await db.insert(s.academicTerms).values({ name: "Synthetic empty active", academicYear: 2028, startDate: "2028-01-01", endDate: "2028-05-01", status: "active" }).returning();
@@ -129,7 +137,8 @@ async function main() {
   if (mode !== "baseline") {
     for (const table of targeted) assert.deepEqual(twenty.tables[table], two.tables[table], `${table} returned rows bounded by active term`);
     assert.equal(create.portalLoads, 1, "One portal load in create validation");
-    assert.equal(create.tables.course_offerings.calls, 2, "One portal offering read and one candidate audience query");
+    assert.equal(create.tables.course_offerings.calls, 1, "One portal offering read");
+    assert.deepEqual(create.candidateAudiences, [2], "One bounded candidate query returns both merged audiences");
     assert.equal(evidence.tables.course_enrollments.rows, 5); assert.equal(emptyEvidence.tables.course_enrollments, undefined);
     assert.equal(graduation.tables.schedule_versions.calls, 1); assert.equal(graduation.hashes, 1);
     assert.equal(held.tables.schedule_versions, undefined); assert.equal(held.hashes, 0);
@@ -137,6 +146,8 @@ async function main() {
     for (const table of targeted.filter(t => t !== "permitted_windows")) assert.equal(empty.tables[table]?.rows ?? 0, 0);
   }
   // Full semantic outputs are compared with the separately captured unmodified base.
-  report({ outputs: { portal: two.value, viewer: viewerTwo.value, evidence: evidence.value, emptyEvidence: emptyEvidence.value, create: create.value, repeat: repeat.value, denied: denied.value, graduation: graduation.value, held: held.value, changedGraduation: changedGraduation.value, empty: empty.value }, metrics, queries: twenty.queries });
+  const plans = [];
+  for (const query of twenty.queries) plans.push((await db.execute(sql.raw(`explain (format json) ${query.replace(/\$1\b/g, String(term.id))}`))).rows);
+  report({ outputs: { portal: two.value, viewer: viewerTwo.value, evidence: evidence.value, emptyEvidence: emptyEvidence.value, create: create.value, repeat: repeat.value, denied: denied.value, graduation: graduation.value, held: held.value, changedGraduation: changedGraduation.value, empty: empty.value }, metrics, queries: twenty.queries, plans });
 }
 main().then(() => process.exit(0)).catch(error => { console.error(error); process.exit(1); });
