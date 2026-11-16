@@ -1,0 +1,242 @@
+{
+  "captures": [
+    {
+      "name": "editor",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "editor",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "editor",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "missing-policy",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "missing-policy",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "missing-policy",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "invalid-source-grid",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "invalid-source-grid",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "invalid-source-grid",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "review",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "review",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "review",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-preserved",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-preserved",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-preserved",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-target-identity",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-target-identity",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale-target-identity",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "receipt",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "receipt",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "receipt",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "activation-separate",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "activation-separate",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "activation-separate",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "source-history",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "source-history",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "source-history",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "term-summary",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "term-summary",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "term-summary",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-denied",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-denied",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-denied",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-safe-summary",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-safe-summary",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-safe-summary",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Editor, missing-policy refusal, real SQL-blocked pending, review, source-change stale preservation, one-time saved receipt, still-draft target, separate activation, source history, viewer denial and safe summary; persisted counts/semesters/reset verification and unchanged snapshots/attendance/claims verified."
+  ],
+  "errors": []
+}

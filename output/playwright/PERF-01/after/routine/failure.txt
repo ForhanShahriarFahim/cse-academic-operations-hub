@@ -1,0 +1,135 @@
+Skip to content
+Pundra Academic Operations
+Department of CSE
+Summer 2026
+Version 1 published
+Dashboard
+
+Routine
+
+Routine builder
+Days & periods
+Validation
+Publications
+
+Planning records
+
+Teachers
+Workload
+Courses & offerings
+Batches
+Rooms
+External commitments
+
+Classes
+
+Attendance
+Extra class load
+
+Administration
+
+Academic terms
+Decisions & settings
+People & access
+
+Public
+
+Public routine
+(opens in a new tab)
+↗
+Synthetic Admin
+System administrator
+My account
+Sign out
+
+Routine · Working draft
+
+Routine builder
+Print & export
+Suggest placements
+Public view
+(opens in a new tab)
+HSC
+Diploma
+Sat
+Sun
+Mon
+Tue
+Day
+Week
+Batch
+All batches
+HSC-22B
+HSC-21B
+0 clashes this week
+Show 2 warnings
+Classes by batch and time. Select a class to edit it, or an empty cell to add one.
+Batch	9:30–10:45 AM	10:45 AM–12:00 PM	Synthetic prayer break	12:00–1:15 PM	2:30–3:45 PM
+
+HSC-22B
+Semester 7
+SYN-4101
+SYA · SX-101
+With DIP-22B, EEE-22B
+9:00 AM – 10:15 AM
+
++ Add class
+
++ Add class
+
++ Add class
+
+
+HSC-21B
+Semester 8
++ Add class
+
++ Add class
+
++ Add class
+
++ Add class
+
+
+Other departments
+Bookings
+
+Green edge: class
+Gold edge: merged with other batches (stored once)
+Clay edge and “Clash”: must be fixed
+Drag a class to another time or day tab to move it
+Change days and periods
+
+New class
+Needs attention · 1
+New class · SYN-4101
+
+DIP-22B + HSC-22B + EEE-22B
+
+Teaching group
+Select a course and batch…
+SYN-4101 · Synthetic Theory — HSC-22B + DIP-22B + EEE-22B (75 of 150 min placed)
+SYN-4102 · Synthetic Sessional — HSC-22B
+Day
+Saturday
+Sunday
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Starts
+Ends
+Teachers
+SYA
+Room
+SX-101
+Approved exception to the class days or times (for example an HSC Friday class)
+No clashes, 1 warning to note. Saving checks again on the server.
+
+Room suitability changed. The course is inactive. Reactivate it before new teaching assignments.. Review the room selection and try again.
+
+Room suitability changed. The course is inactive. Reactivate it before new teaching assignments.
+Refresh room choices (keep entered values)
+Add class
+Cancel

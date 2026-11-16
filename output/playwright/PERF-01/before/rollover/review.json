@@ -1,0 +1,26 @@
+{
+  "captures": [
+    {
+      "name": "editor",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "editor",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "editor",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Unmodified compiled rollover and archived official/teacher A4/CSV baseline."
+  ],
+  "errors": []
+}

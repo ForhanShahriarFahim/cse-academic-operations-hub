@@ -1,0 +1,26 @@
+{
+  "captures": [
+    {
+      "name": "catalog",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "catalog",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "catalog",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Unmodified compiled catalog and archived official/teacher A4/CSV baseline."
+  ],
+  "errors": []
+}

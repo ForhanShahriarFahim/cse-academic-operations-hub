@@ -9,7 +9,8 @@ const { Client } = require('pg');
   const target = new URL(process.env.DATABASE_URL); assert.ok(['127.0.0.1', 'localhost'].includes(target.hostname)); assert.equal(target.pathname, '/safe01_crs01a_browser');
   const client = new Client({ connectionString: process.env.DATABASE_URL }); await client.connect();
   const browser = await chromium.launch({ channel: 'msedge', headless: true }), context = await browser.newContext(), page = await context.newPage();
-  const base = 'http://localhost:3126', control = 'http://localhost:3127', out = 'output/playwright/CRS-01A/runtime'; fs.mkdirSync(out, { recursive: true });
+  const phase = process.env.PERF01_REVIEW_PHASE; assert.ok(!phase || ['before', 'after'].includes(phase));
+  const base = 'http://localhost:3126', control = 'http://localhost:3127', out = phase ? `output/playwright/PERF-01/${phase}/courses` : 'output/playwright/CRS-01A/runtime'; fs.mkdirSync(out, { recursive: true });
   const captures = [], errors = [], checks = [], hash = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex'); page.on('pageerror', error => errors.push(String(error)));
   const before = {}; for (const table of ['schedule_versions', 'attendance_sessions', 'attendance_records', 'workload_allocations', 'extra_load_classes']) before[table] = hash((await client.query(`select * from ${table} order by id`)).rows);
   const term = (await client.query("select * from academic_terms where status='active'")).rows[0], version = (await client.query('select * from schedule_versions order by id limit 1')).rows[0];
@@ -32,6 +33,8 @@ const { Client } = require('pg');
     const csv = await page.request.get(archive + '/export'); assert.ok(csv.ok()); const csvBefore = await csv.body();
     for (const kind of ['official', 'teachers']) { await page.goto(archive + '/' + kind); await page.locator('main h1').waitFor(); await page.evaluate(() => document.fonts.ready); await page.pdf({ path: `${out}/before-${kind}.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true }); }
     await navigate('/courses'); await page.pdf({ path: `${out}/catalog-before.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true });
+    if (phase) fs.writeFileSync(`${out}/archive.csv`, csvBefore);
+    if (phase === 'before') { fs.writeFileSync(`${out}/review.json`, JSON.stringify({ captures, checks: ['Unmodified compiled catalog and archived official/teacher A4/CSV baseline.'], errors }, null, 2)); return; }
     await page.getByRole('link', { name: 'Add course', exact: true }).click(); await page.getByRole('heading', { name: 'Add course', exact: true }).waitFor(); await capture('add');
     await submit('Add course'); await page.getByText('Check the highlighted fields.', { exact: true }).waitFor(); await capture('validation');
     await page.getByLabel('Code', { exact: true }).fill('UI 4000(a)'); await page.getByLabel('Title', { exact: true }).fill('Synthetic browser sessional'); await page.getByLabel('Academic credits', { exact: true }).fill('1'); await page.getByLabel('Type', { exact: true }).selectOption('sessional'); await page.getByLabel('Owning department', { exact: true }).selectOption('unknown'); await page.getByLabel('Curriculum semester', { exact: true }).selectOption('4'); await page.getByLabel('Specialist requirement', { exact: true }).selectOption('computer');

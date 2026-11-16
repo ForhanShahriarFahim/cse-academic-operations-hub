@@ -9,7 +9,7 @@ import type { TermWriteContext } from "./term-context-value";
  * only (spec §18.3). All actions write an audit event.
  */
 import { revalidatePath } from "next/cache";
-import { db, databaseReadBatch } from "@/db";
+import { db } from "@/db";
 import {
   meetings,
   meetingTeachers,
@@ -25,7 +25,7 @@ import {
   workloadAllocations,
 } from "@/db/schema";
 import { and, eq, desc, sql } from "drizzle-orm";
-import { getPortalData } from "./data";
+import { getPortalData, type PortalData } from "./data";
 import { analyzeSchedule } from "./conflicts";
 import { buildSnapshot, type MeetingView } from "./serialize";
 import { fmtDate, parseTimeToMinutes } from "./time";
@@ -47,16 +47,15 @@ export type { ActionResult } from "./action-result";
 // Meeting creation / move / delete
 // ---------------------------------------------------------------------------
 
-async function buildCandidateView(groupId: number): Promise<MeetingView | null> {
+async function buildCandidateView(groupId: number, data: PortalData): Promise<MeetingView | null> {
   const [group] = await db.select().from(teachingGroups).where(eq(teachingGroups.id, groupId));
   if (!group) return null;
-  const data = await getPortalData();
   const course = data.courses.find((c) => c.id === group.courseId);
   if (!course) return null;
-  const links = await db.select().from(teachingGroupOfferings).where(eq(teachingGroupOfferings.teachingGroupId, groupId));
-  const offerings = await databaseReadBatch(
-    links.map((l) => () => db.select().from(courseOfferings).where(eq(courseOfferings.id, l.offeringId)).then((r) => r[0])),
-  );
+  const linkedOfferings = await db.select({ offering: courseOfferings }).from(teachingGroupOfferings)
+    .innerJoin(courseOfferings, eq(courseOfferings.id, teachingGroupOfferings.offeringId))
+    .where(eq(teachingGroupOfferings.teachingGroupId, groupId)).orderBy(teachingGroupOfferings.id);
+  const offerings = linkedOfferings.map(({ offering }) => offering);
   const audiences = offerings
     .map((o) => {
       const b = o ? data.batches.find((x) => x.id === o.batchId) : null;
@@ -119,7 +118,7 @@ async function createMeetingActionInTerm(formData: FormData): Promise<ActionResu
   const data = await getPortalData();
   const inactive = data.teachers.filter((t) => teacherIds.includes(t.id) && t.status === "inactive");
   if (inactive.length) return { ok: false, message: `${inactive.map((t) => t.shortCode).join(", ")} ${inactive.length === 1 ? "is" : "are"} inactive. Reactivate on the teacher page before assigning new classes.` };
-  const candidate = await buildCandidateView(groupId);
+  const candidate = await buildCandidateView(groupId, data);
   if (!candidate) return { ok: false, message: "Teaching group not found." };
   candidate.dayOfWeek = dayOfWeek;
   candidate.startMinutes = start;
