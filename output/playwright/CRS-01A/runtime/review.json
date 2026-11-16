@@ -1,0 +1,387 @@
+{
+  "captures": [
+    {
+      "name": "catalog",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "catalog",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "catalog",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "add",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "validation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "validation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "validation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "pending",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "unused-edit",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "unused-edit",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "unused-edit",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-detail",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-detail",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-detail",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-catalog",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-catalog",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "long-title-catalog",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "stale",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "reactivated",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "reactivated",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "reactivated",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "title-impact",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "title-impact",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "title-impact",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "used-detail",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "used-detail",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "used-detail",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "blocked-deactivation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "blocked-deactivation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "blocked-deactivation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "filter-empty",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "filter-empty",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "filter-empty",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "all-status",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "all-status",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "all-status",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "no-active-term",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "no-active-term",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "no-active-term",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-detail",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-detail",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer-detail",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "denied",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "denied",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "denied",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Keyboard search → status → apply focus path passes.",
+    "Real HTTP/action create, error/pending/stale input preservation, unused edit, lifecycle, used-title acknowledgement, history, empty/filter/no-term/viewer/denied states pass. All snapshots, attendance, allocations and claims unchanged; archived CSV byte-identical; native A4 before/after captured."
+  ],
+  "errors": []
+}

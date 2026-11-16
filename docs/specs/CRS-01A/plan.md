@@ -1,9 +1,9 @@
 # CRS-01A — Implementation plan and sole checklist
 
 Parent: CRS-01 / #7. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md). Sketches: [mockups/index.html](mockups/index.html).
-Status: **Owner approved; implementation in progress.**
+Status: **Implemented and verified; owner inspection/acceptance pending.**
 Branch / base: `codex/crs-01a` / `bc2575785e39ceab0e65c01bd3335b3465283128`.
-Updated: 15 November 2026, Asia/Dhaka.
+Updated: 16 November 2026, Asia/Dhaka.
 
 ## Inspection and proposed approach
 
@@ -36,7 +36,7 @@ Lock order: standalone catalog write → exclusive singleton context → course 
 - [x] T-02 — Obtain actual D-1–D-6/scope/design approval; record it and commit approved plan before implementation. Owner approval recorded above; approval checkpoint precedes feature work.
 - [x] T-03 — Implement pure rules, revision migration, injected evidence/transactions, capability and atomic audits; verify legacy preservation and both adapter migration/recovery paths. AC-01, AC-03–07.
 - [x] T-04 — Implement global directory/create/detail/edit/history/lifecycle and narrowly necessary serialized status/assignment integrations. AC-01–05, AC-08–09.
-- [ ] T-05 — Run focused server/action/adapter/race/history regressions, required typecheck/lint/domain/default build; guarded synthetic production desktop/mobile/keyboard/axe and applicable CSV/A4 parity. Correct findings and record evidence/limits. AC-01–10.
+- [x] T-05 — Run focused server/action/adapter/race/history regressions, required typecheck/lint/domain/default build; guarded synthetic production desktop/mobile/keyboard/axe and applicable CSV/A4 parity. Correct findings and record evidence/limits. AC-01–10.
 - [ ] T-06 — Review/commit bounded delivery; give owner runnable synthetic inspection path; obtain actual acceptance (including any disclosed limitation), record it, then merge locally into `main`. Keep #7 open and leave CRS-01B/PERF-01 for an owner-started session.
 
 ## Verification and delivery strategy
@@ -52,9 +52,10 @@ No institutional migration or backup operation, reset, additional worktree/write
 ## Current checkpoint / exact handoff
 
 - Branch `codex/crs-01a`, base `bc25757`; proposal `84311ab`, actual implementation approval `50acb88` precedes feature code. One writer/checkout; no worktree, institutional operation or remote request.
-- T-01–T-04 complete. T-05 final compiled browser/print refresh is in progress; T-06 delivery acceptance remains pending. Both catalog adapter/migration/recovery/race groups and relevant historical regressions pass; typecheck/lint/domain and separate Webpack build pass. Default Turbopack remains failed (AC-10 partial).
+- T-01–T-05 complete. Implementation checkpoint `5161c28`; final evidence/helper checkpoint is the delivery commit containing this handoff. T-06 delivery acceptance remains pending. Both catalog adapter/migration/recovery/race groups and relevant historical regressions pass; typecheck/lint/domain and separate Webpack build pass. Default Turbopack remains failed (AC-10 partial).
+- 16 November resume: owner said “go for the next task”. This requests progression but does not explicitly accept the remaining default-build limitation; do not fabricate acceptance. Final outstanding evidence/helper diff reviewed, 152 local file links resolve, receipt records 63 captures with zero overflow/violations/errors, representative desktop/mobile images inspected, browser helper syntax and typecheck pass. Prior application/adapter/build checks were not repeated. Before CRS-01B, the existing review recommends PERF-01 inspection/specification; no implementation scope is approved for it.
 - Evidence and execution corrections: [verification.md](verification.md). Actual checkpoint hash/status come from Git. No application changes may be inferred from a document's clean-tree claim.
 - Runnable synthetic owner review: `node node_modules/tsx/dist/cli.mjs scripts/review-courses.ts --serve`, then [control/sign-in](http://localhost:3127) / [Courses](http://localhost:3126/courses). The launcher owns a disposable PostgreSQL cluster; no old PGlite preload. See verification for exact build and `--check` paths.
-- Next action: finish/commit the bounded delivery and present it for owner inspection. Obtain actual acceptance, explicitly including the failed default build if it remains, record/commit acceptance, then merge into local `main`. Parent #7 remains open. No automatic CRS-01B/PERF-01, institutional migrations `0017`/`0018`, database operation or remote sync.
+- Next action: present the committed bounded delivery for owner inspection. Obtain actual acceptance, explicitly including the failed default build if it remains, record/commit acceptance, then merge into local `main`. Parent #7 remains open. No automatic CRS-01B/PERF-01, institutional migrations `0017`/`0018`, database operation or remote sync.
 
 Next-session prompt: “Resume CRS-01A / #7 on codex/crs-01a, base bc25757. Read current brief/workflow and docs/specs/CRS-01A/{spec,plan,verification}.md. Inspect actual Git state and any outstanding final verification. Owner approved unchanged scope/design and D-1–D-6 on 15 November, committed as 50acb88 before implementation; do not ask to repeat that approval. Catalog create/edit/deactivate/reactivate/history is implemented, with used academic fields frozen, fresh title/lifecycle fingerprints, immutable captured labels and all-term blockers. Complete pending verification if any, then support owner inspection/acceptance; the default Turbopack CSS-worker failure remains distinct from the passing Webpack build and needs explicit delivery acceptance. After acceptance, record/commit it before a bounded local main merge. Keep parent #7 open. No next slice, academic versioning/reclassification, institutional operation, migration 0017/0018, extra worktree/writer, remote sync or separate build investigation.”

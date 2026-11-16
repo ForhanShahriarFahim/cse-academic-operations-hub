@@ -16,7 +16,7 @@ const { Client } = require('pg');
   const archive = `${base}/terms/${term.id}/publications/${version.id}`;
   async function capture(name) {
     for (const width of [1440, 390, 320]) {
-      await page.setViewportSize({ width, height: 1000 }); await page.evaluate(() => document.fonts.ready); await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
+      await page.setViewportSize({ width, height: 1000 }); await page.evaluate(() => window.scrollTo(0, 0)); await page.evaluate(() => document.fonts.ready); await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
       const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })));
       assert.deepEqual(violations, [], `${name} accessibility ${width}`); const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth); assert.equal(overflow, false, `${name} overflow ${width}`);
       await page.screenshot({ path: `${out}/${name}-${width}.png`, fullPage: true }); captures.push({ name, width, overflow, violations });
