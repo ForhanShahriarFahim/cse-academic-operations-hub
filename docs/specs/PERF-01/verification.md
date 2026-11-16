@@ -26,6 +26,14 @@ No PERF-01 database, benchmark, code suite, build or browser run was performed f
 
 ## Acceptance evidence
 
+### Unmodified-base measurement checkpoint
+
+Approval `a8cb252` precedes the harness. Before application changes, `scripts/verify-performance.ts --baseline` captured complete synthetic outputs and real adapter returned-row/digest counts for PGlite and PostgreSQL. Receipts: [PGlite](../../../output/perf-01/baseline-pglite.json), [PostgreSQL](../../../output/perf-01/baseline-postgresql.json). Application source is identical to `d6e3cdb`; baseline mode refuses a changed `src` diff. Creation/update timestamps in synthetic evidence records are fixed before rollover measurements, rather than removing fingerprints from comparisons.
+
+At 2→20 total terms, returned rows grow: links 5→23, requirements 3→21, meetings 3→21, meeting teachers 4→22, meeting rooms 3→21, windows 6→24. Create validation performs two full portal loads and four offering reads (two portal, two audience). HSC cohort evidence transfers 24 enrollments and retains five. Two graduation choices read the same two-version set twice and hash their shared referenced payload twice. These are transferred-row/call measurements, not latency or query-plan speed claims.
+
+Harness corrections before capture: the initial synthetic Thursday slot hit an existing scheduling blocker; the passing Saturday 11:00–12:15 case is used. Counters exclude destination-emptiness aggregate probes and distinguish full portal dictionary reads from CSE permission lookups. The first default-sandbox PostgreSQL attempt failed with loopback EACCES; the complete passing adapter capture used reviewed escalation against owned `safe01_*` targets. A harness overload type error was fixed before the passing typecheck. No application change was made to clear these fixture/instrumentation issues.
+
 | Criterion | Result | Reason |
 | --- | --- | --- |
 | AC-01–04 | Pending | No PERF-01 implementation or synthetic baseline/optimized measurements yet. Source inspection is not a performance pass. |

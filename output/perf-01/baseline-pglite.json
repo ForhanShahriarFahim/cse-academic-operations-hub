@@ -1,0 +1,3316 @@
+{
+  "source": "d6e3cdb (application unchanged at approval a8cb252)",
+  "outputs": {
+    "portal": {
+      "writeContext": {
+        "activeTermId": 1,
+        "generation": 1
+      },
+      "term": {
+        "id": 1,
+        "name": "Summer 2026",
+        "academicYear": 2026,
+        "startDate": "2026-06-01",
+        "endDate": "2026-09-30",
+        "effectiveFrom": "2026-06-07",
+        "status": "active"
+      },
+      "maintenance": {
+        "termStart": "2026-06-01",
+        "termEnd": "2026-09-30",
+        "entries": [],
+        "meetingDates": {
+          "1": {
+            "effectiveFrom": null,
+            "effectiveTo": null
+          },
+          "2": {
+            "effectiveFrom": null,
+            "effectiveTo": null
+          }
+        }
+      },
+      "departments": [
+        {
+          "id": 1,
+          "code": "CSE",
+          "name": "Synthetic Computing"
+        },
+        {
+          "id": 2,
+          "code": "EEE",
+          "name": "Synthetic Electrical"
+        }
+      ],
+      "teachers": [
+        {
+          "id": 1,
+          "shortCode": "SYA",
+          "fullName": "Synthetic Teacher A",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": "+000-0000-0001",
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 2,
+          "shortCode": "SYB",
+          "fullName": "Synthetic Teacher B",
+          "designation": null,
+          "employmentType": "part_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": null,
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 3,
+          "shortCode": "SYC",
+          "fullName": "Synthetic Teacher C",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 2,
+          "homeDepartmentCode": "EEE",
+          "homeDepartmentName": "Synthetic Electrical",
+          "email": null,
+          "phone": null,
+          "status": "inactive",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        }
+      ],
+      "rooms": [
+        {
+          "id": 1,
+          "code": "SX-406",
+          "building": "Synthetic Block",
+          "roomType": "lab",
+          "capabilities": [
+            "computer",
+            "theory"
+          ],
+          "capacity": null,
+          "owningDepartmentCode": "CSE",
+          "isActive": true,
+          "notes": null
+        },
+        {
+          "id": 2,
+          "code": "SX-101",
+          "building": "Synthetic Block",
+          "roomType": "classroom",
+          "capabilities": [
+            "theory"
+          ],
+          "capacity": 40,
+          "owningDepartmentCode": null,
+          "isActive": true,
+          "notes": null
+        }
+      ],
+      "courses": [
+        {
+          "id": 1,
+          "isActive": true,
+          "code": "SYN-4101",
+          "title": "Synthetic Theory",
+          "credits": 3,
+          "courseType": "theory",
+          "semester": 7,
+          "owningDepartmentCode": "CSE",
+          "needsLab": false,
+          "requiredRoomCapability": null
+        },
+        {
+          "id": 2,
+          "isActive": true,
+          "code": "SYN-4102",
+          "title": "Synthetic Sessional",
+          "credits": 1,
+          "courseType": "sessional",
+          "semester": 7,
+          "owningDepartmentCode": null,
+          "needsLab": true,
+          "requiredRoomCapability": "computer"
+        }
+      ],
+      "batches": [
+        {
+          "id": 2,
+          "stream": "DIPLOMA",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": 3,
+          "sortOrder": 2
+        },
+        {
+          "id": 1,
+          "stream": "HSC",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": 30,
+          "countStatus": "unverified",
+          "semester": 7,
+          "sortOrder": 1
+        },
+        {
+          "id": 3,
+          "stream": "HSC",
+          "label": "21B",
+          "intake": null,
+          "status": "active",
+          "studentCount": 25,
+          "countStatus": "unverified",
+          "semester": 8,
+          "sortOrder": 0
+        },
+        {
+          "id": 4,
+          "stream": "HSC",
+          "label": "PERF-EMPTY",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        }
+      ],
+      "meetings": [
+        {
+          "id": 1,
+          "teachingGroupId": 1,
+          "dayOfWeek": 0,
+          "startMinutes": 540,
+          "endMinutes": 615,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "courseCredits": 3,
+          "requiredRoomCapability": null,
+          "owningDepartmentCode": "CSE",
+          "deliveryMode": "fixed",
+          "isException": false,
+          "exceptionNote": null,
+          "customTimeLabel": null,
+          "highlightColor": null,
+          "pendingReconciliation": false,
+          "teachers": [
+            {
+              "id": 1,
+              "shortCode": "SYA",
+              "fullName": "Synthetic Teacher A",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "instructor"
+            }
+          ],
+          "rooms": [
+            {
+              "id": 2,
+              "code": "SX-101",
+              "building": "Synthetic Block",
+              "roomType": "classroom",
+              "capabilities": [
+                "theory"
+              ],
+              "capacity": 40
+            }
+          ],
+          "audiences": [
+            {
+              "batchId": 1,
+              "batchLabel": "22B",
+              "stream": "HSC",
+              "semester": 7,
+              "studentCount": 30,
+              "countStatus": "unverified"
+            },
+            {
+              "batchId": 2,
+              "batchLabel": "22B",
+              "stream": "DIPLOMA",
+              "semester": 3,
+              "studentCount": null,
+              "countStatus": "unknown"
+            }
+          ],
+          "externalAudienceLabel": "EEE-22B",
+          "externalStudentCount": null
+        },
+        {
+          "id": 2,
+          "teachingGroupId": 2,
+          "dayOfWeek": 1,
+          "startMinutes": 600,
+          "endMinutes": 750,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseType": "sessional",
+          "courseCredits": 1,
+          "requiredRoomCapability": "computer",
+          "owningDepartmentCode": null,
+          "deliveryMode": "fixed",
+          "isException": false,
+          "exceptionNote": null,
+          "customTimeLabel": null,
+          "highlightColor": null,
+          "pendingReconciliation": false,
+          "teachers": [
+            {
+              "id": 1,
+              "shortCode": "SYA",
+              "fullName": "Synthetic Teacher A",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "instructor"
+            },
+            {
+              "id": 2,
+              "shortCode": "SYB",
+              "fullName": "Synthetic Teacher B",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "co_teacher"
+            }
+          ],
+          "rooms": [
+            {
+              "id": 1,
+              "code": "SX-406",
+              "building": "Synthetic Block",
+              "roomType": "lab",
+              "capabilities": [
+                "computer",
+                "theory"
+              ],
+              "capacity": null
+            }
+          ],
+          "audiences": [
+            {
+              "batchId": 1,
+              "batchLabel": "22B",
+              "stream": "HSC",
+              "semester": 7,
+              "studentCount": 30,
+              "countStatus": "unverified"
+            }
+          ],
+          "externalAudienceLabel": null,
+          "externalStudentCount": null
+        }
+      ],
+      "externals": [
+        {
+          "id": 1,
+          "kind": "teaching",
+          "completenessLevel": "B",
+          "counterpartDepartment": "EEE",
+          "teacherId": 2,
+          "teacherShortCode": "SYB",
+          "teacherName": "Synthetic Teacher B",
+          "roomId": 2,
+          "roomCode": "SX-101",
+          "courseLabel": "SYN-EEE-2201",
+          "audienceLabel": null,
+          "dayOfWeek": 2,
+          "startMinutes": 600,
+          "endMinutes": 675,
+          "credits": 3,
+          "verificationStatus": "verified",
+          "source": null,
+          "lastVerifiedAt": "2026-06-04T00:00:00.000Z",
+          "notes": null
+        }
+      ],
+      "breaks": [
+        {
+          "id": 1,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "DIPLOMA",
+          "dayOfWeek": 0,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 2,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "DIPLOMA",
+          "dayOfWeek": 6,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 3,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 0,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 4,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 1,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 5,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 2,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 6,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 3,
+          "startMinutes": 780,
+          "endMinutes": 840
+        }
+      ],
+      "timeGrid": {
+        "patterns": [
+          {
+            "id": 4,
+            "name": "Diploma Friday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 780,
+                "start": 720
+              },
+              {
+                "end": 900,
+                "start": 840
+              },
+              {
+                "end": 960,
+                "start": 900
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 5,
+            "name": "Diploma Saturday",
+            "periods": [
+              {
+                "end": 780,
+                "start": 720
+              },
+              {
+                "end": 840,
+                "start": 780
+              },
+              {
+                "end": 900,
+                "start": 840
+              },
+              {
+                "end": 960,
+                "start": 900
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 1,
+            "name": "HSC Saturday",
+            "periods": [
+              {
+                "end": 645,
+                "start": 570
+              },
+              {
+                "end": 720,
+                "start": 645
+              },
+              {
+                "end": 795,
+                "start": 720
+              },
+              {
+                "end": 945,
+                "start": 870
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 2,
+            "name": "HSC Sunday–Monday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 795,
+                "start": 720
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 3,
+            "name": "HSC Tuesday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 795,
+                "start": 720
+              },
+              {
+                "end": 885,
+                "start": 810
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          }
+        ],
+        "dayPlans": [
+          {
+            "id": 1,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 0,
+            "patternId": 1,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 2,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 1,
+            "patternId": 2,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 3,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 2,
+            "patternId": 2,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 4,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 3,
+            "patternId": 3,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 5,
+            "stream": "DIPLOMA",
+            "batchId": null,
+            "dayOfWeek": 6,
+            "patternId": 4,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 6,
+            "stream": "DIPLOMA",
+            "batchId": null,
+            "dayOfWeek": 0,
+            "patternId": 5,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 7,
+            "stream": "DIPLOMA",
+            "batchId": 2,
+            "dayOfWeek": 6,
+            "patternId": 4,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 8,
+            "stream": "DIPLOMA",
+            "batchId": 2,
+            "dayOfWeek": 0,
+            "patternId": 5,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 9,
+            "stream": "HSC",
+            "batchId": 1,
+            "dayOfWeek": 0,
+            "patternId": 1,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 10,
+            "stream": "HSC",
+            "batchId": 1,
+            "dayOfWeek": 1,
+            "patternId": 2,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          }
+        ]
+      },
+      "windows": [
+        {
+          "id": 1,
+          "termId": 1,
+          "batchId": 2,
+          "stream": "DIPLOMA",
+          "dayOfWeek": 6,
+          "startMinutes": 540,
+          "endMinutes": 720,
+          "note": null
+        },
+        {
+          "id": 2,
+          "termId": 1,
+          "batchId": 2,
+          "stream": "DIPLOMA",
+          "dayOfWeek": 0,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 3,
+          "termId": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "dayOfWeek": 0,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 4,
+          "termId": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "dayOfWeek": 1,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 5,
+          "termId": null,
+          "batchId": null,
+          "stream": "HSC",
+          "dayOfWeek": 4,
+          "startMinutes": 480,
+          "endMinutes": 1020,
+          "note": null
+        }
+      ],
+      "allocations": [
+        {
+          "id": 1,
+          "teacherId": 1,
+          "units": 3,
+          "allocationMethod": "sole",
+          "policyNote": null,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseCredits": 3,
+          "teachingGroupId": 1,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 2,
+          "teacherId": 1,
+          "units": 1,
+          "allocationMethod": "split",
+          "policyNote": "Synthetic split",
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseCredits": 1,
+          "teachingGroupId": 2,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 3,
+          "teacherId": 2,
+          "units": 1,
+          "allocationMethod": "split",
+          "policyNote": null,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseCredits": 1,
+          "teachingGroupId": 2,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 4,
+          "teacherId": 2,
+          "units": 3,
+          "allocationMethod": "external",
+          "policyNote": null,
+          "courseCode": null,
+          "courseTitle": null,
+          "courseCredits": null,
+          "teachingGroupId": null,
+          "externalDepartment": "EEE",
+          "externalCommitmentId": 1
+        }
+      ],
+      "coverage": [
+        {
+          "teachingGroupId": 4,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "deliveryMode": "teacher_managed",
+          "audience": "",
+          "teacherCodes": [],
+          "hasTeacherAssignment": false,
+          "expectedWeeklyMinutes": null,
+          "requiredMeetings": 0,
+          "scheduledMeetings": 0,
+          "scheduledMinutes": 0,
+          "status": "teacher_managed",
+          "pendingReconciliation": false,
+          "notes": null
+        },
+        {
+          "teachingGroupId": 1,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "deliveryMode": "fixed",
+          "audience": "HSC-22B + DIP-22B + EEE-22B",
+          "teacherCodes": [
+            "SYA"
+          ],
+          "hasTeacherAssignment": true,
+          "expectedWeeklyMinutes": 150,
+          "requiredMeetings": 2,
+          "scheduledMeetings": 1,
+          "scheduledMinutes": 75,
+          "status": "partial",
+          "pendingReconciliation": false,
+          "notes": null
+        },
+        {
+          "teachingGroupId": 2,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseType": "sessional",
+          "deliveryMode": "fixed",
+          "audience": "HSC-22B",
+          "teacherCodes": [
+            "SYA",
+            "SYB"
+          ],
+          "hasTeacherAssignment": true,
+          "expectedWeeklyMinutes": 150,
+          "requiredMeetings": 1,
+          "scheduledMeetings": 1,
+          "scheduledMinutes": 150,
+          "status": "scheduled",
+          "pendingReconciliation": false,
+          "notes": null
+        }
+      ],
+      "versions": [
+        {
+          "id": 1,
+          "versionNumber": 1,
+          "state": "published",
+          "effectiveFrom": "2026-06-07",
+          "effectiveTo": null,
+          "publishedAt": "2026-06-06T00:00:00.000Z",
+          "publishedBy": "Synthetic Admin",
+          "changeSummary": "Synthetic v1",
+          "meetingCount": 1
+        }
+      ],
+      "publishedSnapshot": null,
+      "publishedSnapshotLegacy": false,
+      "publicationMetadata": {
+        "teachers": [
+          {
+            "shortCode": "SYA",
+            "fullName": "Synthetic Teacher A",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": "+000-0000-0001",
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYB",
+            "fullName": "Synthetic Teacher B",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": null,
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYC",
+            "fullName": "Synthetic Teacher C",
+            "designation": null,
+            "departmentCode": "EEE",
+            "phone": null,
+            "email": null,
+            "status": "inactive"
+          }
+        ],
+        "courses": [
+          {
+            "code": "SYN-4101",
+            "title": "Synthetic Theory",
+            "credits": 3,
+            "courseType": "theory",
+            "semester": 7
+          },
+          {
+            "code": "SYN-4102",
+            "title": "Synthetic Sessional",
+            "credits": 1,
+            "courseType": "sessional",
+            "semester": 7
+          }
+        ],
+        "classRepresentatives": [
+          {
+            "stream": "HSC",
+            "batchLabel": "22B",
+            "fullName": "Synthetic Representative",
+            "phone": "+000-0000-0101",
+            "sortOrder": 0
+          }
+        ],
+        "queryContacts": [
+          {
+            "fullName": "Synthetic Coordinator",
+            "designation": "Coordinator",
+            "phone": "+000-0000-0201",
+            "email": null,
+            "sortOrder": 0
+          }
+        ],
+        "sourceReconciliations": [
+          {
+            "detail": "Synthetic open question",
+            "status": "open",
+            "sourceLabel": "Synthetic source v1"
+          }
+        ]
+      },
+      "classRepresentatives": [
+        {
+          "id": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "batchLabel": "22B",
+          "fullName": "Synthetic Representative",
+          "phone": "+000-0000-0101",
+          "sortOrder": 0
+        }
+      ],
+      "queryContacts": [
+        {
+          "id": 1,
+          "fullName": "Synthetic Coordinator",
+          "designation": "Coordinator",
+          "phone": "+000-0000-0201",
+          "email": null,
+          "sortOrder": 0
+        }
+      ],
+      "sourceReconciliations": [
+        {
+          "id": 1,
+          "detail": "Synthetic open question",
+          "status": "open",
+          "sourceLabel": "Synthetic source v1"
+        }
+      ]
+    },
+    "viewer": {
+      "writeContext": {
+        "activeTermId": 1,
+        "generation": 1
+      },
+      "term": {
+        "id": 1,
+        "name": "Summer 2026",
+        "academicYear": 2026,
+        "startDate": "2026-06-01",
+        "endDate": "2026-09-30",
+        "effectiveFrom": "2026-06-07",
+        "status": "active"
+      },
+      "maintenance": {
+        "termStart": "2026-06-01",
+        "termEnd": "2026-09-30",
+        "entries": [],
+        "meetingDates": {
+          "1": {
+            "effectiveFrom": null,
+            "effectiveTo": null
+          },
+          "2": {
+            "effectiveFrom": null,
+            "effectiveTo": null
+          }
+        }
+      },
+      "departments": [
+        {
+          "id": 1,
+          "code": "CSE",
+          "name": "Synthetic Computing"
+        },
+        {
+          "id": 2,
+          "code": "EEE",
+          "name": "Synthetic Electrical"
+        }
+      ],
+      "teachers": [
+        {
+          "id": 1,
+          "shortCode": "SYA",
+          "fullName": "Synthetic Teacher A",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": null,
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 2,
+          "shortCode": "SYB",
+          "fullName": "Synthetic Teacher B",
+          "designation": null,
+          "employmentType": "part_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": null,
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 3,
+          "shortCode": "SYC",
+          "fullName": "Synthetic Teacher C",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 2,
+          "homeDepartmentCode": "EEE",
+          "homeDepartmentName": "Synthetic Electrical",
+          "email": null,
+          "phone": null,
+          "status": "inactive",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        }
+      ],
+      "rooms": [
+        {
+          "id": 1,
+          "code": "SX-406",
+          "building": "Synthetic Block",
+          "roomType": "lab",
+          "capabilities": [
+            "computer",
+            "theory"
+          ],
+          "capacity": null,
+          "owningDepartmentCode": "CSE",
+          "isActive": true,
+          "notes": null
+        },
+        {
+          "id": 2,
+          "code": "SX-101",
+          "building": "Synthetic Block",
+          "roomType": "classroom",
+          "capabilities": [
+            "theory"
+          ],
+          "capacity": 40,
+          "owningDepartmentCode": null,
+          "isActive": true,
+          "notes": null
+        }
+      ],
+      "courses": [
+        {
+          "id": 1,
+          "isActive": true,
+          "code": "SYN-4101",
+          "title": "Synthetic Theory",
+          "credits": 3,
+          "courseType": "theory",
+          "semester": 7,
+          "owningDepartmentCode": "CSE",
+          "needsLab": false,
+          "requiredRoomCapability": null
+        },
+        {
+          "id": 2,
+          "isActive": true,
+          "code": "SYN-4102",
+          "title": "Synthetic Sessional",
+          "credits": 1,
+          "courseType": "sessional",
+          "semester": 7,
+          "owningDepartmentCode": null,
+          "needsLab": true,
+          "requiredRoomCapability": "computer"
+        }
+      ],
+      "batches": [
+        {
+          "id": 2,
+          "stream": "DIPLOMA",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": 3,
+          "sortOrder": 2
+        },
+        {
+          "id": 1,
+          "stream": "HSC",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": 30,
+          "countStatus": "unverified",
+          "semester": 7,
+          "sortOrder": 1
+        },
+        {
+          "id": 3,
+          "stream": "HSC",
+          "label": "21B",
+          "intake": null,
+          "status": "active",
+          "studentCount": 25,
+          "countStatus": "unverified",
+          "semester": 8,
+          "sortOrder": 0
+        },
+        {
+          "id": 4,
+          "stream": "HSC",
+          "label": "PERF-EMPTY",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        }
+      ],
+      "meetings": [
+        {
+          "id": 1,
+          "teachingGroupId": 1,
+          "dayOfWeek": 0,
+          "startMinutes": 540,
+          "endMinutes": 615,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "courseCredits": 3,
+          "requiredRoomCapability": null,
+          "owningDepartmentCode": "CSE",
+          "deliveryMode": "fixed",
+          "isException": false,
+          "exceptionNote": null,
+          "customTimeLabel": null,
+          "highlightColor": null,
+          "pendingReconciliation": false,
+          "teachers": [
+            {
+              "id": 1,
+              "shortCode": "SYA",
+              "fullName": "Synthetic Teacher A",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "instructor"
+            }
+          ],
+          "rooms": [
+            {
+              "id": 2,
+              "code": "SX-101",
+              "building": "Synthetic Block",
+              "roomType": "classroom",
+              "capabilities": [
+                "theory"
+              ],
+              "capacity": 40
+            }
+          ],
+          "audiences": [
+            {
+              "batchId": 1,
+              "batchLabel": "22B",
+              "stream": "HSC",
+              "semester": 7,
+              "studentCount": 30,
+              "countStatus": "unverified"
+            },
+            {
+              "batchId": 2,
+              "batchLabel": "22B",
+              "stream": "DIPLOMA",
+              "semester": 3,
+              "studentCount": null,
+              "countStatus": "unknown"
+            }
+          ],
+          "externalAudienceLabel": "EEE-22B",
+          "externalStudentCount": null
+        },
+        {
+          "id": 2,
+          "teachingGroupId": 2,
+          "dayOfWeek": 1,
+          "startMinutes": 600,
+          "endMinutes": 750,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseType": "sessional",
+          "courseCredits": 1,
+          "requiredRoomCapability": "computer",
+          "owningDepartmentCode": null,
+          "deliveryMode": "fixed",
+          "isException": false,
+          "exceptionNote": null,
+          "customTimeLabel": null,
+          "highlightColor": null,
+          "pendingReconciliation": false,
+          "teachers": [
+            {
+              "id": 1,
+              "shortCode": "SYA",
+              "fullName": "Synthetic Teacher A",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "instructor"
+            },
+            {
+              "id": 2,
+              "shortCode": "SYB",
+              "fullName": "Synthetic Teacher B",
+              "homeDepartmentCode": "CSE",
+              "designation": null,
+              "isExternalCse": false,
+              "role": "co_teacher"
+            }
+          ],
+          "rooms": [
+            {
+              "id": 1,
+              "code": "SX-406",
+              "building": "Synthetic Block",
+              "roomType": "lab",
+              "capabilities": [
+                "computer",
+                "theory"
+              ],
+              "capacity": null
+            }
+          ],
+          "audiences": [
+            {
+              "batchId": 1,
+              "batchLabel": "22B",
+              "stream": "HSC",
+              "semester": 7,
+              "studentCount": 30,
+              "countStatus": "unverified"
+            }
+          ],
+          "externalAudienceLabel": null,
+          "externalStudentCount": null
+        }
+      ],
+      "externals": [
+        {
+          "id": 1,
+          "kind": "teaching",
+          "completenessLevel": "B",
+          "counterpartDepartment": "EEE",
+          "teacherId": 2,
+          "teacherShortCode": "SYB",
+          "teacherName": "Synthetic Teacher B",
+          "roomId": 2,
+          "roomCode": "SX-101",
+          "courseLabel": "SYN-EEE-2201",
+          "audienceLabel": null,
+          "dayOfWeek": 2,
+          "startMinutes": 600,
+          "endMinutes": 675,
+          "credits": 3,
+          "verificationStatus": "verified",
+          "source": null,
+          "lastVerifiedAt": "2026-06-04T00:00:00.000Z",
+          "notes": null
+        }
+      ],
+      "breaks": [
+        {
+          "id": 1,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "DIPLOMA",
+          "dayOfWeek": 0,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 2,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "DIPLOMA",
+          "dayOfWeek": 6,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 3,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 0,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 4,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 1,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 5,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 2,
+          "startMinutes": 780,
+          "endMinutes": 840
+        },
+        {
+          "id": 6,
+          "name": "Synthetic prayer break",
+          "scope": "stream",
+          "stream": "HSC",
+          "dayOfWeek": 3,
+          "startMinutes": 780,
+          "endMinutes": 840
+        }
+      ],
+      "timeGrid": {
+        "patterns": [
+          {
+            "id": 4,
+            "name": "Diploma Friday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 780,
+                "start": 720
+              },
+              {
+                "end": 900,
+                "start": 840
+              },
+              {
+                "end": 960,
+                "start": 900
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 5,
+            "name": "Diploma Saturday",
+            "periods": [
+              {
+                "end": 780,
+                "start": 720
+              },
+              {
+                "end": 840,
+                "start": 780
+              },
+              {
+                "end": 900,
+                "start": 840
+              },
+              {
+                "end": 960,
+                "start": 900
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 1,
+            "name": "HSC Saturday",
+            "periods": [
+              {
+                "end": 645,
+                "start": 570
+              },
+              {
+                "end": 720,
+                "start": 645
+              },
+              {
+                "end": 795,
+                "start": 720
+              },
+              {
+                "end": 945,
+                "start": 870
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 2,
+            "name": "HSC Sunday–Monday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 795,
+                "start": 720
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 3,
+            "name": "HSC Tuesday",
+            "periods": [
+              {
+                "end": 600,
+                "start": 540
+              },
+              {
+                "end": 660,
+                "start": 600
+              },
+              {
+                "end": 720,
+                "start": 660
+              },
+              {
+                "end": 795,
+                "start": 720
+              },
+              {
+                "end": 885,
+                "start": 810
+              }
+            ],
+            "breaks": [
+              {
+                "end": 840,
+                "name": "Synthetic prayer break",
+                "start": 780,
+                "blocksClasses": true
+              }
+            ],
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          }
+        ],
+        "dayPlans": [
+          {
+            "id": 1,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 0,
+            "patternId": 1,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 2,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 1,
+            "patternId": 2,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 3,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 2,
+            "patternId": 2,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 4,
+            "stream": "HSC",
+            "batchId": null,
+            "dayOfWeek": 3,
+            "patternId": 3,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 5,
+            "stream": "DIPLOMA",
+            "batchId": null,
+            "dayOfWeek": 6,
+            "patternId": 4,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 6,
+            "stream": "DIPLOMA",
+            "batchId": null,
+            "dayOfWeek": 0,
+            "patternId": 5,
+            "reason": null,
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 7,
+            "stream": "DIPLOMA",
+            "batchId": 2,
+            "dayOfWeek": 6,
+            "patternId": 4,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 8,
+            "stream": "DIPLOMA",
+            "batchId": 2,
+            "dayOfWeek": 0,
+            "patternId": 5,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 9,
+            "stream": "HSC",
+            "batchId": 1,
+            "dayOfWeek": 0,
+            "patternId": 1,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          },
+          {
+            "id": 10,
+            "stream": "HSC",
+            "batchId": 1,
+            "dayOfWeek": 1,
+            "patternId": 2,
+            "reason": "Carried over from class hours set before term grids.",
+            "updatedAt": "2026-11-16T03:59:23.426Z"
+          }
+        ]
+      },
+      "windows": [
+        {
+          "id": 1,
+          "termId": 1,
+          "batchId": 2,
+          "stream": "DIPLOMA",
+          "dayOfWeek": 6,
+          "startMinutes": 540,
+          "endMinutes": 720,
+          "note": null
+        },
+        {
+          "id": 2,
+          "termId": 1,
+          "batchId": 2,
+          "stream": "DIPLOMA",
+          "dayOfWeek": 0,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 3,
+          "termId": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "dayOfWeek": 0,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 4,
+          "termId": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "dayOfWeek": 1,
+          "startMinutes": 480,
+          "endMinutes": 900,
+          "note": null
+        },
+        {
+          "id": 5,
+          "termId": null,
+          "batchId": null,
+          "stream": "HSC",
+          "dayOfWeek": 4,
+          "startMinutes": 480,
+          "endMinutes": 1020,
+          "note": null
+        }
+      ],
+      "allocations": [
+        {
+          "id": 1,
+          "teacherId": 1,
+          "units": 3,
+          "allocationMethod": "sole",
+          "policyNote": null,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseCredits": 3,
+          "teachingGroupId": 1,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 2,
+          "teacherId": 1,
+          "units": 1,
+          "allocationMethod": "split",
+          "policyNote": "Synthetic split",
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseCredits": 1,
+          "teachingGroupId": 2,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 3,
+          "teacherId": 2,
+          "units": 1,
+          "allocationMethod": "split",
+          "policyNote": null,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseCredits": 1,
+          "teachingGroupId": 2,
+          "externalDepartment": null,
+          "externalCommitmentId": null
+        },
+        {
+          "id": 4,
+          "teacherId": 2,
+          "units": 3,
+          "allocationMethod": "external",
+          "policyNote": null,
+          "courseCode": null,
+          "courseTitle": null,
+          "courseCredits": null,
+          "teachingGroupId": null,
+          "externalDepartment": "EEE",
+          "externalCommitmentId": 1
+        }
+      ],
+      "coverage": [
+        {
+          "teachingGroupId": 4,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "deliveryMode": "teacher_managed",
+          "audience": "",
+          "teacherCodes": [],
+          "hasTeacherAssignment": false,
+          "expectedWeeklyMinutes": null,
+          "requiredMeetings": 0,
+          "scheduledMeetings": 0,
+          "scheduledMinutes": 0,
+          "status": "teacher_managed",
+          "pendingReconciliation": false,
+          "notes": null
+        },
+        {
+          "teachingGroupId": 1,
+          "courseCode": "SYN-4101",
+          "courseTitle": "Synthetic Theory",
+          "courseType": "theory",
+          "deliveryMode": "fixed",
+          "audience": "HSC-22B + DIP-22B + EEE-22B",
+          "teacherCodes": [
+            "SYA"
+          ],
+          "hasTeacherAssignment": true,
+          "expectedWeeklyMinutes": 150,
+          "requiredMeetings": 2,
+          "scheduledMeetings": 1,
+          "scheduledMinutes": 75,
+          "status": "partial",
+          "pendingReconciliation": false,
+          "notes": null
+        },
+        {
+          "teachingGroupId": 2,
+          "courseCode": "SYN-4102",
+          "courseTitle": "Synthetic Sessional",
+          "courseType": "sessional",
+          "deliveryMode": "fixed",
+          "audience": "HSC-22B",
+          "teacherCodes": [
+            "SYA",
+            "SYB"
+          ],
+          "hasTeacherAssignment": true,
+          "expectedWeeklyMinutes": 150,
+          "requiredMeetings": 1,
+          "scheduledMeetings": 1,
+          "scheduledMinutes": 150,
+          "status": "scheduled",
+          "pendingReconciliation": false,
+          "notes": null
+        }
+      ],
+      "versions": [
+        {
+          "id": 1,
+          "versionNumber": 1,
+          "state": "published",
+          "effectiveFrom": "2026-06-07",
+          "effectiveTo": null,
+          "publishedAt": "2026-06-06T00:00:00.000Z",
+          "publishedBy": "Synthetic Admin",
+          "changeSummary": "Synthetic v1",
+          "meetingCount": 1
+        }
+      ],
+      "publishedSnapshot": null,
+      "publishedSnapshotLegacy": false,
+      "publicationMetadata": {
+        "teachers": [
+          {
+            "shortCode": "SYA",
+            "fullName": "Synthetic Teacher A",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": null,
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYB",
+            "fullName": "Synthetic Teacher B",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": null,
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYC",
+            "fullName": "Synthetic Teacher C",
+            "designation": null,
+            "departmentCode": "EEE",
+            "phone": null,
+            "email": null,
+            "status": "inactive"
+          }
+        ],
+        "courses": [
+          {
+            "code": "SYN-4101",
+            "title": "Synthetic Theory",
+            "credits": 3,
+            "courseType": "theory",
+            "semester": 7
+          },
+          {
+            "code": "SYN-4102",
+            "title": "Synthetic Sessional",
+            "credits": 1,
+            "courseType": "sessional",
+            "semester": 7
+          }
+        ],
+        "classRepresentatives": [
+          {
+            "stream": "HSC",
+            "batchLabel": "22B",
+            "fullName": "Synthetic Representative",
+            "phone": null,
+            "sortOrder": 0
+          }
+        ],
+        "queryContacts": [
+          {
+            "fullName": "Synthetic Coordinator",
+            "designation": "Coordinator",
+            "phone": "",
+            "email": null,
+            "sortOrder": 0
+          }
+        ],
+        "sourceReconciliations": [
+          {
+            "detail": "Synthetic open question",
+            "status": "open",
+            "sourceLabel": "Synthetic source v1"
+          }
+        ]
+      },
+      "classRepresentatives": [
+        {
+          "id": 1,
+          "batchId": 1,
+          "stream": "HSC",
+          "batchLabel": "22B",
+          "fullName": "Synthetic Representative",
+          "phone": null,
+          "sortOrder": 0
+        }
+      ],
+      "queryContacts": [
+        {
+          "id": 1,
+          "fullName": "Synthetic Coordinator",
+          "designation": "Coordinator",
+          "phone": "",
+          "email": null,
+          "sortOrder": 0
+        }
+      ],
+      "sourceReconciliations": [
+        {
+          "id": 1,
+          "detail": "Synthetic open question",
+          "status": "open",
+          "sourceLabel": "Synthetic source v1"
+        }
+      ]
+    },
+    "evidence": {
+      "references": [
+        {
+          "key": "placement:1:1",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Semester 7 · active",
+          "href": "/terms/1",
+          "blocksLifecycle": false
+        },
+        {
+          "key": "offering:1:open",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Course offering #1 · open",
+          "href": "/courses",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "offering:3:open",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Course offering #3 · open",
+          "href": "/courses",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "meeting:1:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Meeting #1 · active",
+          "href": "/routine",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "meeting:2:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Meeting #2 · active",
+          "href": "/routine",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "enrollment:1:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Enrollment reference #1 · active",
+          "href": "/attendance",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "enrollment:2:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Enrollment reference #2 · active",
+          "href": "/attendance",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "enrollment:3:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Enrollment reference #3 · active",
+          "href": "/attendance",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "enrollment:4:active",
+          "termId": 1,
+          "term": "Summer 2026",
+          "detail": "Enrollment reference #4 · active",
+          "href": "/attendance",
+          "blocksLifecycle": true
+        },
+        {
+          "key": "enrollment:6:inactive",
+          "termId": 2,
+          "term": "Synthetic history 1",
+          "detail": "Enrollment reference #6 · inactive",
+          "href": "/attendance",
+          "blocksLifecycle": false
+        }
+      ],
+      "totals": {
+        "placements": 1,
+        "offerings": 2,
+        "groupLinks": 2,
+        "meetings": 2,
+        "homeStudents": 1,
+        "enrollments": 5,
+        "representatives": 1,
+        "windows": 2,
+        "dayPlans": 2
+      },
+      "snapshots": 0,
+      "uncertainSnapshots": 1
+    },
+    "emptyEvidence": {
+      "references": [],
+      "totals": {
+        "placements": 0,
+        "offerings": 0,
+        "groupLinks": 0,
+        "meetings": 0,
+        "homeStudents": 0,
+        "enrollments": 0,
+        "representatives": 0,
+        "windows": 0,
+        "dayPlans": 0
+      },
+      "snapshots": 0,
+      "uncertainSnapshots": 1
+    },
+    "create": {
+      "ok": true,
+      "message": "Meeting scheduled.",
+      "issues": [
+        {
+          "id": "capu--1-2",
+          "severity": "warning",
+          "type": "capacity_unverified",
+          "title": "Unverified audience size in SX-101",
+          "detail": "Audience size for SYN-4101 is unknown (SX-101 seats 40). Verify before unconditional approval; unknown is never zero.",
+          "dayOfWeek": 0,
+          "meetingIds": [
+            -1
+          ]
+        }
+      ]
+    },
+    "repeat": {
+      "ok": false,
+      "message": "1 blocking conflict(s) — placement rejected.",
+      "issues": [
+        {
+          "id": "dup-22--1",
+          "severity": "blocker",
+          "type": "audience_overlap",
+          "title": "Duplicate physical event for one teaching group",
+          "detail": "SYN-4101 has two overlapping meeting rows — shared classes must be stored once.",
+          "dayOfWeek": 0,
+          "meetingIds": [
+            22,
+            -1
+          ]
+        },
+        {
+          "id": "capu--1-2",
+          "severity": "warning",
+          "type": "capacity_unverified",
+          "title": "Unverified audience size in SX-101",
+          "detail": "Audience size for SYN-4101 is unknown (SX-101 seats 40). Verify before unconditional approval; unknown is never zero.",
+          "dayOfWeek": 0,
+          "meetingIds": [
+            -1
+          ]
+        }
+      ]
+    },
+    "denied": {
+      "ok": false,
+      "message": "You do not have permission to make this change.",
+      "outcome": {
+        "kind": "permission",
+        "reason": "forbidden"
+      }
+    },
+    "graduation": {
+      "fingerprint": "24584dad45f29afe879be0178a24eb24c7c35781224e966d9c6de3c79cf594cd",
+      "source": "Synthetic performance source",
+      "target": "Synthetic performance destination",
+      "targetIdentity": "Synthetic performance destination · 2027",
+      "decisions": [
+        {
+          "id": 5,
+          "label": "PERF-A",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "graduate",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        },
+        {
+          "id": 6,
+          "label": "PERF-B",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "graduate",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        }
+      ],
+      "grid": {
+        "patterns": 0,
+        "plans": 0,
+        "windows": 0,
+        "excludedExceptions": 0,
+        "legacyWindows": 1
+      },
+      "warnings": [
+        "Copied counts need reconfirmation after activation.",
+        "Adding placements freezes draft identity and starting-policy setup.",
+        "Preparation is recorded once; this wizard cannot append or overwrite.",
+        "Academic calendar copying is unavailable."
+      ]
+    },
+    "held": {
+      "fingerprint": "e87e84a308118c468ad0059f21bcf2887929dff71b79b40c3b9f808357ffae39",
+      "source": "Synthetic performance source",
+      "target": "Synthetic performance destination",
+      "targetIdentity": "Synthetic performance destination · 2027",
+      "decisions": [
+        {
+          "id": 5,
+          "label": "PERF-A",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "hold",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        },
+        {
+          "id": 6,
+          "label": "PERF-B",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "hold",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        }
+      ],
+      "grid": {
+        "patterns": 0,
+        "plans": 0,
+        "windows": 0,
+        "excludedExceptions": 0,
+        "legacyWindows": 1
+      },
+      "warnings": [
+        "Copied counts need reconfirmation after activation.",
+        "Adding placements freezes draft identity and starting-policy setup.",
+        "Preparation is recorded once; this wizard cannot append or overwrite.",
+        "Academic calendar copying is unavailable."
+      ]
+    },
+    "changedGraduation": {
+      "fingerprint": "389fa4344ea8edd7440969b0b940841cc1ed1625b7e394f39fc5ab0694cf036a",
+      "source": "Synthetic performance source",
+      "target": "Synthetic performance destination",
+      "targetIdentity": "Synthetic performance destination · 2027",
+      "decisions": [
+        {
+          "id": 5,
+          "label": "PERF-A",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "graduate",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        },
+        {
+          "id": 6,
+          "label": "PERF-B",
+          "stream": "HSC",
+          "status": "active",
+          "semester": 8,
+          "studentCount": null,
+          "confidence": "unknown",
+          "disposition": "graduate",
+          "destinationSemester": null,
+          "destinationCount": null,
+          "reason": "Synthetic graduation"
+        }
+      ],
+      "grid": {
+        "patterns": 0,
+        "plans": 0,
+        "windows": 0,
+        "excludedExceptions": 0,
+        "legacyWindows": 1
+      },
+      "warnings": [
+        "Copied counts need reconfirmation after activation.",
+        "Adding placements freezes draft identity and starting-policy setup.",
+        "Preparation is recorded once; this wizard cannot append or overwrite.",
+        "Academic calendar copying is unavailable."
+      ]
+    },
+    "empty": {
+      "writeContext": {
+        "activeTermId": 23,
+        "generation": 2
+      },
+      "term": {
+        "id": 23,
+        "name": "Synthetic empty active",
+        "academicYear": 2028,
+        "startDate": "2028-01-01",
+        "endDate": "2028-05-01",
+        "effectiveFrom": null,
+        "status": "active"
+      },
+      "maintenance": {
+        "termStart": "2028-01-01",
+        "termEnd": "2028-05-01",
+        "entries": [],
+        "meetingDates": {}
+      },
+      "departments": [
+        {
+          "id": 1,
+          "code": "CSE",
+          "name": "Synthetic Computing"
+        },
+        {
+          "id": 2,
+          "code": "EEE",
+          "name": "Synthetic Electrical"
+        }
+      ],
+      "teachers": [
+        {
+          "id": 1,
+          "shortCode": "SYA",
+          "fullName": "Synthetic Teacher A",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": "+000-0000-0001",
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 2,
+          "shortCode": "SYB",
+          "fullName": "Synthetic Teacher B",
+          "designation": null,
+          "employmentType": "part_time",
+          "homeDepartmentId": 1,
+          "homeDepartmentCode": "CSE",
+          "homeDepartmentName": "Synthetic Computing",
+          "email": null,
+          "phone": null,
+          "status": "active",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        },
+        {
+          "id": 3,
+          "shortCode": "SYC",
+          "fullName": "Synthetic Teacher C",
+          "designation": null,
+          "employmentType": "full_time",
+          "homeDepartmentId": 2,
+          "homeDepartmentCode": "EEE",
+          "homeDepartmentName": "Synthetic Electrical",
+          "email": null,
+          "phone": null,
+          "status": "inactive",
+          "notes": null,
+          "advisoryLoadUnits": null,
+          "loadLimit": 15
+        }
+      ],
+      "rooms": [
+        {
+          "id": 1,
+          "code": "SX-406",
+          "building": "Synthetic Block",
+          "roomType": "lab",
+          "capabilities": [
+            "computer",
+            "theory"
+          ],
+          "capacity": null,
+          "owningDepartmentCode": "CSE",
+          "isActive": true,
+          "notes": null
+        },
+        {
+          "id": 2,
+          "code": "SX-101",
+          "building": "Synthetic Block",
+          "roomType": "classroom",
+          "capabilities": [
+            "theory"
+          ],
+          "capacity": 40,
+          "owningDepartmentCode": null,
+          "isActive": true,
+          "notes": null
+        }
+      ],
+      "courses": [
+        {
+          "id": 1,
+          "isActive": true,
+          "code": "SYN-4101",
+          "title": "Synthetic Theory",
+          "credits": 3,
+          "courseType": "theory",
+          "semester": 7,
+          "owningDepartmentCode": "CSE",
+          "needsLab": false,
+          "requiredRoomCapability": null
+        },
+        {
+          "id": 2,
+          "isActive": true,
+          "code": "SYN-4102",
+          "title": "Synthetic Sessional",
+          "credits": 1,
+          "courseType": "sessional",
+          "semester": 7,
+          "owningDepartmentCode": null,
+          "needsLab": true,
+          "requiredRoomCapability": "computer"
+        }
+      ],
+      "batches": [
+        {
+          "id": 2,
+          "stream": "DIPLOMA",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 2
+        },
+        {
+          "id": 1,
+          "stream": "HSC",
+          "label": "22B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 1
+        },
+        {
+          "id": 3,
+          "stream": "HSC",
+          "label": "21B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        },
+        {
+          "id": 4,
+          "stream": "HSC",
+          "label": "PERF-EMPTY",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        },
+        {
+          "id": 5,
+          "stream": "HSC",
+          "label": "PERF-A",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        },
+        {
+          "id": 6,
+          "stream": "HSC",
+          "label": "PERF-B",
+          "intake": null,
+          "status": "active",
+          "studentCount": null,
+          "countStatus": "unknown",
+          "semester": null,
+          "sortOrder": 0
+        }
+      ],
+      "meetings": [],
+      "externals": [],
+      "breaks": [],
+      "timeGrid": {
+        "patterns": [],
+        "dayPlans": []
+      },
+      "windows": [
+        {
+          "id": 5,
+          "termId": null,
+          "batchId": null,
+          "stream": "HSC",
+          "dayOfWeek": 4,
+          "startMinutes": 480,
+          "endMinutes": 1020,
+          "note": null
+        }
+      ],
+      "allocations": [],
+      "coverage": [],
+      "versions": [],
+      "publishedSnapshot": null,
+      "publishedSnapshotLegacy": false,
+      "publicationMetadata": {
+        "teachers": [
+          {
+            "shortCode": "SYA",
+            "fullName": "Synthetic Teacher A",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": "+000-0000-0001",
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYB",
+            "fullName": "Synthetic Teacher B",
+            "designation": null,
+            "departmentCode": "CSE",
+            "phone": null,
+            "email": null,
+            "status": "active"
+          },
+          {
+            "shortCode": "SYC",
+            "fullName": "Synthetic Teacher C",
+            "designation": null,
+            "departmentCode": "EEE",
+            "phone": null,
+            "email": null,
+            "status": "inactive"
+          }
+        ],
+        "courses": [
+          {
+            "code": "SYN-4101",
+            "title": "Synthetic Theory",
+            "credits": 3,
+            "courseType": "theory",
+            "semester": 7
+          },
+          {
+            "code": "SYN-4102",
+            "title": "Synthetic Sessional",
+            "credits": 1,
+            "courseType": "sessional",
+            "semester": 7
+          }
+        ],
+        "classRepresentatives": [],
+        "queryContacts": [],
+        "sourceReconciliations": []
+      },
+      "classRepresentatives": [],
+      "queryContacts": [],
+      "sourceReconciliations": []
+    }
+  },
+  "metrics": {
+    "two": {
+      "batch_term_placements": {
+        "calls": 1,
+        "rows": 3
+      },
+      "batches": {
+        "calls": 1,
+        "rows": 4
+      },
+      "class_representatives": {
+        "calls": 1,
+        "rows": 1
+      },
+      "course_offerings": {
+        "calls": 1,
+        "rows": 3
+      },
+      "courses": {
+        "calls": 1,
+        "rows": 2
+      },
+      "day_plans": {
+        "calls": 1,
+        "rows": 10
+      },
+      "department_contacts": {
+        "calls": 1,
+        "rows": 1
+      },
+      "departments": {
+        "calls": 3,
+        "rows": 4
+      },
+      "external_commitments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "meeting_rooms": {
+        "calls": 1,
+        "rows": 3
+      },
+      "meeting_teachers": {
+        "calls": 1,
+        "rows": 4
+      },
+      "meetings": {
+        "calls": 1,
+        "rows": 3
+      },
+      "period_patterns": {
+        "calls": 1,
+        "rows": 5
+      },
+      "permitted_windows": {
+        "calls": 1,
+        "rows": 6
+      },
+      "portal_users": {
+        "calls": 1,
+        "rows": 1
+      },
+      "role_assignments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "room_unavailability": {
+        "calls": 1,
+        "rows": 0
+      },
+      "rooms": {
+        "calls": 1,
+        "rows": 2
+      },
+      "routine_source_reconciliations": {
+        "calls": 1,
+        "rows": 1
+      },
+      "schedule_versions": {
+        "calls": 1,
+        "rows": 1
+      },
+      "teachers": {
+        "calls": 1,
+        "rows": 3
+      },
+      "teaching_group_offerings": {
+        "calls": 1,
+        "rows": 5
+      },
+      "teaching_groups": {
+        "calls": 1,
+        "rows": 3
+      },
+      "teaching_requirements": {
+        "calls": 1,
+        "rows": 3
+      },
+      "term_context": {
+        "calls": 3,
+        "rows": 3
+      },
+      "workload_allocations": {
+        "calls": 1,
+        "rows": 4
+      }
+    },
+    "twenty": {
+      "batch_term_placements": {
+        "calls": 1,
+        "rows": 3
+      },
+      "batches": {
+        "calls": 1,
+        "rows": 4
+      },
+      "class_representatives": {
+        "calls": 1,
+        "rows": 1
+      },
+      "course_offerings": {
+        "calls": 1,
+        "rows": 3
+      },
+      "courses": {
+        "calls": 1,
+        "rows": 2
+      },
+      "day_plans": {
+        "calls": 1,
+        "rows": 10
+      },
+      "department_contacts": {
+        "calls": 1,
+        "rows": 1
+      },
+      "departments": {
+        "calls": 3,
+        "rows": 4
+      },
+      "external_commitments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "meeting_rooms": {
+        "calls": 1,
+        "rows": 21
+      },
+      "meeting_teachers": {
+        "calls": 1,
+        "rows": 22
+      },
+      "meetings": {
+        "calls": 1,
+        "rows": 21
+      },
+      "period_patterns": {
+        "calls": 1,
+        "rows": 5
+      },
+      "permitted_windows": {
+        "calls": 1,
+        "rows": 24
+      },
+      "portal_users": {
+        "calls": 1,
+        "rows": 1
+      },
+      "role_assignments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "room_unavailability": {
+        "calls": 1,
+        "rows": 0
+      },
+      "rooms": {
+        "calls": 1,
+        "rows": 2
+      },
+      "routine_source_reconciliations": {
+        "calls": 1,
+        "rows": 1
+      },
+      "schedule_versions": {
+        "calls": 1,
+        "rows": 1
+      },
+      "teachers": {
+        "calls": 1,
+        "rows": 3
+      },
+      "teaching_group_offerings": {
+        "calls": 1,
+        "rows": 23
+      },
+      "teaching_groups": {
+        "calls": 1,
+        "rows": 3
+      },
+      "teaching_requirements": {
+        "calls": 1,
+        "rows": 21
+      },
+      "term_context": {
+        "calls": 3,
+        "rows": 3
+      },
+      "workload_allocations": {
+        "calls": 1,
+        "rows": 4
+      }
+    },
+    "evidence": {
+      "audit_events": {
+        "calls": 1,
+        "rows": 0
+      },
+      "batch_term_placements": {
+        "calls": 1,
+        "rows": 1
+      },
+      "class_representatives": {
+        "calls": 1,
+        "rows": 1
+      },
+      "course_enrollments": {
+        "calls": 1,
+        "rows": 24
+      },
+      "course_offerings": {
+        "calls": 1,
+        "rows": 2
+      },
+      "day_plans": {
+        "calls": 1,
+        "rows": 2
+      },
+      "meetings": {
+        "calls": 1,
+        "rows": 2
+      },
+      "permitted_windows": {
+        "calls": 1,
+        "rows": 2
+      },
+      "schedule_versions": {
+        "calls": 1,
+        "rows": 1
+      },
+      "students": {
+        "calls": 1,
+        "rows": 1
+      },
+      "teaching_group_offerings": {
+        "calls": 1,
+        "rows": 2
+      },
+      "term_context": {
+        "calls": 1,
+        "rows": 1
+      }
+    },
+    "emptyEvidence": {
+      "audit_events": {
+        "calls": 1,
+        "rows": 0
+      },
+      "batch_term_placements": {
+        "calls": 1,
+        "rows": 0
+      },
+      "class_representatives": {
+        "calls": 1,
+        "rows": 0
+      },
+      "course_enrollments": {
+        "calls": 1,
+        "rows": 24
+      },
+      "course_offerings": {
+        "calls": 1,
+        "rows": 0
+      },
+      "day_plans": {
+        "calls": 1,
+        "rows": 0
+      },
+      "permitted_windows": {
+        "calls": 1,
+        "rows": 0
+      },
+      "schedule_versions": {
+        "calls": 1,
+        "rows": 1
+      },
+      "students": {
+        "calls": 1,
+        "rows": 0
+      },
+      "term_context": {
+        "calls": 1,
+        "rows": 1
+      }
+    },
+    "create": {
+      "academic_terms": {
+        "calls": 1,
+        "rows": 1
+      },
+      "batch_term_placements": {
+        "calls": 2,
+        "rows": 6
+      },
+      "batches": {
+        "calls": 2,
+        "rows": 8
+      },
+      "class_representatives": {
+        "calls": 2,
+        "rows": 2
+      },
+      "course_offerings": {
+        "calls": 4,
+        "rows": 8
+      },
+      "courses": {
+        "calls": 2,
+        "rows": 4
+      },
+      "day_plans": {
+        "calls": 2,
+        "rows": 20
+      },
+      "department_contacts": {
+        "calls": 2,
+        "rows": 2
+      },
+      "departments": {
+        "calls": 7,
+        "rows": 9
+      },
+      "external_commitments": {
+        "calls": 2,
+        "rows": 2
+      },
+      "meeting_rooms": {
+        "calls": 2,
+        "rows": 42
+      },
+      "meeting_teachers": {
+        "calls": 2,
+        "rows": 44
+      },
+      "meetings": {
+        "calls": 2,
+        "rows": 42
+      },
+      "period_patterns": {
+        "calls": 2,
+        "rows": 10
+      },
+      "permitted_windows": {
+        "calls": 2,
+        "rows": 48
+      },
+      "portal_users": {
+        "calls": 5,
+        "rows": 5
+      },
+      "role_assignments": {
+        "calls": 5,
+        "rows": 5
+      },
+      "room_unavailability": {
+        "calls": 3,
+        "rows": 0
+      },
+      "rooms": {
+        "calls": 5,
+        "rows": 7
+      },
+      "routine_source_reconciliations": {
+        "calls": 2,
+        "rows": 2
+      },
+      "schedule_versions": {
+        "calls": 2,
+        "rows": 2
+      },
+      "teachers": {
+        "calls": 2,
+        "rows": 6
+      },
+      "teaching_group_offerings": {
+        "calls": 4,
+        "rows": 50
+      },
+      "teaching_groups": {
+        "calls": 8,
+        "rows": 12
+      },
+      "teaching_requirements": {
+        "calls": 2,
+        "rows": 42
+      },
+      "term_context": {
+        "calls": 10,
+        "rows": 10
+      },
+      "workload_allocations": {
+        "calls": 2,
+        "rows": 8
+      }
+    },
+    "createPortalLoads": 2,
+    "repeat": {
+      "academic_terms": {
+        "calls": 1,
+        "rows": 1
+      },
+      "batch_term_placements": {
+        "calls": 2,
+        "rows": 6
+      },
+      "batches": {
+        "calls": 2,
+        "rows": 8
+      },
+      "class_representatives": {
+        "calls": 2,
+        "rows": 2
+      },
+      "course_offerings": {
+        "calls": 4,
+        "rows": 8
+      },
+      "courses": {
+        "calls": 2,
+        "rows": 4
+      },
+      "day_plans": {
+        "calls": 2,
+        "rows": 20
+      },
+      "department_contacts": {
+        "calls": 2,
+        "rows": 2
+      },
+      "departments": {
+        "calls": 7,
+        "rows": 9
+      },
+      "external_commitments": {
+        "calls": 2,
+        "rows": 2
+      },
+      "meeting_rooms": {
+        "calls": 2,
+        "rows": 44
+      },
+      "meeting_teachers": {
+        "calls": 2,
+        "rows": 46
+      },
+      "meetings": {
+        "calls": 2,
+        "rows": 44
+      },
+      "period_patterns": {
+        "calls": 2,
+        "rows": 10
+      },
+      "permitted_windows": {
+        "calls": 2,
+        "rows": 48
+      },
+      "portal_users": {
+        "calls": 4,
+        "rows": 4
+      },
+      "role_assignments": {
+        "calls": 4,
+        "rows": 4
+      },
+      "room_unavailability": {
+        "calls": 2,
+        "rows": 0
+      },
+      "rooms": {
+        "calls": 2,
+        "rows": 4
+      },
+      "routine_source_reconciliations": {
+        "calls": 2,
+        "rows": 2
+      },
+      "schedule_versions": {
+        "calls": 2,
+        "rows": 2
+      },
+      "teachers": {
+        "calls": 2,
+        "rows": 6
+      },
+      "teaching_group_offerings": {
+        "calls": 3,
+        "rows": 48
+      },
+      "teaching_groups": {
+        "calls": 5,
+        "rows": 9
+      },
+      "teaching_requirements": {
+        "calls": 2,
+        "rows": 42
+      },
+      "term_context": {
+        "calls": 9,
+        "rows": 9
+      },
+      "workload_allocations": {
+        "calls": 2,
+        "rows": 8
+      }
+    },
+    "denied": {
+      "departments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "portal_users": {
+        "calls": 2,
+        "rows": 2
+      },
+      "role_assignments": {
+        "calls": 2,
+        "rows": 2
+      },
+      "teaching_groups": {
+        "calls": 1,
+        "rows": 1
+      },
+      "term_context": {
+        "calls": 3,
+        "rows": 3
+      }
+    },
+    "graduation": {
+      "tables": {
+        "academic_policies": {
+          "calls": 1,
+          "rows": 1
+        },
+        "academic_terms": {
+          "calls": 2,
+          "rows": 3
+        },
+        "audit_events": {
+          "calls": 2,
+          "rows": 0
+        },
+        "batch_term_placements": {
+          "calls": 3,
+          "rows": 4
+        },
+        "batches": {
+          "calls": 1,
+          "rows": 6
+        },
+        "class_representatives": {
+          "calls": 2,
+          "rows": 0
+        },
+        "course_enrollments": {
+          "calls": 2,
+          "rows": 48
+        },
+        "course_offerings": {
+          "calls": 2,
+          "rows": 0
+        },
+        "day_plans": {
+          "calls": 4,
+          "rows": 0
+        },
+        "period_patterns": {
+          "calls": 2,
+          "rows": 0
+        },
+        "permitted_windows": {
+          "calls": 4,
+          "rows": 1
+        },
+        "schedule_versions": {
+          "calls": 2,
+          "rows": 4
+        },
+        "students": {
+          "calls": 2,
+          "rows": 0
+        },
+        "term_context": {
+          "calls": 2,
+          "rows": 2
+        },
+        "term_rollovers": {
+          "calls": 1,
+          "rows": 0
+        }
+      },
+      "hashes": 2
+    },
+    "held": {
+      "tables": {
+        "academic_policies": {
+          "calls": 1,
+          "rows": 1
+        },
+        "academic_terms": {
+          "calls": 2,
+          "rows": 3
+        },
+        "batch_term_placements": {
+          "calls": 1,
+          "rows": 2
+        },
+        "batches": {
+          "calls": 1,
+          "rows": 6
+        },
+        "day_plans": {
+          "calls": 2,
+          "rows": 0
+        },
+        "period_patterns": {
+          "calls": 2,
+          "rows": 0
+        },
+        "permitted_windows": {
+          "calls": 2,
+          "rows": 1
+        },
+        "term_context": {
+          "calls": 2,
+          "rows": 2
+        },
+        "term_rollovers": {
+          "calls": 1,
+          "rows": 0
+        }
+      },
+      "hashes": 0
+    },
+    "changedGraduation": {
+      "tables": {
+        "academic_policies": {
+          "calls": 1,
+          "rows": 1
+        },
+        "academic_terms": {
+          "calls": 2,
+          "rows": 3
+        },
+        "audit_events": {
+          "calls": 2,
+          "rows": 0
+        },
+        "batch_term_placements": {
+          "calls": 3,
+          "rows": 4
+        },
+        "batches": {
+          "calls": 1,
+          "rows": 6
+        },
+        "class_representatives": {
+          "calls": 2,
+          "rows": 0
+        },
+        "course_enrollments": {
+          "calls": 2,
+          "rows": 48
+        },
+        "course_offerings": {
+          "calls": 2,
+          "rows": 0
+        },
+        "day_plans": {
+          "calls": 4,
+          "rows": 0
+        },
+        "period_patterns": {
+          "calls": 2,
+          "rows": 0
+        },
+        "permitted_windows": {
+          "calls": 4,
+          "rows": 1
+        },
+        "schedule_versions": {
+          "calls": 2,
+          "rows": 4
+        },
+        "students": {
+          "calls": 2,
+          "rows": 0
+        },
+        "term_context": {
+          "calls": 2,
+          "rows": 2
+        },
+        "term_rollovers": {
+          "calls": 1,
+          "rows": 0
+        }
+      },
+      "hashes": 2
+    },
+    "empty": {
+      "batch_term_placements": {
+        "calls": 1,
+        "rows": 0
+      },
+      "batches": {
+        "calls": 1,
+        "rows": 6
+      },
+      "class_representatives": {
+        "calls": 1,
+        "rows": 0
+      },
+      "course_offerings": {
+        "calls": 1,
+        "rows": 0
+      },
+      "courses": {
+        "calls": 1,
+        "rows": 2
+      },
+      "day_plans": {
+        "calls": 1,
+        "rows": 0
+      },
+      "department_contacts": {
+        "calls": 1,
+        "rows": 0
+      },
+      "departments": {
+        "calls": 3,
+        "rows": 4
+      },
+      "external_commitments": {
+        "calls": 1,
+        "rows": 0
+      },
+      "meeting_rooms": {
+        "calls": 1,
+        "rows": 22
+      },
+      "meeting_teachers": {
+        "calls": 1,
+        "rows": 23
+      },
+      "meetings": {
+        "calls": 1,
+        "rows": 22
+      },
+      "period_patterns": {
+        "calls": 1,
+        "rows": 0
+      },
+      "permitted_windows": {
+        "calls": 1,
+        "rows": 24
+      },
+      "portal_users": {
+        "calls": 1,
+        "rows": 1
+      },
+      "role_assignments": {
+        "calls": 1,
+        "rows": 1
+      },
+      "room_unavailability": {
+        "calls": 1,
+        "rows": 0
+      },
+      "rooms": {
+        "calls": 1,
+        "rows": 2
+      },
+      "routine_source_reconciliations": {
+        "calls": 1,
+        "rows": 0
+      },
+      "schedule_versions": {
+        "calls": 1,
+        "rows": 0
+      },
+      "teachers": {
+        "calls": 1,
+        "rows": 3
+      },
+      "teaching_group_offerings": {
+        "calls": 1,
+        "rows": 23
+      },
+      "teaching_groups": {
+        "calls": 1,
+        "rows": 0
+      },
+      "teaching_requirements": {
+        "calls": 1,
+        "rows": 21
+      },
+      "term_context": {
+        "calls": 3,
+        "rows": 3
+      },
+      "workload_allocations": {
+        "calls": 1,
+        "rows": 0
+      }
+    }
+  },
+  "queries": [
+    "select \"id\", \"teaching_group_id\", \"offering_id\" from \"teaching_group_offerings\"",
+    "select \"id\", \"teaching_group_id\", \"expected_weekly_minutes\", \"required_meetings_per_week\", \"status\", \"notes\" from \"teaching_requirements\"",
+    "select \"id\", \"teaching_group_id\", \"day_of_week\", \"start_minutes\", \"end_minutes\", \"effective_from\", \"effective_to\", \"is_exception\", \"exception_note\", \"custom_time_label\", \"highlight_color\", \"status\", \"created_at\" from \"meetings\"",
+    "select \"id\", \"meeting_id\", \"teacher_id\", \"role\" from \"meeting_teachers\"",
+    "select \"id\", \"meeting_id\", \"room_id\", \"room_role\" from \"meeting_rooms\"",
+    "select \"id\", \"term_id\", \"batch_id\", \"stream\", \"day_of_week\", \"start_minutes\", \"end_minutes\", \"requires_exception_note\" from \"permitted_windows\""
+  ]
+}
