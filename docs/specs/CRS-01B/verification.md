@@ -37,10 +37,15 @@ All database checks ran on harness-owned synthetic targets under `.tmp/safe-01` 
 | `verify-safety.ts "CRS-01A catalog"` (both adapters) | Pass on PGlite and PostgreSQL. |
 | `verify-safety.ts T-03` (two-term history) | Pass. |
 | `verify-safety.ts "BAT-01B rollover (PGlite)"`, `"BAT-01A records (PGlite)"` | Pass. |
-| `npm run build` (default Turbopack) | **Not run — blocked.** |
-| Webpack production build, compiled browser review, CSV/A4 parity | **Not run — blocked.** |
+| `npm run build` (default) | **Pass** (resumed session, 16 November), before and after the form correction below; all five offerings routes compiled. The CSS-worker failure of recent deliveries did not occur. |
+| Separate Webpack build | Not run: it was only ever a substitute for a failing default build, which passes here. |
+| `scripts/review-offerings.ts --check` (compiled preview, disposable PostgreSQL) | First run **failed** and found a real defect (below). After the correction: **pass, 48 captures**. |
 
-The full safety suite and `test:ux`/`test:ui` were not run; the groups above cover the touched seams.
+The full safety suite and `test:ux`/`test:ui` were not run; the groups above cover the touched seams. After the form correction, typecheck, lint and domain were re-run and pass; safety groups were not repeated because no server code changed.
+
+### Defect found by the first browser run, and its correction
+
+On “Start from previous term”, submitting without a reason showed the validation message but cleared every tick the editor had added, while the summary and button still said “4 offerings”. React resets a form after an `action` submission; the controlled checkboxes were unticked in the page while their state stayed ticked. The three offering forms now submit through `onSubmit` and dispatch the action themselves, so no reset happens ([offering-forms.tsx](../../../src/components/offerings/offering-forms.tsx)). No server, rule or store change. The browser script needed no selector corrections.
 
 ## Acceptance evidence
 
@@ -54,10 +59,14 @@ The full safety suite and `test:ux`/`test:ui` were not run; the groups above cov
 | AC-06 | Pass | Lifecycle matrix on both adapters, including forged, repeated, file, cross-term and unrecognized inputs. |
 | AC-07 | Pass | Independent PostgreSQL connections observed waiting on real locks: two editors on one reviewed start, identical adds, different cohorts of one term, offering versus catalog deactivation in both orders, offering versus exclusive context-lock holders in both orders. No-op commands add no event; audit failure rolls back start, add and cancel. |
 | AC-08 | Pass (data); output pending | Across the whole scenario only `course_offerings` and `audit_events` differ from the baseline fingerprint; every other table, including schedule versions, is identical. Byte comparison of the archived CSV and A4 output is in the pending browser script. |
-| AC-09 | **Pending** | Not verified. Loading, validation, stale and success states, keyboard order, axe and 1440/390/320 captures of the real pages need the compiled preview. Only the static mockups have captures. |
-| AC-10 | **Partial** | Typecheck, lint, domain and the listed safety groups pass. The default build was not run. |
+| AC-09 | Pass, with stated limits | Compiled preview, Edge: 16 states × 1440/390/320 = [48 captures](../../../output/playwright/CRS-01B/runtime/) with no page-wide overflow and no axe WCAG 2 A/AA or 2.1 AA violation; validation, stale, success, cancelled, linked, filtered, history and view-only states; no page errors ([receipt](../../../output/playwright/CRS-01B/runtime/review.json)). Examples: [list after start 1440](../../../output/playwright/CRS-01B/runtime/list-started-1440.png), [start validation 390](../../../output/playwright/CRS-01B/runtime/start-validation-390.png). **Limits:** keyboard is one scripted tab-order assertion on the add form, not a full walk; the loading skeleton is not captured. |
+| AC-10 | Pass | Typecheck, lint, domain, the listed safety groups and the default build pass. |
+
+The browser run also closes the earlier “browser pending” parts: AC-01 (view-only account has no controls; direct editor URLs go to the forbidden page), AC-05 (list printed to [A4 PDF](../../../output/playwright/CRS-01B/runtime/offerings.pdf)) and AC-08 (archived CSV byte-identical; 13 preserved tables and the source term's offerings hash-identical after the whole flow). The archived official and teacher A4 PDFs were printed before and after and are the same size (148,746 and 130,206 bytes); their bytes were not compared, since PDFs embed creation times.
 
 ## Blocked checks
+
+**Resolved in the resumed session:** the old preview had already exited (nothing listening on 3126/3127, no PostgreSQL process), so nothing had to be stopped. The text below is the earlier record.
 
 Building writes `.next`, which the still-running PERF-01 synthetic preview (`next start` on port 3126, launcher PID 5852 with its disposable PostgreSQL cluster) is serving. Stopping that process was not permitted in the implementing session, and overwriting its build directory underneath it would break it. Therefore, on final code:
 
@@ -78,4 +87,4 @@ To unblock: stop the old preview (close its terminal, or end PID 12836 so the la
 
 - Owner authorized inspection/specification on 16 November by selecting “Accept, merge, plan CRS-01B”. That answer separately accepted PERF-01 (`836f4fc`, merged `2156fac`).
 - Owner approved implementation on 16 November with “Approve and implement”, recorded at `e87cbce`.
-- Delivery acceptance is **not requested yet**: AC-09 and the build are unverified. No merge, remote synchronization or institutional operation. Parent CRS-01 / #7 remains open.
+- Delivery acceptance is **requested, not yet given** (16 November, resumed session): all ten criteria have evidence, with the AC-09 limits above. Review with `node node_modules/tsx/dist/cli.mjs scripts/review-offerings.ts --serve`, then open http://localhost:3127. No merge, remote synchronization or institutional operation. Parent CRS-01 / #7 remains open.

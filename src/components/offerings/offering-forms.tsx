@@ -21,7 +21,11 @@ function useOfferingAction(returnHref: string, onFailure?: () => void) {
     return next;
   }, null);
   useEffect(() => { if (result && !result.ok) summary.current?.focus(); }, [result]);
-  return { result, action, pending, summary };
+  // Submitting through the form's `action` prop makes React reset the form afterwards, which unticks controlled
+  // checkboxes while their state still says ticked. Dispatching the action ourselves keeps every entry as typed.
+  const [, startTransition] = useTransition();
+  const submit = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = new FormData(event.currentTarget); startTransition(() => action(form)); };
+  return { result, submit, pending, summary };
 }
 function Feedback({ result, summary }: { result: OfferingResult | null; summary: React.RefObject<HTMLDivElement | null> }) {
   return <div ref={summary} tabIndex={-1} className="outline-none">
@@ -46,10 +50,10 @@ const REASON_TEXT: Record<ProposalReason, string> = { carried: "Carried", partia
 export function OfferingStartForm({ termId, termName, source, cohorts, fingerprint, returnHref }: { termId: number; termName: string; source: { id: number; name: string }; cohorts: OfferingCohortView[]; fingerprint: string; returnHref: string }) {
   const initial = useMemo(() => new Set(cohorts.flatMap(cohort => cohort.proposal.filter(item => item.ticked).map(item => `${cohort.batchId}:${item.courseId}`))), [cohorts]);
   const [picks, setPicks] = useState(initial), [reason, setReason] = useState("");
-  const { result, action, pending, summary } = useOfferingAction(returnHref);
+  const { result, submit, pending, summary } = useOfferingAction(returnHref);
   const toggle = (key: string, on: boolean) => setPicks(previous => { const next = new Set(previous); if (on) next.add(key); else next.delete(key); return next; });
   const chosenCohorts = new Set([...picks].map(key => key.split(":")[0])).size;
-  return <form action={action} noValidate className="grid min-w-0 gap-5">
+  return <form onSubmit={submit} noValidate className="grid min-w-0 gap-5">
     <input type="hidden" name="command" value="start" /><input type="hidden" name="termId" value={termId} /><input type="hidden" name="sourceId" value={source.id} /><input type="hidden" name="fingerprint" value={fingerprint} />
     {cohorts.map(cohort => {
       const selectable = cohort.proposal.filter(item => item.selectable);
@@ -93,7 +97,7 @@ export function OfferingAddForm({ termId, cohorts, courses, initialCohort, initi
   const [batchId, setBatchId] = useState(initialCohort && cohorts.some(cohort => cohort.batchId === initialCohort) ? String(initialCohort) : cohorts.length === 1 ? String(cohorts[0].batchId) : "");
   const [courseId, setCourseId] = useState(initialCourse && courses.some(course => course.id === initialCourse) ? String(initialCourse) : "");
   const [reason, setReason] = useState(""), [acknowledged, setAcknowledged] = useState(false);
-  const { result, action, pending, summary } = useOfferingAction(returnHref, () => setAcknowledged(false));
+  const { result, submit, pending, summary } = useOfferingAction(returnHref, () => setAcknowledged(false));
   const cohort = cohorts.find(item => String(item.batchId) === batchId), course = courses.find(item => String(item.id) === courseId);
   const existing = cohort && course ? cohort.offerings.find(row => row.course.id === course.id) : undefined;
   const outOfSemester = !!cohort && !!course && course.semester !== cohort.semester;
@@ -101,7 +105,7 @@ export function OfferingAddForm({ termId, cohorts, courses, initialCohort, initi
   const ordered = cohort ? [...courses.filter(item => item.semester === cohort.semester), ...courses.filter(item => item.semester !== cohort.semester)] : courses;
   const sameSemester = cohort ? ordered.filter(item => item.semester === cohort.semester) : [], otherSemesters = cohort ? ordered.filter(item => item.semester !== cohort.semester) : ordered;
   const option = (item: OfferingCourseView) => <option key={item.id} value={item.id}>{item.code} · {item.title}{cohort && item.semester !== cohort.semester ? ` (semester ${item.semester})` : ""}</option>;
-  return <form action={action} noValidate className="ruled grid min-w-0 gap-4 rounded-lg p-4">
+  return <form onSubmit={submit} noValidate className="ruled grid min-w-0 gap-4 rounded-lg p-4">
     <input type="hidden" name="command" value="add" /><input type="hidden" name="termId" value={termId} /><input type="hidden" name="fingerprint" value={result?.fingerprint ?? cohort?.fingerprint ?? ""} />
     <Feedback result={result} summary={summary} />
     <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -134,9 +138,9 @@ const CHANGE_COPY = {
 } as const;
 export function OfferingChangeForm({ command, termId, offeringId, courseCode, fingerprint, returnHref }: { command: keyof typeof CHANGE_COPY; termId: number; offeringId: number; courseCode: string; fingerprint: string; returnHref: string }) {
   const [reason, setReason] = useState(""), [confirmation, setConfirmation] = useState("");
-  const { result, action, pending, summary } = useOfferingAction(returnHref);
+  const { result, submit, pending, summary } = useOfferingAction(returnHref);
   const copy = CHANGE_COPY[command], id = `change-${command}`;
-  return <form action={action} noValidate className="ruled grid min-w-0 gap-3 rounded-lg p-4" aria-labelledby={`${id}-title`}>
+  return <form onSubmit={submit} noValidate className="ruled grid min-w-0 gap-3 rounded-lg p-4" aria-labelledby={`${id}-title`}>
     <input type="hidden" name="command" value={command} /><input type="hidden" name="termId" value={termId} /><input type="hidden" name="offeringId" value={offeringId} /><input type="hidden" name="fingerprint" value={result?.fingerprint ?? fingerprint} />
     <h2 id={`${id}-title`} className="font-display text-[17px] font-semibold tracking-tight">{copy.title}</h2>
     <p className="text-sm">{copy.body}</p>
