@@ -1,0 +1,88 @@
+{
+  "courses": {
+    "archivedCsvIdentical": true,
+    "documents": {
+      "before-official.pdf": {
+        "pages": 4,
+        "textIdentical": true,
+        "allRenderedPagesIdentical": true,
+        "runtimePrintTimeOnly": [],
+        "allOtherTextAndPixelsIdentical": true,
+        "renderedSha256": [
+          "43c0f38246e8f751fdc43f0a6585f1e30e116d38fe77cc229b5f00424e96fdf6",
+          "65ee4125f078570b288c0721bc441aa2b5057a4378d99e4de967cab9b94e6fe7",
+          "ddd15cce2a38eef9f934b9cffa119255b02ef4e1304f06661229887c5a262f91",
+          "93eaf4290b58be71f5beb0176b2f78cb0cc03c565d453aac73c6f5b3e78e3493"
+        ]
+      },
+      "before-teachers.pdf": {
+        "pages": 2,
+        "textIdentical": true,
+        "allRenderedPagesIdentical": true,
+        "runtimePrintTimeOnly": [],
+        "allOtherTextAndPixelsIdentical": true,
+        "renderedSha256": [
+          "279605117481602c250f71ec3a47c0baec5ba17cc1a25ddc74871fd07a6c8d11",
+          "8a75f4a1514bf7a2c5dc52244e3ff984b5a8f578aacdeddb11526f864d5b3c10"
+        ]
+      },
+      "catalog-before.pdf": {
+        "pages": 1,
+        "textIdentical": false,
+        "allRenderedPagesIdentical": false,
+        "runtimePrintTimeOnly": [
+          {
+            "page": 1,
+            "changedPixelBounds": [
+              1062,
+              88,
+              1240,
+              102
+            ],
+            "printedLineBounds": [
+              1029,
+              82,
+              1404,
+              108
+            ]
+          }
+        ],
+        "allOtherTextAndPixelsIdentical": true,
+        "renderedSha256": [
+          "e30e117eaf023a242ea27fa818c5c5f9e7e6f5f1ded4be9dc0ee6d42d7be1ca8"
+        ]
+      }
+    }
+  },
+  "rollover": {
+    "archivedCsvIdentical": true,
+    "documents": {
+      "before-official.pdf": {
+        "pages": 5,
+        "textIdentical": true,
+        "allRenderedPagesIdentical": true,
+        "runtimePrintTimeOnly": [],
+        "allOtherTextAndPixelsIdentical": true,
+        "renderedSha256": [
+          "1ff371b62e84d9ba9b80cc0dac2dad144657e589d47e72ff0ffcd92773ec7ca6",
+          "db47305e27cbc37de06b168f7a9651f56e0af3c1894fd2cbbb51b0b0a3da815b",
+          "e250fc5a859c9711c2f4556d5a4273a5988b3c99523303345456509ca95490fe",
+          "f2805fc6bf85aed6072192c3bd27ecac0c55d63ce6cf20d0510b6d7866e03a89",
+          "93eaf4290b58be71f5beb0176b2f78cb0cc03c565d453aac73c6f5b3e78e3493"
+        ]
+      },
+      "before-teachers.pdf": {
+        "pages": 3,
+        "textIdentical": true,
+        "allRenderedPagesIdentical": true,
+        "runtimePrintTimeOnly": [],
+        "allOtherTextAndPixelsIdentical": true,
+        "renderedSha256": [
+          "1ff371b62e84d9ba9b80cc0dac2dad144657e589d47e72ff0ffcd92773ec7ca6",
+          "ca3e22bdb5b2b0578a561c2763c707d6c94ce91c1d9442ba97a1aacd032a59be",
+          "0a744c744c7ded3f5c542cd1e3fc13375cd8ae3599e7a090f8d69bf00b76d7bc"
+        ]
+      }
+    }
+  }
+}

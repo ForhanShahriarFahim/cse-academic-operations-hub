@@ -1,0 +1,98 @@
+{
+  "captures": [
+    {
+      "name": "workbench",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "conflict",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "ready",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive-refused",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "workbench",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "conflict",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "ready",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive-refused",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "workbench",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "conflict",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "ready",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "inactive-refused",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "created",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "Real manual create, merged audiences, disabled conflict, authoritative inactive-course refusal with preserved input, retry/save/reload and persisted canonical teacher/room assignments; keyboard traversal."
+  ],
+  "errors": []
+}

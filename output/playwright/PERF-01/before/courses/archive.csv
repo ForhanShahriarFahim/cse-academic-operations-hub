@@ -1,0 +1,2 @@
+﻿source_status,term,publication_version,effective_date,snapshot_generated_at,selected_stream,selected_batch,day,start_time,end_time,course_code,course_title,course_type,teachers,rooms,audiences,shared_status,is_exception,exception_note,validation_status,warning_codes
+PUBLISHED,Summer 2026,1,2026-06-07,2026-11-05T00:00:00Z,HSC,All batches,Saturday,09:00,10:15,SYN-4101,Synthetic Theory,theory,SYA,SX-101,HSC-22B + DIP-22B + EEE-22B,HSC + DIP · CSE + EEE,false,,clear,
