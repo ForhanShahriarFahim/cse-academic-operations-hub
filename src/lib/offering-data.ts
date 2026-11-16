@@ -29,7 +29,9 @@ export async function getTermOfferings(termValue: string, sourceValue?: string) 
     const view = await termOfferings(db, termId, sourceId);
     if (!view) return null;
     const editor = await offeringEditor(actor);
-    return { ...view, editor, canEdit: editor && view.editable };
+    // Review tokens are editor payload; viewers get the same facts without them.
+    if (!editor) return { ...view, startFingerprint: "", cohorts: view.cohorts.map(cohort => ({ ...cohort, fingerprint: "" })), editor, canEdit: false };
+    return { ...view, editor, canEdit: view.editable };
   });
 }
 

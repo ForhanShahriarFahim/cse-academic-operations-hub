@@ -62,7 +62,7 @@ async function main() {
     await db.insert(s.roleAssignments).values({ userId: user.id, role, departmentId }); signInAs(email);
     // An account scoped only to another department is not an internal viewer of this portal at all.
     if (departmentId === eee.id) await assert.rejects(view());
-    else { const visible = await view(); assert.equal(visible.editor, allowed); assert.equal(visible.canEdit, allowed); assert.ok(visible.cohorts.length, "viewers read the page"); }
+    else { const visible = await view(); assert.equal(visible.editor, allowed); assert.equal(visible.canEdit, allowed); assert.ok(visible.cohorts.length, "viewers read the page"); assert.equal(!!visible.startFingerprint && visible.cohorts.every(item => !!item.fingerprint), allowed, "review tokens are editor-only"); }
     const attempt = () => add(hsc22b.id, later.id);
     if (allowed) {
       ok(await attempt()); assert.ok((await data.getOfferingChanges(fall.id)).changes.length);

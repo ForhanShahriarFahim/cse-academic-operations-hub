@@ -1,7 +1,7 @@
 # CRS-01B — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md). Design: [mockups/index.html](mockups/index.html).
-Status: **Approved for implementation on 16 November 2026; implementation in progress.**
+Status: **Implemented; build and compiled browser review blocked and pending. Not ready for delivery acceptance.**
 Branch/base: `codex/crs-01b` / `f0c4d8c` (local `main`).
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -34,10 +34,10 @@ No schema, backfill or recovery operation is proposed. Read the installed Next.j
 
 - [x] T-01 — Inspect post-PERF-01 base, requirements, issue #7, schema, seed, rollover, catalog and term seams. Write scope, D-1–D-7, acceptance criteria, this plan and static mockups. Planning-document checks are in verification.
 - [x] T-02 — Owner “Approve and implement” recorded on 16 November, no amendments; this approved plan is committed before application/test implementation.
-- [ ] T-03 — Capability, pure records module and domain tests for basis, proposal, comparison and parsing. Confirm lock modes of neighbouring writers. AC-03, part of AC-05.
-- [ ] T-04 — Store, actions and audit events for start / add / cancel / restore / remove; both-adapter safety groups, preservation fingerprints and real PostgreSQL races. AC-01, AC-04, AC-06, AC-07, AC-08.
-- [ ] T-05 — Pages, forms, history, links from term and courses pages; all states at 1440/390/320, keyboard and print. AC-02, AC-05, AC-09.
-- [ ] T-06 — Final typecheck, lint, domain, default build and relevant safety groups; compiled synthetic browser review, CSV/A4 parity, diff review. Record limits honestly. AC-10.
+- [x] T-03 — `manage_offerings` capability, pure `offering-records` module and domain tests pass. Neighbouring writers confirmed: cohort lifecycle, rollover commit and catalog writes all take the context lock exclusively; none needed changing. AC-03, part of AC-05.
+- [x] T-04 — Store, actions and audit events implemented (`8e2c09c`). CRS-01B groups pass on PGlite and PostgreSQL with whole-database preservation fingerprints and real PostgreSQL lock races. AC-01, AC-04, AC-06, AC-07, AC-08 (data).
+- [ ] T-05 — **Partly done.** Pages, forms, history and links from the term and courses pages are implemented, typechecked, linted and server-render checked for editor, viewer, read-only and no-placement states. Still open: real-browser states at 1440/390/320, keyboard, axe and print (AC-09, print part of AC-05) — needs the compiled preview.
+- [ ] T-06 — **Partly done.** Typecheck, lint, domain and the CRS-01B, CRS-01A, T-03, BAT-01A/B safety groups pass. Still open: default `npm run build`, separate Webpack build, compiled browser review and CSV/A4 parity — blocked because the old PERF-01 preview still serves `.next` and could not be stopped in this session. AC-10 partial.
 - [ ] T-07 — Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01C for the owner to start.
 
 ## Verification and delivery
@@ -52,7 +52,8 @@ Delivery is local. Last remote reconciliation remains 11 November 2026.
 
 ## Current checkpoint / exact handoff
 
-- Branch `codex/crs-01b`, base `f0c4d8c`, one writer/checkout. Proposal committed; T-01 complete, T-02 pending. No application, test, schema or dependency change.
-- Next: the owner reviews [spec.md](spec.md) and the [mockups](mockups/index.html) and approves or amends D-1–D-7. Do not implement before that record is committed. Do not start CRS-01C.
+- Branch `codex/crs-01b`, base `f0c4d8c`, one writer/checkout. Approval `e87cbce`; rules/store/actions `8e2c09c`; pages, review tooling and evidence in the commit containing this handoff. No schema, migration, seed or dependency change.
+- Next: stop the old PERF-01 preview (end its `next start`, PID 12836 at the time of writing, or close its terminal; its launcher then removes its own disposable cluster). Then on unchanged code run the default `npm run build` and record its real result; run the separate Webpack build; run `node node_modules/tsx/dist/cli.mjs scripts/review-offerings.ts --check --serve` and fix first-run issues in the never-executed browser script; record captures and CSV/A4 parity; only then ask for delivery acceptance. Do not start CRS-01C.
+- Blocked detail and exact commands: [verification.md](verification.md#blocked-checks).
 
-Next-session prompt: “Resume CRS-01B on codex/crs-01b, base f0c4d8c. Read the current brief/workflow and docs/specs/CRS-01B/{spec,plan,verification}.md, then inspect actual Git state. The planning package (scope, D-1–D-7, AC-01–AC-10, mockups) is committed and awaits owner approval; T-01 is complete. If the owner approves or amends, record their actual words in plan.md and commit before any application code, then work T-03–T-07 in order. No schema change, institutional migration 0017/0018 or database operation, extra writer/worktree, remote sync or automatic CRS-01C. Keep #7 open.”
+Next-session prompt: “Resume CRS-01B on codex/crs-01b, base f0c4d8c. Read the current brief/workflow and docs/specs/CRS-01B/{spec,plan,verification}.md, then inspect actual Git state. Owner approved unchanged D-1–D-7 with ‘Approve and implement’ on 16 November (e87cbce). T-01–T-04 are complete; T-05/T-06 are partly done: typecheck, lint, domain and CRS-01B/CRS-01A/T-03/BAT safety groups pass on both adapters, and the list page is server-render checked. NOT done: default npm run build, Webpack build, compiled browser review (scripts/review-offerings.ts --check --serve; its browser script has never run), keyboard/axe/captures and CSV/A4 parity — they were blocked by the still-running PERF-01 preview on ports 3126/3127. Confirm with the owner that the old preview may be stopped, finish those checks, record honest results including any default-build failure, then request delivery acceptance before a local main merge. No schema change, institutional migration 0017/0018 or database operation, extra writer/worktree, remote sync or automatic CRS-01C. Keep #7 open.”
