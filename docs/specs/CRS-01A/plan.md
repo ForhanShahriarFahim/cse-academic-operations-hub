@@ -1,7 +1,7 @@
 # CRS-01A — Implementation plan and sole checklist
 
 Parent: CRS-01 / #7. Specification: [spec.md](spec.md). Evidence: [verification.md](verification.md). Sketches: [mockups/index.html](mockups/index.html).
-Status: **Implemented and verified; owner inspection/acceptance pending.**
+Status: **Owner accepted; local merge pending.**
 Branch / base: `codex/crs-01a` / `bc2575785e39ceab0e65c01bd3335b3465283128`.
 Updated: 16 November 2026, Asia/Dhaka.
 
@@ -29,6 +29,7 @@ Lock order: standalone catalog write → exclusive singleton context → course 
 - Approved package: this plan, [specification](spec.md), all six decisions and [sketches](mockups/index.html), particularly live historical title correction versus frozen academic facts. Approval checkpoint: `50acb88`.
 - Record the actual owner message/date/scope and commit the approved plan **before** implementing. A draft checkpoint is not approval. Approval of unchanged scope persists across handoffs.
 - Material amendments: none; do not infer missing institutional classifications or a build exception from silence.
+- Delivery acceptance: **16 November 2026 (Asia/Dhaka)**, after committed delivery `6d1bacf` and a reachable synthetic review were presented. Owner selected **“Accept, merge locally, and plan PERF-01”** in response to an explicit question disclosing the failed default Turbopack build and passing separate Webpack build. Acceptance includes that remaining limitation (AC-10 stays partial); authorizes bounded local merge and PERF-01 inspection/specification only, not PERF-01 implementation or remote synchronization.
 
 ## Tasks — one checklist
 
@@ -56,6 +57,6 @@ No institutional migration or backup operation, reset, additional worktree/write
 - 16 November resume: owner said “go for the next task”. This requests progression but does not explicitly accept the remaining default-build limitation; do not fabricate acceptance. Final outstanding evidence/helper diff reviewed, 152 local file links resolve, receipt records 63 captures with zero overflow/violations/errors, representative desktop/mobile images inspected, browser helper syntax and typecheck pass. Prior application/adapter/build checks were not repeated. Before CRS-01B, the existing review recommends PERF-01 inspection/specification; no implementation scope is approved for it.
 - Evidence and execution corrections: [verification.md](verification.md). Actual checkpoint hash/status come from Git. No application changes may be inferred from a document's clean-tree claim.
 - Runnable synthetic owner review: `node node_modules/tsx/dist/cli.mjs scripts/review-courses.ts --serve`, then [control/sign-in](http://localhost:3127) / [Courses](http://localhost:3126/courses). The launcher owns a disposable PostgreSQL cluster; no old PGlite preload. See verification for exact build and `--check` paths.
-- Next action: present the committed bounded delivery for owner inspection. Obtain actual acceptance, explicitly including the failed default build if it remains, record/commit acceptance, then merge into local `main`. Parent #7 remains open. No automatic CRS-01B/PERF-01, institutional migrations `0017`/`0018`, database operation or remote sync.
+- Next action: commit the actual 16 November acceptance above, then merge the bounded delivery into local `main`. Owner now explicitly requests PERF-01 inspection/specification after merge; implementation needs its own approved plan. Parent #7 remains open. No institutional migrations `0017`/`0018`, database operation or remote sync.
 
 Next-session prompt: “Resume CRS-01A / #7 on codex/crs-01a, base bc25757. Read current brief/workflow and docs/specs/CRS-01A/{spec,plan,verification}.md. Inspect actual Git state and any outstanding final verification. Owner approved unchanged scope/design and D-1–D-6 on 15 November, committed as 50acb88 before implementation; do not ask to repeat that approval. Catalog create/edit/deactivate/reactivate/history is implemented, with used academic fields frozen, fresh title/lifecycle fingerprints, immutable captured labels and all-term blockers. Complete pending verification if any, then support owner inspection/acceptance; the default Turbopack CSS-worker failure remains distinct from the passing Webpack build and needs explicit delivery acceptance. After acceptance, record/commit it before a bounded local main merge. Keep parent #7 open. No next slice, academic versioning/reclassification, institutional operation, migration 0017/0018, extra worktree/writer, remote sync or separate build investigation.”
