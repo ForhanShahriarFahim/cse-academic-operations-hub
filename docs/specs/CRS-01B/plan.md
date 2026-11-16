@@ -38,7 +38,7 @@ No schema, backfill or recovery operation is proposed. Read the installed Next.j
 - [x] T-04 — Store, actions and audit events implemented (`8e2c09c`). CRS-01B groups pass on PGlite and PostgreSQL with whole-database preservation fingerprints and real PostgreSQL lock races. AC-01, AC-04, AC-06, AC-07, AC-08 (data).
 - [x] T-05 — Pages, forms, history and links implemented. Compiled browser review passes with 48 captures at 1440/390/320, axe and print. Its first run found that a failed validation cleared the start form's ticks; corrected in the forms' submit handling. Limits: one scripted keyboard assertion, loading skeleton not captured. AC-09, AC-05.
 - [x] T-06 — Typecheck, lint, domain, the listed safety groups and the default `npm run build` pass. Archived CSV and preserved tables identical after the browser flow. Webpack build not run (not needed with a passing default build). AC-10.
-- [ ] T-07 — **Delivery committed; awaiting owner acceptance.** Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01C for the owner to start.
+- [x] T-07 — **Owner “Accept and merge” on 16 November after delivery `4b5aa75`; acceptance committed before the local `main` merge.** #7 stays open; CRS-01C is for the owner to start. Original task: Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01C for the owner to start.
 
 ## Verification and delivery
 
