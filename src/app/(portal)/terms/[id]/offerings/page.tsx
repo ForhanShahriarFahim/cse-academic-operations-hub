@@ -36,7 +36,7 @@ export default async function TermOfferingsPage({ params, searchParams }: { para
     <Link href={`/terms/${term.id}`} className="no-print mb-3 inline-block text-sm underline">← {term.name}</Link>
     <PageHeader context="Planning records / Courses & offerings" title={`Term offerings — ${term.name}`}
       description={<>What each cohort is offered this term{source ? <>, compared with {source.name}</> : null}. {term.status === "active" ? "This is the active term." : `This is a ${term.status} term; viewing it does not change the active term.`}</>}
-      actions={<><PrintButton />{data.editor && <Link className={buttonClass.secondary} href={`${base}/history${query}`}>Change history</Link>}{canEdit && placed.length > 0 && <><Link className={buttonClass.secondary} href={`${base}/add${query}`}>Add course</Link><Link className={buttonClass.primary} href={`${base}/start${query}`}>Start from previous term</Link></>}</>} />
+      actions={<><PrintButton /><Link className={buttonClass.secondary} href={`/terms/${term.id}/groups`}>Class groups</Link>{data.editor && <Link className={buttonClass.secondary} href={`${base}/history${query}`}>Change history</Link>}{canEdit && placed.length > 0 && <><Link className={buttonClass.secondary} href={`${base}/add${query}`}>Add course</Link><Link className={buttonClass.primary} href={`${base}/start${query}`}>Start from previous term</Link></>}</>} />
     {done && <Notice tone="success" className="mb-4">{done}</Notice>}
     {!data.editable && <Notice className="mb-4" title="Read-only term">{term.name} is {term.status}. Its offerings are shown for reference and cannot be changed.</Notice>}
     {data.editable && !data.editor && <Notice className="mb-4" title="View only">You can see this term&apos;s offerings and the comparison. Changing offerings needs the academic administrator role.</Notice>}
@@ -88,7 +88,7 @@ export default async function TermOfferingsPage({ params, searchParams }: { para
                   </p>
                 </div>
                 <div className="text-[12.5px] text-muted sm:text-right">
-                  <p>{row.groups ? `In ${row.groups} class group${row.groups === 1 ? "" : "s"}` : "No class group yet"}</p>
+                  <p>{row.groups ? `In ${row.groups} class group${row.groups === 1 ? "" : "s"}` : "No class group yet"} · <Link className="no-print underline" href={`/terms/${term.id}/groups?q=${encodeURIComponent(row.course.code)}`}>Class groups<span className="sr-only"> for {row.course.code}</span></Link></p>
                   {canEdit && <p className="no-print mt-1"><Link className="font-semibold text-[var(--color-pine)] underline" href={`${base}/${row.id}${query}`}>{row.status === "cancelled" ? "Restore" : "Change"}<span className="sr-only"> {row.course.code} for {cohort.name}</span></Link></p>}
                 </div>
               </li>)}</ul>
