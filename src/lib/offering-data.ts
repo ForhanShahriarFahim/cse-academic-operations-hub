@@ -1,7 +1,8 @@
 import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db } from "@/db";
 import { auditEvents, departments } from "@/db/schema";
-import { authorize, hasCapability, type Actor } from "./auth";
+import { redirect } from "next/navigation";
+import { authorize, getOptionalActor, hasCapability, type Actor } from "./auth";
 import { cohortRead } from "./term-context";
 import { offeringInteger } from "./offering-records";
 import { termOfferings } from "./offering-store";
@@ -9,6 +10,14 @@ import { termOfferings } from "./offering-store";
 async function offeringEditor(actor: Actor) {
   const [scope] = await db.select({ id: departments.id }).from(departments).where(eq(departments.code, "CSE"));
   return hasCapability(actor, "manage_offerings", scope?.id ?? null);
+}
+
+/** Editor-only pages: sign in first, then require the offering capability in CSE planning scope. */
+export async function requireOfferingEditor(next: string) {
+  const actor = await getOptionalActor();
+  if (!actor) redirect(`/login?next=${encodeURIComponent(next)}`);
+  if (!await offeringEditor(actor)) redirect("/forbidden");
+  return actor;
 }
 
 /** Every internal viewer reads the term's offerings and comparison; `editor` gates controls only. */

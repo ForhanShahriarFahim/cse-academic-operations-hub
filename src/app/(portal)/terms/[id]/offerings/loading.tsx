@@ -1,0 +1,1 @@
+export default function OfferingsLoading() { return <div role="status" aria-label="Loading term offerings" className="grid gap-4"><p>Loading term offerings…</p>{[1, 2, 3].map(id => <div key={id} className="h-24 animate-pulse rounded bg-wash" aria-hidden="true" />)}</div>; }

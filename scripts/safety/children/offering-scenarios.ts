@@ -5,11 +5,13 @@ import { loadApp, report, signInAs } from "./controlled-runtime";
 import { fingerprintDatabase, selectFingerprint } from "../fingerprint";
 import { setAuditInsertFault } from "../faults";
 import type { OfferingResult } from "../../../src/lib/offering-store";
+import { renderToStaticMarkup } from "react-dom/server";
 const { db } = loadApp<typeof import("../../../src/db")>("src/db/index.ts");
 const s = loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
 const actions = loadApp<typeof import("../../../src/lib/offering-actions")>("src/lib/offering-actions.ts");
 const data = loadApp<typeof import("../../../src/lib/offering-data")>("src/lib/offering-data.ts");
 const context = loadApp<typeof import("../../../src/lib/term-context")>("src/lib/term-context.ts");
+const listPage = loadApp<typeof import("../../../src/app/(portal)/terms/[id]/offerings/page")>("src/app/(portal)/terms/[id]/offerings/page.tsx");
 const client = (db as unknown as { $client: import("../database").Queryable }).$client;
 const form = (values: Record<string, unknown>, picks: string[] = []) => { const f = new FormData(); for (const [key, value] of Object.entries(values)) f.set(key, String(value)); for (const pick of picks) f.append("pick", pick); return f; };
 const call = (values: Record<string, unknown>, picks: string[] = []) => actions.changeOfferingsAction(null, form(values, picks));
@@ -208,6 +210,20 @@ async function main() {
   for (let index = 0; index < 11; index++) { ok(await change("cancel", target.id, hsc23x.id)); ok(await change("restore", target.id, hsc23x.id)); }
   const page = await data.getOfferingChanges(fall.id); assert.equal(page.changes.length, 20); assert.ok(page.next); const older = await actions.loadOfferingChangesAction(fall.id, page.next!); assert.ok(older.changes.length); assert.ok(!older.changes.some(event => page.changes.some(newer => newer.id === event.id)));
   lines.push("Audit failure rolls back start/add/cancel entirely. Across every operation only course_offerings and audit_events changed: groups, links, meetings, allocations, enrollments, attendance, claims, schedule versions, placements, courses, terms and the term generation/active selection are identical. Per-term history is editor-only, paged at 20 with validated cursors, and exposes no actor email or user ID.");
+  // AC-05 / AC-09 server rendering of the list page for editor and viewer, draft and read-only.
+  const html = async (termId: number, search: Record<string, string> = {}) => renderToStaticMarkup(await listPage.default({ params: Promise.resolve({ id: String(termId) }), searchParams: Promise.resolve(search) }));
+  const editorHtml = await html(fall.id, { source: String(summer.id) });
+  for (const text of ["Term offerings — Fall 2026", "HSC-23X · Semester 7", "Dropped since Summer 2026", "SYN-4104", "The course is inactive.", "Start from previous term", "Change history", "viewing it does not change the active term", "Not started", "had no Diploma cohort at semester 4"]) assert.ok(editorHtml.includes(text), text);
+  assert.ok((await html(fall.id, { compare: "added", source: String(summer.id) })).includes("SYN-4201")); assert.ok(!(await html(fall.id, { compare: "added", source: String(summer.id) })).includes("Synthetic Theory"));
+  assert.ok((await html(fall.id, { q: "zzz-no-match" })).includes("No offering of this cohort matches the filters."));
+  signInAs("offering-role-5@example.invalid"); const viewerHtml = await html(fall.id);
+  assert.ok(viewerHtml.includes("View only")); for (const text of ["Start from previous term", "Change history", "Add course", ">Change<", ">Restore<"]) assert.ok(!viewerHtml.includes(text), `viewer must not see ${text}`);
+  signInAs("admin@example.invalid");
+  await db.update(s.academicTerms).set({ status: "completed" }).where(eq(s.academicTerms.id, fall.id)); const readOnlyHtml = await html(fall.id); assert.ok(readOnlyHtml.includes("Read-only term")); assert.ok(!readOnlyHtml.includes("Add course"));
+  await db.update(s.academicTerms).set({ status: "draft" }).where(eq(s.academicTerms.id, fall.id));
+  const [empty] = await db.insert(s.academicTerms).values({ name: "Spring 2027", academicYear: 2027, startDate: "2027-03-01", endDate: "2027-06-30", status: "draft" }).returning();
+  assert.ok((await html(empty.id)).includes("No cohorts placed")); await assert.rejects(html(2147483000), /not-found/);
+  lines.push("Server-rendered list page: editor sees cohorts, comparison, dropped list and actions; filters narrow rows; a view-only role sees the data with no edit or history controls; completed terms render read-only; a draft without placements explains the missing step; an unknown term is not found.");
   report({ lines });
 }
 main().then(() => process.exit(0)).catch(error => { console.error(error); process.exit(1); });

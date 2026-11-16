@@ -86,3 +86,33 @@ export function parsePick(value: unknown): { batchId: number; courseId: number }
 export const OFFERING_COMMANDS = ["start", "add", "cancel", "restore", "remove"] as const;
 export type OfferingCommand = typeof OFFERING_COMMANDS[number];
 export const OFFERING_ACTION_LABELS: Record<string, string> = { "offering.create": "Offering added", "offering.cancel": "Offering cancelled", "offering.restore": "Offering restored", "offering.remove": "Offering removed", "term_offerings.start": "Started from a previous term" };
+
+export const OFFERING_STATUS_FILTERS = ["all", "offered", "cancelled"] as const;
+export const OFFERING_COMPARISON_FILTERS = ["any", "carried", "added", "changed"] as const;
+export const OFFERING_COMPARISON_LABELS: Record<OfferingComparison, string> = { carried: "Carried", added: "Added", changed: "Changed" };
+const one = (value: string | string[] | undefined) => typeof value === "string" ? value : undefined;
+/** Validated list filters; unknown values fall back to defaults and never reach a query. */
+export function offeringFilters(search: Record<string, string | string[] | undefined>) {
+  const status = one(search.status), compare = one(search.compare), stream = one(search.stream);
+  return {
+    q: (one(search.q) ?? "").slice(0, 200),
+    stream: stream === "HSC" || stream === "DIPLOMA" ? stream : "all",
+    status: (OFFERING_STATUS_FILTERS as readonly string[]).includes(status ?? "") ? status! : "all",
+    compare: (OFFERING_COMPARISON_FILTERS as readonly string[]).includes(compare ?? "") ? compare! : "any",
+    cohort: offeringInteger(one(search.cohort)),
+    source: offeringInteger(one(search.source)),
+  };
+}
+/** Return link that keeps the reader's filters and comparison source. */
+export function offeringQuery(search: Record<string, string | string[] | undefined>, extra: Record<string, string> = {}) {
+  const filters = offeringFilters(search), query = new URLSearchParams();
+  if (filters.q) query.set("q", filters.q);
+  if (filters.stream !== "all") query.set("stream", filters.stream);
+  if (filters.status !== "all") query.set("status", filters.status);
+  if (filters.compare !== "any") query.set("compare", filters.compare);
+  if (filters.cohort) query.set("cohort", String(filters.cohort));
+  if (filters.source) query.set("source", String(filters.source));
+  for (const [key, value] of Object.entries(extra)) query.set(key, value);
+  const text = query.toString();
+  return text ? `?${text}` : "";
+}
