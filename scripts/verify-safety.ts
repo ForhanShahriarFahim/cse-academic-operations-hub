@@ -33,6 +33,7 @@ import { checkLoadBasis, checkLoadBasisPostgres } from "./safety/load-basis.chec
 import { checkPgliteLifetime } from "./safety/pglite-lifetime.check";
 import { checkCourses, checkCoursesPostgres } from "./safety/course.check";
 import { checkOfferings, checkOfferingsPostgres } from "./safety/offering.check";
+import { checkClassGroups, checkClassGroupsPostgres } from "./safety/class-group.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -58,6 +59,8 @@ async function main() {
   const groups: Array<[string, () => Promise<string[]>, boolean?]> = [
     ["PERF-01 reads (PGlite)", () => checkPerformance()],
     ["PERF-01 reads (PostgreSQL)", () => checkPerformancePostgres(process.env.SAFE01_PG_BIN), true],
+    ["CRS-01C class groups (PGlite)", checkClassGroups],
+    ["CRS-01C class groups (PostgreSQL)", () => checkClassGroupsPostgres(process.env.SAFE01_PG_BIN), true],
     ["CRS-01B offerings (PGlite)", checkOfferings],
     ["CRS-01B offerings (PostgreSQL)", () => checkOfferingsPostgres(process.env.SAFE01_PG_BIN), true],
     ["CRS-01A catalog (PGlite)", checkCourses],

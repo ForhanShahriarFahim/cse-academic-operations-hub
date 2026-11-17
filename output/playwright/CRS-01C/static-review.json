@@ -1,0 +1,128 @@
+[
+  {
+    "name": "index",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "index",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "index",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "groups",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "groups",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "groups",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "new",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "new",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "new",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "group",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "group",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "group",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "history",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "history",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "history",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "states",
+    "width": 1440,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "states",
+    "width": 390,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  },
+  {
+    "name": "states",
+    "width": 320,
+    "overflow": false,
+    "h1": 1,
+    "main": 1
+  }
+]

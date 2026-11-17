@@ -15,6 +15,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 export const CAPABILITY_LABELS: Record<Capability, string> = {
   manage_catalog: "Manage course catalog",
   manage_offerings: "Manage term course offerings",
+  manage_class_groups: "Manage class groups, their teachers, workload units and weekly requirements",
   manage_batches: "Manage cohort identity, lifecycle and term counts",
   view_internal_portal: "Open the internal portal",
   view_private_contacts: "See private teacher contacts",

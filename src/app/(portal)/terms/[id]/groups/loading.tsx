@@ -1,0 +1,1 @@
+export default function ClassGroupsLoading() { return <div role="status" aria-label="Loading class groups" className="grid gap-4"><p>Loading class groups…</p>{[1, 2, 3].map(id => <div key={id} className="h-24 animate-pulse rounded bg-wash" aria-hidden="true" />)}</div>; }

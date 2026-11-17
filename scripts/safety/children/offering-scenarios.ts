@@ -59,7 +59,7 @@ async function main() {
   for (const [index, role, departmentId, allowed] of [[0, "academic_administrator", null, true], [1, "system_administrator", cse.id, true], [2, "academic_administrator", eee.id, false], [3, "routine_coordinator", null, false], [4, "teacher", null, false], [5, "read_only_viewer", null, false]] as const) {
     const email = `offering-role-${index}@example.invalid`;
     const [user] = await db.insert(s.portalUsers).values({ email, displayName: `Synthetic offering role ${index}`, status: "active" }).returning();
-    await db.insert(s.roleAssignments).values({ userId: user.id, role, departmentId }); signInAs(email);
+    await db.insert(s.roleAssignments).values({ userId: user.id, role, departmentId, activeFrom: new Date("2020-01-01") }); signInAs(email);
     // An account scoped only to another department is not an internal viewer of this portal at all.
     if (departmentId === eee.id) await assert.rejects(view());
     else { const visible = await view(); assert.equal(visible.editor, allowed); assert.equal(visible.canEdit, allowed); assert.ok(visible.cohorts.length, "viewers read the page"); assert.equal(!!visible.startFingerprint && visible.cohorts.every(item => !!item.fingerprint), allowed, "review tokens are editor-only"); }
