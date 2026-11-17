@@ -1,7 +1,7 @@
 # CRS-01C — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md). Design: [mockups/index.html](mockups/index.html).
-Status: **Approved unchanged on 16 November 2026; implemented and verified; awaiting delivery acceptance.**
+Status: **Accepted on 17 November 2026 and merged into local `main` at `2cb4ce4`.**
 Branch/base: `codex/crs-01c` / `3832d33` (local `main`).
 Updated: 17 November 2026, Asia/Dhaka.
 
@@ -52,7 +52,8 @@ Delivery is local. Last remote reconciliation remains 11 November 2026.
 
 ## Current checkpoint / exact handoff
 
-- **17 November — delivery ready (supersedes the bullets and prompt below).** T-01–T-06 complete; evidence, limits and one finding about the older completeness report are in [verification.md](verification.md). **Next:** owner inspects (`node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --serve`, http://localhost:3127) and accepts or returns corrections; record the actual acceptance, then merge into local `main`. Do not start CRS-01D; keep #7 open.
+- **Accepted and merged (supersedes everything below):** owner “Accept and merge” on 17 November, acceptance `f3e6a22`, local `main` merge `2cb4ce4`, no conflicts, no tests repeated for merge. Branch retained. Open for the owner: the completeness-report “UT” finding in [verification.md](verification.md), and CRS-01D (start a term's class groups from the previous term), which needs its own specification and approval.
+- **17 November — delivery ready:** T-01–T-06 complete; evidence, limits and one finding about the older completeness report are in [verification.md](verification.md). **Next:** owner inspects (`node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --serve`, http://localhost:3127) and accepts or returns corrections; record the actual acceptance, then merge into local `main`. Do not start CRS-01D; keep #7 open.
 
 - Branch `codex/crs-01c`, base `3832d33`, one writer/checkout. Planning package only: specification, this plan, inspection record and six static sketches. No application, test, schema or dependency change.
 - Next: the owner reviews the sketches and approves or amends D-1–D-8. Record the actual approval and commit it; only then start T-03. Do not start CRS-01D.
