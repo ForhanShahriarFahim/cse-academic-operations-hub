@@ -84,4 +84,5 @@ Three runs failed before the passing one, each on the review script, not the app
 ## Delivery and acceptance
 
 - Owner authorized inspection/specification on 16 November with “plan CRS-01C” and approved implementation with “Approve and implement” (recorded at `fc0f203`).
-- Delivery acceptance is **requested, not yet given**. Review with `node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --serve`, then open http://localhost:3127. No merge, remote synchronization or institutional operation. Parent CRS-01 / #7 remains open.
+- **Accepted on 17 November:** the owner selected “Accept and merge” after delivery `2cc237e` and a summary that disclosed the test corrections, the completeness-report finding left unchanged, the evidence limits (three scripted keyboard checks; loading, read-only and needs-reconciliation pages not captured; the class scheduled through the server action rather than the builder's screen) and the two departures from the sketches. The owner did not ask for the preview first. This acceptance is committed before the local merge. Earlier record:
+- Delivery acceptance was requested. Review with `node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --serve`, then open http://localhost:3127. No merge, remote synchronization or institutional operation. Parent CRS-01 / #7 remains open.

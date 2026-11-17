@@ -38,7 +38,7 @@ No schema, backfill or recovery operation is proposed. Read the installed Next.j
 - [x] T-04 — Store, actions and audit events; CRS-01C groups pass on PGlite and PostgreSQL with whole-database preservation fingerprints and real lock races. AC-01, AC-02, AC-06, AC-07, AC-09.
 - [x] T-05 — Pages, forms, history and links; compiled browser review passes with 45 captures at 1440/390/320, axe and print. Limits in verification. AC-08, AC-11.
 - [x] T-06 — Typecheck, lint, domain, default build, both-adapter safety groups and neighbours pass; archived CSV and preserved tables identical after the browser flow. AC-12.
-- [ ] T-07 — **Delivery committed; awaiting owner acceptance.** Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01D for the owner to start.
+- [x] T-07 — **Owner “Accept and merge” on 17 November after delivery `2cc237e`; acceptance committed before the local `main` merge.** #7 stays open; CRS-01D is for the owner to start. Original task: Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01D for the owner to start.
 
 ## Verification and delivery
 
