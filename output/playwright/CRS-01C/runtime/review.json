@@ -1,0 +1,284 @@
+{
+  "captures": [
+    {
+      "name": "list-empty",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-empty",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-empty",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-validation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-validation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-validation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-created",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-created",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-created",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-vacancy",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-vacancy",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "list-vacancy",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-validation",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-validation",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-validation",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-stale",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-stale",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-stale",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-unused",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-unused",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-unused",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "history",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "active-term",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-used",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-used",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "group-used",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-active",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-active",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "new-active",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "courses-links",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "viewer",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "checks": [
+    "A merged class for two cohorts with two teachers was created after a validation round that kept every tick, teacher and unit; units and weekly minutes were suggested from the previous term and shown with their source.",
+    "Changing units needed a reason; the entered units and crediting choice survived the validation round and were then saved as a split.",
+    "A stale edit is refused with the plain stale message; nothing is saved and the entries stay on screen.",
+    "An unused class group was removed with the typed course code and a reason; its offering returned to the ungrouped list.",
+    "Active-term class groups that are in use show a fixed audience, a locked teacher and no remove control; a new active-term group shows the consequence notice, appears in the existing completeness report as unscheduled and links to the Routine builder.",
+    "A view-only account reads class groups, teachers and units with no controls; direct editor URLs redirect to the forbidden page.",
+    "Archived CSV bytes and every preserved table (offerings, meetings and their teachers and rooms, enrollments, attendance, extra-load records, snapshots, placements, courses, teachers, terms, term context) are identical after the whole flow."
+  ],
+  "errors": []
+}

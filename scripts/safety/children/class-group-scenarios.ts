@@ -75,7 +75,7 @@ async function main() {
   for (const [index, role, departmentId, allowed] of [[0, "academic_administrator", null, true], [1, "system_administrator", cse.id, true], [2, "routine_coordinator", null, true], [3, "academic_administrator", eee.id, false], [4, "teacher", null, false], [5, "read_only_viewer", null, false], [6, "department_approver", null, false], [7, "accounts_officer", null, false]] as const) {
     const email = `class-group-role-${index}@example.invalid`;
     const [user] = await db.insert(s.portalUsers).values({ email, displayName: `Synthetic class-group role ${index}`, status: "active" }).returning();
-    await db.insert(s.roleAssignments).values({ userId: user.id, role, departmentId }); signInAs(email);
+    await db.insert(s.roleAssignments).values({ userId: user.id, role, departmentId, activeFrom: new Date("2020-01-01") }); signInAs(email);
     if (departmentId === eee.id) await assert.rejects(view());
     else { const visible = await view(); assert.equal(visible.editor, allowed); assert.equal(visible.canEdit, allowed); assert.ok(visible.ungrouped.length, "viewers read the page"); assert.equal(visible.teachers.length > 0, allowed, "the teacher directory with totals is editor-only"); }
     const summerView = departmentId === eee.id ? null : await view(summer.id);

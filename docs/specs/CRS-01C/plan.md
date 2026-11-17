@@ -1,9 +1,9 @@
 # CRS-01C — Implementation plan and sole checklist
 
 Specification/decisions: [spec.md](spec.md). Inspection/checks: [verification.md](verification.md). Design: [mockups/index.html](mockups/index.html).
-Status: **Approved unchanged on 16 November 2026; implementation in progress.**
+Status: **Approved unchanged on 16 November 2026; implemented and verified; awaiting delivery acceptance.**
 Branch/base: `codex/crs-01c` / `3832d33` (local `main`).
-Updated: 16 November 2026, Asia/Dhaka.
+Updated: 17 November 2026, Asia/Dhaka.
 
 ## Inspection and proposed approach
 
@@ -34,11 +34,11 @@ No schema, backfill or recovery operation is proposed. Read the installed Next.j
 
 - [x] T-01 — Inspect post-CRS-01B base, requirements §11, issue #7, schema, seed, meeting actions, coverage, workload, access and neighbouring writers. Write scope, D-1–D-8, AC-01–AC-12, this plan and static mockups. Planning-document checks are in verification.
 - [x] T-02 — Owner “Approve and implement” recorded on 16 November, no amendments; committed before application/test implementation.
-- [ ] T-03 — Capability, pure `class-group-records` module and domain tests. Confirm the two open points above. AC-03–AC-05 (rules), part of AC-08 and AC-10.
-- [ ] T-04 — Store, actions and audit events; CRS-01C safety groups on PGlite and PostgreSQL with whole-database preservation fingerprints and real lock races. AC-01, AC-02, AC-06, AC-07, AC-09 (data).
-- [ ] T-05 — Pages, forms, history and links; real-browser states at 1440/390/320, keyboard, axe and print. AC-08, AC-11.
-- [ ] T-06 — Final typecheck, lint, domain, default build; compiled browser review including scheduling a class for a new group; archived CSV parity. AC-12.
-- [ ] T-07 — Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01D for the owner to start.
+- [x] T-03 — Capability, pure `class-group-records` module and domain tests pass. Open points confirmed: teacher lifecycle writers lock the teacher row and the store locks the same rows; existing readers already handle several audiences per group. AC-03–AC-05, AC-10.
+- [x] T-04 — Store, actions and audit events; CRS-01C groups pass on PGlite and PostgreSQL with whole-database preservation fingerprints and real lock races. AC-01, AC-02, AC-06, AC-07, AC-09.
+- [x] T-05 — Pages, forms, history and links; compiled browser review passes with 45 captures at 1440/390/320, axe and print. Limits in verification. AC-08, AC-11.
+- [x] T-06 — Typecheck, lint, domain, default build, both-adapter safety groups and neighbours pass; archived CSV and preserved tables identical after the browser flow. AC-12.
+- [ ] T-07 — **Delivery committed; awaiting owner acceptance.** Commit bounded verified delivery, provide runnable review and evidence, obtain actual owner acceptance (including any unresolved checks), record it, then merge locally. Update handoff; keep #7 open and leave CRS-01D for the owner to start.
 
 ## Verification and delivery
 
@@ -52,7 +52,7 @@ Delivery is local. Last remote reconciliation remains 11 November 2026.
 
 ## Current checkpoint / exact handoff
 
-- **17 November, session stopped at a usage limit (supersedes the bullets below).** Approved and implemented through T-05 code: capability, rules + domain test, store, loader/actions, pages/forms/history/links, CRS-01C safety groups (PGlite and PostgreSQL with lock races both PASS, including the schedule-handoff scenario added afterwards, re-run on PGlite only), typecheck, lint and default build pass. **Not finished:** `node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --check` fails on its second run at an assertion not yet read (first run reached the Routine builder step with no app defect found; see `output/playwright/CRS-01C/runtime/failure.png`). No captures recorded, AC-11 unverified, neighbouring safety groups (CRS-01B, CRS-01A, T-03, load-basis) not re-run, verification.md and the T-03 to T-06 checkboxes not updated, delivery not requested. Next: read the failing assertion, fix script or app, finish T-06/T-07.
+- **17 November — delivery ready (supersedes the bullets and prompt below).** T-01–T-06 complete; evidence, limits and one finding about the older completeness report are in [verification.md](verification.md). **Next:** owner inspects (`node node_modules/tsx/dist/cli.mjs scripts/review-class-groups.ts --serve`, http://localhost:3127) and accepts or returns corrections; record the actual acceptance, then merge into local `main`. Do not start CRS-01D; keep #7 open.
 
 - Branch `codex/crs-01c`, base `3832d33`, one writer/checkout. Planning package only: specification, this plan, inspection record and six static sketches. No application, test, schema or dependency change.
 - Next: the owner reviews the sketches and approves or amends D-1–D-8. Record the actual approval and commit it; only then start T-03. Do not start CRS-01D.

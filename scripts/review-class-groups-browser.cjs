@@ -119,13 +119,13 @@ const { Client } = require('pg');
     await navigate(`/terms/${summer.id}/groups/${fresh}`, 'SYN-4103 for HSC-22B'); assert.ok(await page.getByText('Not scheduled · 0 classes · 0 minutes').isVisible());
     await page.getByRole('link', { name: 'Schedule in Routine builder', exact: true }).click(); await page.waitForURL(/\/routine/); await heading('Routine builder');
     await navigate('/courses', 'Courses & offerings'); assert.ok(await page.getByRole('link', { name: 'Fall 2026 class groups', exact: true }).isVisible()); assert.ok(await page.getByRole('link', { name: 'Summer 2026 class groups', exact: true }).isVisible());
-    const row = page.locator('tr', { hasText: 'SYN-4103' }); await row.first().waitFor(); assert.ok(await row.first().getByText('Unscheduled').isVisible(), 'the new group is in the existing completeness report'); await capture('courses-links');
+    const row = page.getByRole('region', { name: 'Scheduling completeness by teaching group' }).locator('tr', { hasText: 'SYN-4103' }); await row.first().waitFor(); assert.equal(await row.count(), 1); assert.match(await row.first().innerText(), /HSC-22B[\s\S]*0\/150 min[\s\S]*Unscheduled/, 'the new group is in the existing completeness report'); await capture('courses-links');
     await navigate(`/terms/${fall}/offerings`); assert.ok(await page.getByText('In 1 class group').first().isVisible()); assert.ok(await page.getByRole('link', { name: 'Class groups for SYN-4101', exact: true }).first().isVisible());
     checks.push('Active-term class groups that are in use show a fixed audience, a locked teacher and no remove control; a new active-term group shows the consequence notice, appears in the existing completeness report as unscheduled and links to the Routine builder.');
 
     // View-only account: data without controls, and editor pages are refused.
     await page.goto(control + '/viewer'); await heading(LIST); await capture('viewer');
-    assert.ok(await page.getByText('View only').isVisible()); assert.ok(await page.getByText('SYA').first().isVisible(), 'viewers read teachers and units');
+    assert.ok(await page.getByText('View only').isVisible()); assert.ok(await page.getByText('· 1.50 units').first().isVisible(), 'viewers read teachers and units');
     for (const name of ['Create class group', 'Change history']) assert.equal(await page.getByRole('link', { name, exact: true }).count(), 0, name);
     assert.equal(await page.getByRole('link', { name: /^Open / }).count(), 0, 'no open-to-edit links');
     for (const route of [`${list}/new`, `${list}/history`, `${list}/${merged}`]) { await page.goto(base + route); await page.waitForURL(/\/forbidden/); }
