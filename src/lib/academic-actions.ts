@@ -1,7 +1,9 @@
 "use server";
 
 import { withActiveTermContext as withTermContext } from "./active-term";
-import type { TermWriteContext } from "./term-context-value";
+import { appendTermContext, type TermWriteContext } from "./term-context-value";
+import { addRosterStudent, changeRosterEnrollment, reviewStudentCsv } from "./student-roster-actions";
+import { lockRosterTerm, lockStudents, positiveId, withRoster } from "./student-store";
 
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -12,15 +14,13 @@ import {
   attendanceSessions,
   auditEvents,
   batches,
-  courseEnrollments,
   extraLoadClasses,
   extraLoadManualSummaries,
   meetingRooms,
   meetings,
   meetingTeachers,
-  students,
 } from "@/db/schema";
-import { parseStudentCsv, ATTENDANCE_STATUSES, type RosterImportReceipt } from "./attendance";
+import { ATTENDANCE_STATUSES, type RosterImportReceipt } from "./attendance";
 import { getAttendanceData, getExtraLoadData } from "./academic-operations";
 import { getActiveTerm } from "./data";
 import { isExtraLoadEligible } from "./extra-load";
@@ -35,7 +35,7 @@ import { assertGroupMaintenanceClear } from "./room-maintenance-transaction";
 import { actionActor, guardAction } from "./auth/action-guard";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
-import { conflicted, invalid, partial, stale, succeeded } from "./action-result";
+import { conflicted, invalid, stale } from "./action-result";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -176,145 +176,27 @@ async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionRe
 }
 
 export async function upsertStudentAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
-  return withTermContext(() => upsertStudentActionInTerm(formData), context ?? formData);
+  return addRosterStudent(formData, context);
 }
-async function upsertStudentActionInTerm(formData: FormData): Promise<ActionResult> {
-  const teachingGroupId = Number(formData.get("teachingGroupId"));
-  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
-  if (denied) return denied;
-  const studentId = numberField(formData, "studentId");
-  const studentCode = String(formData.get("studentCode") ?? "").trim();
-  const fullName = String(formData.get("fullName") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim() || null;
-  const homeDepartmentLabel = String(formData.get("department") ?? "").trim() || null;
-  const audienceType = String(formData.get("audienceType") ?? "local");
-  if (!studentCode || !fullName || !Number.isInteger(teachingGroupId) || !["local", "external", "merged"].includes(audienceType)) {
-    const message = "Student ID, name, course group, and a valid audience type are required.";
-    const field = !studentCode ? "studentCode" : !fullName ? "fullName" : "audienceType";
-    return invalid(message, { [field]: [message] });
+
+export async function importStudentCsvAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult & { receipt?: RosterImportReceipt }> {
+  if (context) appendTermContext(formData, context);
+  const groupId = positiveId(formData.get("teachingGroupId"));
+  if (!groupId) return withTermContext(async () => invalid("Choose a teaching group."), context ?? formData);
+  if (formData.get("operation") !== "confirm") {
+    return withRoster(groupId, formData, async () => invalid("Open Manage roster and preview the CSV before importing."));
   }
-  const source = await getAttendanceData(teachingGroupId);
-  if (!source.selectedGroup) return { ok: false, message: "Choose a course group from the active term." };
-  const term = source.data.term;
-  if (studentId) {
-    const [existing] = await db.select({ id: students.id }).from(students).where(eq(students.id, studentId)).limit(1);
-    if (!existing) return { ok: false, message: "The student record no longer exists." };
-  }
-  await auditedChange(studentId ? "student.update" : "student.create", "student", async (tx) => {
-    const [previous] = studentId
-      ? await tx.select().from(students).where(eq(students.id, studentId)).limit(1)
-      : await tx.select().from(students).where(eq(students.studentCode, studentCode)).limit(1);
-    const [row] = studentId
-      ? await tx.update(students).set({ studentCode, fullName, phone, homeDepartmentLabel, updatedAt: new Date() }).where(eq(students.id, studentId)).returning()
-      : await tx.insert(students).values({ studentCode, fullName, phone, homeDepartmentLabel })
-        .onConflictDoUpdate({ target: students.studentCode, set: { fullName, phone, homeDepartmentLabel, status: "active", updatedAt: new Date() } }).returning();
-    await tx.insert(courseEnrollments).values({ termId: term.id, teachingGroupId, studentId: row.id, audienceType })
-      .onConflictDoUpdate({ target: [courseEnrollments.termId, courseEnrollments.teachingGroupId, courseEnrollments.studentId], set: { audienceType, status: "active" } });
-    return { result: null, entityId: row.id, before: previous ?? null, after: { ...row, teachingGroupId, audienceType } };
-  });
-  refresh();
-  return { ok: true, message: studentId ? "Student updated." : "Student added and enrolled." };
-}
-
-type RosterImportResult = ActionResult & { receipt?: RosterImportReceipt };
-
-export async function importStudentCsvAction(formData: FormData, context?: TermWriteContext): Promise<RosterImportResult> {
-  return withTermContext(() => importStudentCsvActionInTerm(formData), context ?? formData);
-}
-
-async function importStudentCsvActionInTerm(formData: FormData): Promise<RosterImportResult> {
-  const teachingGroupId = Number(formData.get("teachingGroupId"));
-  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
-  if (denied) return denied;
-  const source = await getAttendanceData(teachingGroupId);
-  if (!source.selectedGroup) return stale("Choose a course group from the active term.", "not_active_term");
-  const termId = source.data.term.id;
-  const parsed = parseStudentCsv(String(formData.get("csvText") ?? ""));
-  if ("error" in parsed) return invalid(parsed.error, { csvText: [parsed.error] });
-
-  const receipt = await auditedChange("student.csv_import", "teaching_group", async (tx) => {
-    let created = 0;
-    let updated = 0;
-    let unchanged = 0;
-    const issues = [...parsed.issues];
-    const rows = parsed.rows.toSorted((a, b) => a.studentCode < b.studentCode ? -1 : a.studentCode > b.studentCode ? 1 : 0);
-    for (const row of rows) {
-      const studentKey = eq(students.studentCode, row.studentCode);
-      let [student] = await tx.select().from(students).where(studentKey).for("update");
-      if (!student) {
-        [student] = await tx.insert(students).values({
-          studentCode: row.studentCode, fullName: row.fullName, phone: row.phone, homeDepartmentLabel: row.department,
-        }).onConflictDoNothing({ target: students.studentCode }).returning();
-        if (!student) [student] = await tx.select().from(students).where(studentKey).for("update");
-      }
-      if (!student) throw new Error("Student disappeared during roster import.");
-      if (student.status !== "active" || student.fullName.trim() !== row.fullName
-        || (row.phone !== null && student.phone?.trim() !== row.phone)
-        || (row.department !== null && student.homeDepartmentLabel?.trim() !== row.department)) {
-        issues.push({ row: row.row, kind: "failed", message: "Check the Student ID and contact the roster administrator." });
-        continue;
-      }
-      const enrollmentKey = and(eq(courseEnrollments.termId, termId), eq(courseEnrollments.teachingGroupId, teachingGroupId),
-        eq(courseEnrollments.studentId, student.id));
-      let [enrollment] = await tx.select().from(courseEnrollments).where(enrollmentKey).for("update");
-      if (!enrollment) {
-        const inserted = await tx.insert(courseEnrollments).values({
-          termId, teachingGroupId, studentId: student.id, audienceType: row.audienceType ?? "local",
-        }).onConflictDoNothing({
-          target: [courseEnrollments.termId, courseEnrollments.teachingGroupId, courseEnrollments.studentId],
-        }).returning({ id: courseEnrollments.id });
-        if (inserted.length) {
-          created++;
-          continue;
-        }
-        [enrollment] = await tx.select().from(courseEnrollments).where(enrollmentKey).for("update");
-      }
-      if (!enrollment) throw new Error("Enrollment disappeared during roster import.");
-      const audienceType = row.audienceType ?? enrollment.audienceType;
-      if (enrollment.status === "active" && enrollment.audienceType === audienceType) {
-        unchanged++;
-      } else {
-        await tx.update(courseEnrollments).set({ audienceType, status: "active" }).where(eq(courseEnrollments.id, enrollment.id));
-        updated++;
-      }
-    }
-    issues.sort((a, b) => a.row - b.row);
-    const skipped = issues.filter(issue => issue.kind === "skipped").length;
-    const counts = { created, updated, unchanged, skipped, failed: issues.length - skipped };
-    const applied = created + updated;
-    return { result: { ...counts, issues }, entityId: teachingGroupId, after: { count: applied, ...counts }, audit: applied > 0 };
-  });
-  const { created, updated, unchanged, issues } = receipt;
-  const applied = created + updated;
-  if (applied) refresh();
-  const result = issues.length === 0
-    ? succeeded(applied ? "Roster import complete." : "Roster import complete. No roster changes.")
-    : applied === 0 ? invalid("No roster changes. Some rows need attention.")
-      : partial("Roster updated. Some rows need attention.", {
-        total: applied + unchanged + issues.length, applied, unchanged,
-        rejected: issues.map(({ row, message }) => ({ row, message })),
-      });
-  return { ...result, receipt };
+  formData.set("mode", "roster");
+  return reviewStudentCsv(formData);
 }
 
 export async function deactivateStudentAction(studentId: number, teachingGroupId: number, context?: TermWriteContext): Promise<ActionResult> {
-  return withTermContext(() => deactivateStudentActionInTerm(studentId, teachingGroupId), context);
-}
-async function deactivateStudentActionInTerm(studentId: number, teachingGroupId: number): Promise<ActionResult> {
-  const denied = await guardAction("manage_rosters", { kind: "teaching_group", teachingGroupId });
-  if (denied) return denied;
-  if (!Number.isSafeInteger(studentId) || studentId <= 0) return stale("This student is not on the roster. Reload the page.", "missing");
-  const term = await getActiveTerm();
-  const where = and(eq(courseEnrollments.termId, term.id), eq(courseEnrollments.teachingGroupId, teachingGroupId), eq(courseEnrollments.studentId, studentId));
-  const [enrolled] = await db.select({ id: courseEnrollments.id }).from(courseEnrollments).where(where).limit(1);
-  if (!enrolled) return stale("This student is not on the roster. Reload the page.", "missing");
-  await auditedChange("enrollment.deactivate", "student", async (tx) => {
-    const [previous] = await tx.select().from(courseEnrollments).where(where).limit(1);
-    const [updated] = await tx.update(courseEnrollments).set({ status: "inactive" }).where(where).returning();
-    return { result: null, entityId: studentId, before: previous ?? null, after: updated ?? null };
-  });
-  refresh();
-  return { ok: true, message: "Student removed from this roster; attendance history was preserved." };
+  const input = new FormData();
+  input.set("operation", "remove");
+  input.set("studentId", String(studentId));
+  input.set("teachingGroupId", String(teachingGroupId));
+  if (!positiveId(studentId) || !positiveId(teachingGroupId)) return withTermContext(async () => invalid("Choose an enrollment."), context);
+  return changeRosterEnrollment(input, context);
 }
 
 export async function createAttendanceSessionAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
@@ -341,6 +223,9 @@ async function createAttendanceSessionActionInTerm(formData: FormData): Promise<
   // The shared term-context lock is already held by withTermContext. Serialize
   // creators before reading the roster or duplicate key; release at outer commit.
   await db.execute(sql`select pg_advisory_xact_lock(${ATTENDANCE_CREATE_LOCK}::integer, ${teachingGroupId}::integer)`);
+  const term = await getActiveTerm();
+  await lockRosterTerm(term.id);
+  await lockStudents();
   const source = await getAttendanceData(teachingGroupId);
   if (!source.selectedGroup) return { ok: false, message: "Choose a group, date, and assessment phase." };
   if (classDate < source.data.term.startDate || classDate > source.data.term.endDate) {

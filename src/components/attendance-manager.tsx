@@ -2,9 +2,10 @@
 
 import { useTermActions } from "@/components/term-write-context";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { CheckCheck, Pencil, Plus, Save, Trash2, UserMinus } from "lucide-react";
+import { CheckCheck, Save, Trash2 } from "lucide-react";
 import type { ActionResult } from "@/lib/actions";
 
 import type { AttendanceStatus, RosterImportReceipt } from "@/lib/attendance";
@@ -14,12 +15,12 @@ import { useConfirm } from "@/components/confirm-dialog";
 interface Group { id: number; courseCode: string; courseTitle: string; courseType: string; audience: string; teacherIds: number[] }
 interface Teacher { id: number; shortCode: string; fullName: string }
 interface StudentRow {
-  id: number; studentCode: string; fullName: string; phone: string | null; homeDepartmentLabel: string | null;
+  id: number; studentCode: string; fullName: string;
   enrollment: { audienceType: string };
 }
 interface SessionRow {
   id: number; classDate: string; phase: string; startMinutes: number | null; endMinutes: number | null;
-  records: Array<{ studentId: number; status: string }>;
+  records: Array<{ studentId: number; status: string; studentCode: string; fullName: string }>;
 }
 interface SummaryRow {
   studentId: number;
@@ -31,30 +32,16 @@ interface SummaryRow {
 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[12.5px]";
 
-type FeedbackArea = "student" | "import" | "create" | "marks" | "delete" | "roster";
-type FeedbackResult = ActionResult & { receipt?: RosterImportReceipt };
-type FileRead = { status: "idle" | "reading" } | { status: "ready"; text: string };
-const labels: Record<FeedbackArea, string> = {
-  student: "Saving student…", import: "Importing roster…", create: "Creating session…",
-  marks: "Saving attendance…", delete: "Deleting session…", roster: "Removing enrollment…",
-};
+type FeedbackArea = "create" | "marks" | "delete";
+type FeedbackResult = ActionResult;
+const labels: Record<FeedbackArea, string> = { create: "Creating session…", marks: "Saving attendance…", delete: "Deleting session…" };
 
-function AttendanceFeedback({ area, result, pending, reading }: { area: FeedbackArea; result?: FeedbackResult; pending: boolean; reading?: boolean }) {
-  const receipt = result?.receipt;
-  const counts = receipt
-    ? `${receipt.created} created · ${receipt.updated} updated · ${receipt.unchanged} unchanged · ${receipt.skipped} skipped · ${receipt.failed} failed`
-    : "";
+function AttendanceFeedback({ area, result, pending }: { area: FeedbackArea; result?: FeedbackResult; pending: boolean }) {
   return <div data-feedback={area} className="min-w-0 px-4 empty:p-0">
     <div id={`attendance-${area}-result`} role="status" aria-atomic="true" tabIndex={-1}
       className={pending || result ? `mb-3 rounded-md border px-3 py-2 text-sm outline-offset-2 ${result && !result.ok ? "border-[var(--color-gold)] bg-gold-tint" : "border-[var(--color-line)] bg-wash"}` : ""}>
-      {pending ? (reading ? "Reading CSV…" : labels[area]) : result && <><p>{result.message}</p>{counts && <p className="mt-1 font-medium">{counts}</p>}</>}
+      {pending ? labels[area] : result?.message}
     </div>
-    {!pending && !!receipt?.issues.length && <div className="mb-3 break-words text-sm">
-      <ul className="list-disc space-y-1 pl-5">{receipt.issues.map(issue => <li key={issue.row}>
-        Line {issue.row} · {issue.kind === "skipped" ? "Skipped" : "Failed"} · {issue.message}
-      </li>)}</ul>
-      <p className="mt-2">Correct the CSV and import a new file with the rows you want to submit again.</p>
-    </div>}
   </div>;
 }
 
@@ -70,7 +57,7 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
   canManageRosters: boolean;
   canTakeAttendance: boolean;
 }) {
-  const { createAttendanceSessionAction, deactivateStudentAction, deleteAttendanceSessionAction, importStudentCsvAction, saveAttendanceAction, upsertStudentAction } = useTermActions();
+  const { createAttendanceSessionAction, deleteAttendanceSessionAction, saveAttendanceAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -85,17 +72,11 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
     : sessions.at(-1)?.id ?? 0;
   const activeSession = sessions.find((session) => session.id === effectiveSessionId) ?? null;
   const [statusOverrides, setStatusOverrides] = useState<Record<string, AttendanceStatus>>({});
-  const [editing, setEditing] = useState<StudentRow | null>(null);
-  const [fileRead, setFileRead] = useState<FileRead>({ status: "idle" });
-  const readVersion = useRef(0);
-  const picker = useRef<HTMLInputElement>(null);
-  const studentForm = useRef<HTMLFormElement>(null);
   const sessionForm = useRef<HTMLFormElement>(null);
   const groupTeachers = teachers.filter((teacher) => selectedGroup.teacherIds.includes(teacher.id));
   const summaryByStudent = useMemo(() => new Map(summaries.map((row) => [row.studentId, row])), [summaries]);
 
-  const capturedIds = new Set(activeSession?.records.map((record) => record.studentId));
-  const sessionRoster = roster.filter((student) => capturedIds.has(student.id));
+  const sessionRoster = activeSession?.records.map(({ studentId, ...student }) => ({ ...student, id: studentId })) ?? [];
 
   function statusFor(studentId: number): AttendanceStatus {
     const record = activeSession?.records.find((record) => record.studentId === studentId);
@@ -135,8 +116,8 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
       }
       if (response.ok) onSuccess?.();
       const name = response.outcome?.kind === "validation" ? Object.keys(response.outcome.fieldErrors)[0] : undefined;
-      const form = area === "student" ? studentForm.current : area === "create" ? sessionForm.current : null;
-      const field = name ? (area === "import" ? picker.current : form?.elements.namedItem(name)) : null;
+      const form = area === "create" ? sessionForm.current : null;
+      const field = name ? form?.elements.namedItem(name) : null;
       focusRequest.current = { area, trigger, field: field instanceof HTMLElement ? field : null, success: response.ok };
       setResults(current => ({ ...current, [area]: response }));
       setPendingArea(null);
@@ -144,23 +125,8 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
     });
   }
 
-  async function readFile(file: File | undefined) {
-    const version = ++readVersion.current;
-    setResults(current => ({ ...current, import: undefined }));
-    setFileRead({ status: file ? "reading" : "idle" });
-    if (!file) return;
-    try {
-      const text = await file.text();
-      if (version === readVersion.current) setFileRead({ status: "ready", text });
-    } catch {
-      if (version !== readVersion.current) return;
-      setFileRead({ status: "idle" });
-      setResults(current => ({ ...current, import: { ok: false, message: "The file could not be read. Choose the CSV file again." } }));
-    }
-  }
-
   function feedback(area: FeedbackArea) {
-    return <AttendanceFeedback area={area} result={results[area]} pending={pendingArea === area || (area === "import" && fileRead.status === "reading")} reading={area === "import" && fileRead.status === "reading"} />;
+    return <AttendanceFeedback area={area} result={results[area]} pending={pendingArea === area} />;
   }
 
   function fieldFeedback(area: FeedbackArea, name: string) {
@@ -181,47 +147,8 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
       </div>
     </section>
 
-    {canManageRosters && <div className="grid gap-4 xl:grid-cols-2">
-      <section className="ruled rounded-lg">
-        <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">{editing ? "Edit student" : "Add one student"}</h2><p className="mt-0.5 text-[11.5px] text-muted">Home department is descriptive; enrollment in this teaching group is independent.</p></header>
-        <form key={editing?.id ?? "new"} ref={studentForm} className="grid grid-cols-2 gap-2 p-4" onSubmit={(event) => { event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); run("student", () => upsertStudentAction(data), () => { form.reset(); setEditing(null); }); }}><fieldset className="contents" disabled={pendingArea === "student"}>
-          <input type="hidden" name="teachingGroupId" value={selectedGroup.id} />
-          <input type="hidden" name="studentId" value={editing?.id ?? ""} />
-          <label><span className="micro-label mb-1 block">Student ID</span><input name="studentCode" {...fieldFeedback("student", "studentCode")} defaultValue={editing?.studentCode} placeholder="e.g. 03226…" className={control} required /></label>
-          <label><span className="micro-label mb-1 block">Student name</span><input name="fullName" {...fieldFeedback("student", "fullName")} defaultValue={editing?.fullName} placeholder="e.g. Jannatul Nayeem" className={control} required /></label>
-          <label><span className="micro-label mb-1 block">Phone</span><input name="phone" defaultValue={editing?.phone ?? ""} placeholder="optional" className={control} /></label>
-          <label><span className="micro-label mb-1 block">Home department</span><input name="department" defaultValue={editing?.homeDepartmentLabel ?? "CSE"} placeholder="e.g. CSE or EEE" className={control} /></label>
-          <label><span className="micro-label mb-1 block">Audience type</span><select name="audienceType" {...fieldFeedback("student", "audienceType")} defaultValue={editing?.enrollment.audienceType ?? "local"} className={control}><option value="local">Local</option><option value="external">Other department</option><option value="merged">Merged audience</option></select></label>
-          <div className="flex items-end gap-2"><button disabled={pending} className="flex-1 rounded-md bg-[var(--color-pine)] px-3 py-2 text-[12px] font-semibold text-white"><Plus size={13} className="mr-1 inline" />{editing ? "Save changes" : "Add student"}</button>{editing && <button type="button" onClick={() => setEditing(null)} className="rounded-md border border-[var(--color-line)] px-3 py-2 text-[12px]">Cancel</button>}</div>
-        </fieldset></form>
-        {feedback("student")}
-      </section>
+    {canManageRosters && <Link className="inline-block rounded-md border border-[var(--color-line)] px-3 py-2 text-sm font-semibold" href={`/attendance/roster?group=${selectedGroup.id}`}>Manage roster</Link>}
 
-      <section className="ruled rounded-lg">
-        <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Import roster CSV</h2><p className="mt-0.5 text-[11.5px] text-muted">Required headers: Student ID, Student Name. Phone, Department and Audience Type are optional.</p></header>
-        <form className="space-y-3 p-4" onSubmit={(event) => {
-          event.preventDefault();
-          if (fileRead.status !== "ready") return;
-          const form = event.currentTarget;
-          const data = new FormData();
-          data.set("teachingGroupId", String(selectedGroup.id));
-          data.set("csvText", fileRead.text);
-          run("import", () => importStudentCsvAction(data), () => {
-            form.reset();
-            setFileRead({ status: "idle" });
-          });
-        }}>
-          <label className="block min-w-0 text-sm">
-            <span className="mb-1 block">Roster CSV file</span>
-            <input ref={picker} type="file" accept=".csv,text/csv" className={control} required
-              disabled={pendingArea === "import"} {...fieldFeedback("import", "csvText")}
-              onChange={(event) => void readFile(event.target.files?.[0])} />
-          </label>
-          <div className="flex flex-wrap items-center justify-between gap-2"><a download="student-roster-template.csv" href={'data:text/csv;charset=utf-8,' + encodeURIComponent('Student ID,Student Name,Phone Number,Department,Audience Type\n0322600000001,Example Student,01700000000,CSE,local')} className="text-[11.5px] font-semibold text-[var(--color-pine)] hover:underline">Download sample CSV</a><button disabled={pending || fileRead.status !== "ready"} className="rounded-md bg-[var(--color-ink)] px-4 py-2 text-[12px] font-semibold text-white">Import roster CSV</button></div>
-        </form>
-        <div id="roster-import-feedback">{feedback("import")}</div>
-      </section>
-    </div>}
 
     {canTakeAttendance && <section className="ruled rounded-lg">
       <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Create attendance session</h2></header>
@@ -260,15 +187,14 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
           <button type="button" disabled={pending} aria-label="Delete this attendance session" title="Delete session" onClick={async () => { if (await ask({ title: "Delete this attendance session?", body: "The session and every mark recorded in it will be removed. Students' other sessions are not affected.", confirmLabel: "Delete session" })) run("delete", () => deleteAttendanceSessionAction(activeSession.id), () => setResults(current => ({ ...current, marks: undefined }))); }} className="rounded p-1.5 text-[var(--color-clay)]"><Trash2 size={13} aria-hidden="true" /></button>
         </div>}
         {feedback("marks")}
-        {sessionRoster.length === 0 && <p className="px-4 py-3 text-[12px] text-muted">No current roster students belong to this session. Existing attendance records are preserved.</p>}
-        <div role="region" aria-label="Attendance marks for this session" tabIndex={0} className="table-region max-h-[560px] overflow-auto"><table className="routine-table text-[12.5px]"><thead className="sticky top-0 z-10"><tr>{["SL.", "Student ID", "Student name", "Phone number", "Department", "Attendance"].map((h) => <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.map((student, index) => <tr key={student.id} className={index % 2 ? "bg-wash" : "bg-white"}><td className="px-3 py-2 text-center font-mono">{String(index + 1).padStart(2, "0")}</td><td className="px-3 py-2 font-mono">{student.studentCode}</td><td className="px-3 py-2 font-medium">{student.fullName}</td><td className="px-3 py-2 font-mono">{student.phone ?? "—"}</td><td className="px-3 py-2">{student.homeDepartmentLabel ?? "—"}</td><td className="min-w-48 px-2 py-1.5">{capturedIds.has(student.id) ? <select aria-label={`Attendance for ${student.fullName}`} disabled={!canTakeAttendance || pending} value={statusFor(student.id)} onChange={(event) => setStatusOverrides((current) => ({ ...current, [`${effectiveSessionId}:${student.id}`]: event.target.value as AttendanceStatus }))} className={`${control} border-[var(--color-pine)]/35`}><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option></select> : <span className="text-[12px] text-muted">Not in this session</span>}</td></tr>)}</tbody></table></div>
+        {sessionRoster.length === 0 && <p className="px-4 py-3 text-[12px] text-muted">No students were captured in this session.</p>}
+        <div role="region" aria-label="Attendance marks for this session" tabIndex={0} className="table-region max-h-[560px] overflow-auto"><table className="routine-table text-[12.5px]"><thead className="sticky top-0 z-10"><tr>{["SL.", "Student ID", "Student name", "Attendance"].map((h) => <th key={h} className="px-3 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{sessionRoster.map((student, index) => <tr key={student.id} className={index % 2 ? "bg-wash" : "bg-white"}><td className="px-3 py-2 text-center font-mono">{String(index + 1).padStart(2, "0")}</td><td className="px-3 py-2 font-mono">{student.studentCode}</td><td className="px-3 py-2 font-medium">{student.fullName}</td><td className="min-w-40 px-2 py-1.5"><select aria-label={`Attendance for ${student.fullName}`} disabled={!canTakeAttendance || pending} value={statusFor(student.id)} onChange={(event) => setStatusOverrides((current) => ({ ...current, [`${effectiveSessionId}:${student.id}`]: event.target.value as AttendanceStatus }))} className={`${control} border-[var(--color-pine)]/35`}><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option></select></td></tr>)}</tbody></table></div>
       </>}
     </section>
 
     <section className="ruled rounded-lg">
       <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Student roster & semester summary</h2><p className="mt-0.5 text-[11.5px] text-muted">Removing an enrollment does not delete historical attendance.</p></header>
-      {feedback("roster")}
-      <div role="region" aria-label="Student roster and semester summary" tabIndex={0} className="table-region overflow-x-auto p-4"><table className="routine-table text-[12px]"><thead><tr>{["Student", "Audience", "Midterm", "Final", "Semester", "Attendance mark", ...(canManageRosters ? ["Actions"] : [])].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.length === 0 ? <tr><td colSpan={canManageRosters ? 7 : 6} className="p-8 text-center text-muted">Import a CSV or add a student to start.</td></tr> : roster.map((student) => { const summary = summaryByStudent.get(student.id); return <tr key={student.id}><td className="px-2.5 py-2"><strong>{student.fullName}</strong><div className="font-mono text-[10.5px] text-muted">{student.studentCode}</div></td><td className="px-2.5 py-2 capitalize">{student.enrollment.audienceType}</td><td className="px-2.5 py-2 font-mono">{summary?.midterm.attended ?? 0}/{summary?.midterm.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.final.attended ?? 0}/{summary?.final.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.semester.percentage ?? 0}%</td><td className="px-2.5 py-2 font-mono font-bold text-[var(--color-pine)]">{summary?.mark ?? 0}/{summary?.maximum ?? (selectedGroup.courseType === "sessional" ? 5 : 10)}</td>{canManageRosters && <td className="px-2.5 py-2"><span className="flex gap-1"><button disabled={pending} title="Edit" onClick={() => { setEditing(student); studentForm.current?.scrollIntoView({ behavior: "smooth" }); }} className="rounded p-1 text-[var(--color-pine)]"><Pencil size={13} /></button><button type="button" disabled={pending} aria-label={`Remove ${student.fullName} from this roster`} title="Remove from roster" onClick={async () => { if (await ask({ title: `Remove ${student.fullName} from this roster?`, body: "They will no longer appear in new attendance sessions for this group. Attendance already recorded is kept.", confirmLabel: "Remove from roster" })) run("roster", () => deactivateStudentAction(student.id, selectedGroup.id)); }} className="rounded p-1 text-[var(--color-clay)]"><UserMinus size={13} aria-hidden="true" /></button></span></td>}</tr>; })}</tbody></table></div>
+      <div role="region" aria-label="Student roster and semester summary" tabIndex={0} className="table-region overflow-x-auto p-4"><table className="routine-table text-[12px]"><thead><tr>{["Student", "Audience", "Midterm", "Final", "Semester", "Attendance mark"].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-muted">Import a CSV or add a student to start.</td></tr> : roster.map((student) => { const summary = summaryByStudent.get(student.id); return <tr key={student.id}><td className="px-2.5 py-2"><strong>{student.fullName}</strong><div className="font-mono text-[10.5px] text-muted">{student.studentCode}</div></td><td className="px-2.5 py-2 capitalize">{student.enrollment.audienceType}</td><td className="px-2.5 py-2 font-mono">{summary?.midterm.attended ?? 0}/{summary?.midterm.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.final.attended ?? 0}/{summary?.final.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.semester.percentage ?? 0}%</td><td className="px-2.5 py-2 font-mono font-bold text-[var(--color-pine)]">{summary?.mark ?? 0}/{summary?.maximum ?? (selectedGroup.courseType === "sessional" ? 5 : 10)}</td></tr>; })}</tbody></table></div>
     </section>
   </div>;
 }

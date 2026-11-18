@@ -26,12 +26,15 @@ function csvCells(line: string): string[] | null {
   }
 }
 
-const HEADER_ALIASES: Record<string, keyof Omit<CsvStudentRow, "audienceType"> | "audienceType"> = {
+export type StudentCsvField = keyof CsvStudentRow | "homeBatch";
+
+const HEADER_ALIASES: Record<string, StudentCsvField> = {
   "studentid": "studentCode", "studentcode": "studentCode", "id": "studentCode",
   "studentsid": "studentCode", "roll": "studentCode", "rollno": "studentCode",
   "studentname": "fullName", "studentsname": "fullName", "name": "fullName", "fullname": "fullName",
   "phone": "phone", "phonenumber": "phone", "mobile": "phone", "mobilenumber": "phone",
   "department": "department", "dept": "department", "homedepartment": "department",
+  "homebatch": "homeBatch", "batch": "homeBatch", "cohort": "homeBatch",
   "audiencetype": "audienceType", "studenttype": "audienceType",
 };
 
@@ -54,16 +57,25 @@ export interface RosterImportReceipt {
   issues: RosterCsvIssue[];
 }
 
-type ParsedRosterRow = Omit<CsvStudentRow, "audienceType"> & { row: number; audienceType: CsvStudentRow["audienceType"] | null };
+export type ParsedRosterRow = Omit<CsvStudentRow, "audienceType"> & { row: number; homeBatch?: string; audienceType: CsvStudentRow["audienceType"] | null };
 
-export function parseStudentCsv(text: string): { error: string } | { rows: ParsedRosterRow[]; issues: RosterCsvIssue[] } {
+export function studentCsvHeadings(text: string) {
+  const header = text.replace(/^\uFEFF/, "").split(/\r?\n/).find(line => line.trim());
+  return header ? csvCells(header) : null;
+}
+
+export function suggestedStudentCsvField(label: string) {
+  const key = normalizeHeader(label);
+  return Object.hasOwn(HEADER_ALIASES, key) ? HEADER_ALIASES[key] : null;
+}
+
+export function parseStudentCsv(text: string, mapping?: ReadonlyArray<StudentCsvField | null>): { error: string } | { rows: ParsedRosterRow[]; issues: RosterCsvIssue[] } {
   const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/)
     .map((line, index) => ({ line, row: index + 1 })).filter(({ line }) => line.trim());
   if (lines.length < 2) return { error: "CSV needs a header row and at least one student row." } as const;
-  const headers = csvCells(lines[0].line)?.map((header) => {
-    const key = normalizeHeader(header);
-    return Object.hasOwn(HEADER_ALIASES, key) ? HEADER_ALIASES[key] : null;
-  });
+  const headings = csvCells(lines[0].line);
+  if (mapping && headings?.length !== mapping.length) return { error: "Map the columns in the selected file." };
+  const headers = mapping ?? headings?.map(suggestedStudentCsvField);
   if (!headers?.includes("studentCode") || !headers.includes("fullName")) {
     return { error: "CSV must include valid Student ID and Student Name headings." } as const;
   }
@@ -90,7 +102,7 @@ export function parseStudentCsv(text: string): { error: string } | { rows: Parse
       issues.push({ row, kind: "skipped", message: "Duplicate Student ID in this file." });
     } else {
       seen.add(studentCode);
-      rows.push({ row, studentCode, fullName, phone: phone || null, department: department || null, audienceType: audience });
+      rows.push({ row, studentCode, fullName, phone: phone || null, department: department || null, audienceType: audience, ...(draft.homeBatch ? { homeBatch: draft.homeBatch } : {}) });
     }
   }
   return { rows, issues } as const;

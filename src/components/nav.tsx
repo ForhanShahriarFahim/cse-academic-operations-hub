@@ -63,6 +63,7 @@ export const navGroups: { label: string | null; items: NavItem[] }[] = [
   {
     label: "Classes",
     items: [
+      { href: "/students", label: "Students", icon: Users, required: ["manage_students"] },
       { href: "/attendance", label: "Attendance", icon: ClipboardCheck, required: ["take_attendance", "manage_rosters"] },
       { href: "/extra-load", label: "Extra class load", icon: ReceiptText, required: ["submit_extra_load", "review_extra_load", "view_payment_reports"] },
     ],

@@ -15,7 +15,7 @@ const appPort = 3130;
 const controlPort = 3131;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
-const captures = ".tmp/att-02/browser";
+const captures = ".tmp/stu-01a/browser";
 const requireFromRepo = createRequire(import.meta.url);
 
 async function main() {
@@ -79,74 +79,59 @@ async function checkBrowser() {
     const errors: string[] = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`${controlOrigin}/sign-in`);
-    const picker = page.getByLabel("Roster CSV file");
-    const button = page.getByRole("button", { name: "Import roster CSV", exact: true });
-    const feedback = page.locator('[data-feedback="import"]');
-    await picker.waitFor();
+    const attendanceUrl = page.url();
+    await page.getByRole("link", { name: "Manage roster" }).click();
+    await page.waitForURL(url => url.pathname === "/attendance/roster");
+    const rosterUrl = page.url();
+    const picker = page.getByLabel("CSV file");
     await picker.focus();
     assert.equal(await picker.evaluate(el => document.activeElement === el), true);
-    async function chooseFile(text: string, name = "synthetic.csv") {
-      await picker.setInputFiles({ name, mimeType: "text/csv", buffer: Buffer.from(text) });
-    }
-    async function submitFile() {
-      await page.waitForFunction(() => Array.from(document.querySelectorAll("button"))
-        .some(item => item.textContent === "Import roster CSV" && !item.disabled));
-      await button.focus();
-      await button.press("Enter");
-    }
     async function upload(text: string) {
-      await chooseFile(text);
-      await submitFile();
+      await picker.setInputFiles({ name: "synthetic.csv", mimeType: "text/csv", buffer: Buffer.from(text) });
+      await page.getByRole("button", { name: "Preview import", exact: true }).click();
     }
-    await upload("Bad Header,Name\n001,Test");
-    await feedback.getByText(/must include valid/).waitFor();
-    await page.waitForFunction(() => document.activeElement?.matches("input[type=file]"));
     const header = "Student ID,Student Name\n";
-    const row = "ATT-02-REVIEW,Synthetic Browser Student";
-    await page.evaluate(() => {
-      const read = File.prototype.text;
-      File.prototype.text = async function (this: File) {
-        if (this.name === "unreadable.csv") throw new Error("Synthetic file read failure");
-        if (this.name !== "slow.csv") return read.call(this);
-        await new Promise<void>(resolve => window.addEventListener("release-slow-csv", () => resolve(), { once: true }));
-        const text = await read.call(this);
-        window.dispatchEvent(new Event("slow-csv-read"));
-        return text;
-      };
-    });
-    await chooseFile(header + row, "unreadable.csv");
-    await feedback.getByText(/file could not be read/).waitFor();
-    assert.equal(await button.isDisabled(), true);
-    await chooseFile(header + "ATT-02-OLD,Outdated File", "slow.csv");
-    await feedback.getByText("Reading CSV…").waitFor();
-    assert.equal(await button.isDisabled(), true);
-    await chooseFile(header + row + "\n\nINVALID,\n" + row);
-    await feedback.getByText("Reading CSV…").waitFor({ state: "hidden" });
-    await page.evaluate(() => new Promise<void>(resolve => {
-      window.addEventListener("slow-csv-read", () => requestAnimationFrame(() => resolve()), { once: true });
-      window.dispatchEvent(new Event("release-slow-csv"));
-    }));
-    await submitFile();
-    await feedback.getByText("1 created · 0 updated · 0 unchanged · 1 skipped · 1 failed").waitFor();
-    await feedback.getByText(/Line 4 · Failed/).waitFor();
-    await feedback.getByText(/Line 5 · Skipped/).waitFor();
-    await page.waitForFunction(() => document.activeElement?.matches('[data-feedback="import"] [role="status"]'));
-    await page.getByRole("region", { name: "Student roster and semester summary" }).getByText("Synthetic Browser Student").waitFor();
-    for (const width of [1440, 390, 320]) {
-      await page.setViewportSize({ width, height: 1000 });
-      await page.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
-      const violations = await page.evaluate(async () => {
-        const axe = (window as Window & { axe?: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string }> }> } }).axe!;
-        return (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] })).violations.map(item => item.id);
-      });
-      assert.deepEqual(violations, [], `Accessibility at ${width}px`);
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${width}px`);
-      await feedback.scrollIntoViewIfNeeded();
-      await page.screenshot({ path: `${captures}/partial-${width}.png` });
+    const row = "000-STU-REVIEW,Synthetic Browser Student";
+    await upload(header + row + "\n\nINVALID,\n" + row);
+    const review = page.locator("section").filter({ has: page.getByRole("heading", { name: "Import CSV", exact: true }) });
+    await review.getByText(/Preview ready/).waitFor();
+    await review.getByText(/Line 4 · Failed/i).waitFor();
+    await review.getByText(/Line 5 · Skipped/i).waitFor();
+    assert.equal(await page.getByText("Synthetic Browser Student", { exact: true }).count(), 0, "preview is write-free");
+    await page.getByRole("button", { name: "Import 1 eligible row" }).click();
+    await review.getByRole("heading", { name: "Receipt" }).waitFor();
+    await page.getByText("Synthetic Browser Student", { exact: true }).waitFor();
+    async function checkResponsive(prefix: string) {
+      for (const width of [1440, 390, 320]) {
+        await page.setViewportSize({ width, height: 1000 });
+        await page.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
+        const violations = await page.evaluate(async () => {
+          const axe = (window as Window & { axe?: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string }> }> } }).axe!;
+          return (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] })).violations.map(item => item.id);
+        });
+        assert.deepEqual(violations, [], `Accessibility at ${prefix} ${width}px`);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${prefix} ${width}px`);
+        await page.screenshot({ path: `${captures}/${prefix}-${width}.png`, fullPage: true });
+      }
     }
+    await checkResponsive("roster-receipt");
     await upload(header + row);
-    await feedback.getByText("0 created · 0 updated · 1 unchanged · 0 skipped · 0 failed").waitFor();
-    assert.equal(await picker.inputValue(), "");
+    await review.getByText(/Enrollment already matches/).waitFor();
+    assert.equal(await page.getByRole("button", { name: /eligible row/ }).count(), 0);
+    await page.goto(`${origin}/students`);
+    await page.getByLabel("Student ID or name").fill("000-STU-REVIEW");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await page.getByRole("link", { name: "Synthetic Browser Student" }).waitFor();
+    await checkResponsive("directory");
+    await page.getByRole("link", { name: "Synthetic Browser Student" }).click();
+    assert.equal(await page.getByLabel("Student ID", { exact: true }).getAttribute("readonly"), "");
+    await page.getByLabel("Private phone").fill("+0000000141");
+    await page.getByRole("button", { name: "Save student" }).click();
+    await page.getByRole("status").filter({ hasText: "Student saved." }).waitFor();
+    await page.reload();
+    assert.equal(await page.getByLabel("Private phone").inputValue(), "+0000000141");
+    await checkResponsive("detail");
+    await page.goto(attendanceUrl);
     const marks = page.getByRole("region", { name: "Attendance marks for this session" });
     const firstMark = marks.getByRole("combobox").first();
     const nextStatus = await firstMark.inputValue() === "late" ? "present" : "late";
@@ -191,26 +176,21 @@ async function checkBrowser() {
     await page.getByRole("button", { name: "Delete this attendance session" }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Delete session" }).click();
     await page.locator('[data-feedback="delete"]').getByText("Attendance session removed.").waitFor();
+    await page.goto(rosterUrl);
     const rosterName = "Synthetic Manual Student";
-    await page.getByLabel("Student ID", { exact: true }).fill("ATT-02-MANUAL");
+    await page.getByLabel("Student ID", { exact: true }).fill("STU-01A-MANUAL");
     await page.getByLabel("Student name", { exact: true }).fill(rosterName);
-    await page.getByRole("button", { name: "Add student", exact: true }).click();
-    await page.locator('[data-feedback="student"]').getByText("Student added and enrolled.").waitFor();
-    const roster = page.getByRole("region", { name: "Student roster and semester summary" });
-    const editedName = "Synthetic Edited Student";
-    await roster.getByRole("row").filter({ hasText: rosterName }).getByRole("button", { name: "Edit" }).click();
-    await page.getByLabel("Student name", { exact: true }).fill(editedName);
-    await page.getByRole("button", { name: "Save changes", exact: true }).click();
-    await page.locator('[data-feedback="student"]').getByText("Student updated.").waitFor();
-    await roster.getByRole("button", { name: `Remove ${editedName} from this roster` }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Remove from roster" }).click();
-    await page.locator('[data-feedback="roster"]').getByText(/Student removed from this roster/).waitFor();
-    await roster.getByText(editedName).waitFor({ state: "hidden" });
-    await page.getByLabel("Course / teaching group").selectOption({ index: 1 });
-    await page.locator('[data-feedback="roster"]').getByText(/Student removed from this roster/).waitFor({ state: "hidden" });
+    await page.getByRole("button", { name: "Add to roster", exact: true }).click();
+    await page.getByText("Student enrolled.", { exact: true }).waitFor();
+    const member = page.getByRole("listitem").filter({ hasText: rosterName });
+    await member.getByText("Remove from roster", { exact: true }).click();
+    await member.getByRole("button", { name: "Confirm removal" }).click();
+    await member.getByRole("button", { name: "Restore enrollment" }).waitFor();
+    await member.getByRole("button", { name: "Restore enrollment" }).click();
+    await member.getByText(/Active enrollment/).waitFor();
     await page.waitForLoadState("networkidle");
     assert.deepEqual(errors, []);
-    console.log("ATT-02 browser: keyboard, file read failures/replacement, import receipts and focus, marks retry/persistence, session create/delete, roster add/edit/removal, group navigation, axe and three viewport checks passed.");
+    console.log("STU-01A browser: directory search and private identity edit, mixed preview and receipt, no-op preview, roster add/remove/restore, attendance retry and session create/delete, axe and three viewport checks passed.");
   } finally { await browser.close(); }
 }
 

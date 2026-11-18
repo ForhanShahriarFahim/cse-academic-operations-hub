@@ -136,6 +136,7 @@ async function assignedTeacher(teacherId: number, teachingGroupId: number): Prom
 }
 
 export async function can(actor: Actor, capability: Capability, resource?: Resource): Promise<boolean> {
+  if (capability === "manage_students") return hasCapability(actor, capability, null);
   const context = await resourceContext(resource);
   if (!context || !hasCapability(actor, capability, context.departmentId)) return false;
   const privileged = actor.assignments.some((assignment) =>

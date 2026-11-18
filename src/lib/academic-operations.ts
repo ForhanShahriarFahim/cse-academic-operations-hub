@@ -3,7 +3,7 @@
  * these serialized views instead of depending on Drizzle table shapes.
  */
 import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
-import { db } from "@/db";
+import { db, databaseReadBatch } from "@/db";
 import {
   academicPolicies,
   attendanceRecords,
@@ -129,38 +129,37 @@ export async function getAttendanceData(selectedGroupId?: number) {
     : groups.find((group) => group.id === selectedGroupId) ?? null;
   if (!selectedGroup) { await assertTermContext(data.writeContext); return { data, policy, groups, selectedGroup: null, roster: [], sessions: [], summaries: [] }; }
 
-  const [enrollmentRows, sessionRows] = await Promise.all([
-    db.select().from(courseEnrollments).where(and(
+  const [enrollmentRows, sessionRows] = await databaseReadBatch([
+    () => db.select().from(courseEnrollments).where(and(
       eq(courseEnrollments.termId, data.term.id),
       eq(courseEnrollments.teachingGroupId, selectedGroup.id),
       eq(courseEnrollments.status, "active"),
     )),
-    db.select().from(attendanceSessions).where(and(
+    () => db.select({ id: attendanceSessions.id, classDate: attendanceSessions.classDate, phase: attendanceSessions.phase,
+      startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes }).from(attendanceSessions).where(and(
       eq(attendanceSessions.termId, data.term.id),
       eq(attendanceSessions.teachingGroupId, selectedGroup.id),
     )).orderBy(asc(attendanceSessions.classDate)),
   ]);
   const enrolledIds = [...new Set(enrollmentRows.map((row) => row.studentId))];
   const studentRows = enrolledIds.length
-    ? await db.select().from(students).where(and(inArray(students.id, enrolledIds), eq(students.status, "active")))
+    ? await db.select({ id: students.id, studentCode: students.studentCode, fullName: students.fullName }).from(students).where(and(inArray(students.id, enrolledIds), eq(students.status, "active")))
     : [];
   const roster = studentRows
     .map((student) => ({
       ...student,
-      enrollment: enrollmentRows.find((row) => row.studentId === student.id)!,
-      updatedAt: student.updatedAt.toISOString(),
+      enrollment: { audienceType: enrollmentRows.find((row) => row.studentId === student.id)!.audienceType },
     })).sort((a, b) => a.studentCode.localeCompare(b.studentCode));
   const sessionIds = sessionRows.map((row) => row.id);
   const recordRows = sessionIds.length
-    ? await db.select().from(attendanceRecords).where(inArray(attendanceRecords.sessionId, sessionIds))
+    ? await db.select({ sessionId: attendanceRecords.sessionId, studentId: attendanceRecords.studentId, status: attendanceRecords.status,
+      studentCode: students.studentCode, fullName: students.fullName }).from(attendanceRecords)
+      .innerJoin(students, eq(students.id, attendanceRecords.studentId)).where(inArray(attendanceRecords.sessionId, sessionIds))
+      .orderBy(students.studentCode, students.id)
     : [];
   const sessions = sessionRows.map((session) => ({
     ...session,
-    createdAt: session.createdAt.toISOString(),
-    records: recordRows.filter((record) => record.sessionId === session.id).map((record) => ({
-      ...record,
-      updatedAt: record.updatedAt.toISOString(),
-    })),
+    records: recordRows.filter((record) => record.sessionId === session.id).map(({ studentId, status, studentCode, fullName }) => ({ studentId, status, studentCode, fullName })),
   }));
   const maximum = selectedGroup.courseType === "sessional" ? policy.sessionalAttendanceMarks : policy.theoryAttendanceMarks;
   const summaries = roster.map((student) => summarizeAttendance(student.id, sessions, maximum));

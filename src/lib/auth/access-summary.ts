@@ -28,6 +28,7 @@ export const CAPABILITY_LABELS: Record<Capability, string> = {
   approve_publication: "Approve and publish the routine",
   manage_external_commitments: "Record external commitments",
   run_auto_schedule: "Run the automatic scheduler",
+  manage_students: "Manage the private student directory",
   manage_rosters: "Manage student rosters",
   take_attendance: "Take attendance",
   submit_extra_load: "Submit extra class load",
@@ -91,7 +92,8 @@ function scopeText(role: Role, departmentId: number | null, departments: Readonl
 function capabilityLines(entries: RoleEntry[], departments: ReadonlyMap<number, string>, wording: SummaryWording): CapabilityLine[] {
   const lines: CapabilityLine[] = [];
   for (const capability of Object.keys(CAPABILITY_LABELS) as Capability[]) {
-    const granting = entries.filter((entry) => (ROLE_CAPABILITIES[entry.role] as readonly string[]).includes(capability));
+    const granting = entries.filter((entry) => (capability !== "manage_students" || entry.departmentId == null)
+      && (ROLE_CAPABILITIES[entry.role] as readonly string[]).includes(capability));
     if (!granting.length) continue;
     const broad = granting.filter((entry) => PRIVILEGED.includes(entry.role) || !["take_attendance", "submit_extra_load"].includes(capability));
     let detail: string | null;

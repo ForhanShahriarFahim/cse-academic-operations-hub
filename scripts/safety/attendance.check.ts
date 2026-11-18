@@ -16,7 +16,9 @@ async function exercise(factory: DatabaseFactory) {
       await populateSummerFixture(handle.db);
       await setAuditInsertFault(handle, false);
     });
-    const child = await database.runChild(path.join(REPO_ROOT, "scripts/safety/children/attendance-scenarios.ts"));
+    const child = await database.runChild(path.join(REPO_ROOT, "scripts/safety/children/attendance-scenarios.ts"), [], {
+      BETTER_AUTH_SECRET: "synthetic-stu-01a-preview-test-secret-only",
+    });
     assert.equal(child.status, 0, child.stderr.slice(-9000) || child.stdout.slice(-6000));
     return (child.report as { lines: string[] }).lines;
   } finally { await database.dispose(); }
