@@ -6,6 +6,8 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
+**GitHub synchronization, 18 November 2026:** Owner-requested push advanced remote `main` from `70c9aa1` to `f840993`. GitHub confirmed ATT-02 #9 and STU-01 #37 closed as completed. CRS-01 #7 remains open for the rest of its scope. The earlier synchronization notes and issue snapshots below are historical.
+
 **STU-01B / #37 — accepted and merged locally on 18 November at `754d142`.** Acceptance `26326c5` follows delivery `023f8df`. Excel import, current-roster CSV and Excel downloads, and A4 roll-call complete the planned STU-01 slices locally. Both adapters, isolated Webpack, compiled Edge and A4 review passed. The default Turbopack build failed at the CSS worker. #37 was last observed open and awaits owner-directed GitHub reconciliation. **Next:** owner-started ATT-01 / #8 inspection and specification. [Verification](specs/STU-01B/verification.md) · [Merge receipt and handoff](specs/STU-01B/plan.md).
 
 **STU-01A / #37 — accepted and merged locally on 18 November at `c4fc99c`.** Acceptance `41a2ee3` follows delivery `51d692a`. The private student directory, reviewed CSV imports and individual/batch roster enrollment are available. Captured session attendance remains accessible after removal. Both adapters, isolated Webpack and compiled Edge review passed. The default Turbopack build stalled. [Verification and limits](specs/STU-01A/verification.md) · [Merge receipt and handoff](specs/STU-01A/plan.md).
