@@ -21,7 +21,7 @@ export function TermWriteProvider({value,children}:{value:TermWriteContext;child
 }
 export function useTermActions(){
  const scope=useContext(TermScope);const context=scope?.value;
- const report=(result:ActionResult)=>scope?.report(result)??result;
+ const report=<T extends ActionResult,>(result:T): T => { scope?.report(result); return result; };
  return {
   createMeetingAction: (formData: Parameters<typeof a0.createMeetingAction>[0]) => a0.createMeetingAction(formData, context).then(report),
   moveMeetingAction: (meetingId: Parameters<typeof a0.moveMeetingAction>[0], dayOfWeek: Parameters<typeof a0.moveMeetingAction>[1], startMinutes: Parameters<typeof a0.moveMeetingAction>[2], endMinutes: Parameters<typeof a0.moveMeetingAction>[3]) => a0.moveMeetingAction(meetingId, dayOfWeek, startMinutes, endMinutes, context).then(report),

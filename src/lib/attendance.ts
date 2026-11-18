@@ -15,21 +15,15 @@ export interface AttendanceSummaryInput {
   status: AttendanceStatus;
 }
 
-function csvCells(line: string): string[] {
+function csvCells(line: string): string[] | null {
+  const field = /[ 	]*(?:"((?:[^"]|"")*)"[ 	]*|([^",]*))(,|$)/y;
   const cells: string[] = [];
-  let value = "";
-  let quoted = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (quoted && line[i + 1] === '"') { value += '"'; i++; }
-      else quoted = !quoted;
-    } else if (ch === "," && !quoted) {
-      cells.push(value.trim()); value = "";
-    } else value += ch;
+  while (true) {
+    const match = field.exec(line);
+    if (!match) return null;
+    cells.push((match[1]?.replaceAll('""', '"') ?? match[2]).trim());
+    if (!match[3]) return cells;
   }
-  cells.push(value.trim());
-  return cells;
 }
 
 const HEADER_ALIASES: Record<string, keyof Omit<CsvStudentRow, "audienceType"> | "audienceType"> = {
@@ -45,38 +39,61 @@ function normalizeHeader(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-/** Parse a small roster CSV without binding the import surface to one export format. */
-export function parseStudentCsv(text: string): CsvStudentRow[] {
-  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
-  if (lines.length < 2) throw new Error("CSV needs a header row and at least one student row.");
-  const headers = csvCells(lines[0]).map((h) => HEADER_ALIASES[normalizeHeader(h)] ?? null);
-  if (!headers.includes("studentCode") || !headers.includes("fullName")) {
-    throw new Error("CSV must include Student ID and Student Name columns.");
+export interface RosterCsvIssue {
+  row: number;
+  kind: "skipped" | "failed";
+  message: string;
+}
+
+export interface RosterImportReceipt {
+  created: number;
+  updated: number;
+  unchanged: number;
+  skipped: number;
+  failed: number;
+  issues: RosterCsvIssue[];
+}
+
+type ParsedRosterRow = Omit<CsvStudentRow, "audienceType"> & { row: number; audienceType: CsvStudentRow["audienceType"] | null };
+
+export function parseStudentCsv(text: string): { error: string } | { rows: ParsedRosterRow[]; issues: RosterCsvIssue[] } {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/)
+    .map((line, index) => ({ line, row: index + 1 })).filter(({ line }) => line.trim());
+  if (lines.length < 2) return { error: "CSV needs a header row and at least one student row." } as const;
+  const headers = csvCells(lines[0].line)?.map((header) => {
+    const key = normalizeHeader(header);
+    return Object.hasOwn(HEADER_ALIASES, key) ? HEADER_ALIASES[key] : null;
+  });
+  if (!headers?.includes("studentCode") || !headers.includes("fullName")) {
+    return { error: "CSV must include valid Student ID and Student Name headings." } as const;
   }
-  const rows: CsvStudentRow[] = [];
+  const known = headers.filter((header) => header !== null);
+  if (new Set(known).size !== known.length) return { error: "Use each supported CSV heading only once." } as const;
+
+  const rows: ParsedRosterRow[] = [];
+  const issues: RosterCsvIssue[] = [];
   const seen = new Set<string>();
-  for (const line of lines.slice(1)) {
+  for (const { line, row } of lines.slice(1)) {
     const values = csvCells(line);
-    const draft: Record<string, string> = {};
-    headers.forEach((header, i) => { if (header) draft[header] = values[i]?.trim() ?? ""; });
-    const studentCode = draft.studentCode?.trim();
-    const fullName = draft.fullName?.trim();
-    if (!studentCode && !fullName) continue;
-    if (!studentCode || !fullName) throw new Error(`Every row needs Student ID and Student Name (${line}).`);
-    if (seen.has(studentCode)) continue;
-    seen.add(studentCode);
-    const rawType = draft.audienceType?.toLowerCase();
-    const audienceType = rawType === "external" || rawType === "merged" ? rawType : "local";
-    rows.push({
-      studentCode,
-      fullName,
-      phone: draft.phone || null,
-      department: draft.department || null,
-      audienceType,
-    });
+    if (!values || values.length > headers.length) {
+      issues.push({ row, kind: "failed", message: "Check CSV quotes and the number of columns." });
+      continue;
+    }
+    const draft = Object.fromEntries(headers.flatMap((header, index) => header ? [[header, values[index] ?? ""]] : []));
+    const { studentCode, fullName, phone, department } = draft;
+    const audience = draft.audienceType?.toLowerCase() || null;
+    if (!studentCode || !fullName || line.includes("\0")) {
+      issues.push({ row, kind: "failed", message: line.includes("\0") ? "Remove invalid characters." : "Student ID and Student Name are required." });
+    } else if (audience !== null && audience !== "local" && audience !== "external" && audience !== "merged") {
+      issues.push({ row, kind: "failed", message: "Audience Type must be local, external or merged." });
+    } else if (seen.has(studentCode)) {
+      issues.push({ row, kind: "skipped", message: "Duplicate Student ID in this file." });
+    } else {
+      seen.add(studentCode);
+      rows.push({ row, studentCode, fullName, phone: phone || null, department: department || null, audienceType: audience });
+    }
   }
-  if (rows.length === 0) throw new Error("No valid student rows were found.");
-  return rows;
+  return { rows, issues } as const;
 }
 
 /** Late counts as attended; excused sessions are removed from the denominator. */

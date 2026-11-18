@@ -28,7 +28,7 @@ export type ActionOutcome =
   | { kind: "conflict"; blockers: number; warnings: number }
   | { kind: "permission"; reason: "unauthenticated" | "forbidden" }
   | { kind: "stale"; reason: "changed" | "not_active_term" | "missing" }
-  | { kind: "partial"; total: number; applied: number; rejected: Array<{ row: number; message: string }> };
+  | { kind: "partial"; total: number; applied: number; unchanged?: number; rejected: Array<{ row: number; message: string }> };
 
 export interface ActionResult {
   ok: boolean;
@@ -71,13 +71,13 @@ export function stale(message: string, reason: "changed" | "not_active_term" | "
   return { ok: false, message, outcome: { kind: "stale", reason } };
 }
 
-export function partial(message: string, counts: { total: number; applied: number; rejected: Array<{ row: number; message: string }> }): ActionResult {
-  const { total, applied, rejected } = counts;
-  if (![total, applied].every((value) => Number.isInteger(value) && value >= 0) || applied + rejected.length !== total) {
-    throw new Error("Partial result counts must satisfy applied + rejected rows = total.");
+export function partial(message: string, counts: { total: number; applied: number; unchanged?: number; rejected: Array<{ row: number; message: string }> }): ActionResult {
+  const { total, applied, unchanged = 0, rejected } = counts;
+  if (![total, applied, unchanged].every((value) => Number.isInteger(value) && value >= 0) || applied + unchanged + rejected.length !== total) {
+    throw new Error("Partial result counts must satisfy applied + rejected rows = total when no unchanged count is provided.");
   }
   if (applied === 0 || rejected.length === 0) throw new Error("A partial result needs both applied and rejected rows.");
-  return { ok: false, message, outcome: { kind: "partial", total, applied, rejected: rejected.map((row) => ({ ...row })) } };
+  return { ok: false, message, outcome: { kind: "partial", total, applied, ...(counts.unchanged !== undefined ? { unchanged } : {}), rejected: rejected.map((row) => ({ ...row })) } };
 }
 
 /** The outcome category of any result, including legacy results without `outcome`. */
