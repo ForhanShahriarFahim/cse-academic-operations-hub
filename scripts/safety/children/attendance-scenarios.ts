@@ -9,6 +9,8 @@ const database = loadApp<typeof import("../../../src/db")>("src/db/index.ts"), {
 const s = loadApp<typeof import("../../../src/db/schema")>("src/db/schema.ts");
 const context = loadApp<typeof import("../../../src/lib/term-context")>("src/lib/term-context.ts");
 const actions = loadApp<typeof import("../../../src/lib/academic-actions")>("src/lib/academic-actions.ts");
+const directory = loadApp<typeof import("../../../src/lib/student-directory")>("src/lib/student-directory.ts");
+const roster = loadApp<typeof import("../../../src/lib/student-roster-actions")>("src/lib/student-roster-actions.ts");
 const operations = loadApp<typeof import("../../../src/lib/academic-operations")>("src/lib/academic-operations.ts");
 const form = (values: Record<string, unknown>) => {
   const f = new FormData(); for (const [key, value] of Object.entries(values)) f.set(key, String(value)); return f;
@@ -72,6 +74,7 @@ async function main() {
   const retained = (await records()).filter((record) => record.studentId === removed.id);
   ok(await actions.deactivateStudentAction(removed.id, group.id, token));
   const afterRemoval = await operations.getAttendanceData(group.id);
+  assert.ok(afterRemoval.sessions.find(row => row.id === first.id)?.records.some(row => row.studentId === removed.id && row.fullName === removed.fullName));
   const stillCurrent = captured.filter((student) => student.id !== removed.id);
   ok(await actions.saveAttendanceAction(first.id, stillCurrent.map((student) => ({ studentId: student.id, status: "late" })), token));
   assert.equal(afterRemoval.roster.some((row) => row.id === removed.id), false);
@@ -165,8 +168,20 @@ async function main() {
     assert.equal((await audits()).length, auditBefore + 1);
     lines.push(`${pool ? "PostgreSQL blocking-PID evidence: second creator waits for first while first is held at insert" : "PGlite: second request queues behind open creation"}; exactly one session, one captured roster, one success audit and one conflict.`);
 
-    const importRows = (rows: string[], teachingGroupId = group.id, writeContext = token) =>
-      actions.importStudentCsvAction(form({ teachingGroupId, csvText: ["Student ID,Student Name,Department,Audience Type", ...rows].join("\n") }), writeContext);
+    const upload = (rows: string[], teachingGroupId = group.id, writeContext = token, mode = "roster") => {
+      const input = form({ mode, teachingGroupId, _activeTermId: writeContext.activeTermId, _termGeneration: writeContext.generation,
+        "map:studentCode": 1, "map:fullName": 2, "map:department": 3, ...(mode === "roster" ? { "map:audienceType": 4 } : {}) });
+      input.set("csv", new File([["Student ID,Student Name,Department,Audience Type", ...rows].join("\n")], "synthetic.csv"));
+      return input;
+    };
+    const confirm = (input: FormData, proof: string) => {
+      input.set("proof", proof); input.set("operation", "confirm"); return roster.reviewStudentCsv(input);
+    };
+    const importRows = async (...args: Parameters<typeof upload>) => {
+      const input = upload(...args);
+      const preview = await roster.reviewStudentCsv(input);
+      return preview.proof ? confirm(input, preview.proof) : preview;
+    };
     const marksBefore = await records();
     const inactiveCsv = `${removed.studentCode},${removed.fullName}`;
     const importNew = "ATT-CSV,New Student,,external";
@@ -202,31 +217,80 @@ async function main() {
       await db.select().from(s.courseEnrollments).orderBy(asc(s.courseEnrollments.id)), await audits(),
     ]);
     const beforeFault = await importSnapshot();
+    const undo = upload(["ATT-UNDO,Synthetic Rollback"]);
+    const undoPreview = await roster.reviewStudentCsv(undo);
+    assert.ok(undoPreview.proof);
+    assert.equal(await importSnapshot(), beforeFault, "preview has no writes");
     await db.execute(sql`insert into safe01_fault values (true)`);
-    await assert.rejects(importRows(["ATT-UNDO,Synthetic Rollback"]));
+    assert.equal((await confirm(undo, undoPreview.proof)).ok, false);
     await db.execute(sql`delete from safe01_fault`);
     assert.equal(await importSnapshot(), beforeFault);
 
+    const replay = upload([importNew.replace("external", "merged")]);
+    const statusPreview = await roster.reviewStudentCsv(replay);
+    assert.ok(statusPreview.proof);
+    ok(await confirm(replay, statusPreview.proof));
+    ok(await importRows([importNew]));
+    assert.equal((await confirm(replay, statusPreview.proof)).outcome?.kind, "stale", "a used preview cannot reapply after its original state returns");
+
     const raceRows = ["ATT-RACE-B,Synthetic B", "ATT-RACE-A,Synthetic A"];
-    const raceAuditCount = (await audits()).length;
-    let importRace;
-    if (pool && control) {
-      await control.query("begin");
-      try {
-        await control.query("insert into students(student_code,full_name) values ('ATT-RACE-A','Synthetic A')");
-        const left = importRows(raceRows);
-        const right = importRows([...raceRows].reverse());
-        await waitFor("select (count(*) >= 2)::int as count from pg_stat_activity where datname=current_database() and wait_event_type='Lock' and query like 'insert into \"students\"%'");
-        await control.query("commit");
-        importRace = await Promise.all([left, right]);
-      } finally { await control.query("rollback"); }
-    } else {
-      importRace = await Promise.all([importRows(raceRows), importRows([...raceRows].reverse())]);
-    }
-    assert.deepEqual(importRace.map(result => [result.receipt?.created, result.receipt?.unchanged]).sort(), [[0, 2], [2, 0]]);
-    assert.equal((await audits()).length, raceAuditCount + 1);
+    const left = upload(raceRows), right = upload([...raceRows].reverse());
+    const [leftPreview, rightPreview] = await Promise.all([roster.reviewStudentCsv(left), roster.reviewStudentCsv(right)]);
+    assert.ok(leftPreview.proof && rightPreview.proof);
+    assert.equal((await confirm(upload(["ATT-NOT-REVIEWED,Other Student"]), leftPreview.proof)).outcome?.kind, "stale");
+    const importRace = await Promise.all([confirm(left, leftPreview.proof), confirm(right, rightPreview.proof)]);
+    assert.equal(importRace.filter(result => result.receipt?.created === 2).length, 1);
+    assert.equal(importRace.filter(result => result.outcome?.kind === "stale").length, 1);
+    assert.equal((await confirm(left, leftPreview.proof)).outcome?.kind, "stale");
+    assert.equal((await actions.importStudentCsvAction(form({ teachingGroupId: group.id, csvText: "unused" }), token)).ok, false);
+    assert.equal((await actions.upsertStudentAction(form({ teachingGroupId: group.id, studentId: late.id, studentCode: late.studentCode, fullName: "Wrong Name" }), token)).ok, false);
+
+    const directoryUpload = upload(["000-STUDENT,Directory Student"], group.id, token, "directory");
+    const directoryPreview = await roster.reviewStudentCsv(directoryUpload);
+    assert.ok(directoryPreview.proof);
+    assert.equal((await confirm(directoryUpload, directoryPreview.proof)).receipt?.created, 1);
+    const listing = await directory.searchStudents(form({ q: "000-STUDENT" }));
+    assert.ok("rows" in listing && listing.rows.length === 1);
+    const identity = await directory.studentDetail(listing.rows[0].id);
+    assert.ok(identity && !identity.fixedCode && !identity.history.length);
+    assert.ok((await directory.studentDetail(late.id))?.fixedCode);
+    const [batch] = await db.select({ id: s.courseOfferings.batchId }).from(s.teachingGroupOfferings)
+      .innerJoin(s.courseOfferings, eq(s.courseOfferings.id, s.teachingGroupOfferings.offeringId))
+      .where(eq(s.teachingGroupOfferings.teachingGroupId, group.id));
+    const edit = form({ operation: "edit", id: identity.id, fingerprint: identity.fingerprint, studentCode: identity.studentCode,
+      fullName: identity.fullName, phone: "+000123456", homeBatchId: batch.id });
+    ok(await directory.changeStudent(edit));
+    assert.equal((await directory.changeStudent(edit)).outcome?.kind, "stale");
+    const batchInput = form({ teachingGroupId: group.id, _activeTermId: token.activeTermId,
+      _termGeneration: token.generation, batchId: batch.id, audienceType: "merged" });
+    const batchPreview = await roster.reviewBatchEnrollment(batchInput);
+    assert.ok(batchPreview.proof && batchPreview.candidates?.some(row => row.id === identity.id && row.disposition === "Enroll"), batchPreview.message);
+    const [batchStudent] = await db.select().from(s.students).where(eq(s.students.id, identity.id));
+    const freshIdentity = await directory.studentDetail(identity.id);
+    ok(await directory.changeStudent(form({ id: identity.id, fingerprint: freshIdentity!.fingerprint, operation: "deactivate", confirmed: "yes" })));
+    batchInput.set("operation", "confirm"); batchInput.set("proof", batchPreview.proof);
+    assert.equal((await roster.reviewBatchEnrollment(batchInput)).outcome?.kind, "stale");
+    const inactive = await directory.studentDetail(identity.id);
+    ok(await directory.changeStudent(form({ id: identity.id, fingerprint: inactive!.fingerprint, operation: "restore" })));
+    batchInput.set("operation", "preview");
+    const freshBatch = await roster.reviewBatchEnrollment(batchInput);
+    assert.ok(freshBatch.proof);
+    batchInput.set("operation", "confirm"); batchInput.set("proof", freshBatch.proof);
+    ok(await roster.reviewBatchEnrollment(batchInput));
+    assert.equal((await directory.studentDetail(identity.id))?.phone, batchStudent.phone);
+    const [ownerDepartment] = await db.select().from(s.departments).where(eq(s.departments.code, "CSE"));
+    const [scoped] = await db.insert(s.portalUsers).values({ email: "stu-scoped@example.invalid", displayName: "Scoped Admin", status: "active" }).returning();
+    await db.insert(s.roleAssignments).values({ userId: scoped.id, role: "academic_administrator", departmentId: ownerDepartment.id });
+    signInAs("stu-scoped@example.invalid");
+    assert.equal(await directory.studentDetail(identity.id), null);
+    assert.equal((await directory.searchStudents(form({ q: "000-STUDENT" }))).outcome?.kind, "permission");
+    const forged = upload(["ATT-PHONE,Student,,external,123"]);
+    forged.set("map:phone", "5");
+    assert.equal((await roster.reviewStudentCsv(forged)).outcome?.kind, "validation");
+    assert.doesNotMatch(JSON.stringify(await operations.getAttendanceData(group.id)), /000123456/);
+    signInAs("admin@example.invalid");
     assert.deepEqual(await records(), marksBefore, "roster import never changes captured marks");
-    lines.push("ATT-02: source rows, committed counts, unchanged retry, cross-group enrollment, safe refusal, atomic audit rollback and overlapping reversed-order imports passed.");
+    lines.push("ATT-02: source rows, committed counts, unchanged retry, cross-group enrollment, safe refusal, atomic audit rollback and stale/replayed overlapping previews, directory lifecycle, scoped privacy and batch enrollment passed.");
   } finally { control?.release(); await pool?.end(); }
   report({ lines });
 }

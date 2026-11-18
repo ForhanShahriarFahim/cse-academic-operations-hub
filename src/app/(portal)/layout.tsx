@@ -13,7 +13,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const actor = await getOptionalActor();
   if (!actor) redirect("/login");
   if (!await can(actor, "view_internal_portal")) redirect("/forbidden");
-  const capabilities = [...new Set(actor.assignments.flatMap((assignment) => ROLE_CAPABILITIES[assignment.role]))];
+  const capabilities = [...new Set(actor.assignments.flatMap((assignment) => ROLE_CAPABILITIES[assignment.role].filter(capability => capability !== "manage_students" || assignment.departmentId == null)))];
   const roles = [...new Set(actor.assignments.map((assignment) => assignment.role.replaceAll("_", " ")))];
   const roleLabel = roles.length ? roles.map((role) => role[0].toUpperCase() + role.slice(1)).join(", ") : "No active role";
 

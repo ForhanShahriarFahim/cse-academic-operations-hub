@@ -1,6 +1,6 @@
 export const ROLE_CAPABILITIES = {
-  system_administrator: ["view_internal_portal", "view_private_contacts", "manage_catalog", "manage_offerings", "manage_class_groups", "manage_batches", "manage_teachers", "manage_rooms", "manage_terms", "manage_users", "manage_policy", "manage_routine", "approve_publication", "manage_external_commitments", "run_auto_schedule", "manage_rosters", "take_attendance", "submit_extra_load", "review_extra_load", "view_payment_reports"],
-  academic_administrator: ["view_internal_portal", "view_private_contacts", "manage_catalog", "manage_offerings", "manage_class_groups", "manage_batches", "manage_teachers", "manage_rooms", "manage_terms", "manage_policy", "manage_rosters", "take_attendance", "review_extra_load", "view_payment_reports"],
+  system_administrator: ["view_internal_portal", "view_private_contacts", "manage_catalog", "manage_offerings", "manage_class_groups", "manage_batches", "manage_teachers", "manage_rooms", "manage_terms", "manage_users", "manage_policy", "manage_routine", "approve_publication", "manage_external_commitments", "run_auto_schedule", "manage_students", "manage_rosters", "take_attendance", "submit_extra_load", "review_extra_load", "view_payment_reports"],
+  academic_administrator: ["view_internal_portal", "view_private_contacts", "manage_catalog", "manage_offerings", "manage_class_groups", "manage_batches", "manage_teachers", "manage_rooms", "manage_terms", "manage_policy", "manage_students", "manage_rosters", "take_attendance", "review_extra_load", "view_payment_reports"],
   routine_coordinator: ["view_internal_portal", "view_private_contacts", "manage_teachers", "manage_rooms", "manage_class_groups", "manage_routine", "manage_external_commitments", "run_auto_schedule"],
   department_approver: ["view_internal_portal", "view_private_contacts", "approve_publication"],
   teacher: ["view_internal_portal", "take_attendance", "submit_extra_load"],
@@ -35,6 +35,7 @@ export function hasCapability(actor: Actor, capability: Capability, departmentId
   return actor.assignments.some((assignment) =>
     assignment.activeFrom <= now
     && (assignment.activeTo == null || assignment.activeTo > now)
+    && (capability !== "manage_students" || assignment.departmentId == null)
     && (assignment.departmentId == null || departmentId != null && assignment.departmentId === departmentId)
     && (ROLE_CAPABILITIES[assignment.role] as readonly string[]).includes(capability)
   );
