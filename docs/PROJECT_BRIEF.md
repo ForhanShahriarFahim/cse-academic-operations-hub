@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**CRS-01D / #7 — implemented on 18 November.** Owner approved D-1–D-6 at `e8c25ea`; application checkpoint `4e6ea72` on `codex/crs-01d` from local main `75f204e`. Selected carry-forward, teacher comparison and audit history are available from Class groups. Both adapter checks, the PostgreSQL simultaneous-apply race, the compiled browser review and archived CSV/A4 parity pass. [Verification, build limits and institutional directory incident](specs/CRS-01D/verification.md) · [Approval, checklist and exact handoff](specs/CRS-01D/plan.md). **Next:** owner inspects the guarded preview and decides on delivery acceptance before local merge. Parent #7 remains open.
+**CRS-01D / #7 — accepted and merged locally on 18 November at `6acfc92`.** The owner replied “Accepted +” after delivery `e41afc3` and its disclosures. Acceptance `986dddf` precedes the merge. Selected carry-forward, teacher comparison and audit history are available from Class groups. Both adapters, the independent PostgreSQL apply race, compiled browser review and archived CSV/A4 parity pass. The default Turbopack build remained incomplete; isolated Webpack passed. Institutional PGlite directory metadata changed during the initial Webpack attempt; row parity remains unverified. [Verification](specs/CRS-01D/verification.md) · [Merge receipt and exact handoff](specs/CRS-01D/plan.md). Parent #7 remains open. **Next:** owner-started ATT-02 inspection and specification under #9, following the local sequence.
 
 The CRS-01C and earlier records below are history.
 

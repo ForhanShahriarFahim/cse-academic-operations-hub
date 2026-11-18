@@ -2,7 +2,7 @@
 
 Parent: CRS-01 / #7. [Specification and decisions](spec.md) · [Verification](verification.md) · [Responsive sketch](mockups/index.html)
 Branch/base: `codex/crs-01d` / `75f204e` (local `main`).
-Updated 18 November 2026 (Asia/Dhaka). Status: **Implemented on the issue branch.**
+Updated 18 November 2026 (Asia/Dhaka). Status: **Accepted and merged locally.**
 
 ## Inspection and proposed approach
 
@@ -29,7 +29,7 @@ The initial source/destination review can race with edits. The reviewed facts ar
 - [x] T-04 — Implement capability checks, atomic guarded apply, audit receipt and existing history integration. Both adapter groups and the concurrent identical-apply race passed (AC-01, AC-05–AC-06). See verification for coverage limits.
 - [x] T-05 — Wire the Class groups entry point and editor review flow. Guarded compiled browser, keyboard and three responsive widths passed (AC-01, AC-04, AC-07).
 - [x] T-06 — Record criterion evidence, focused regressions, synthetic review command, default-build limit and build-isolation incident (AC-06–AC-08).
-- [ ] T-07 — Record acceptance, merge locally into `main` and update this handoff. Keep parent #7 open pending reconciliation of its remaining scope.
+- [x] T-07 — Recorded acceptance at `986dddf` and merged locally at `6acfc92`. Parent #7 stays open pending reconciliation of its remaining scope.
 
 ## Verification and delivery
 
@@ -37,6 +37,6 @@ Run typecheck, lint, domain checks and the default build. Add focused safety gro
 
 ## Current checkpoint and exact handoff
 
-18 November 2026. Owner approval `e8c25ea`, implementation `4e6ea72`, branch `codex/crs-01d` based on `75f204e`. The older Courses & offerings “UT” display remains tracked in the CRS-01C verification record.
+18 November 2026. Owner approval `e8c25ea`, implementation `4e6ea72`, delivery `e41afc3`, acceptance `986dddf`, local merge `6acfc92`. The retained branch is `codex/crs-01d`, based on `75f204e`. The checkout is local `main`. The merge applied the accepted tree without conflicts. The [verification record](verification.md) carries the incomplete default-build check and the institutional PGlite incident with row parity unverified. The older “UT” display remains tracked in CRS-01C.
 
-> Resume CRS-01D on codex/crs-01d, base 75f204e. Check Git state and read the brief, workflow, and this issue’s specification, plan and verification. Finish any pending verification, present the synthetic review, record owner acceptance, then merge locally. Use disposable verification and preserve source and historical rows. Institutional migrations 0017/0018 and GitHub synchronization have separate authorization.
+> Start from local main and read the current brief and workflow. The suggested next part is ATT-02 / #9 inspection and specification for attendance save/import feedback and truthful partial-import counts. Obtain its own implementation approval. Institutional work, GitHub synchronization and the older completeness-report finding require separate direction.
