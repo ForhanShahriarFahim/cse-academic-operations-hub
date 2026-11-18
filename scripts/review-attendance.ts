@@ -194,7 +194,7 @@ async function checkBrowser() {
     await page.goto(`${origin}/students/new`);
     await page.getByLabel("Student ID", { exact: true }).fill("000-BROWSER-BATCH");
     await page.getByLabel("Student name", { exact: true }).fill("Synthetic Batch Candidate");
-    await page.getByLabel("Home batch", { exact: true }).selectOption(batchId);
+    await page.locator("select[name=homeBatchId]").selectOption(batchId);
     await page.getByRole("button", { name: "Add student", exact: true }).click();
     await page.getByRole("heading", { name: "Synthetic Batch Candidate", exact: true }).waitFor();
     await page.goto(rosterUrl);

@@ -2,7 +2,7 @@
 
 Issue [#37](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · [Specification](spec.md) · [Verification](verification.md)
 
-Status: Approved for implementation · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
+Status: Verified and awaiting delivery acceptance · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
 
 ## Inspection and proposed approach
 
@@ -26,10 +26,10 @@ The [desktop and phone sketches](mockups/index.html) use synthetic content. Befo
 
 - [x] T-01 — Inspect the parent and local implementation, document privacy/history boundaries, and prepare the proposal and desktop/phone sketches.
 - [x] T-02 — Record owner approval or amendments and commit the approved scope.
-- [ ] T-03 — Build private directory reads, role and phone gating, explicit identity mutations and safe audit behavior. AC-01–AC-03.
-- [ ] T-04 — Build single roster actions, group and term authorization, stable attendance projections and private data minimization. Close alternate write paths. AC-01, AC-04, AC-08.
-- [ ] T-05 — Implement shared CSV mapping/classification, batch review, authenticated confirmation, transactional application and truthful receipts. AC-05–AC-07.
-- [ ] T-06 — Complete accessibility, responsive states, adapter/browser review and history/publication regression. Record delivery evidence and present the local synthetic preview before requesting acceptance. AC-01–AC-09.
+- [x] T-03 — Build private directory reads, role and phone gating, explicit identity mutations and safe audit behavior. AC-01–AC-03.
+- [x] T-04 — Build single roster actions, group and term authorization, stable attendance projections and private data minimization. Close alternate write paths. AC-01, AC-04, AC-08.
+- [x] T-05 — Implement shared CSV mapping/classification, batch review, authenticated confirmation, transactional application and truthful receipts. AC-05–AC-07.
+- [x] T-06 — Complete accessibility, responsive states, adapter/browser review and history/publication regression. Record delivery evidence and present the local synthetic preview before requesting acceptance. AC-01–AC-09.
 - [ ] T-07 — Record owner acceptance and merge into local `main`. Retain parent #37 for STU-01B.
 
 ## Verification and delivery
@@ -40,6 +40,6 @@ Run `npm run typecheck`, `npm run lint`, `npm run test:domain` and `npm run buil
 
 ## Current checkpoint and exact handoff
 
-The proposal is on `codex/stu-01a`, based on `4205eef`. T-01 and T-02 are complete. Application behavior and adapter/browser acceptance checks remain pending implementation. The parent issue was read on 18 November and was open. The last broader GitHub reconciliation was 11 November. Institutional data access and GitHub synchronization are separate delivery boundaries.
+Owner approval was committed at `25f5ff2`. Implementation `ef7ff89` and the browser review correction `42fb6ea` are on `codex/stu-01a` from `4205eef`. T-01–T-06 are complete. The default Turbopack build stalled. The final Webpack build, both-adapter suites, and compiled browser review passed. See the verification record for specific evidence limits. The import and batch confirmation proofs are signed and their redemption is recorded with the transactional audit. The implementation uses one transaction-scoped student writer lock to cover absent identities and changing batch membership across identity, enrollment, and attendance capture. The parent issue was confirmed open on 18 November. The last broader GitHub reconciliation was 11 November.
 
-> Continue on `codex/stu-01a`. Read the current brief, this plan, D-1–D-7, AC-01–AC-09 and the verification record. If the owner approved or amended the proposal, record the actual message and scope in T-02 and commit that record before implementing T-03–T-06. Otherwise retain the proposal for review. Verify using synthetic PGlite and PostgreSQL, present the bounded delivery for acceptance, then merge into local `main` only after acceptance. Keep #37 open for STU-01B.
+> Continue on `codex/stu-01a`. Read the current brief, D-1–D-7, and the verification record. Review the compiled synthetic workflow at [the local review link](http://localhost:3135/sign-in) when the preview is running. To start a disposable preview, run `node node_modules/tsx/dist/cli.mjs scripts/review-attendance.ts --serve` with `SAFE01_PG_BIN` pointing at the local PostgreSQL tools. Record actual owner acceptance before merging into local `main`. Keep #37 open for STU-01B.

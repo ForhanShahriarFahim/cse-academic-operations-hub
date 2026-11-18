@@ -2,7 +2,7 @@
 
 [#37](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · [Specification](spec.md) · [Plan](plan.md)
 
-Inspected revision `4205eef` · Source inspection on 18 November 2026 (Asia/Dhaka)
+Inspected baseline `4205eef` · Implemented at `ef7ff89` with the form accessibility correction `42fb6ea` · 18 November 2026 (Asia/Dhaka)
 
 ## Inspection evidence
 
@@ -23,13 +23,28 @@ The static sketches were checked in Edge at 1440, 390 and 320 px using the local
 
 ## Acceptance evidence
 
-| Criteria | Status | Planned evidence |
-| --- | --- | --- |
-| AC-01–AC-04 | Pending | Privacy/authorization matrix, directory and exact-group roster commands in both adapters and browser. |
-| AC-05–AC-07 | Pending | Read-only previews, CSV validation/counts, locked batch and import races, transactional application and rollback. |
-| AC-08 | Pending | Captured-session access and row parity for previous terms, marks and publications. |
-| AC-09 | Pending | Compiled browser review at desktop and phone widths with keyboard and accessibility checks. |
+| Criteria | Evidence |
+| --- | --- |
+| AC-01 | Both disposable adapters exercised the scoped administrator, an assigned and unassigned teacher, and anonymous action guards. A forged phone mapping was refused and the scoped attendance projection omitted the stored phone. |
+| AC-02–AC-03 | Both adapters exercised directory-only upload, leading-zero lookup, stable used IDs, private detail, a home-batch edit, stale edit refusal, deactivation and restoration. Browser exercised search and a saved private phone across reload. |
+| AC-04 | Both adapters rejected the old identity write path, kept cross-group enrollment independent, and enforced scoped roster access. The browser exercised manual add, remove and restore. |
+| AC-05 | Both adapters verified an eligible batch, stale confirmation after a candidate's deactivation, a fresh successful confirmation, and preservation of identity data. Browser exercised a directory-created candidate and whole-batch enrollment. |
+| AC-06–AC-07 | Domain parser checks and both adapters exercised source-line ordering, duplicate/failed rows, truthful partial counts, write-free preview, altered input, overlapping confirmations, replay after restoring earlier state, and audit-failure rollback. Browser exercised a mixed preview, receipt and unchanged retry. |
+| AC-08 | Both adapters verified captured identities and preserved marks after removal, and serialized concurrent session creation. T-03 preserved previous term rows, archived publication snapshots and CSV behavior. Archived A4 rendering was outside these checks. |
+| AC-09 | Compiled Edge captures and axe checks passed for the directory, detail and mixed receipt at 1440, 390 and 320 px. The first browser attempt identified a read-only Student ID label issue, corrected in `42fb6ea`. The final run also exercised anonymous refusal, attendance save retry, and session create/delete. |
+
+## Checks
+
+- `npm run typecheck`, `npm run lint`, and `npm run test:domain` passed. Focused lint also passed on the final accessibility correction and review script.
+- `BUG-ATT-MARKS`, `SET-01A`, `BUG-28`, `CRS-01C`, and `BAT-01A` passed on owned PGlite and PostgreSQL 17.11. `T-03` passed on owned PGlite. The focused final adapter rerun includes single-use proof checks.
+- The default Turbopack build stalled during optimized compilation and was stopped. The final explicit Webpack build passed compilation, TypeScript, static generation and output tracing using an unused local database port and an in-memory PGlite fallback.
+- The verification harnesses reported unchanged institutional PGlite directory metadata. Reviewed datasets and screenshots contain synthetic records.
+- Simultaneous class-group removal or batch edits against a student confirmation were not independently barrier-tested. Established class-group and term writers and the focused confirmation/session checks exercise the locking mechanisms separately.
+
+## Owner review
+
+[Open the synthetic review](http://localhost:3135/sign-in). Start at Attendance → Manage roster, where the active group is preselected. Open Students in the Classes navigation for directory search and private identity detail. The open preview contains synthetic records from the verification run. The [plan](plan.md#current-checkpoint-and-exact-handoff) gives the restart command.
 
 ## Delivery and acceptance
 
-Proposal branch `codex/stu-01a`. Implementation approval, delivery acceptance and local merge are pending. #37 remains open. The issue read on 18 November verified scope and state. The last synchronization was 11 November.
+Branch `codex/stu-01a`. The proposal was approved at `25f5ff2`. Owner delivery acceptance and local merge are pending. #37 remains open for STU-01B. The parent scope and open state were read on 18 November. The last GitHub synchronization was 11 November.
