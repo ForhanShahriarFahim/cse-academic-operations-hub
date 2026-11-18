@@ -40,4 +40,4 @@ Open the [synthetic preview](http://localhost:3147/sign-in). Start with **Attend
 
 To restart on a completed isolated build, run `node node_modules/tsx/dist/cli.mjs scripts/review-attendance.ts --stu-01b --serve`. Add `--check` for the synthetic Edge workflow and PDF generation. The review uses a disposable PostgreSQL cluster and localhost only.
 
-Owner acceptance and local merge are pending. The default Turbopack failure remains open. The recorded workbook interoperability check used openpyxl, and the A4 check used the Edge print engine. Desktop Excel and a physical printer were outside these checks.
+The owner accepted `023f8df` on 18 November. Acceptance `26326c5` merged into local `main` at `754d142` with an identical tree and no merge conflicts. The build and browser evidence above carries forward. The default Turbopack failure remains open. The recorded workbook interoperability check used openpyxl, and the A4 check used the Edge print engine. Desktop Excel and a physical printer were outside these checks.

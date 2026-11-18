@@ -26,10 +26,10 @@ On 18 November 2026 (Asia/Dhaka), the owner replied “accepted.” after delive
 - [x] T-03 — Implement workbook inspection and bounded parsing, shared mapping and confirmation, samples, and safe receipts. Covers AC-01–AC-03.
 - [x] T-04 — Implement the roster projection, authenticated CSV and Excel download, printable roll-call and output audit. Covers AC-01 and AC-04–AC-05.
 - [x] T-05 — Verify with focused parser checks, both synthetic adapters, compiled Edge and A4 output. Typecheck, lint, domain and isolated Webpack pass. Default Turbopack fails at the CSS worker. See [verification](verification.md).
-- [ ] T-06 — Commit verified delivery, provide the owner a reproducible synthetic review, and record acceptance before local merge. Reconcile parent issue completeness for the next owner-directed synchronization.
+- [x] T-06 — Commit verified delivery, provide the owner a reproducible synthetic review, record acceptance, and merge locally. Record parent issue completeness for the next owner-directed synchronization.
 
 ## Current checkpoint and exact handoff
 
-The owner approved D-1–D-5 at `6edfc81`. Implementation and verification are on `codex/stu-01b`. The [synthetic review](http://localhost:3147/sign-in) is ready for owner inspection. Acceptance and local merge are pending. The parent was last checked on 18 November and was open. The last GitHub synchronization was 11 November.
+The owner approved D-1–D-5 at `6edfc81` and accepted delivery `023f8df` at `26326c5`. The retained `codex/stu-01b` branch merged into local `main` at `754d142`. The merge tree matched the accepted branch exactly, so the existing [verification](verification.md) carries forward. The two accepted slices cover the planned #37 workflows. The parent was last checked on 18 November and was open. GitHub reconciliation remains for the next owner-directed synchronization, after the 11 November sync.
 
-> Resume STU-01B on `codex/stu-01b` at T-06. Review the [verification record](verification.md), including the default-build failure. Record the owner's actual acceptance before merging into local main and update the delivery records. Keep GitHub synchronization on the owner’s agreed schedule.
+> Start the next owner-authorized session from local `main`. Inspect and specify ATT-01 / #8, including the selected course and teaching group, teacher entry to roll-call, and how the teacher-first flow should fit with the original cascading selectors. Use the local delivery sequence to draw the boundaries with the remaining attendance issues. Present a specification and workflow sketches for approval before implementing.
