@@ -45,7 +45,7 @@ function AttendanceFeedback({ area, result, pending }: { area: FeedbackArea; res
   </div>;
 }
 
-export function AttendanceManager({ groups, selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance }: {
+export function AttendanceManager({ groups, selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance, rollCallHref }: {
   groups: Group[];
   selectedGroup: Group;
   teachers: Teacher[];
@@ -56,6 +56,7 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
   termEnd: string;
   canManageRosters: boolean;
   canTakeAttendance: boolean;
+  rollCallHref?: string;
 }) {
   const { createAttendanceSessionAction, deleteAttendanceSessionAction, saveAttendanceAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
@@ -147,7 +148,10 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
       </div>
     </section>
 
-    {canManageRosters && <Link className="inline-block rounded-md border border-[var(--color-line)] px-3 py-2 text-sm font-semibold" href={`/attendance/roster?group=${selectedGroup.id}`}>Manage roster</Link>}
+    <div className="flex flex-wrap gap-2">
+      {canManageRosters && <Link className="inline-block rounded-md border border-[var(--color-line)] px-3 py-2 text-sm font-semibold" href={`/attendance/roster?group=${selectedGroup.id}`}>Manage roster</Link>}
+      {rollCallHref && <a className="inline-block rounded-md border border-[var(--color-line)] px-3 py-2 text-sm font-semibold" href={rollCallHref}>Printable roll-call</a>}
+    </div>
 
 
     {canTakeAttendance && <section className="ruled rounded-lg">

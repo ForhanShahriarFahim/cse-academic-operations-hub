@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel import and roll-call · STU-01B</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f0e6; color: #232c26; font: 1rem/1.55 system-ui, sans-serif; }
+    main { width: min(100% - 2rem, 64rem); margin: 2rem auto; }
+    h1, h2, h3 { margin: 0 0 .5rem; font-family: Georgia, serif; line-height: 1.2; }
+    p { margin: .5rem 0 1rem; }
+    section { margin: 1.5rem 0; padding: clamp(1rem, 3vw, 2rem); border: 1px solid #cfc8b5; border-radius: .6rem; background: #fffcf4; }
+    .actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .control { display: inline-block; padding: .4rem .7rem; border: 1px solid #31604d; border-radius: .3rem; color: #234e3c; font-weight: 650; }
+    .primary { background: #234e3c; color: white; }
+    .columns { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+    dl { margin: .5rem 0 1rem; }
+    dt { margin-top: .5rem; font-weight: 600; }
+    dd { margin: .15rem 0 0; padding: .35rem .5rem; border: 1px solid #aaa492; border-radius: .25rem; }
+    .feedback { padding: .65rem; border-left: .25rem solid #95652c; background: #f7eed8; }
+    .sheet { max-width: 48rem; margin: auto; padding: clamp(.75rem, 3vw, 2rem); border: 1px solid #aaa492; background: white; }
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .875rem; }
+    th, td { border: 1px solid #8a8a83; text-align: left; vertical-align: top; padding: .35rem; overflow-wrap: anywhere; }
+    th:nth-child(2) { width: 34%; }
+    tbody tr { height: 2.2rem; break-inside: avoid; }
+    .folio { text-align: right; font-size: .8rem; }
+    @page { size: A4 portrait; margin: 14mm; }
+    @media print {
+      body, section { background: white; color: black; }
+      main { width: 100%; margin: 0; }
+      .screen-only { display: none; }
+      #roll-call, .sheet { margin: 0; padding: 0; border: 0; max-width: none; }
+      thead { display: table-header-group; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="screen-only">
+      <h1>Excel import and roll-call</h1>
+      <p>STU-01B workflow proposal with fictional students. The controls illustrate placement and labels.</p>
+    </header>
+    <section class="screen-only">
+      <h2>Manage roster</h2>
+      <p>Autumn 2026 · CSE 214 · Data Structures · Group 2 · Merged audience</p>
+      <div class="actions" aria-label="Proposed roster controls">
+        <span class="control primary">Import students</span>
+        <span class="control">Download CSV</span>
+        <span class="control">Download Excel</span>
+        <span class="control">Printable roll-call</span>
+      </div>
+      <p>Downloads and roll-call include active members of this group.</p>
+    </section>
+    <section class="screen-only">
+      <h2>Import students</h2>
+      <p>Choose a CSV or Excel file up to 256 KiB. Sample files are available in both formats.</p>
+      <div class="columns">
+        <div>
+          <h3>Choose a worksheet</h3>
+          <dl><dt>File</dt><dd>new-enrollments.xlsx</dd><dt>Worksheet</dt><dd>Group 2 ▾</dd></dl>
+          <p>Hidden and filtered rows in this worksheet are included.</p>
+        </div>
+        <div>
+          <h3>Match columns</h3>
+          <dl><dt>Student ID</dt><dd>A · ID ▾</dd><dt>Student Name</dt><dd>B · Name ▾</dd><dt>Audience Type</dt><dd>C · Audience ▾</dd></dl>
+          <span class="control">Preview import</span>
+        </div>
+      </div>
+      <h3>Review import</h3>
+      <p>2 created · 0 updated · 1 unchanged · 0 skipped · 1 failed</p>
+      <p class="feedback"><strong>Row 8 · Student ID</strong><br>Use a text cell with the original ID, including any leading zeroes.</p>
+      <span class="control primary">Import 2 eligible rows</span>
+    </section>
+    <section id="roll-call">
+      <div class="screen-only">
+        <h2>Printable roll-call</h2>
+        <p>Use A4 portrait in the print dialog.</p>
+        <p class="actions"><span class="control">Back to attendance</span><span class="control primary">Print roll-call</span></p>
+      </div>
+      <article class="sheet">
+        <h2>Roll-call</h2>
+        <p>Autumn 2026 · CSE 214 · Data Structures<br>Group 2 · Merged audience</p>
+        <p>Class date ____________________</p>
+        <table aria-label="Sample roll-call">
+          <thead><tr><th scope="col">Student ID</th><th scope="col">Student Name</th><th scope="col">Audience</th><th scope="col">Mark</th></tr></thead>
+          <tbody>
+            <tr><td>000481</td><td>Jaya Karim</td><td>Local</td><td></td></tr>
+            <tr><td>000506</td><td>Rehan Ahmed</td><td>External</td><td></td></tr>
+            <tr><td>000624</td><td>Nabila Khan</td><td>Merged</td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="folio">Generated 18 November 2026 · Page 1 of 1</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { AttendanceManager } from "@/components/attendance-manager";
 import { PageHeader } from "@/components/ui";
 import { getAttendanceData } from "@/lib/academic-operations";
 import { can, requireActor } from "@/lib/auth";
+import { rosterOutputQuery } from "@/lib/roster-output-links";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
       teachers={source.data.teachers.filter((teacher) => source.selectedGroup?.teacherIds.includes(teacher.id))}
       canManageRosters={canManageRosters}
       canTakeAttendance={canTakeAttendance}
+      rollCallHref={canTakeAttendance ? `/attendance/roster/print?${rosterOutputQuery(source.selectedGroup.id, source.data.writeContext)}` : undefined}
       roster={source.roster}
       sessions={source.sessions}
       summaries={source.summaries}

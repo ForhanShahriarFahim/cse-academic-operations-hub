@@ -5,15 +5,21 @@ import { useRouter } from "next/navigation";
 import { studentCsvHeadings, suggestedStudentCsvField, type StudentCsvField, type RosterImportReceipt } from "@/lib/attendance";
 import { reviewBatchEnrollment, reviewStudentCsv } from "@/lib/student-roster-actions";
 import { appendTermContext, type TermWriteContext } from "@/lib/term-context-value";
+import { rosterOutputQuery } from "@/lib/roster-output-links";
 import { fieldClass, primaryClass, secondaryClass } from "./styles";
 
 type Batch = { id: number; stream: string; label: string };
 type Result = Awaited<ReturnType<typeof reviewStudentCsv>>;
+function worksheetColumn(index: number) {
+  const prefix = index < 26 ? "" : String.fromCharCode(64 + Math.floor(index / 26));
+  return prefix + String.fromCharCode(65 + index % 26);
+}
 const fields: Array<[StudentCsvField, string]> = [
   ["studentCode", "Student ID"], ["fullName", "Student name"], ["department", "Department"],
   ["homeBatch", "Home batch"], ["phone", "Private phone"], ["audienceType", "Audience type"],
 ];
-const sample = "Student ID,Student Name,Department,Audience Type\n00141,Example Student,CSE,local\n";
+const directorySample = "Student ID,Student Name,Department\n00141,Example Student,CSE\n";
+const rosterSample = "Student ID,Student Name,Department,Audience Type\n00141,Example Student,CSE,local\n";
 
 function Counts({ receipt }: { receipt: RosterImportReceipt }) {
   return <dl className="flex flex-wrap gap-2 text-sm">{(["created", "updated", "unchanged", "skipped", "failed"] as const).map(kind =>
@@ -30,6 +36,9 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
   const isBatch = batchOptions !== undefined;
   const router = useRouter();
   const [headings, setHeadings] = useState<string[]>([]);
+  const [excel, setExcel] = useState(false);
+  const [worksheets, setWorksheets] = useState<NonNullable<Result["workbook"]>["choices"]>([]);
+  const [worksheet, setWorksheet] = useState("");
   const [mapping, setMapping] = useState<Partial<Record<StudentCsvField, string>>>({});
   const [result, setResult] = useState<Result>();
   const [pending, setPending] = useState<"file" | "preview" | "confirm">();
@@ -45,27 +54,57 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
     setResult(undefined);
     setDidApply(false);
   }
-  async function read(file: File | undefined) {
+  function requestData() {
+    const data = new FormData(form.current ?? undefined);
+    data.set("mode", groupId ? "roster" : "directory");
+    if (groupId) data.set("teachingGroupId", String(groupId));
+    if (context) appendTermContext(data, context);
+    return data;
+  }
+  async function read(file: File | undefined, selection = "") {
     invalidate();
     const generation = version.current;
     setHeadings([]);
     setMapping({});
     setPending(file ? "file" : undefined);
     setFileError("");
+    const workbook = Boolean(file && /\.xlsx$/i.test(file.name));
+    setExcel(workbook);
+    setWorksheet(selection);
+    if (!selection) setWorksheets([]);
     if (!file) return;
     try {
-      if (file.size > 256 * 1024) throw new Error("Choose a CSV file up to 256 KiB.");
-      const text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
-      if (generation !== version.current) return;
-      if (text.split(/\r?\n/).filter(line => line.trim()).length > 501) throw new Error("Use up to 500 nonblank data lines.");
-      const header = studentCsvHeadings(text);
-      if (!header) throw new Error("The heading row could not be read.");
+      if (file.size > 256 * 1024) throw new Error("Choose a CSV or Excel file up to 256 KiB.");
+      let header: string[];
+      if (workbook) {
+        const data = requestData();
+        data.set("file", file);
+        data.set("operation", "inspect");
+        if (selection) data.set("worksheet", selection);
+        else data.delete("worksheet");
+        const response = await reviewStudentCsv(data);
+        if (generation !== version.current) return;
+        if (!response.workbook) throw new Error(response.message);
+        setWorksheets(response.workbook.choices);
+        setWorksheet(response.workbook.selected?.id ?? "");
+        header = response.workbook.selected?.headings ?? [];
+      } else {
+        if (!/\.csv$/i.test(file.name)) throw new Error("Choose a .csv or .xlsx file.");
+        let source: string;
+        try { source = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer()); }
+        catch { throw new Error("Save the file as UTF-8 CSV and try again."); }
+        if (generation !== version.current) return;
+        if (source.split(/\r?\n/).filter(line => line.trim()).length > 501) throw new Error("Use up to 500 nonblank data lines.");
+        const csv = studentCsvHeadings(source);
+        if (!csv) throw new Error("The heading row could not be read.");
+        header = csv;
+      }
       const suggestions = header.map(suggestedStudentCsvField);
       setHeadings(header);
       setMapping(Object.fromEntries(allowed.flatMap(([field]) => suggestions.filter(value => value === field).length === 1
         ? [[field, String(suggestions.indexOf(field) + 1)]] : [])));
     } catch (error) {
-      if (generation === version.current) setFileError(error instanceof Error ? error.message : "Choose a UTF-8 CSV file.");
+      if (generation === version.current) setFileError(error instanceof Error ? error.message : "The file could not be read.");
     } finally {
       if (generation === version.current) setPending(undefined);
     }
@@ -74,11 +113,8 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
     event.preventDefault();
     if (busy.current || !form.current || confirm && !result?.proof) return;
     const generation = version.current;
-    const data = new FormData(form.current);
-    data.set("mode", groupId ? "roster" : "directory");
+    const data = requestData();
     data.set("operation", confirm ? "confirm" : "preview");
-    if (groupId) data.set("teachingGroupId", String(groupId));
-    if (context) appendTermContext(data, context);
     if (confirm && result?.proof) data.set("proof", result.proof);
     busy.current = true;
     setPending(confirm ? "confirm" : "preview");
@@ -94,8 +130,8 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
   }
   const proof = result?.proof;
   const count = (result?.receipt?.created ?? 0) + (result?.receipt?.updated ?? 0);
-  return <section className="ruled min-w-0 rounded-lg p-4">
-    <h2 className="font-display text-lg font-semibold">{isBatch ? "Enroll a batch" : "Import CSV"}</h2>
+  return <section id={isBatch ? undefined : "import-students"} className="ruled min-w-0 rounded-lg p-4">
+    <h2 className="font-display text-lg font-semibold">{isBatch ? "Enroll a batch" : "Import students"}</h2>
     <form ref={form} onSubmit={event => submit(event)} className="mt-3 space-y-3">
       <fieldset disabled={pending === "preview" || pending === "confirm"} className="min-w-0 space-y-3">
         {isBatch ? <div className="grid gap-3 sm:grid-cols-2">
@@ -106,14 +142,28 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
             <option value="">Choose an audience</option><option value="local">Local</option><option value="merged">Merged audience</option>
           </select></label>
         </div> : <>
-          <label>CSV file<input className={fieldClass} type="file" name="csv" accept=".csv,text/csv" onChange={event => void read(event.target.files?.[0])} /></label>
-          <p className="text-sm text-muted">UTF-8 · Up to 500 data lines and 256 KiB. <a className="underline" download="student-template.csv" href={`data:text/csv;charset=utf-8,${encodeURIComponent(sample)}`}>Download a sample</a></p>
+          <label>CSV or Excel file<input className={fieldClass} type="file" name="file" accept=".csv,.xlsx" onChange={event => void read(event.target.files?.[0])} /></label>
+          <p className="text-sm text-muted">Up to 500 data rows and 256 KiB.{" "}
+            <a className="underline" download="student-template.csv" href={`data:text/csv;charset=utf-8,${encodeURIComponent(groupId ? rosterSample : directorySample)}`}>CSV sample</a>{" · "}
+            <a className="underline" href={`/students/import-sample${groupId && context ? `?${rosterOutputQuery(groupId, context)}` : ""}`}>Excel sample</a>
+          </p>
+          {worksheets.length > 0 && <div>
+            <label>Worksheet<select name="worksheet" className={fieldClass} required value={worksheet} disabled={pending === "file"}
+              onChange={event => {
+                const file = form.current?.querySelector<HTMLInputElement>('input[name="file"]')?.files?.[0];
+                void read(file, event.target.value);
+              }}>
+              <option value="" disabled>Choose a worksheet</option>
+              {worksheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
+            </select></label>
+            <p className="text-sm text-muted">Hidden and filtered rows in this worksheet are included. Use text cells for mapped fields.</p>
+          </div>}
           {headings.length > 0 && <div className="grid min-w-0 gap-3 sm:grid-cols-2">{allowed.map(([field, label]) => {
             const required = field === "studentCode" || field === "fullName";
             return <label className="min-w-0" key={field}>{label}<select className={fieldClass} required={required} name={`map:${field}`} value={mapping[field] ?? ""} onChange={event => {
               invalidate(); setMapping(current => ({ ...current, [field]: event.target.value }));
             }}><option value="">{required ? "Choose a column" : "Ignore"}</option>
-              {headings.map((heading, index) => <option key={index} value={index + 1}>{index + 1} · {heading.slice(0, 120) || "Unnamed column"}</option>)}
+              {headings.map((heading, index) => <option key={index} value={index + 1}>{excel ? worksheetColumn(index) : index + 1} · {heading.slice(0, 120) || "Unnamed column"}</option>)}
             </select></label>;
           })}</div>}
         </>}
@@ -122,18 +172,18 @@ export function StudentReview({ groupId, context, phone, batchOptions, onApplied
     </form>
     {isBatch && !batchOptions.length && <p className="mt-2 text-sm text-muted">No eligible batches are linked to this group.</p>}
     <div role="status" aria-atomic="true" tabIndex={-1} ref={summary} className="mt-3 text-sm empty:hidden">
-      {fileError || (pending ? { file: "Reading CSV…", preview: "Preparing preview…", confirm: "Applying reviewed changes…" }[pending] : result?.message)}
+      {fileError || (pending ? { file: "Reading file…", preview: "Preparing preview…", confirm: "Applying reviewed changes…" }[pending] : result?.message)}
     </div>
     {result?.receipt && <div className="mt-3 space-y-3">
       <h3 className="font-display text-base font-semibold">{didApply ? "Receipt" : "Review outcomes"}</h3>
       <Counts receipt={result.receipt} />
-      {result.rows && <ul className="max-h-80 divide-y overflow-auto rounded border border-[var(--color-line)] text-sm" aria-label="CSV outcomes" tabIndex={0}>
-        {result.rows.map(row => <li key={row.row} className="break-words p-2"><strong>Line {row.row} · <span className="capitalize">{row.kind}</span></strong> · {row.message}</li>)}
+      {result.rows && <ul className="max-h-80 divide-y overflow-auto rounded border border-[var(--color-line)] text-sm" aria-label={excel ? "Excel outcomes" : "CSV outcomes"} tabIndex={0}>
+        {result.rows.map(row => <li key={row.row} className="break-words p-2"><strong>{excel ? "Row" : "Line"} {row.row} · <span className="capitalize">{row.kind}</span></strong> · {row.message}</li>)}
       </ul>}
       {result.candidates && <ul className="max-h-80 divide-y overflow-auto rounded border border-[var(--color-line)] text-sm" aria-label="Batch candidates" tabIndex={0}>
         {result.candidates.map(row => <li key={row.id} className="break-words p-2">{row.name} · {row.code} · <strong>{row.disposition}</strong></li>)}
       </ul>}
-      {didApply && result.receipt.failed > 0 && <p className="text-sm">Correct the failed lines and preview the corrected file.</p>}
+      {didApply && result.receipt.failed > 0 && <p className="text-sm">Correct the failed rows and preview the corrected file.</p>}
       {proof && <div className="flex flex-wrap gap-2">
         <button type="button" className={primaryClass} disabled={Boolean(pending)} onClick={event => void submit(event, true)}>
           {isBatch ? `Enroll ${count} ${count === 1 ? "student" : "students"}` : `Import ${count} eligible ${count === 1 ? "row" : "rows"}`}

@@ -1,0 +1,47 @@
+.sheet {
+  width: min(100%, 48rem);
+  margin-inline: auto;
+  border: 1px solid var(--color-line);
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+  background: white;
+  color: #222;
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th, .table td {
+  border: 1px solid #888;
+  padding: 0.375rem;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.table .heading { border: 0; padding: 0 0 0.85rem; }
+.code { width: 24%; }
+.name { width: 37%; }
+.audience { width: 22%; }
+.generated { display: inline-block; font-size: 0.8em; padding-inline-start: 0.5em; }
+.table tbody tr { height: 2rem; }
+
+@page roster-roll-call {
+  size: A4 portrait;
+  margin: 14mm;
+  @bottom-right {
+    content: "Page " counter(page) " of " counter(pages);
+    font: 9pt Arial, sans-serif;
+  }
+}
+
+@media print {
+  .sheet { page: roster-roll-call; max-width: none; width: auto; margin: 0; border: 0; padding: 0; }
+  .table { font: 10pt/1.3 Arial, sans-serif; }
+  .table thead { display: table-header-group; }
+  .table thead, .table tr { break-inside: avoid; }
+  .table tbody tr { height: 8.5mm; }
+}

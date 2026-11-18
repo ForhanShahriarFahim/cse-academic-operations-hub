@@ -14,7 +14,7 @@ export default async function StudentsPage() {
   return <div className="min-w-0 space-y-4">
     <PageHeader context="Classes" title="Students" description="Find student records and see their teaching group enrollments." />
     <div className="flex flex-wrap gap-2"><Link className={secondaryClass} href="/students/new">Add student</Link>
-      <a className={secondaryClass} href="#import-students">Import CSV</a></div>
+      <a className={secondaryClass} href="#import-students">Import students</a></div>
     <StudentDirectory initial={initial} options={options} />
   </div>;
 }
