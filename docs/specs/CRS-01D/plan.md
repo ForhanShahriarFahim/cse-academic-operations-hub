@@ -1,0 +1,42 @@
+# CRS-01D — Implementation plan
+
+Parent: CRS-01 / #7. [Specification and decisions](spec.md) · [Verification](verification.md) · [Responsive sketch](mockups/index.html)
+Branch/base: `codex/crs-01d` / `75f204e` (local `main`).
+Updated 18 November 2026 (Asia/Dhaka). Status: **Proposed, awaiting implementation approval.**
+
+## Inspection and proposed approach
+
+| Seam | Intended change |
+| --- | --- |
+| Offering source and placement rules | Share source eligibility/default selection and course/slot vocabulary with CRS-01B. Keep the existing offering review and its output intact. |
+| Class-group records and store | Reuse numeric, requirement and teacher invariants and the validated create write logic. Project source groups and compute comparisons from narrow reads scoped to the two term IDs, without loading meeting detail or invoking the single-create transaction per group. Use stable ordering and canonical facts for review fingerprints. |
+| Class-group data, actions and history | Authorize review/apply/history using the existing capability; parse selections and the reason at the server boundary. In apply, take the locks once, validate the entire selection, then write groups and history together. Extend history decoding to handle both the existing per-group events and the batch receipt. |
+| Class groups UI | Add an editor entry point and responsive start/review page with blocked-row reasons, before/after teacher facts, projected totals and explicit selection. Reuse the existing notice and submit behavior that preserves input on validation errors. |
+
+The initial source/destination review can race with edits. The reviewed facts are re-read inside apply under the locks specified in [the specification](spec.md#apply-and-history). Keep the source and destination IDs explicit. The proposed delivery has no migration or institutional rollout. Exercise transaction rollback and concurrency on disposable databases.
+
+## Approval record
+
+- The owner opened this session with “Whats next go for it” after acceptance and local merge of CRS-01C. This starts inspection and the next proposal under the shared workflow.
+- Implementation authorization for the concrete D-1–D-6 scope is pending. Record the owner's actual approval and any amendments in a local commit before implementation.
+- Delivery acceptance and local merge follow verification and owner inspection.
+
+## Tasks
+
+- [x] T-01 — Inspect the current handoff, term rollover/offering basis, class-group writes, legacy import and teacher rules. Propose D-1–D-6, AC-01–AC-08 and a responsive sketch.
+- [ ] T-02 — Obtain and commit actual approval of the concrete scope, including any amendments.
+- [ ] T-03 — Implement and exercise the two-term projection, creation eligibility, comparison and change detection (AC-02–AC-04). Depends on T-02.
+- [ ] T-04 — Implement capability checks, atomic guarded apply, audit receipt and existing history integration. Exercise the adapter and race cases (AC-01, AC-05–AC-06).
+- [ ] T-05 — Wire the Class groups entry point and editor review flow. Exercise the guarded synthetic browser, keyboard and responsive states (AC-01, AC-04, AC-07).
+- [ ] T-06 — Run required commands and focused regressions, record criterion evidence and limitations, and provide the owner with the exact synthetic review command (AC-06–AC-08).
+- [ ] T-07 — Record acceptance, merge locally into `main` and update this handoff. Keep parent #7 open pending reconciliation of its remaining scope.
+
+## Verification and delivery
+
+Run typecheck, lint, domain checks and the default build. Add focused safety groups on disposable PGlite and PostgreSQL for access, stale state, preserved records, atomic audit rollback and actual PostgreSQL lock races. Rerun the relevant CRS-01C, CRS-01B, BAT-01B, workload/eligibility and T-03 history checks and compare archived CSV/A4 outputs. Use the existing guarded compiled-review pattern with synthetic data for the owner's inspection. Record test evidence and any outstanding result in [verification.md](verification.md). Keep checkpoints local under the shared [workflow](../../WORKFLOW.md).
+
+## Current checkpoint and exact handoff
+
+18 November 2026. Planning package on `codex/crs-01d` based on `75f204e`. T-01 is complete. The older Courses & offerings “UT” display is a separate open finding linked from the specification.
+
+> Resume CRS-01D on codex/crs-01d, base 75f204e. Check Git state and read the brief, workflow, and docs/specs/CRS-01D/spec.md, plan.md and verification.md. Record actual owner approval or amendments to D-1–D-6 and commit before T-03. Keep class-group start additive and under the existing capability and history. Use disposable verification only, preserve source and historical rows, and leave institutional migrations 0017/0018 and GitHub synchronization for their own authorization.

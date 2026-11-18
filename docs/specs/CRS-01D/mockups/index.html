@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start class groups from a previous term · CRS-01D sketch</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f2e9;
+      --surface: #fffefa;
+      --ink: #242821;
+      --muted: #595e53;
+      --pine: #25543d;
+      --line: #d9d3c4;
+      --gold: #a4792a;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    a { color: var(--pine); text-underline-offset: .19em; }
+    :focus-visible { outline: 3px solid var(--pine); outline-offset: 3px; }
+    .bar { border-bottom: 1px solid var(--line); background: var(--surface); }
+    .bar div, main { max-width: 72rem; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 2.6rem); }
+    .bar div { display: flex; gap: .25rem 1rem; flex-wrap: wrap; align-items: baseline; padding-block: .65rem; }
+    .bar strong { font: 1.3rem Georgia, serif; }
+    main { padding-block: 1.7rem 3rem; }
+    h1, h2 { font: 500 clamp(1.9rem, 4vw, 3rem)/1.1 Georgia, serif; margin: .35rem 0 .6rem; }
+    h2 { font-size: 1.6rem; }
+    h3 { margin: 0; font-size: 1rem; }
+    p { margin: 0 0 .6rem; }
+    small, .hint { color: var(--muted); font-size: .875rem; }
+    .lead { max-width: 56ch; }
+    .preview { margin-top: 1rem; border-left: 3px solid var(--gold); padding: .5rem .8rem; background: #f6ebd4; }
+    .source { display: grid; grid-template-columns: minmax(0, 22rem); gap: .3rem; margin: 1.25rem 0; }
+    label { font-weight: 650; }
+    select, textarea, button { font: inherit; max-width: 100%; }
+    select, textarea { border: 1px solid #8a8a7d; background: white; padding: .5rem .6rem; border-radius: .3rem; }
+    .layout { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr) minmax(15rem, .41fr); align-items: start; }
+    .panel, article { background: var(--surface); border: 1px solid var(--line); border-radius: .45rem; padding: 1rem; }
+    article { margin-bottom: .7rem; overflow-wrap: anywhere; }
+    .pick { display: flex; gap: .6rem; align-items: baseline; }
+    input { accent-color: var(--pine); width: 1rem; height: 1rem; flex-shrink: 0; }
+    .state { font-size: .84rem; font-weight: 650; color: var(--pine); margin: 0 0 .3rem; }
+    .blocked { color: #6b490f; }
+    dl { margin: .65rem 0 0; font-size: .9rem; }
+    dl div { display: grid; gap: .1rem .8rem; grid-template-columns: 6rem minmax(0, 1fr); margin: .22rem 0; }
+    dt { color: var(--muted); }
+    dd { margin: 0; }
+    .panel textarea { display: block; width: 100%; margin: .3rem 0 .75rem; }
+    button { background: #e2e3d9; color: #4f564a; border: 1px solid var(--line); padding: .5rem .85rem; border-radius: .3rem; }
+    details { padding: .7rem 0; border-top: 1px solid var(--line); }
+    summary { cursor: pointer; font-weight: 600; }
+    details p { margin: .6rem 0 0; }
+    @media (max-width: 48rem) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 24rem) { dl div { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="bar"><div><strong>Academic Operations</strong><small>Department of CSE</small></div></div>
+  <main>
+    <a href="../../CRS-01C/mockups/groups.html">← Class groups</a>
+    <h1>Start class groups from a previous term</h1>
+    <p class="lead">Spring 2027 · Draft. Review the audiences, teachers and weekly requirements before selecting groups to create.</p>
+    <p class="preview">Review sketch with sample data. Selections and fields illustrate the layout.</p>
+
+    <div class="source">
+      <label for="source">Copy from</label>
+      <select id="source" aria-describedby="source-help"><option>Fall 2026 · Completed</option></select>
+      <small id="source-help">Spring 2027 was prepared from this term.</small>
+    </div>
+
+    <div class="layout">
+      <section aria-labelledby="review-heading">
+        <h2 id="review-heading">Groups to review</h2>
+        <article>
+          <div class="pick"><input type="checkbox" id="networks"><label for="networks">CSE-3203 · Computer Networks</label></div>
+          <dl>
+            <div><dt>Audience</dt><dd>HSC-25B, Diploma-23A · Merged class</dd></div>
+            <div><dt>Previous</dt><dd>HSC-24B, Diploma-22A</dd></div>
+            <div><dt>Teachers</dt><dd>MM · 1.50 units, NR · 1.50 units · Split between them</dd></div>
+            <div><dt>Weekly</dt><dd>2 meetings · 150 minutes</dd></div>
+          </dl>
+        </article>
+        <article>
+          <div class="pick"><input type="checkbox" id="project"><label for="project">CSE-4200 · Project</label></div>
+          <dl>
+            <div><dt>Audience</dt><dd>HSC-23B (previously HSC-22B)</dd></div>
+            <div><dt>Teachers</dt><dd>Vacancy</dd></div>
+            <div><dt>Weekly</dt><dd>Teacher-managed</dd></div>
+          </dl>
+        </article>
+        <article>
+          <p class="state blocked">Needs manual review</p>
+          <h3>EEE-1101 · Electrical Circuits</h3>
+          <p>Two Spring 2027 offerings match HSC semester 1. Choose the audience when you create the group.</p>
+        </article>
+        <article>
+          <p class="state">Already grouped · Teachers changed</p>
+          <h3>CSE-2205 · Data Structures</h3>
+          <dl>
+            <div><dt>Fall 2026</dt><dd>MZI · 3.00 units</dd></div>
+            <div><dt>Spring 2027</dt><dd>MZI · 2.00 units, AKS · 1.00 units · Split between them</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="selection-heading">
+        <h2 id="selection-heading">Selection</h2>
+        <p>0 groups selected</p>
+        <p class="hint">Selected groups will be created unscheduled. Projected workload totals appear here as you select groups.</p>
+        <label for="reason">Reason</label>
+        <textarea id="reason" rows="2" maxlength="300" placeholder="For example, teaching assignments confirmed"></textarea>
+        <button type="button" disabled>Create selected groups</button>
+      </section>
+    </div>
+
+    <section aria-labelledby="feedback-heading">
+      <h2 id="feedback-heading">Review and save states</h2>
+      <details><summary>When there are no offerings</summary><p>Prepare Spring 2027 offerings before starting its class groups.</p></details>
+      <details><summary>When the review changes</summary><p>The source or destination changed while this review was open. Reload the review and select the groups again.</p></details>
+      <details><summary>After saving</summary><p>Created 2 class groups, including 1 merged class. View class groups or open the receipt in change history.</p></details>
+    </section>
+  </main>
+</body>
+</html>
