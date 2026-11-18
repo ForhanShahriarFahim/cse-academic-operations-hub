@@ -74,9 +74,9 @@ The same order works for touch and keyboard. Row reasons and filenames wrap insi
 
 - [x] T-01 — Inspect current writes and feedback, reproduce CSV behavior with synthetic rows and present D-1–D-5, AC-01–AC-06 and workflow sketches.
 - [x] T-02 — Record owner approval of D-1–D-5 and commit the approved plan.
-- [ ] T-03 — Implement CSV validation, truthful transactional receipt and the identity safeguard. Verify role/term gating, no-op, rollback, concurrent effects and history on disposable adapters (AC-03–AC-06).
-- [ ] T-04 — Implement local attendance feedback, draft retention and accessible file selection, refresh and focus handling (AC-01–AC-04).
-- [ ] T-05 — Run final checks, record evidence and give the owner a guarded synthetic review path (AC-01–AC-06).
+- [x] T-03 — Implement CSV validation, truthful transactional receipt and the identity safeguard. Verify role/term gating, no-op, rollback, concurrent effects and history on disposable adapters (AC-03–AC-06).
+- [x] T-04 — Implement local attendance feedback, draft retention and accessible file selection, refresh and focus handling (AC-01–AC-04).
+- [x] T-05 — Record adapter, history and compiled browser evidence and publish the local synthetic review path (AC-01–AC-06). Default Turbopack remains incomplete and is disclosed for acceptance.
 - [ ] T-06 — Record actual delivery acceptance and merge into local `main`. Leave GitHub reconciliation to the agreed synchronization boundary.
 
 ## Verification and delivery
@@ -85,6 +85,6 @@ Run typecheck, lint, domain checks and the default production build. Exercise pa
 
 ## Current checkpoint and exact handoff
 
-Approved scope D-1–D-5 on `codex/att-02`. Static code inspection and the DB-free parser baseline are recorded. Implementation is next. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
+Approved scope D-1–D-5 on `codex/att-02`, approval `9139a0c`. Implementation and isolated compiled review are in place. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
 
-> Implement T-03–T-05 on this branch using disposable data. Present verification and the synthetic review path for owner acceptance.
+> Check the [verification record](verification.md) and present the synthetic review for owner acceptance. Record actual acceptance before the local merge. Keep institutional operations and GitHub synchronization separate.

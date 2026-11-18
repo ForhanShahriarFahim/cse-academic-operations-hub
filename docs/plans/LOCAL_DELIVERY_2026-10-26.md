@@ -92,7 +92,7 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- **18 November — current handoff:** ATT-02 inspection is complete. See the [proposal and decision gate](../specs/ATT-02/plan.md).
+- **18 November — current handoff:** ATT-02 is implemented and awaits owner inspection and acceptance before local merge. See the [verification and synthetic review path](../specs/ATT-02/verification.md).
 - **18 November — previous handoff:** CRS-01D accepted (“Accepted +”, `986dddf`) and merged locally at `6acfc92`. [Verification and limits](../specs/CRS-01D/verification.md) · [Merge receipt](../specs/CRS-01D/plan.md). Parent #7 remains open.
 - **17 November — previous handoff:** CRS-01C accepted (“Accept and merge”, `f3e6a22`) and merged into local `main` at `2cb4ce4`. **Next:** owner starts the next session; CRS-01D needs its own specification and approval, and the completeness-report finding needs a decision. No institutional operation or remote sync. Prior handoff follows as history.
 - **17 November — previous handoff:** CRS-01C approved (`fc0f203`), implemented and verified on `codex/crs-01c`: both-adapter safety groups with lock races, default build and a 45-capture browser review pass. [Evidence, limits and one finding](../specs/CRS-01C/verification.md), [handoff](../specs/CRS-01C/plan.md). **Next:** owner inspection/acceptance, then local merge. No institutional operation, remote sync or CRS-01D. Prior handoff follows as history.

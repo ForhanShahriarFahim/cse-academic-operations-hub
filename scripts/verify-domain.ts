@@ -9,10 +9,30 @@ const roster = parseStudentCsv(`STUDENT'S ID,STUDENT'S NAME,PHONE NUMBER,Departm
 0322320205101068,Mst. Antana Fahmida,01819946506,CSE,local
 EXT-EEE-001,"Example, External Student",01700000000,EEE,merged`);
 
-assert.equal(roster.length, 2);
-assert.equal(roster[0].studentCode, "0322320205101068");
-assert.equal(roster[1].fullName, "Example, External Student");
-assert.equal(roster[1].audienceType, "merged");
+assert.ok("rows" in roster);
+assert.equal(roster.rows.length, 2);
+assert.equal(roster.rows[0].studentCode, "0322320205101068");
+assert.equal(roster.rows[1].fullName, "Example, External Student");
+assert.equal(roster.rows[1].audienceType, "merged");
+
+const mixedRoster = parseStudentCsv([
+  "\uFEFFStudent ID,Student Name,Audience Type",
+  "001,,local",
+  "",
+  '001,"Synthetic ""One""",EXTERNAL',
+  "001,Synthetic Duplicate,local",
+  '002,"Unclosed',
+  ",,",
+  "003,Synthetic Three,typo",
+  "004,Synthetic Four",
+].join("\r\n"));
+assert.ok("rows" in mixedRoster);
+assert.deepEqual(mixedRoster.rows.map(({ row, studentCode, fullName, audienceType }) => [row, studentCode, fullName, audienceType]),
+  [[4, "001", 'Synthetic "One"', "external"], [9, "004", "Synthetic Four", null]]);
+assert.deepEqual(mixedRoster.issues.map(({ row, kind }) => [row, kind]), [
+  [2, "failed"], [5, "skipped"], [6, "failed"], [7, "failed"], [8, "failed"],
+]);
+assert.ok("error" in parseStudentCsv("ID,Student ID,Name\n001,001,Synthetic"));
 
 assert.equal(attendanceMark(["present", "late", "absent", "excused"], 10), 6.67);
 assert.equal(attendanceMark(["present", "absent"], 5), 2.5);

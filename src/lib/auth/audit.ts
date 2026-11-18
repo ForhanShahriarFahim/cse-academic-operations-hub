@@ -11,6 +11,7 @@ interface AuditResult<T> {
   before?: unknown;
   after?: unknown;
   detail?: unknown;
+  audit?: boolean;
 }
 
 /** Keep the domain change and its named audit record in one database commit. */
@@ -22,6 +23,7 @@ export async function auditedChange<T>(
   const actor = await requireActor();
   return db.transaction(async (tx) => {
     const event = await change(tx, actor);
+    if (event.audit === false) return event.result;
     await tx.insert(auditEvents).values({
       actor: actor.displayName,
       actorUserId: actor.id,

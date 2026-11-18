@@ -22,6 +22,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
       description="Keep each teaching group's roster, record attendance for Midterm and Final sessions, and see each student's totals. Students from other departments can join any group."
     />
     {source.selectedGroup ? <AttendanceManager
+      key={source.selectedGroup.id}
       groups={source.groups}
       selectedGroup={source.selectedGroup}
       teachers={source.data.teachers.filter((teacher) => source.selectedGroup?.teacherIds.includes(teacher.id))}

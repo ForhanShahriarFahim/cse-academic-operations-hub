@@ -164,6 +164,69 @@ async function main() {
     assert.equal((await records()).length, recordBefore + raceRoster);
     assert.equal((await audits()).length, auditBefore + 1);
     lines.push(`${pool ? "PostgreSQL blocking-PID evidence: second creator waits for first while first is held at insert" : "PGlite: second request queues behind open creation"}; exactly one session, one captured roster, one success audit and one conflict.`);
+
+    const importRows = (rows: string[], teachingGroupId = group.id, writeContext = token) =>
+      actions.importStudentCsvAction(form({ teachingGroupId, csvText: ["Student ID,Student Name,Department,Audience Type", ...rows].join("\n") }), writeContext);
+    const marksBefore = await records();
+    const inactiveCsv = `${removed.studentCode},${removed.fullName}`;
+    const importNew = "ATT-CSV,New Student,,external";
+    const importUnchanged = "ATT-UNCHANGED,Synthetic Unchanged";
+    assert.equal((await importRows([importUnchanged])).receipt?.created, 1);
+    const mixed = await importRows([
+      importNew, "ATT-CSV,Duplicate", "", "ATT-BROKEN,,", "ATT-LATE,Wrong Name",
+      importUnchanged, inactiveCsv,
+    ]);
+    assert.equal(mixed.outcome?.kind, "partial", mixed.message);
+    if (mixed.outcome?.kind === "partial") {
+      assert.deepEqual([mixed.outcome.total, mixed.outcome.applied, mixed.outcome.unchanged], [6, 2, 1]);
+    }
+    assert.deepEqual(mixed.receipt && {
+      created: mixed.receipt.created, updated: mixed.receipt.updated, unchanged: mixed.receipt.unchanged,
+      skipped: mixed.receipt.skipped, failed: mixed.receipt.failed,
+    }, { created: 1, updated: 1, unchanged: 1, skipped: 1, failed: 2 });
+    assert.deepEqual(mixed.receipt?.issues.map(({ row }) => row), [3, 5, 6]);
+    assert.doesNotMatch(JSON.stringify(mixed), /Wrong Name|ATT-LATE/);
+    assert.equal((await importRows([importNew])).receipt?.unchanged, 1);
+    const noApply = await noWrite(() => importRows([importNew, "ATT-BROKEN,,"]));
+    assert.equal((noApply as Awaited<ReturnType<typeof importRows>>).receipt?.unchanged, 1);
+    assert.equal((await importRows(["ATT-BROKEN,,"])).receipt?.failed, 1);
+    assert.equal((await importRows(["ATT-LATE,Synthetic Late Student"], lab.id)).receipt?.created, 1);
+    assert.deepEqual(await db.select().from(s.students).where(eq(s.students.id, late.id)), [late]);
+    assert.equal((await importRows([importNew], otherGroup.id)).ok, false);
+    assert.equal((await importRows([importNew], group.id, { ...token, generation: token.generation + 1 })).outcome?.kind, "stale");
+    signInAs("teacher-a@example.invalid");
+    assert.equal((await importRows([importNew])).outcome?.kind, "permission");
+    signInAs("admin@example.invalid");
+    const importSnapshot = async () => JSON.stringify([
+      await db.select().from(s.students).orderBy(asc(s.students.id)),
+      await db.select().from(s.courseEnrollments).orderBy(asc(s.courseEnrollments.id)), await audits(),
+    ]);
+    const beforeFault = await importSnapshot();
+    await db.execute(sql`insert into safe01_fault values (true)`);
+    await assert.rejects(importRows(["ATT-UNDO,Synthetic Rollback"]));
+    await db.execute(sql`delete from safe01_fault`);
+    assert.equal(await importSnapshot(), beforeFault);
+
+    const raceRows = ["ATT-RACE-B,Synthetic B", "ATT-RACE-A,Synthetic A"];
+    const raceAuditCount = (await audits()).length;
+    let importRace;
+    if (pool && control) {
+      await control.query("begin");
+      try {
+        await control.query("insert into students(student_code,full_name) values ('ATT-RACE-A','Synthetic A')");
+        const left = importRows(raceRows);
+        const right = importRows([...raceRows].reverse());
+        await waitFor("select (count(*) >= 2)::int as count from pg_stat_activity where datname=current_database() and wait_event_type='Lock' and query like 'insert into \"students\"%'");
+        await control.query("commit");
+        importRace = await Promise.all([left, right]);
+      } finally { await control.query("rollback"); }
+    } else {
+      importRace = await Promise.all([importRows(raceRows), importRows([...raceRows].reverse())]);
+    }
+    assert.deepEqual(importRace.map(result => [result.receipt?.created, result.receipt?.unchanged]).sort(), [[0, 2], [2, 0]]);
+    assert.equal((await audits()).length, raceAuditCount + 1);
+    assert.deepEqual(await records(), marksBefore, "roster import never changes captured marks");
+    lines.push("ATT-02: source rows, committed counts, unchanged retry, cross-group enrollment, safe refusal, atomic audit rollback and overlapping reversed-order imports passed.");
   } finally { control?.release(); await pool?.end(); }
   report({ lines });
 }

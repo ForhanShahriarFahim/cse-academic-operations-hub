@@ -1,6 +1,6 @@
 # ATT-02 — Attendance save and roster import feedback
 
-Issue [#9](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/9) · Proposed · 18 November 2026 (Asia/Dhaka)
+Issue [#9](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/9) · Approved for implementation · 18 November 2026 (Asia/Dhaka)
 
 ## Problem and inspected baseline
 
@@ -12,7 +12,7 @@ The [CSV parser](../../../src/lib/attendance.ts) drops blanks and duplicate code
 
 Keep results beside the attendance action and provide a roster import receipt with committed counts and row-level reasons. Use the existing server capabilities, term context, roster CSV entry point and attendance session rules. The local delivery sequence puts this slice before STU-01A. The [11 November review](../../reviews/CODE_AND_PLAN_REVIEW_2026-11-11.md) proposed moving import work to STU-01A and identified the shared identity risk (F-03). D-3 below addresses that risk on the import path now. STU-01A owns the student directory, identity corrections (including manual roster edits), CSV preview and wider enrollment workflow. ATT-01, ATT-03, attendance calculations, Excel/export and portal-wide notifications are outside this slice.
 
-## Decisions for approval
+## Approved decisions
 
 ### D-1 — Results beside the action
 
