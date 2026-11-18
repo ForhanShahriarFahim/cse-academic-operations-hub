@@ -12,6 +12,8 @@ const actions = loadApp<typeof import("../../../src/lib/academic-actions")>("src
 const directory = loadApp<typeof import("../../../src/lib/student-directory")>("src/lib/student-directory.ts");
 const roster = loadApp<typeof import("../../../src/lib/student-roster-actions")>("src/lib/student-roster-actions.ts");
 const operations = loadApp<typeof import("../../../src/lib/academic-operations")>("src/lib/academic-operations.ts");
+const workbook = loadApp<typeof import("../../../src/lib/student-workbook")>("src/lib/student-workbook.ts");
+const output = loadApp<typeof import("../../../src/lib/roster-output")>("src/lib/roster-output.ts");
 const form = (values: Record<string, unknown>) => {
   const f = new FormData(); for (const [key, value] of Object.entries(values)) f.set(key, String(value)); return f;
 };
@@ -291,6 +293,110 @@ async function main() {
     signInAs("admin@example.invalid");
     assert.deepEqual(await records(), marksBefore, "roster import never changes captured marks");
     lines.push("ATT-02: source rows, committed counts, unchanged retry, cross-group enrollment, safe refusal, atomic audit rollback and stale/replayed overlapping previews, directory lifecycle, scoped privacy and batch enrollment passed.");
+
+    const headings = ["Student ID", "Student Name", "Department", "Audience Type"];
+    const excel = (row: string[], mode = "roster") => {
+      const input = upload([], group.id, token, mode);
+      input.delete("csv");
+      input.set("file", new File([new Uint8Array(workbook.writeStudentWorkbook([headings, row]))], "synthetic.xlsx"));
+      return input;
+    };
+    const excelRow = ["000-XLSX", "Synthetic Excel Student", "EEE", "external"];
+    const beforeExcel = await importSnapshot();
+    const inspection = excel(excelRow);
+    inspection.set("operation", "inspect");
+    assert.deepEqual((await roster.reviewStudentCsv(inspection)).workbook?.selected?.headings, headings);
+    const excelInput = excel(excelRow);
+    const excelPreview = await roster.reviewStudentCsv(excelInput);
+    assert.ok(excelPreview.proof, excelPreview.message);
+    assert.doesNotMatch(JSON.stringify(excelPreview), /000-XLSX|Synthetic Excel Student/);
+    assert.equal(await importSnapshot(), beforeExcel);
+    assert.equal((await confirm(excel(["000-DIFFERENT", ...excelRow.slice(1)]), excelPreview.proof)).outcome?.kind, "stale");
+    assert.equal((await confirm(upload([excelRow.join(",")]), excelPreview.proof)).outcome?.kind, "stale");
+    const clock = Date.now;
+    try {
+      Date.now = () => clock() + 16 * 60_000;
+      assert.equal((await confirm(excelInput, excelPreview.proof)).outcome?.kind, "stale");
+    } finally { Date.now = clock; }
+    await db.execute(sql`insert into safe01_fault values (true)`);
+    assert.equal((await confirm(excelInput, excelPreview.proof)).ok, false);
+    await db.execute(sql`delete from safe01_fault`);
+    assert.equal(await importSnapshot(), beforeExcel);
+    const retry = excel(excelRow);
+    retry.set("file", excelInput.get("file")!);
+    let parallel: Awaited<ReturnType<typeof confirm>>[];
+    if (pool && control) {
+      await control.query(`select pg_advisory_lock(${barrier})`);
+      await pool.query(`create function excel_barrier() returns trigger language plpgsql as $$begin perform pg_advisory_xact_lock(${barrier});return new;end$$;create trigger excel_barrier before insert on course_enrollments for each row execute function excel_barrier()`);
+      try {
+        const one = confirm(excelInput, excelPreview.proof);
+        await waitFor("select count(*) from pg_stat_activity where datname=current_database() and wait_event='advisory'");
+        const two = confirm(retry, excelPreview.proof);
+        await waitFor("select count(*) from pg_stat_activity a where a.datname=current_database() and exists(select 1 from pg_stat_activity b where b.pid=any(pg_blocking_pids(a.pid)) and b.wait_event='advisory')");
+        await control.query(`select pg_advisory_unlock(${barrier})`);
+        parallel = await Promise.all([one, two]);
+      } finally {
+        await control.query(`select pg_advisory_unlock(${barrier})`);
+        await pool.query("drop trigger excel_barrier on course_enrollments;drop function excel_barrier()");
+      }
+    } else {
+      parallel = await Promise.all([confirm(excelInput, excelPreview.proof), confirm(retry, excelPreview.proof)]);
+    }
+    assert.equal(parallel.filter(result => result.receipt?.created === 1).length, 1);
+    assert.equal(parallel.filter(result => result.outcome?.kind === "stale").length, 1);
+    const directoryExcel = excel(["000-XLSX-PRIVATE", "=Synthetic Text", "", ""], "directory");
+    const directoryProof = (await roster.reviewStudentCsv(directoryExcel)).proof!;
+    assert.ok(directoryProof);
+    assert.equal((await confirm(directoryExcel, directoryProof)).receipt?.created, 1);
+    assert.ok((await audits()).some(event => event.action === "student.xlsx_import"));
+    assert.ok((await audits()).some(event => event.action === "student.directory_xlsx_import"));
+    const inactiveEnrollment = await roster.changeRosterEnrollment(form({ operation: "remove", teachingGroupId: group.id, studentId: removed.id }), token);
+    ok(inactiveEnrollment);
+    await db.update(s.students).set({ status: "inactive" }).where(eq(s.students.id, identity.id));
+    const query = { group: String(group.id), term: String(token.activeTermId), generation: String(token.generation) };
+    const getOutput = (format: "csv" | "xlsx" | "print", params = query) => output.prepareRoster(params, format, data => data);
+    const print = await getOutput("print");
+    assert.ok(print.rows.some(row => row.studentCode === excelRow[0] && row.audience === "external"));
+    assert.ok(!print.rows.some(row => [identity.studentCode, removed.studentCode].includes(row.studentCode)));
+    assert.ok(print.rows.every(row => Object.keys(row).length === 3));
+    assert.doesNotMatch(JSON.stringify(print), /\+000123456|000-XLSX-PRIVATE/);
+    assert.deepEqual(print.rows, (await getOutput("xlsx")).rows);
+    assert.deepEqual(print.rows, (await getOutput("csv")).rows);
+    assert.match(output.rosterCsv([{ studentCode: "00141", fullName: '=HYPERLINK("synthetic")', audience: "local" }]), /"'=HYPERLINK\(""synthetic""\)"/);
+    const lastAudit = (await audits()).at(-1)!;
+    assert.equal(lastAudit.action, "student.roster_output");
+    assert.deepEqual(lastAudit.detail, { format: "csv", termId: token.activeTermId, rowCount: print.rows.length });
+    await db.execute(sql`insert into safe01_fault values (true)`);
+    await assert.rejects(() => getOutput("csv"));
+    await db.execute(sql`delete from safe01_fault`);
+    signInAs("stu-scoped@example.invalid");
+    assert.equal((await getOutput("csv")).rows.length, print.rows.length);
+    assert.equal((await roster.reviewStudentCsv(excel(excelRow, "directory"))).outcome?.kind, "permission");
+    const forgedExcel = excel(excelRow);
+    forgedExcel.set("map:phone", "3");
+    assert.equal((await roster.reviewStudentCsv(forgedExcel)).outcome?.kind, "validation");
+    assert.ok((await roster.reviewStudentCsv(excel(["000-SCOPE", "Synthetic Scoped Student", "", "local"]))).proof);
+    signInAs("teacher-a@example.invalid");
+    assert.equal((await getOutput("print")).rows.length, print.rows.length);
+    const deniedAudits = (await audits()).length;
+    await assert.rejects(() => getOutput("xlsx"), { status: 403 });
+    assert.equal((await roster.reviewStudentCsv(inspection)).outcome?.kind, "permission");
+    await db.delete(s.workloadAllocations).where(sql`${s.workloadAllocations.teachingGroupId} = ${group.id} and ${s.workloadAllocations.teacherId} = ${teachers[0].id}`);
+    await db.execute(sql`delete from ${s.meetingTeachers} where ${s.meetingTeachers.teacherId} = ${teachers[0].id}
+      and ${s.meetingTeachers.meetingId} in (select ${s.meetings.id} from ${s.meetings} where ${s.meetings.teachingGroupId} = ${group.id})`);
+    await assert.rejects(() => getOutput("print"), { status: 403 });
+    signInAs("att-unassigned@example.invalid");
+    await assert.rejects(() => getOutput("print"), { status: 403 });
+    signInAs("stu-scoped@example.invalid");
+    await db.update(s.roleAssignments).set({ activeTo: new Date() }).where(eq(s.roleAssignments.userId, scoped.id));
+    await assert.rejects(() => getOutput("csv"), { status: 403 });
+    signInAs(null);
+    await assert.rejects(() => getOutput("xlsx"), { status: 401 });
+    signInAs("admin@example.invalid");
+    await assert.rejects(() => getOutput("print", { ...query, generation: String(token.generation + 1) }), { status: 409 });
+    assert.equal((await audits()).length, deniedAudits);
+    assert.deepEqual(await records(), marksBefore);
+    lines.push("STU-01B: Excel inspection, exact-file confirmation, one overlapping commit, rollback on audit failure, scoped permissions and three-way allowlisted roster parity passed. Captured marks remained unchanged.");
   } finally { control?.release(); await pool?.end(); }
   report({ lines });
 }

@@ -8,7 +8,6 @@ import {
   academicPolicies,
   attendanceRecords,
   attendanceSessions,
-  courseEnrollments,
   extraLoadClasses,
   extraLoadManualSummaries,
   students,
@@ -19,6 +18,7 @@ import { can, requireActor } from "./auth";
 import { hasCapability } from "./auth/policy";
 import { redirect } from "next/navigation";
 import { summarizeAttendance } from "./attendance";
+import { currentRoster } from "./current-roster";
 import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
 import { allocationTotals } from "./workload";
 
@@ -129,27 +129,14 @@ export async function getAttendanceData(selectedGroupId?: number) {
     : groups.find((group) => group.id === selectedGroupId) ?? null;
   if (!selectedGroup) { await assertTermContext(data.writeContext); return { data, policy, groups, selectedGroup: null, roster: [], sessions: [], summaries: [] }; }
 
-  const [enrollmentRows, sessionRows] = await databaseReadBatch([
-    () => db.select().from(courseEnrollments).where(and(
-      eq(courseEnrollments.termId, data.term.id),
-      eq(courseEnrollments.teachingGroupId, selectedGroup.id),
-      eq(courseEnrollments.status, "active"),
-    )),
+  const [roster, sessionRows] = await databaseReadBatch([
+    () => currentRoster(data.term.id, selectedGroup.id),
     () => db.select({ id: attendanceSessions.id, classDate: attendanceSessions.classDate, phase: attendanceSessions.phase,
       startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes }).from(attendanceSessions).where(and(
       eq(attendanceSessions.termId, data.term.id),
       eq(attendanceSessions.teachingGroupId, selectedGroup.id),
     )).orderBy(asc(attendanceSessions.classDate)),
   ]);
-  const enrolledIds = [...new Set(enrollmentRows.map((row) => row.studentId))];
-  const studentRows = enrolledIds.length
-    ? await db.select({ id: students.id, studentCode: students.studentCode, fullName: students.fullName }).from(students).where(and(inArray(students.id, enrolledIds), eq(students.status, "active")))
-    : [];
-  const roster = studentRows
-    .map((student) => ({
-      ...student,
-      enrollment: { audienceType: enrollmentRows.find((row) => row.studentId === student.id)!.audienceType },
-    })).sort((a, b) => a.studentCode.localeCompare(b.studentCode));
   const sessionIds = sessionRows.map((row) => row.id);
   const recordRows = sessionIds.length
     ? await db.select({ sessionId: attendanceRecords.sessionId, studentId: attendanceRecords.studentId, status: attendanceRecords.status,

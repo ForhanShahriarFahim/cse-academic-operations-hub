@@ -1,4 +1,4 @@
-/** STU-01A and attendance browser review on a disposable PostgreSQL database. */
+/** Student roster and attendance browser review on a disposable PostgreSQL database. */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
@@ -10,12 +10,15 @@ import { postgresDatabase, withHandle } from "./safety/database";
 import { populateSummerFixture } from "./safety/fixture";
 import { withDisposableCluster } from "./safety/pg-cluster";
 import { reviewSession } from "./ux-review";
+import { workbookFixture } from "./verify-student-workbook";
+import { readStudentWorkbook, writeStudentWorkbook } from "../src/lib/student-workbook";
 
-const appPort = 3134;
-const controlPort = 3135;
+const stu01b = process.argv.includes("--stu-01b");
+const appPort = stu01b ? 3146 : 3134;
+const controlPort = stu01b ? 3147 : 3135;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
-const captures = ".tmp/stu-01a/browser";
+const captures = ".tmp/stu-01b/browser";
 const requireFromRepo = createRequire(import.meta.url);
 
 async function main() {
@@ -23,13 +26,17 @@ async function main() {
     const target = await cluster.createDatabase("safe01_stu01a_browser");
     const database = postgresDatabase(target, () => cluster.dropDatabase(target));
     const session = reviewSession();
-    const group = await withHandle(database, async handle => {
+    const { group, emptyGroup } = await withHandle(database, async handle => {
       await database.migrate(handle);
       await populateSummerFixture(handle.db);
       await handle.client.query("insert into auth_session(id,expires_at,token,user_id) values('stu01a-review',now()+interval '1 day',$1,'synthetic-auth-user')", [session.token]);
-      return Number((await handle.client.query<{ teaching_group_id: number }>(
+      const group = Number((await handle.client.query<{ teaching_group_id: number }>(
         "select teaching_group_id from attendance_sessions order by id limit 1",
       )).rows[0].teaching_group_id);
+      const emptyGroup = Number((await handle.client.query<{ id: number }>(
+        "insert into teaching_groups(term_id, course_id) select term_id, course_id from teaching_groups where id = $1 returning id", [group],
+      )).rows[0].id);
+      return { group, emptyGroup };
     });
     const control = createServer((request, response) => {
       if (request.url === "/sign-in") {
@@ -40,7 +47,7 @@ async function main() {
         return;
       }
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
-        .end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>STU-01A synthetic review</h1><a href="/sign-in">Sign in and open Attendance</a>');
+        .end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>Student roster synthetic review</h1><a href="/sign-in">Sign in and open Attendance</a>');
     });
     await new Promise<void>((resolve, reject) => {
       control.once("error", reject);
@@ -59,8 +66,18 @@ async function main() {
         if (!ready) await new Promise(resolve => setTimeout(resolve, 200));
       }
       assert.ok(ready, "Synthetic preview did not start.");
-      console.log(`STU-01A synthetic review: ${controlOrigin}/sign-in`);
-      if (process.argv.includes("--check")) await checkBrowser();
+      console.log(`Student roster synthetic review: ${controlOrigin}/sign-in`);
+      if (process.argv.includes("--check")) await checkBrowser(emptyGroup, async () => {
+        await withHandle(database, async handle => {
+          await handle.client.query(`with added as (
+              insert into students(student_code, full_name)
+              select 'PAGE-' || lpad(n::text, 3, '0'), repeat('Long Synthetic Student Name ', 6) || n
+              from generate_series(1, 57) n returning id
+            ) insert into course_enrollments(student_id, term_id, teaching_group_id, audience_type)
+              select added.id, teaching_groups.term_id, teaching_groups.id, 'merged'
+              from added cross join teaching_groups where teaching_groups.id = $1`, [group]);
+        });
+      });
       if (process.argv.includes("--serve")) await exited;
     } finally {
       if (server.exitCode === null) server.kill();
@@ -71,7 +88,7 @@ async function main() {
   });
 }
 
-async function checkBrowser() {
+async function checkBrowser(emptyGroup: number, addPrintRoster: () => Promise<void>) {
   await mkdir(captures, { recursive: true });
   const browser = await chromium.launch({ channel: "msedge" });
   try {
@@ -83,7 +100,7 @@ async function checkBrowser() {
     await page.getByRole("link", { name: "Manage roster" }).click();
     await page.waitForURL(url => url.pathname === "/attendance/roster");
     const rosterUrl = page.url();
-    const picker = page.getByLabel("CSV file");
+    const picker = page.getByLabel("CSV or Excel file");
     await picker.focus();
     assert.equal(await picker.evaluate(el => document.activeElement === el), true);
     async function upload(text: string) {
@@ -93,7 +110,7 @@ async function checkBrowser() {
     const header = "Student ID,Student Name\n";
     const row = "000-STU-REVIEW,Synthetic Browser Student";
     await upload(header + row + "\n\nINVALID,\n" + row);
-    const review = page.locator("section").filter({ has: page.getByRole("heading", { name: "Import CSV", exact: true }) });
+    const review = page.locator("#import-students");
     await review.getByText(/Preview ready/).waitFor();
     await review.getByText(/Line 4 · Failed/i).waitFor();
     await review.getByText(/Line 5 · Skipped/i).waitFor();
@@ -115,10 +132,83 @@ async function checkBrowser() {
       }
     }
     await checkResponsive("roster-receipt");
+    const workbook = workbookFixture("000-WORKBOOK-REVIEW");
+    await picker.setInputFiles({ name: "synthetic.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: workbook });
+    const selector = page.getByLabel("Worksheet");
+    await selector.waitFor();
+    assert.equal(await selector.locator("option").count(), 3, "hidden sheet omitted");
+    await selector.selectOption({ label: "Students" });
+    await page.getByRole("button", { name: "Preview import", exact: true }).click();
+    await review.getByText(/Row 8 · Failed/i).waitFor();
+    assert.equal(await page.getByText("Synthetic Workbook Student", { exact: true }).count(), 0);
+    await selector.selectOption({ label: "Other group" });
+    assert.equal(await review.getByRole("button", { name: /eligible row/ }).count(), 0);
+    await page.getByRole("button", { name: "Preview import", exact: true }).click();
+    await review.getByText(/Row 8 · Failed/i).waitFor();
+    await page.getByRole("button", { name: "Import 1 eligible row" }).click();
+    await review.getByRole("heading", { name: "Receipt" }).waitFor();
+    await page.getByText("Synthetic Workbook Student", { exact: true }).waitFor();
+    await checkResponsive("excel-receipt");
+    const csvHref = (await page.getByRole("link", { name: "Download CSV", exact: true }).getAttribute("href"))!;
+    const excelHref = (await page.getByRole("link", { name: "Download Excel", exact: true }).getAttribute("href"))!;
+    const printHref = (await page.getByRole("link", { name: "Printable roll-call", exact: true }).getAttribute("href"))!;
+    const [download] = await Promise.all([
+      page.waitForEvent("download"), page.getByRole("link", { name: "Download Excel", exact: true }).click(),
+    ]);
+    assert.match(download.suggestedFilename(), /roster-term-\d+-group-\d+\.xlsx/);
+    await page.getByRole("status").filter({ hasText: "Excel roster ready." }).waitFor();
+    const csvUrl = new URL(csvHref, origin);
+    await page.route(csvUrl.href, route => route.fulfill({ status: 409, json: { error: "The academic term changed. Reopen Attendance and try again." } }));
+    await page.getByRole("link", { name: "Download CSV", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "The academic term changed." }).waitFor();
+    assert.equal(page.url(), rosterUrl);
+    await page.unroute(csvUrl.href);
+    const csvResponse = await page.request.get(new URL(csvHref, origin).href);
+    assert.equal(csvResponse.status(), 200);
+    assert.match(csvResponse.headers()["cache-control"], /private.*no-store/);
+    const csvText = await csvResponse.text();
+    assert.match(csvText, /"000-WORKBOOK-REVIEW","Synthetic Workbook Student","external"/);
+    const excelResponse = await page.request.get(new URL(excelHref, origin).href);
+    assert.equal(excelResponse.status(), 200);
+    assert.match(excelResponse.headers()["content-disposition"], /roster-term-\d+-group-\d+\.xlsx/);
+    const excelRows = (await readStudentWorkbook(await excelResponse.body())).selected!.rows
+      .map(row => row.cells.map(cell => "text" in cell ? cell.text : null));
+    assert.deepEqual(excelRows, csvText.trim().split("\r\n").slice(1).map(line => line.slice(1, -1).split('","')));
+    const printResponse = await page.goto(new URL(printHref, origin).href);
+    assert.match(printResponse?.headers()["cache-control"] ?? "", /private.*no-store/);
+    await page.getByRole("button", { name: "Print roll-call" }).waitFor();
+    assert.deepEqual(await page.locator("tbody tr td:nth-child(1)").allTextContents(), excelRows.map(row => row[0]));
+    assert.ok((await page.locator("tbody tr td:nth-child(4)").allTextContents()).every(value => value === ""));
+    await page.pdf({ path: `${captures}/roll-call-a4.pdf`, preferCSSPageSize: true });
+    await checkResponsive("roll-call");
+    const anonymousDownload = await browser.newContext();
+    try { assert.equal((await anonymousDownload.request.get(new URL(excelHref, origin).href)).status(), 401); }
+    finally { await anonymousDownload.close(); }
+    const emptyPrint = new URL(printHref, origin);
+    emptyPrint.searchParams.set("group", String(emptyGroup));
+    await page.goto(emptyPrint.href);
+    await page.getByText("This group has no active roster members.").waitFor();
+    assert.equal(await page.getByRole("button", { name: "Print roll-call" }).count(), 0);
+    const emptyCsv = new URL(csvHref, origin);
+    emptyCsv.searchParams.set("group", String(emptyGroup));
+    assert.match((await (await page.request.get(emptyCsv.href)).text()).trim(), /^"Student ID","Student Name","Audience Type"$/);
+    await page.goto(new URL(printHref, origin).href);
+    await page.getByRole("link", { name: "Back to roster" }).click();
+    await page.waitForURL(url => url.pathname === "/attendance/roster");
     await upload(header + row);
     await review.getByText(/Enrollment already matches/).waitFor();
     assert.equal(await page.getByRole("button", { name: /eligible row/ }).count(), 0);
     await page.goto(`${origin}/students`);
+    const sampleHref = (await page.getByRole("link", { name: "Excel sample" }).getAttribute("href"))!;
+    const sampleResponse = await page.request.get(new URL(sampleHref, origin).href);
+    assert.equal(sampleResponse.status(), 200);
+    assert.deepEqual((await readStudentWorkbook(await sampleResponse.body())).selected!.headings, ["Student ID", "Student Name", "Department"]);
+    await picker.setInputFiles({ name: "directory.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      buffer: Buffer.from(writeStudentWorkbook([["Student ID", "Student Name"], ["000-DIRECTORY-WORKBOOK", "Synthetic Directory Workbook"]])) });
+    await page.getByRole("button", { name: "Preview import", exact: true }).click();
+    await review.getByText(/Row 2 · Created/i).waitFor();
+    await review.getByRole("button", { name: "Import 1 eligible row" }).click();
+    await review.getByRole("heading", { name: "Receipt" }).waitFor();
     await page.getByLabel("Student ID or name").fill("000-STU-REVIEW");
     await page.getByRole("button", { name: "Search", exact: true }).click();
     await page.getByRole("link", { name: "Synthetic Browser Student" }).waitFor();
@@ -212,7 +302,13 @@ async function checkBrowser() {
     await anonymous.close();
     await page.waitForLoadState("networkidle");
     assert.deepEqual(errors, []);
-    console.log("STU-01A browser: directory search and private identity edit, mixed preview and receipt, no-op preview, roster add/remove/restore and whole-batch enrollment, anonymous directory refusal, attendance retry and session create/delete, axe and three viewport checks passed.");
+    await addPrintRoster();
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(new URL(printHref, origin).href);
+    await page.getByRole("button", { name: "Print roll-call" }).waitFor();
+    assert.equal(await page.getByText(/Long Synthetic Student Name/).count(), 57);
+    await page.pdf({ path: `${captures}/roll-call-multi-a4.pdf`, preferCSSPageSize: true });
+    console.log("Student roster browser: CSV and Excel preview and confirmation, both downloads, roster parity, denied download, A4 roll-call, directory and enrollment flows, captured marks, axe and three viewport checks passed.");
   } finally { await browser.close(); }
 }
 

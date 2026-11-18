@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui";
 import { StudentActionForm } from "@/components/students/forms";
 import { fieldClass, secondaryClass } from "@/components/students/styles";
 import { StudentReview } from "@/components/students/review";
+import { RosterDownloads } from "@/components/students/roster-downloads";
 import { groupOptions } from "@/lib/academic-operations";
 import { getPortalData } from "@/lib/data";
 import { can, requireActor } from "@/lib/auth";
@@ -14,6 +15,7 @@ import { addRosterStudent, changeRosterEnrollment } from "@/lib/student-roster-a
 import { audiences, positiveId } from "@/lib/student-store";
 import { assertTermContext } from "@/lib/term-context";
 import type { TermWriteContext } from "@/lib/term-context-value";
+import { rosterOutputQuery } from "@/lib/roster-output-links";
 
 export const dynamic = "force-dynamic";
 
@@ -51,10 +53,16 @@ export default async function RosterPage({ searchParams }: { searchParams: Promi
     .where(and(eq(teachingGroupOfferings.teachingGroupId, groupId), ne(courseOfferings.status, "cancelled"), eq(batches.status, "active")))
     .orderBy(batches.stream, batches.label) : undefined;
   await assertTermContext(writeContext);
+  const output = rosterOutputQuery(groupId, writeContext);
   return <div className="min-w-0 space-y-4">
     <Link className={secondaryClass} href={`/attendance?group=${groupId}`}>Back to attendance</Link>
     <PageHeader context="Classes" title="Manage roster"
       description={`${term.name} · ${group.courseCode} · ${group.courseTitle} · ${group.audience}`} />
+    <section className="ruled min-w-0 rounded-lg p-4">
+      <h2 className="mb-2 font-display text-lg font-semibold">Download roster</h2>
+      <p className="mb-3 text-sm text-muted">Files and roll-call include active members. Use Excel to retain Student IDs as text. In CSV, cells that could run as formulas start with an apostrophe.</p>
+      <RosterDownloads query={output} termId={term.id} groupId={groupId} />
+    </section>
     <section className="ruled min-w-0 rounded-lg p-4">
       <h2 className="mb-3 font-display text-lg font-semibold">Add student</h2>
       <StudentActionForm action={addRosterStudent} submit="Add to roster" reset>

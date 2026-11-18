@@ -1,5 +1,6 @@
 "use server";
 
+import { createHash } from "node:crypto";
 import { and, eq, inArray, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db, inDatabaseTransaction } from "@/db";
@@ -8,15 +9,17 @@ import { invalid, partial, stale, succeeded, type ActionResult } from "./action-
 import { can, type Actor } from "./auth";
 import { actionActor } from "./auth/action-guard";
 import { batchIdentityKey } from "./batch-records";
-import { parseStudentCsv, studentCsvHeadings, type RosterImportReceipt, type StudentCsvField } from "./attendance";
+import { parseStudentCsv, parseStudentRows, studentCsvHeadings, type RosterImportReceipt, type StudentCsvField } from "./attendance";
 import { audiences, enrollmentWhere, identityFields, identityMismatch, insertStudent, issueStudentReview, lockStudents,
   positiveId, reviewChanged, studentAudit, usableHomeBatch, validation, unusedStudentReview, withRoster, type Enrollment, type Student } from "./student-store";
 import { parseTermWriteContext } from "./term-context-value";
+import { mapWorkbookRows, readStudentWorkbook, studentWorkbookMessage, STUDENT_UPLOAD_BYTES } from "./student-workbook";
 
 type RowStatus = "created" | "updated" | "unchanged" | "skipped" | "failed";
 type RowReport = { row: number; kind: RowStatus; message: string };
 type Candidate = { id: number; name: string; code: string; disposition: string };
-type ReviewResult = ActionResult & { receipt?: RosterImportReceipt; rows?: RowReport[]; proof?: string; candidates?: Candidate[] };
+type ReviewResult = ActionResult & { receipt?: RosterImportReceipt; rows?: RowReport[]; proof?: string; candidates?: Candidate[];
+  workbook?: { choices: { id: string; name: string }[]; selected?: { id: string; headings: string[] } } };
 type Target = { groupId: number; termId: number };
 type Change = { student?: Student; fields?: typeof students.$inferInsert; enrollment?: Enrollment; audience?: string };
 const mappingFields: StudentCsvField[] = ["studentCode", "fullName", "phone", "department", "homeBatch", "audienceType"];
@@ -96,36 +99,61 @@ function receiptFor(rows: RowReport[]): RosterImportReceipt {
   return receipt;
 }
 
-async function csvInput(form: FormData, target: Target | null, mayManageStudents: boolean) {
-  const file = form.get("csv");
-  if (!(file instanceof File) || file.size > 256 * 1024) return { error: "Choose a CSV file up to 256 KiB." } as const;
-  let text: string;
-  try { text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer()); }
-  catch { return { error: "Save the file as UTF-8 CSV and try again." } as const; }
-  if (text.split(/\r?\n/).filter(line => line.trim()).length > 501) return { error: "Use up to 500 nonblank data lines." } as const;
+function studentMapping(form: FormData, target: Target | null, mayManageStudents: boolean, headings: string[]) {
   const indices = new Map<number, StudentCsvField>();
   for (const field of mappingFields) {
     const column = form.get(`map:${field}`);
     if (column == null || column === "") continue;
     const index = positiveId(column);
-    if (!index || index > 131072 || indices.has(index) || field === "phone" && !mayManageStudents || field === "audienceType" && !target) {
-      return { error: "Check the column mappings and map each source column only once." } as const;
-    }
+    if (!index || index > headings.length || indices.has(index) || field === "phone" && !mayManageStudents || field === "audienceType" && !target) return null;
     indices.set(index, field);
   }
-  return { file: text, indices };
+  const mapping = headings.map((_, index) => indices.get(index + 1) ?? null);
+  return mapping.includes("studentCode") && mapping.includes("fullName") ? mapping : null;
 }
 
-async function csvReview(form: FormData, actor: Actor, target: Target | null): Promise<ReviewResult> {
+async function importReview(form: FormData, actor: Actor, target: Target | null): Promise<ReviewResult> {
   const directory = await can(actor, "manage_students");
-  const source = await csvInput(form, target, directory);
-  if ("error" in source) return invalid(source.error!, { csv: [source.error!] });
-  const headings = studentCsvHeadings(source.file);
-  if (!headings || [...source.indices.keys()].some(index => index > headings.length)) return invalid("Check the CSV heading row and column mappings.");
-  const mapping = headings.map((_, index) => source.indices.get(index + 1) ?? null);
-  const parsed = parseStudentCsv(source.file, mapping);
-  if ("error" in parsed) return invalid(parsed.error, { csv: [parsed.error] });
-  const codes = parsed.rows.map(row => row.studentCode);
+  const operation = form.get("operation");
+  const file = form.get("file") ?? form.get("csv");
+  if (!(file instanceof File) || file.size > STUDENT_UPLOAD_BYTES) return invalid("Choose a CSV or Excel file up to 256 KiB.");
+  const format = /\.xlsx$/i.test(file.name) ? "xlsx" : /\.csv$/i.test(file.name) ? "csv" : null;
+  if (!format) return invalid("Choose a .csv or .xlsx file.");
+  const bytes = Buffer.from(await file.arrayBuffer());
+  let parsed: ReturnType<typeof parseStudentCsv>;
+  let mapping: ReturnType<typeof studentMapping>;
+  let sheetId: string | undefined;
+  if (format === "xlsx") {
+    const selection = form.get("worksheet");
+    if (selection !== null && (typeof selection !== "string" || selection.length > 120)) return invalid("Choose a visible worksheet.");
+    let workbook;
+    try { workbook = await readStudentWorkbook(bytes, selection || undefined); }
+    catch (error) { return invalid(studentWorkbookMessage(error)); }
+    const { choices, selected } = workbook;
+    if (operation === "inspect") {
+      return { ...succeeded(selected ? "Choose the column mappings." : "Choose a worksheet."),
+        workbook: { choices, selected: selected && { id: selected.id, headings: selected.headings } } };
+    }
+    if (!selected) return invalid("Choose a visible worksheet.");
+    sheetId = selected.id;
+    mapping = studentMapping(form, target, directory, selected.headings);
+    if (!mapping) return invalid("Map Student ID and Student Name and use each permitted source column only once.");
+    if (!selected.rows.length) return invalid("The selected worksheet needs at least one student row.");
+    parsed = parseStudentRows(mapping, mapWorkbookRows(selected.rows, mapping));
+  } else {
+    if (operation === "inspect") return invalid("Choose an Excel workbook.");
+    let source;
+    try { source = new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+    catch { return invalid("Save the file as UTF-8 CSV and try again."); }
+    if (/[\x00]/.test(source.slice(0, 4))) return invalid("Save the file as UTF-8 CSV and try again.");
+    if (source.split(/\r?\n/).filter(line => line.trim()).length > 501) return invalid("Use up to 500 nonblank data lines.");
+    const headings = studentCsvHeadings(source);
+    mapping = headings && studentMapping(form, target, directory, headings);
+    if (!mapping) return invalid("Map Student ID and Student Name and use each permitted source column only once.");
+    parsed = parseStudentCsv(source, mapping);
+  }
+  if ("error" in parsed) return invalid(parsed.error);
+  const codes = parsed.rows.filter(row => row.studentCode.length <= 120 && !/[\x00-\x1f\x7f]/.test(row.studentCode)).map(row => row.studentCode);
   const existing = codes.length ? await db.select().from(students).where(inArray(students.studentCode, codes)) : [];
   const byCode = new Map(existing.map(student => [student.studentCode, student]));
   const enrollmentRows = target && existing.length ? await db.select().from(courseEnrollments).where(and(
@@ -170,9 +198,10 @@ async function csvReview(form: FormData, actor: Actor, target: Target | null): P
   }
   reports.sort((a, b) => a.row - b.row);
   const receipt = receiptFor(reports);
-  const payload = ["csv", actor.id, target, target ? parseTermWriteContext(form) : null, directory, source.file, mapping, evidence, reports];
-  if (form.get("operation") !== "confirm") return { ...succeeded("Preview ready. Review the row outcomes."), receipt, rows: reports, proof: changes.length ? issueStudentReview(payload) : undefined };
-  const action = target ? "student.csv_import" : "student.directory_csv_import";
+  const payload = [format, actor.id, target, target ? parseTermWriteContext(form) : null, directory,
+    createHash("sha256").update(bytes).digest("hex"), sheetId, mapping, evidence, reports];
+  if (operation !== "confirm") return { ...succeeded("Preview ready. Review the row outcomes."), receipt, rows: reports, proof: changes.length ? issueStudentReview(payload) : undefined };
+  const action = `student.${target ? "" : "directory_"}${format}_import`;
   const digest = changes.length ? await unusedStudentReview(form.get("proof"), payload, action) : null;
   if (!digest) return stale(reviewChanged);
   for (const change of changes) await commitChange(change, target, actor);
@@ -180,7 +209,7 @@ async function csvReview(form: FormData, actor: Actor, target: Target | null): P
   await studentAudit(actor, action, target ? "teaching_group" : "student", target?.groupId ?? null,
     { termId: target?.termId }, { digest, counts: { ...counts, count: changes.length } });
   refreshStudentViews();
-  const result = issues.length ? partial("Import applied. Some lines need attention.", {
+  const result = issues.length ? partial("Import applied. Some rows need attention.", {
     total: reports.length, applied: changes.length, unchanged: receipt.unchanged, rejected: issues,
   }) : succeeded("Import complete.");
   return { ...result, receipt, rows: reports };
@@ -192,17 +221,17 @@ export async function reviewStudentCsv(form: FormData): Promise<ReviewResult> {
     if (mode === "roster") {
       const groupId = positiveId(form.get("teachingGroupId"));
       if (!groupId) return invalid("Choose a teaching group.");
-      return await withRoster(groupId, form, (actor, termId) => csvReview(form, actor, { groupId, termId }));
+      return await withRoster(groupId, form, (actor, termId) => importReview(form, actor, { groupId, termId }));
     }
     if (mode !== "directory") return invalid("Choose an import destination.");
     const actor = await actionActor("manage_students");
     if ("ok" in actor) return actor;
     return await db.transaction(tx => inDatabaseTransaction(tx, async () => {
       await lockStudents();
-      return csvReview(form, actor, null);
+      return importReview(form, actor, null);
     }));
   } catch {
-    return invalid("The CSV request could not be completed. No changes from this attempt were saved. Try the preview again.");
+    return invalid("The import request could not be completed. No changes from this attempt were saved. Try the preview again.");
   }
 }
 

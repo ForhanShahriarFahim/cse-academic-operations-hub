@@ -63,5 +63,5 @@ export function StudentDirectory({ initial, options }: {
       </div>}
     </>}
   </section>
-  <div id="import-students"><StudentReview phone onApplied={() => void search("rows" in result ? result.page : 1)} /></div></>;
+  <StudentReview phone onApplied={() => void search("rows" in result ? result.page : 1)} /></>;
 }

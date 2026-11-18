@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**STU-01B / #37 — approved for implementation on 18 November.** Excel import to Students and Manage roster, private current-roster downloads in CSV and Excel, and A4 roll-call. Branch `codex/stu-01b`, base `70c9aa1`. [Specification](specs/STU-01B/spec.md) · [Checklist and handoff](specs/STU-01B/plan.md) · [Inspection](specs/STU-01B/verification.md) · [Workflow sketches](specs/STU-01B/mockups/index.html).
+**STU-01B / #37 — implemented and awaiting owner inspection on 18 November.** Excel import to Students and Manage roster, private current-roster downloads in CSV and Excel, and A4 roll-call. Both adapters, isolated Webpack, compiled Edge and A4 review passed. The default Turbopack build failed at the CSS worker. Branch `codex/stu-01b`, approval `6edfc81`. [Synthetic review](http://localhost:3147/sign-in) · [Verification](specs/STU-01B/verification.md) · [Checklist and handoff](specs/STU-01B/plan.md).
 
 **STU-01A / #37 — accepted and merged locally on 18 November at `c4fc99c`.** Acceptance `41a2ee3` follows delivery `51d692a`. The private student directory, reviewed CSV imports and individual/batch roster enrollment are available. Captured session attendance remains accessible after removal. Both adapters, isolated Webpack and compiled Edge review passed. The default Turbopack build stalled. [Verification and limits](specs/STU-01A/verification.md) · [Merge receipt and handoff](specs/STU-01A/plan.md). Parent #37 remains open.
 

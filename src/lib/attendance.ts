@@ -58,6 +58,7 @@ export interface RosterImportReceipt {
 }
 
 export type ParsedRosterRow = Omit<CsvStudentRow, "audienceType"> & { row: number; homeBatch?: string; audienceType: CsvStudentRow["audienceType"] | null };
+export type StudentInputRow = { row: number; values: string[] } | { row: number; error: string };
 
 export function studentCsvHeadings(text: string) {
   const header = text.replace(/^\uFEFF/, "").split(/\r?\n/).find(line => line.trim());
@@ -82,20 +83,29 @@ export function parseStudentCsv(text: string, mapping?: ReadonlyArray<StudentCsv
   const known = headers.filter((header) => header !== null);
   if (new Set(known).size !== known.length) return { error: "Use each supported CSV heading only once." } as const;
 
+  return parseStudentRows(headers, lines.slice(1).map(({ line, row }) => {
+    const values = csvCells(line);
+    if (!values || values.length > headers.length) return { row, error: "Check CSV quotes and the number of columns." };
+    if (line.includes("\0")) return { row, error: "Remove invalid characters." };
+    return { row, values };
+  }));
+}
+
+export function parseStudentRows(headers: ReadonlyArray<StudentCsvField | null>, input: StudentInputRow[]) {
   const rows: ParsedRosterRow[] = [];
   const issues: RosterCsvIssue[] = [];
   const seen = new Set<string>();
-  for (const { line, row } of lines.slice(1)) {
-    const values = csvCells(line);
-    if (!values || values.length > headers.length) {
-      issues.push({ row, kind: "failed", message: "Check CSV quotes and the number of columns." });
+  for (const entry of input) {
+    const { row } = entry;
+    if ("error" in entry) {
+      issues.push({ row, kind: "failed", message: entry.error });
       continue;
     }
-    const draft = Object.fromEntries(headers.flatMap((header, index) => header ? [[header, values[index] ?? ""]] : []));
+    const draft = Object.fromEntries(headers.flatMap((header, index) => header ? [[header, entry.values[index]?.trim() ?? ""]] : []));
     const { studentCode, fullName, phone, department } = draft;
     const audience = draft.audienceType?.toLowerCase() || null;
-    if (!studentCode || !fullName || line.includes("\0")) {
-      issues.push({ row, kind: "failed", message: line.includes("\0") ? "Remove invalid characters." : "Student ID and Student Name are required." });
+    if (!studentCode || !fullName) {
+      issues.push({ row, kind: "failed", message: "Student ID and Student Name are required." });
     } else if (audience !== null && audience !== "local" && audience !== "external" && audience !== "merged") {
       issues.push({ row, kind: "failed", message: "Audience Type must be local, external or merged." });
     } else if (seen.has(studentCode)) {
