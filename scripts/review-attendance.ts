@@ -1,4 +1,4 @@
-/** ATT-02 browser review on a disposable PostgreSQL database. */
+/** STU-01A and attendance browser review on a disposable PostgreSQL database. */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
@@ -11,8 +11,8 @@ import { populateSummerFixture } from "./safety/fixture";
 import { withDisposableCluster } from "./safety/pg-cluster";
 import { reviewSession } from "./ux-review";
 
-const appPort = 3130;
-const controlPort = 3131;
+const appPort = 3134;
+const controlPort = 3135;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
 const captures = ".tmp/stu-01a/browser";
@@ -20,13 +20,13 @@ const requireFromRepo = createRequire(import.meta.url);
 
 async function main() {
   await withDisposableCluster(process.env.SAFE01_PG_BIN || "F:/AI/tools/pgsql-17.11/pgsql/bin", async cluster => {
-    const target = await cluster.createDatabase("safe01_att02_browser");
+    const target = await cluster.createDatabase("safe01_stu01a_browser");
     const database = postgresDatabase(target, () => cluster.dropDatabase(target));
     const session = reviewSession();
     const group = await withHandle(database, async handle => {
       await database.migrate(handle);
       await populateSummerFixture(handle.db);
-      await handle.client.query("insert into auth_session(id,expires_at,token,user_id) values('att02-review',now()+interval '1 day',$1,'synthetic-auth-user')", [session.token]);
+      await handle.client.query("insert into auth_session(id,expires_at,token,user_id) values('stu01a-review',now()+interval '1 day',$1,'synthetic-auth-user')", [session.token]);
       return Number((await handle.client.query<{ teaching_group_id: number }>(
         "select teaching_group_id from attendance_sessions order by id limit 1",
       )).rows[0].teaching_group_id);
@@ -40,7 +40,7 @@ async function main() {
         return;
       }
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
-        .end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>ATT-02 synthetic review</h1><a href="/sign-in">Sign in and open Attendance</a>');
+        .end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>STU-01A synthetic review</h1><a href="/sign-in">Sign in and open Attendance</a>');
     });
     await new Promise<void>((resolve, reject) => {
       control.once("error", reject);
@@ -59,7 +59,7 @@ async function main() {
         if (!ready) await new Promise(resolve => setTimeout(resolve, 200));
       }
       assert.ok(ready, "Synthetic preview did not start.");
-      console.log(`ATT-02 synthetic review: ${controlOrigin}/sign-in`);
+      console.log(`STU-01A synthetic review: ${controlOrigin}/sign-in`);
       if (process.argv.includes("--check")) await checkBrowser();
       if (process.argv.includes("--serve")) await exited;
     } finally {
@@ -188,9 +188,31 @@ async function checkBrowser() {
     await member.getByRole("button", { name: "Restore enrollment" }).waitFor();
     await member.getByRole("button", { name: "Restore enrollment" }).click();
     await member.getByText(/Active enrollment/).waitFor();
+
+    const batchReview = page.locator("section").filter({ has: page.getByRole("heading", { name: "Enroll a batch", exact: true }) });
+    const batchId = (await batchReview.getByLabel("Home batch").selectOption({ index: 1 }))[0];
+    await page.goto(`${origin}/students/new`);
+    await page.getByLabel("Student ID", { exact: true }).fill("000-BROWSER-BATCH");
+    await page.getByLabel("Student name", { exact: true }).fill("Synthetic Batch Candidate");
+    await page.getByLabel("Home batch", { exact: true }).selectOption(batchId);
+    await page.getByRole("button", { name: "Add student", exact: true }).click();
+    await page.getByRole("heading", { name: "Synthetic Batch Candidate", exact: true }).waitFor();
+    await page.goto(rosterUrl);
+    await batchReview.getByLabel("Home batch").selectOption(batchId);
+    await batchReview.getByLabel("Audience for new enrollments").selectOption("merged");
+    await batchReview.getByRole("button", { name: "Preview enrollment", exact: true }).click();
+    await batchReview.getByRole("list", { name: "Batch candidates" }).getByText(/Synthetic Batch Candidate/).waitFor();
+    await batchReview.getByRole("button", { name: /^Enroll \d+ students?$/ }).click();
+    await batchReview.getByRole("heading", { name: "Receipt" }).waitFor();
+
+    const anonymous = await browser.newPage();
+    await anonymous.goto(`${origin}/students`);
+    await anonymous.waitForURL(url => url.pathname === "/login");
+    assert.equal(await anonymous.getByText("Synthetic Batch Candidate").count(), 0);
+    await anonymous.close();
     await page.waitForLoadState("networkidle");
     assert.deepEqual(errors, []);
-    console.log("STU-01A browser: directory search and private identity edit, mixed preview and receipt, no-op preview, roster add/remove/restore, attendance retry and session create/delete, axe and three viewport checks passed.");
+    console.log("STU-01A browser: directory search and private identity edit, mixed preview and receipt, no-op preview, roster add/remove/restore and whole-batch enrollment, anonymous directory refusal, attendance retry and session create/delete, axe and three viewport checks passed.");
   } finally { await browser.close(); }
 }
 

@@ -24,9 +24,11 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
         <input type="hidden" name="operation" value={adding ? "create" : "edit"} />
         {student && <><input type="hidden" name="id" value={student.id} /><input type="hidden" name="fingerprint" value={student.fingerprint} /></>}
         <div key={student?.fingerprint ?? "new"} className="grid gap-3 sm:grid-cols-2">
-          <label>Student ID<input name="studentCode" className={fieldClass} required maxLength={120} readOnly={student?.fixedCode}
-            defaultValue={student?.studentCode} aria-describedby={student?.fixedCode ? "fixed-student-code" : undefined} />
-            {student?.fixedCode && <span id="fixed-student-code" className="text-sm text-muted">This ID has enrollment or attendance history.</span>}</label>
+          <div>
+            <label>Student ID<input name="studentCode" className={fieldClass} required maxLength={120} readOnly={student?.fixedCode}
+              defaultValue={student?.studentCode} aria-describedby={student?.fixedCode ? "fixed-student-code" : undefined} /></label>
+            {student?.fixedCode && <p id="fixed-student-code" className="text-sm text-muted">This ID has enrollment or attendance history.</p>}
+          </div>
           <label>Student name<input name="fullName" className={fieldClass} required maxLength={200} defaultValue={student?.fullName} /></label>
           <label>Private phone<input name="phone" type="tel" className={fieldClass} maxLength={80} defaultValue={student?.phone ?? ""} /></label>
           <label>Home department<input name="department" className={fieldClass} maxLength={120}
