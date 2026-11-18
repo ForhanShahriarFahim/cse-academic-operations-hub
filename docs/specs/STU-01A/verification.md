@@ -47,4 +47,4 @@ The static sketches were checked in Edge at 1440, 390 and 320 px using the local
 
 ## Delivery and acceptance
 
-Branch `codex/stu-01a`. The proposal was approved at `25f5ff2`. Owner delivery acceptance and local merge are pending. #37 remains open for STU-01B. The parent scope and open state were read on 18 November. The last GitHub synchronization was 11 November.
+Branch `codex/stu-01a`. The proposal was approved at `25f5ff2`. The owner replied “accepted” on 18 November 2026 (Asia/Dhaka) after delivery `51d692a` and its verification disclosures. Local merge is pending. #37 remains open for STU-01B. The parent scope and open state were read on 18 November. The last GitHub synchronization was 11 November.

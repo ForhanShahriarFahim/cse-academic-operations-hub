@@ -2,7 +2,7 @@
 
 Issue [#37](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · [Specification](spec.md) · [Verification](verification.md)
 
-Status: Verified and awaiting delivery acceptance · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
+Status: Accepted for local merge · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
 
 ## Inspection and proposed approach
 
@@ -37,6 +37,10 @@ The [desktop and phone sketches](mockups/index.html) use synthetic content. Befo
 Use the repository's guarded synthetic database tooling. Run pure parsing, matching and receipt cases, then the new focused group on both PGlite and PostgreSQL. Include independent PostgreSQL races for overlapping confirmations, class-group edits, new identities with the same code, batch membership/lifecycle changes and session creation near roster changes. Compare actual database mutations with receipts, assert zero writes/audits on preview or stale confirmation, and inject an audit failure. Verify revoked/expired roles, wrong group/term, misbound proof, cross-department matching, existing legacy actions, projection privacy, and unchanged historical rows and publication outputs. Run neighboring ATT-02/BUG-ATT-MARKS, term-context, class-group and batch safety checks.
 
 Run `npm run typecheck`, `npm run lint`, `npm run test:domain` and `npm run build`. Record the default build outcome separately from any isolated Webpack result. Use a compiled synthetic browser flow at 1440, 390 and 320 px with keyboard and accessibility checks, including authorized and denied routes, stale confirmation, error recovery and truthful partial receipts. Record the exact disposable review command and limitations in [verification.md](verification.md) before delivery.
+
+## Delivery acceptance
+
+On 18 November 2026 (Asia/Dhaka), the owner replied “accepted” after delivery `51d692a`. That delivery disclosed the stalled default Turbopack build, the passing isolated Webpack build, and the unverified archived A4 rendering and direct races between class-group or batch edits and enrollment confirmation. The acceptance covers the bounded STU-01A delivery.
 
 ## Current checkpoint and exact handoff
 
