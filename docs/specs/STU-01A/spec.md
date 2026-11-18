@@ -1,6 +1,6 @@
 # STU-01A — Student directory and roster enrollment
 
-Issue [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · Proposed · 18 November 2026 (Asia/Dhaka)
+Issue [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · Approved · 18 November 2026 (Asia/Dhaka)
 
 ## Problem and outcome
 

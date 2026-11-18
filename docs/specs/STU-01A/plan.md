@@ -2,7 +2,7 @@
 
 Issue [#37](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · [Specification](spec.md) · [Verification](verification.md)
 
-Status: Proposed · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
+Status: Approved for implementation · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
 
 ## Inspection and proposed approach
 
@@ -18,14 +18,14 @@ The [desktop and phone sketches](mockups/index.html) use synthetic content. Befo
 
 ## Approval record
 
-- Owner authorization: Pending for implementation. The 18 November request authorizes inspection and specification.
-- Scope awaiting approval: [D-1–D-7 and AC-01–AC-09](spec.md#decisions-for-owner-review).
-- Material amendments: None recorded. Record the actual approval and commit the approved plan before implementation.
+- Owner authorization: “Approved.” in the 18 November 2026 STU-01A chat, following delivery of proposal `72e7ccf`.
+- Approved scope: [D-1–D-7 and AC-01–AC-09](spec.md#decisions-for-owner-review).
+- Material amendments: None.
 
 ## Tasks
 
 - [x] T-01 — Inspect the parent and local implementation, document privacy/history boundaries, and prepare the proposal and desktop/phone sketches.
-- [ ] T-02 — Record owner approval or amendments and commit the approved scope.
+- [x] T-02 — Record owner approval or amendments and commit the approved scope.
 - [ ] T-03 — Build private directory reads, role and phone gating, explicit identity mutations and safe audit behavior. AC-01–AC-03.
 - [ ] T-04 — Build single roster actions, group and term authorization, stable attendance projections and private data minimization. Close alternate write paths. AC-01, AC-04, AC-08.
 - [ ] T-05 — Implement shared CSV mapping/classification, batch review, authenticated confirmation, transactional application and truthful receipts. AC-05–AC-07.
@@ -40,6 +40,6 @@ Run `npm run typecheck`, `npm run lint`, `npm run test:domain` and `npm run buil
 
 ## Current checkpoint and exact handoff
 
-The proposal is on `codex/stu-01a`, based on `4205eef`. T-01 is complete. Application behavior and adapter/browser acceptance checks remain pending implementation. The parent issue was read on 18 November and was open. The last broader GitHub reconciliation was 11 November. Institutional data access and GitHub synchronization are separate delivery boundaries.
+The proposal is on `codex/stu-01a`, based on `4205eef`. T-01 and T-02 are complete. Application behavior and adapter/browser acceptance checks remain pending implementation. The parent issue was read on 18 November and was open. The last broader GitHub reconciliation was 11 November. Institutional data access and GitHub synchronization are separate delivery boundaries.
 
 > Continue on `codex/stu-01a`. Read the current brief, this plan, D-1–D-7, AC-01–AC-09 and the verification record. If the owner approved or amended the proposal, record the actual message and scope in T-02 and commit that record before implementing T-03–T-06. Otherwise retain the proposal for review. Verify using synthetic PGlite and PostgreSQL, present the bounded delivery for acceptance, then merge into local `main` only after acceptance. Keep #37 open for STU-01B.
