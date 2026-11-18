@@ -2,7 +2,7 @@
 
 Issue [#9](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/9) · [Specification](spec.md) · [Verification](verification.md)
 
-Proposed on 18 November 2026 (Asia/Dhaka) · Branch `codex/att-02` from local `main` at `7c8cabf`
+Approved on 18 November 2026 (Asia/Dhaka) · Branch `codex/att-02` from local `main` at `7c8cabf`
 
 ## Proposed approach
 
@@ -68,13 +68,12 @@ The same order works for touch and keyboard. Row reasons and filenames wrap insi
 
 ## Approval record
 
-- Owner replied “Go for it.” on 18 November 2026 to the proposed next step of inspecting and drafting ATT-02 for review. Implementation approval of D-1–D-5 is pending.
-- Commit the explicit approval and scope before editing application code. Record any amendments here.
+- Owner replied “Approved.” on 18 November 2026 after being asked to approve D-1–D-5 in proposal `ab3db9a`. This authorizes implementation and verification of that scope without amendments.
 
 ## Tasks
 
 - [x] T-01 — Inspect current writes and feedback, reproduce CSV behavior with synthetic rows and present D-1–D-5, AC-01–AC-06 and workflow sketches.
-- [ ] T-02 — Record owner approval of D-1–D-5 and commit the approved plan.
+- [x] T-02 — Record owner approval of D-1–D-5 and commit the approved plan.
 - [ ] T-03 — Implement CSV validation, truthful transactional receipt and the identity safeguard. Verify role/term gating, no-op, rollback, concurrent effects and history on disposable adapters (AC-03–AC-06).
 - [ ] T-04 — Implement local attendance feedback, draft retention and accessible file selection, refresh and focus handling (AC-01–AC-04).
 - [ ] T-05 — Run final checks, record evidence and give the owner a guarded synthetic review path (AC-01–AC-06).
@@ -86,6 +85,6 @@ Run typecheck, lint, domain checks and the default production build. Exercise pa
 
 ## Current checkpoint and exact handoff
 
-Planning package on `codex/att-02`. Static code inspection and the DB-free parser baseline are recorded. Implementation and owner acceptance are pending. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
+Approved scope D-1–D-5 on `codex/att-02`. Static code inspection and the DB-free parser baseline are recorded. Implementation is next. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
 
-> Review D-1–D-5, especially the existing-student safeguard and the definitions for created, updated and unchanged. Record approval or amendments. On approval, commit the approved plan and implement T-03–T-05 on this branch using disposable data. Leave institutional operations and GitHub synchronization for their own delivery boundary.
+> Implement T-03–T-05 on this branch using disposable data. Present verification and the synthetic review path for owner acceptance.
