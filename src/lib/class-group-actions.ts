@@ -5,6 +5,7 @@ import { actionActor } from "./auth/action-guard";
 import { invalid, type ActionResult } from "./action-result";
 import { changeClassGroupInTransaction, type ClassGroupResult } from "./class-group-store";
 import { getClassGroupChanges } from "./class-group-data";
+import { startClassGroupsInTransaction } from "./class-group-start-store";
 
 const SINGLE_FIELDS = ["command", "termId", "groupId", "courseId", "delivery", "meetings", "minutes", "provisional", "method", "externalLabel", "externalCount", "notes", "reason", "fingerprint", "confirmation"] as const;
 const LIST_FIELDS = { offering: 200, teacherId: 30, units: 30 } as const;
@@ -34,3 +35,23 @@ export async function changeClassGroupAction(_previous: ActionResult | null, for
   return result;
 }
 export async function loadClassGroupChangesAction(termId: number, before: number) { return getClassGroupChanges(termId, before); }
+
+export async function startClassGroupsAction(form: FormData): Promise<ActionResult> {
+  const actor = await actionActor("manage_class_groups");
+  if ("ok" in actor) return actor;
+  const raw: Record<string, unknown> = {};
+  for (const field of ["termId", "sourceId", "fingerprint", "reason"]) {
+    const values = form.getAll(field);
+    if (values.length !== 1 || typeof values[0] !== "string") return invalid("Submit each review field once as text.");
+    raw[field] = values[0];
+  }
+  const picks = form.getAll("group");
+  let result: ActionResult;
+  try {
+    result = await db.transaction(tx => startClassGroupsInTransaction(tx, actor, raw, picks));
+  } catch {
+    return invalid("The selected class groups could not be saved. Your selections are kept. Try again.");
+  }
+  if (result.ok) revalidatePath("/", "layout");
+  return result;
+}

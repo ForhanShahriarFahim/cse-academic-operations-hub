@@ -7,7 +7,7 @@ import { hasCapability, type Actor } from "./auth/policy";
 import { conflicted, denied, invalid, stale, succeeded, type ActionResult } from "./action-result";
 import { WORKLOAD_ADVISORY_UNITS } from "./constants";
 import { cohortName, offeringLive } from "./offering-records";
-import { EXTERNAL_LABEL_MAX, NOTES_MAX, allocationMethod, externalCount, formatUnits, groupInteger, groupReason, groupStates, groupTermEditable, groupUsed, optionalText, parseDelivery, parseRequirement, parseTeachers, scheduleState, storedUnits, usageText, type GroupState, type GroupUsage, type ScheduleState } from "./class-group-records";
+import { EXTERNAL_LABEL_MAX, NOTES_MAX, allocationMethod, externalCount, formatUnits, groupInteger, groupReason, groupStates, groupTermEditable, groupUsed, optionalText, parseDelivery, parseRequirement, parseTeachers, scheduleState, storedUnits, usageText, type Requirement, type TeacherEntry, type GroupState, type GroupUsage, type ScheduleState } from "./class-group-records";
 import { lockTermContext } from "./term-lock";
 
 export type ClassGroupTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -142,9 +142,21 @@ const STALE = "This class group changed since you opened this page. Review the c
 const reasonError = { reason: ["Use 1–300 plain-text characters without personal/student details."] };
 const audienceLabel = (names: string[], external: string | null) => [...names, ...(external ? [external] : [])].join(" and ") || "no audience";
 
-async function audit(tx: ClassGroupTx, actor: Actor, action: string, termId: number, before: unknown, after: unknown, detail: Record<string, unknown>) {
+export async function auditClassGroup(tx: ClassGroupTx, actor: Actor, action: string, termId: number, before: unknown, after: unknown, detail: Record<string, unknown>) {
   await tx.insert(auditEvents).values({ actor: actor.displayName, actorUserId: actor.id, actorDisplayName: actor.displayName, actorKind: "user", action, entity: "term_class_groups", entityId: termId, before, after, detail });
 }
+/** Persist validated class-group facts inside the caller's existing transaction. */
+export async function insertClassGroup(tx: ClassGroupTx, values: typeof teachingGroups.$inferInsert, offeringIds: number[], requirement: Requirement, allocations: TeacherEntry[], method: string | null) {
+  const [group] = await tx.insert(teachingGroups).values(values).returning({ id: teachingGroups.id });
+  await tx.insert(teachingGroupOfferings).values(offeringIds.map(offeringId => ({ teachingGroupId: group.id, offeringId })));
+  await tx.insert(teachingRequirements).values({ teachingGroupId: group.id, requiredMeetingsPerWeek: requirement.meetings, expectedWeeklyMinutes: requirement.minutes, status: requirement.provisional ? "provisional" : "approved" });
+  if (allocations.length) {
+    if (!method) throw new Error("Allocations require a crediting method.");
+    await tx.insert(workloadAllocations).values(allocations.map(row => ({ teacherId: row.teacherId, termId: values.termId, teachingGroupId: group.id, units: formatUnits(row.units), allocationMethod: method })));
+  }
+  return group.id;
+}
+
 const snapshot = (input: { audience: string[]; externalLabel: string | null; externalCount: number | null; deliveryMode: string; requirement: { meetings: number; minutes: number | null; provisional: boolean } | null; teachers: Array<{ code: string; units: number }>; method: string | null; notes: string | null }) => ({
   audience: [...input.audience].sort(), externalLabel: input.externalLabel, externalCount: input.externalCount, deliveryMode: input.deliveryMode,
   requirement: input.requirement, teachers: [...input.teachers].sort((a, b) => a.code.localeCompare(b.code)).map(row => ({ code: row.code, units: formatUnits(row.units) })), method: input.method, notes: input.notes,
@@ -191,7 +203,7 @@ export async function changeClassGroupInTransaction(tx: ClassGroupTx, actor: Act
     await tx.delete(teachingGroupOfferings).where(eq(teachingGroupOfferings.teachingGroupId, group.id));
     await tx.delete(teachingGroups).where(and(eq(teachingGroups.id, group.id), eq(teachingGroups.termId, term.id)));
     const before = snapshot({ audience: group.audiences.map(audience => audience.name), externalLabel: group.externalLabel, externalCount: group.externalCount, deliveryMode: group.deliveryMode, requirement: group.requirement, teachers: group.teachers, method: group.method, notes: group.notes });
-    await audit(tx, actor, "class_group.remove", term.id, before, null, { reason, groupId: group.id, course: group.course.code, courseId: group.course.id, audience: names(group) });
+    await auditClassGroup(tx, actor, "class_group.remove", term.id, before, null, { reason, groupId: group.id, course: group.course.code, courseId: group.course.id, audience: names(group) });
     return succeeded(`The class group for ${group.course.code} (${names(group)}) was removed. Its offerings are unchanged.`, { entityId: term.id });
   }
 
@@ -256,12 +268,9 @@ export async function changeClassGroupInTransaction(tx: ClassGroupTx, actor: Act
   const label = audienceLabel(after.audience, externalLabel);
 
   if (!current) {
-    const [group] = await tx.insert(teachingGroups).values({ termId: term.id, courseId: course.id, deliveryMode: delivery, externalAudienceLabel: externalLabel, externalStudentCount: externalLabel ? external : null, notes }).returning();
-    await tx.insert(teachingGroupOfferings).values(wanted.map(offeringId => ({ teachingGroupId: group.id, offeringId })));
-    await tx.insert(teachingRequirements).values({ teachingGroupId: group.id, requiredMeetingsPerWeek: parsedRequirement.requirement.meetings, expectedWeeklyMinutes: parsedRequirement.requirement.minutes, status: parsedRequirement.requirement.provisional ? "provisional" : "approved" });
-    if (desiredTeachers.length) await tx.insert(workloadAllocations).values(desiredTeachers.map(row => ({ teacherId: row.teacherId, termId: term.id, teachingGroupId: group.id, units: formatUnits(row.units), allocationMethod: method! })));
-    await audit(tx, actor, "class_group.create", term.id, null, after, { reason, groupId: group.id, course: course.code, courseId: course.id, audience: label });
-    return succeeded(`Class group created for ${course.code} (${label}).${wanted.length > 1 ? " The cohorts stay separate." : ""} No class, room or enrollment was created.`, { entityId: group.id });
+    const groupId = await insertClassGroup(tx, { termId: term.id, courseId: course.id, deliveryMode: delivery, externalAudienceLabel: externalLabel, externalStudentCount: externalLabel ? external : null, notes }, wanted, parsedRequirement.requirement, desiredTeachers, method);
+    await auditClassGroup(tx, actor, "class_group.create", term.id, null, after, { reason, groupId, course: course.code, courseId: course.id, audience: label });
+    return succeeded(`Class group created for ${course.code} (${label}).${wanted.length > 1 ? " The cohorts stay separate." : ""} No class, room or enrollment was created.`, { entityId: groupId });
   }
 
   const before = snapshot({ audience: current.audiences.map(audience => audience.name), externalLabel: current.externalLabel, externalCount: current.externalCount, deliveryMode: current.deliveryMode, requirement: current.requirement, teachers: current.teachers, method: current.method, notes: current.notes });
@@ -280,6 +289,6 @@ export async function changeClassGroupInTransaction(tx: ClassGroupTx, actor: Act
     if (existingIds.has(row.teacherId)) await tx.update(workloadAllocations).set({ units: formatUnits(row.units), allocationMethod: method! }).where(and(eq(workloadAllocations.teachingGroupId, current.id), eq(workloadAllocations.teacherId, row.teacherId)));
     else await tx.insert(workloadAllocations).values({ teacherId: row.teacherId, termId: term.id, teachingGroupId: current.id, units: formatUnits(row.units), allocationMethod: method! });
   }
-  await audit(tx, actor, "class_group.update", term.id, before, after, { reason, groupId: current.id, course: current.course.code, courseId: current.course.id, audience: label });
+  await auditClassGroup(tx, actor, "class_group.update", term.id, before, after, { reason, groupId: current.id, course: current.course.code, courseId: current.course.id, audience: label });
   return succeeded(`Class group for ${current.course.code} (${label}) saved.`, { entityId: current.id });
 }
