@@ -78,7 +78,7 @@ The same order works for touch and keyboard. Row reasons and filenames wrap insi
 - [x] T-03 — Implement CSV validation, truthful transactional receipt and the identity safeguard. Verify role/term gating, no-op, rollback, concurrent effects and history on disposable adapters (AC-03–AC-06).
 - [x] T-04 — Implement local attendance feedback, draft retention and accessible file selection, refresh and focus handling (AC-01–AC-04).
 - [x] T-05 — Record adapter, history and compiled browser evidence and publish the local synthetic review path (AC-01–AC-06). Default Turbopack remains incomplete and is disclosed for acceptance.
-- [ ] T-06 — Record actual delivery acceptance and merge into local `main`. Leave GitHub reconciliation to the agreed synchronization boundary.
+- [x] T-06 — Record acceptance at `df5dab6` and merge into local `main` at `a62ff2d`. GitHub reconciliation remains deferred.
 
 ## Verification and delivery
 
@@ -86,6 +86,6 @@ Run typecheck, lint, domain checks and the default production build. Exercise pa
 
 ## Current checkpoint and exact handoff
 
-Approved scope D-1–D-5 on `codex/att-02`, approval `9139a0c`. Implementation and isolated compiled review are in place. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
+18 November 2026. Approval `9139a0c`, verified delivery `1b6649e`, owner acceptance `df5dab6`, local merge `a62ff2d`. The branch `codex/att-02` is retained. The merge applied the accepted tree without conflicts. Default Turbopack remains incomplete. Last GitHub reconciliation was 11 November 2026, per the [project brief](../../PROJECT_BRIEF.md).
 
-> Check the [verification record](verification.md) and present the synthetic review for owner acceptance. Record actual acceptance before the local merge. Keep institutional operations and GitHub synchronization separate.
+> Start from local main and read the current brief and workflow. The next proposed part is STU-01A / #37 inspection and specification for the student directory, CSV preview and enrollment workflow. Review identity, privacy and historical enrollment decisions before seeking implementation approval.

@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**ATT-02 / #9 — implemented on 18 November, awaiting owner review.** Approved at `9139a0c` on `codex/att-02`. Attendance actions show feedback beside the relevant controls. Roster CSV import reports committed counts and line-level errors and protects existing student identities. Both adapters and the isolated Webpack build pass. The default Turbopack attempt stalled. **Next:** review the synthetic preview and obtain delivery acceptance before merging locally. [Specification](specs/ATT-02/spec.md) · [Plan and handoff](specs/ATT-02/plan.md) · [Verification and review path](specs/ATT-02/verification.md).
+**ATT-02 / #9 — accepted and merged locally on 18 November at `a62ff2d`.** Acceptance `df5dab6` follows delivery `1b6649e`. Attendance actions show local feedback, and roster CSV import reports committed counts and line-level errors while protecting student identities. Both adapters, compiled browser checks and the isolated Webpack build passed. The default Turbopack attempt stalled. **Next:** owner-started STU-01A / #37 inspection and specification. [Specification](specs/ATT-02/spec.md) · [Merge receipt and handoff](specs/ATT-02/plan.md) · [Verification](specs/ATT-02/verification.md).
 
 The CRS-01D and earlier records below are history.
 
