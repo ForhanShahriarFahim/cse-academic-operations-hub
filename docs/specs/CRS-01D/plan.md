@@ -2,7 +2,7 @@
 
 Parent: CRS-01 / #7. [Specification and decisions](spec.md) · [Verification](verification.md) · [Responsive sketch](mockups/index.html)
 Branch/base: `codex/crs-01d` / `75f204e` (local `main`).
-Updated 18 November 2026 (Asia/Dhaka). Status: **Approved for implementation.**
+Updated 18 November 2026 (Asia/Dhaka). Status: **Implemented on the issue branch.**
 
 ## Inspection and proposed approach
 
@@ -25,10 +25,10 @@ The initial source/destination review can race with edits. The reviewed facts ar
 
 - [x] T-01 — Inspect the current handoff, term rollover/offering basis, class-group writes, legacy import and teacher rules. Propose D-1–D-6, AC-01–AC-08 and a responsive sketch.
 - [x] T-02 — Record approval of D-1–D-6 before implementation.
-- [ ] T-03 — Implement and exercise the two-term projection, creation eligibility, comparison and change detection (AC-02–AC-04). Depends on T-02.
-- [ ] T-04 — Implement capability checks, atomic guarded apply, audit receipt and existing history integration. Exercise the adapter and race cases (AC-01, AC-05–AC-06).
-- [ ] T-05 — Wire the Class groups entry point and editor review flow. Exercise the guarded synthetic browser, keyboard and responsive states (AC-01, AC-04, AC-07).
-- [ ] T-06 — Run required commands and focused regressions, record criterion evidence and limitations, and provide the owner with the exact synthetic review command (AC-06–AC-08).
+- [x] T-03 — Implement and exercise the two-term projection, creation eligibility, comparison and change detection (AC-02–AC-04).
+- [x] T-04 — Implement capability checks, atomic guarded apply, audit receipt and existing history integration. Both adapter groups and the concurrent identical-apply race passed (AC-01, AC-05–AC-06). See verification for coverage limits.
+- [x] T-05 — Wire the Class groups entry point and editor review flow. Guarded compiled browser, keyboard and three responsive widths passed (AC-01, AC-04, AC-07).
+- [x] T-06 — Record criterion evidence, focused regressions, synthetic review command, default-build limit and build-isolation incident (AC-06–AC-08).
 - [ ] T-07 — Record acceptance, merge locally into `main` and update this handoff. Keep parent #7 open pending reconciliation of its remaining scope.
 
 ## Verification and delivery
@@ -37,6 +37,6 @@ Run typecheck, lint, domain checks and the default build. Add focused safety gro
 
 ## Current checkpoint and exact handoff
 
-18 November 2026. Planning package on `codex/crs-01d` based on `75f204e`. T-01 is complete. The older Courses & offerings “UT” display is a separate open finding linked from the specification.
+18 November 2026. Owner approval `e8c25ea`, implementation `4e6ea72`, branch `codex/crs-01d` based on `75f204e`. The older Courses & offerings “UT” display remains tracked in the CRS-01C verification record.
 
-> Resume CRS-01D on codex/crs-01d, base 75f204e. Check Git state and read the brief, workflow, and docs/specs/CRS-01D/spec.md, plan.md and verification.md. Record actual owner approval or amendments to D-1–D-6 and commit before T-03. Keep class-group start additive and under the existing capability and history. Use disposable verification only, preserve source and historical rows, and leave institutional migrations 0017/0018 and GitHub synchronization for their own authorization.
+> Resume CRS-01D on codex/crs-01d, base 75f204e. Check Git state and read the brief, workflow, and this issue’s specification, plan and verification. Finish any pending verification, present the synthetic review, record owner acceptance, then merge locally. Use disposable verification and preserve source and historical rows. Institutional migrations 0017/0018 and GitHub synchronization have separate authorization.

@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**CRS-01D / #7 — proposed on 18 November.** The owner started the next part after CRS-01C. On `codex/crs-01d` from local main `75f204e`, the proposal adds an additive start from an earlier term and a carried/changed-teacher comparison after offerings are prepared. [Specification and D-1–D-6](specs/CRS-01D/spec.md) · [Checklist and exact handoff](specs/CRS-01D/plan.md) · [Responsive sketch](specs/CRS-01D/mockups/index.html). **Next:** owner reviews or amends the proposed scope. Record actual approval and commit before implementation. The legacy completeness-report finding remains open under CRS-01C.
+**CRS-01D / #7 — implemented on 18 November.** Owner approved D-1–D-6 at `e8c25ea`; application checkpoint `4e6ea72` on `codex/crs-01d` from local main `75f204e`. Selected carry-forward, teacher comparison and audit history are available from Class groups. Both adapter checks, the PostgreSQL simultaneous-apply race, the compiled browser review and archived CSV/A4 parity pass. [Verification, build limits and institutional directory incident](specs/CRS-01D/verification.md) · [Approval, checklist and exact handoff](specs/CRS-01D/plan.md). **Next:** owner inspects the guarded preview and decides on delivery acceptance before local merge. Parent #7 remains open.
 
 The CRS-01C and earlier records below are history.
 

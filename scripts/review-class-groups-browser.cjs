@@ -39,8 +39,18 @@ const { Client } = require('pg');
   const LIST = 'Class groups — Fall 2026';
   try {
     if (startCheck) {
+      const printArchive = async phase => {
+        for (const kind of ['official', 'teachers']) {
+          await page.goto(archive + '/' + kind);
+          await page.getByRole('heading', { name: kind === 'official' ? /Official sheets v/ : /Teacher sheets v/ }).waitFor();
+          await page.evaluate(() => document.fonts.ready);
+          await page.pdf({ path: `${out}/${phase}-${kind}.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true });
+        }
+      };
       await page.goto(control + '/sign-in');
       await heading(LIST);
+      await printArchive('before');
+      await navigate(list, LIST);
       await page.getByRole('link', { name: 'Start from previous term', exact: true }).click();
       await heading('Start class groups from a previous term');
       const startPath = list + '/start';
@@ -86,6 +96,7 @@ const { Client } = require('pg');
       await capture('history');
       assert.deepEqual(await csvOf(), csvBefore, 'archived CSV');
       assert.deepEqual(await snapshot(), before, 'preserved tables');
+      await printArchive('after');
       await page.goto(control + '/viewer');
       await heading(LIST);
       assert.equal(await page.getByRole('link', { name: 'Start from previous term', exact: true }).count(), 0);

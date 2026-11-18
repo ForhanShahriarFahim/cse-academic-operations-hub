@@ -1,7 +1,7 @@
 # CRS-01D — Start class groups from a previous term
 
 Parent: CRS-01 / #7, partially delivered. Updated 18 November 2026 (Asia/Dhaka).
-Status: **Proposed.** [Approval and plan](plan.md) · [Inspection and verification](verification.md) · [Responsive sketch](mockups/index.html)
+Status: **Approved and implemented.** [Approval and plan](plan.md) · [Inspection and verification](verification.md) · [Responsive sketch](mockups/index.html)
 
 ## Problem and inspected baseline
 
@@ -20,7 +20,7 @@ An editor picks an earlier term, reviews the groups that can be carried forward,
 
 This slice covers the Class groups entry point, a review and comparison page, an additive transaction, and its history receipt. Cohort preparation, offering changes, routine scheduling, enrollment, attendance, claims, public output and the older completeness report are separate work. The proposal uses the existing schema.
 
-## Decisions for owner review
+## Owner-approved decisions
 
 | ID | Proposal | Consequence |
 | --- | --- | --- |
