@@ -15,6 +15,10 @@ Extract a small authorized roster projection that shares the active membership r
 - On 18 November 2026 (Asia/Dhaka), the owner replied “Approved and go for that.” after reviewing proposal `c2936e2`.
 - D-1–D-5 are approved as written. Material amendments return for owner review.
 
+## Delivery acceptance
+
+On 18 November 2026 (Asia/Dhaka), the owner replied “accepted.” after delivery `023f8df`, which disclosed the failed default Turbopack build and passing isolated Webpack build. The acceptance covers the reviewed STU-01B delivery.
+
 ## Tasks
 
 - [x] T-01 — Inspect STU-01A, group and auth paths, existing exports and print, and document proposed permissions, workflow and proof boundaries.
