@@ -1,6 +1,6 @@
 # STU-01B — Implementation plan
 
-Issue [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · Proposed · 18 November 2026 (Asia/Dhaka)
+Issue [#37 STU-01](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · Approved · 18 November 2026 (Asia/Dhaka)
 
 Branch `codex/stu-01b` · Base `70c9aa1` · [Specification](spec.md) · [Inspection and verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -12,14 +12,13 @@ Extract a small authorized roster projection that shares the active membership r
 
 ## Approval record
 
-- Owner authorization: Pending for D-1–D-5.
-- The 18 November request to start the next task initiated inspection and specification.
-- Record the actual response and commit the approved plan before feature work. Material amendments return for owner review.
+- On 18 November 2026 (Asia/Dhaka), the owner replied “Approved and go for that.” after reviewing proposal `c2936e2`.
+- D-1–D-5 are approved as written. Material amendments return for owner review.
 
 ## Tasks
 
 - [x] T-01 — Inspect STU-01A, group and auth paths, existing exports and print, and document proposed permissions, workflow and proof boundaries.
-- [ ] T-02 — Record the owner's approval or amendments and commit the approved plan.
+- [x] T-02 — Record the owner's approval and commit the approved plan.
 - [ ] T-03 — Implement workbook inspection and bounded parsing, shared mapping and confirmation, samples, and safe receipts. Covers AC-01–AC-03.
 - [ ] T-04 — Implement the roster projection, authenticated CSV and Excel download, printable roll-call and output audit. Covers AC-01 and AC-04–AC-05.
 - [ ] T-05 — Verify using synthetic fixtures, both adapters, focused parser and write-safety checks, compiled Edge and A4 review. Run typecheck, lint, domain, and the default build under the repo's isolated target guard. If the documented build issue recurs, record its result independently of any Webpack review build.
@@ -27,6 +26,6 @@ Extract a small authorized roster projection that shares the active membership r
 
 ## Current checkpoint and exact handoff
 
-Submitted D-1–D-5 for owner review on branch `codex/stu-01b`. Inspection and documentation checks are recorded in [verification](verification.md). Implementation, owner acceptance and local merge are pending. The parent was last checked on 18 November and was open. The last GitHub synchronization was 11 November.
+The owner approved D-1–D-5 on branch `codex/stu-01b`. Inspection and documentation checks are recorded in [verification](verification.md). Implementation, owner acceptance and local merge are pending. The parent was last checked on 18 November and was open. The last GitHub synchronization was 11 November.
 
-> Resume STU-01B on `codex/stu-01b`. Record the owner's actual response to D-1–D-5, including teacher print access, the workbook rules, output fields and read-audit behavior. Commit the approved plan before starting T-03. Verify on disposable data and present the compiled browser and A4 review before requesting local merge.
+> Resume STU-01B on `codex/stu-01b` at T-03. Verify on disposable data and present the compiled browser and A4 review before requesting local merge.
