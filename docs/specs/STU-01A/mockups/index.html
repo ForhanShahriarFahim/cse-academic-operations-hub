@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Students and rosters · STU-01A proposal</title>
+  <style>
+    :root { color-scheme: light; font: 16px/1.5 system-ui, sans-serif; color: #21312a; background: #f6f4ec; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+    main, .top-inner { max-width: 68rem; margin-inline: auto; padding-inline: 1rem; }
+    .top { background: #18392e; color: #fff; padding-block: 1rem; }
+    .top p { margin: .25rem 0 0; color: #f0d6a8; }
+    nav { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .75rem; }
+    nav a { color: #fff; }
+    h1, h2, h3 { font-family: Georgia, serif; line-height: 1.15; margin: 0; }
+    h1 { font-size: clamp(1.55rem, 5vw, 2rem); }
+    h2 { font-size: 1.55rem; }
+    h3 { font-size: 1.15rem; }
+    p { margin: .45rem 0; }
+    section { padding: clamp(.85rem, 3vw, 1.5rem); margin-block: 1.2rem; border: 1px solid #c7cabe; border-radius: .65rem; background: #fffefa; }
+    .heading, .actions { display: flex; flex-wrap: wrap; gap: .55rem; align-items: flex-start; }
+    .heading { justify-content: space-between; gap: .75rem; }
+    .muted { color: #46594f; }
+    .filters, .form-grid, .split { display: grid; gap: .75rem; margin-block: .9rem; }
+    .filters { grid-template-columns: 2fr repeat(3, 1fr); }
+    .form-grid, .split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    label { display: block; font-size: .88rem; font-weight: 650; }
+    input, select { display: block; inline-size: 100%; min-inline-size: 0; margin-top: .25rem; padding: .48rem; font: inherit; color: inherit; background: white; border: 1px solid #7c8b80; border-radius: .35rem; }
+    input[type="file"] { font-size: .83rem; }
+    a { color: #1d5944; text-underline-offset: .16em; }
+    .button { display: inline-block; padding: .45rem .7rem; color: #20513e; border: 1px solid #6d8b7a; border-radius: .35rem; font-weight: 650; text-decoration: none; }
+    .primary { color: #fff; background: #20513e; border-color: #20513e; }
+    :focus-visible { outline: 3px solid #ab681a; outline-offset: 3px; }
+    .grid-box { min-width: 0; border: 1px solid #d2d4ca; border-radius: .45rem; padding: .85rem; }
+    .list { list-style: none; padding: 0; margin: .75rem 0; }
+    .list li { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: .3rem .65rem; padding: .6rem .2rem; border-top: 1px solid #d6d8d0; }
+    .list li:last-child { border-bottom: 1px solid #d6d8d0; }
+    .report li { grid-template-columns: 3.4rem 6.6rem minmax(0, 1fr); }
+    .list li > * { min-width: 0; overflow-wrap: anywhere; }
+    .code { font-family: ui-monospace, Consolas, monospace; }
+    .small { font-size: .86rem; }
+    .facts, .counts { display: flex; flex-wrap: wrap; gap: .45rem .9rem; margin: .65rem 0; }
+    .facts div { min-width: 8rem; }
+    dt { color: #46594f; font-size: .82rem; }
+    dd { margin: 0; font-weight: 650; }
+    .counts div { padding: .35rem .63rem; background: #eaf0e9; border-radius: .35rem; }
+    .notice { border-left: 4px solid #ac7132; padding: .55rem .7rem; margin-block: .9rem; background: #fcf1de; }
+    .success { border-color: #3b765e; background: #eaf0e9; }
+    .failure { color: #8e3021; }
+    @media (max-width: 42rem) {
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .split { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 31rem) {
+      .list:not(.report) li { grid-template-columns: minmax(0, 1fr); }
+      .report li { grid-template-columns: 3.4rem minmax(0, 1fr); }
+      .report li > :last-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 23rem) {
+      .filters, .form-grid { grid-template-columns: minmax(0, 1fr); }
+      main, .top-inner { padding-inline: .75rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top"><div class="top-inner">
+    <h1>Students and rosters</h1>
+    <p>STU-01A workflow sketch · Synthetic data · No changes are saved</p>
+    <nav aria-label="Workflow screens">
+      <a href="#students">Students</a><a href="#student">Student detail</a><a href="#roster">Manage roster</a>
+      <a href="#batch">Enroll a batch</a><a href="#mapping">CSV mapping</a><a href="#preview">CSV preview</a><a href="#receipt">Receipt</a>
+    </nav>
+  </div></header>
+  <main>
+    <section id="students" aria-labelledby="students-title">
+      <div class="heading"><h2 id="students-title">Students</h2><div class="actions"><a class="button" href="#mapping">Import CSV</a><a class="button primary" href="#identity">Add student</a></div></div>
+      <div class="filters" aria-label="Student filters">
+        <label>Student ID or name<input type="search" placeholder="Search students"></label>
+        <label>Home batch<select><option>All batches</option><option>HSC 22B</option><option>No home batch</option></select></label>
+        <label>Enrollment term<select><option>All terms</option><option>Spring 2026</option><option>Autumn 2026</option></select></label>
+        <label>Student status<select><option>Active</option><option>Inactive</option><option>All statuses</option></select></label>
+      </div>
+      <ul class="list" aria-label="Student results">
+        <li><span><a href="#student"><strong>Samira Chowdhury</strong></a><br><span class="code small">000141</span></span><span>Home batch HSC 22B</span><span class="muted">Active · CSE</span></li>
+        <li><span><strong>Lee Rahman</strong><br><span class="code small">VST-009</span></span><span>No home batch</span><span class="muted">Active · EEE</span></li>
+      </ul>
+    </section>
+
+    <section id="student" aria-labelledby="student-title">
+      <div class="heading"><div><h2 id="student-title">Samira Chowdhury</h2><p class="muted"><span class="code">000141</span> · Active</p></div><a class="button" href="#identity">Edit student</a></div>
+      <div class="split">
+        <div class="grid-box"><h3>Identity</h3><dl class="facts"><div><dt>Home batch</dt><dd>HSC 22B</dd></div><div><dt>Home department</dt><dd>CSE</dd></div><div><dt>Private phone</dt><dd>+000 000 0141</dd></div></dl></div>
+        <div class="grid-box"><h3>Enrollments</h3><p><strong>Autumn 2026</strong> · CSE-2101 · Local · Active</p><a href="#roster">Manage current roster</a><p><strong>Spring 2026</strong> · CSE-1101 · Local · Inactive</p></div>
+      </div>
+      <details id="identity" open><summary>Identity form</summary><div class="form-grid">
+        <label>Student ID<input value="000141" readonly></label><label>Student name<input value="Samira Chowdhury"></label>
+        <label>Private phone<input type="tel" value="+000 000 0141"></label><label>Home department<input value="CSE"></label>
+        <label>Home batch<select><option>HSC 22B</option><option>No home batch</option></select></label>
+      </div><div class="actions"><a class="button primary" href="#student">Save student</a><a class="button" href="#students">Cancel</a></div></details>
+      <details><summary>Deactivate student</summary><p>Samira will stop appearing in new attendance sessions. Recorded attendance and enrollment statuses are kept.</p></details>
+    </section>
+
+    <section id="roster" aria-labelledby="roster-title">
+      <div class="heading"><div><h2 id="roster-title">Manage roster</h2><p class="muted">Autumn 2026 · CSE-2101 · HSC 22B + Diploma 22B</p></div><div class="actions"><a class="button" href="#mapping">Import CSV</a><a class="button" href="#batch">Enroll a batch</a></div></div>
+      <div class="split">
+        <div class="grid-box"><h3>Add student</h3><div class="form-grid">
+          <label>Student ID<input value="VST-009"></label><label>Student name<input value="Lee Rahman"></label>
+          <label>Audience<select><option>External</option><option>Local</option><option>Merged audience</option></select></label>
+        </div><a class="button primary" href="#members">Add to roster</a></div>
+        <div class="grid-box" id="members"><h3>Group enrollments</h3>
+          <p><strong>Samira Chowdhury</strong> · Local · Active</p><p><strong>Lee Rahman</strong> · External · Active</p>
+          <details><summary>Show inactive enrollments</summary><p><strong>Noor Islam</strong> · Merged · Removed from roster</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="batch" aria-labelledby="batch-title">
+      <h2 id="batch-title">Enroll a batch</h2><p class="muted">Autumn 2026 · CSE-2101 · HSC 22B + Diploma 22B</p>
+      <div class="form-grid"><label>Home batch<select><option>HSC 22B</option><option>Diploma 22B</option></select></label><label>Audience for new enrollments<select><option>Local</option><option>Merged audience</option></select></label></div>
+      <h3>Batch review</h3>
+      <dl class="counts"><div><dt>New enrollments</dt><dd>2</dd></div><div><dt>Already enrolled</dt><dd>1</dd></div><div><dt>Excluded</dt><dd>1</dd></div></dl>
+      <ul class="list" aria-label="Batch candidates">
+        <li><strong>Rowan Saha</strong><span class="code">000147</span><span>Enroll</span></li><li><strong>Tara Nath</strong><span class="code">000149</span><span>Enroll</span></li>
+        <li><strong>Samira Chowdhury</strong><span class="code">000141</span><span>Keep existing audience</span></li><li><strong>Noor Islam</strong><span class="code">000144</span><span>Previously removed</span></li>
+      </ul>
+      <div class="actions"><a class="button primary" href="#roster">Enroll 2 students</a><a class="button" href="#roster">Cancel</a></div>
+    </section>
+
+    <section id="mapping" aria-labelledby="mapping-title">
+      <h2 id="mapping-title">Import CSV</h2><p class="muted">Destination · Autumn 2026 · CSE-2101 · HSC 22B + Diploma 22B</p>
+      <div class="split"><div class="grid-box"><h3>Choose a file</h3><label for="csv">Roster CSV</label><input id="csv" type="file" accept=".csv,text/csv"><p class="small muted">UTF-8 · Up to 500 data lines and 256 KiB</p></div>
+        <div class="grid-box"><h3>Map columns</h3><div class="form-grid">
+          <label>Student ID (required)<select><option>Roll number</option></select></label><label>Student Name (required)<select><option>Full name</option></select></label>
+          <label>Home Batch<select><option>Cohort</option><option>Ignore</option></select></label><label>Audience Type<select><option>Participation</option><option>Ignore</option></select></label>
+          <label>Phone<select><option>Ignore</option></select></label><label>Department<select><option>Ignore</option></select></label>
+        </div></div></div>
+      <div class="actions"><a class="button primary" href="#preview">Preview import</a><a class="button" href="#roster">Cancel</a></div>
+    </section>
+
+    <section id="preview" aria-labelledby="preview-title">
+      <h2 id="preview-title">Preview import</h2><p class="muted">roster-example.csv · Autumn 2026 · CSE-2101 · HSC 22B + Diploma 22B</p>
+      <dl class="counts"><div><dt>Created</dt><dd>2</dd></div><div><dt>Updated</dt><dd>1</dd></div><div><dt>Unchanged</dt><dd>1</dd></div><div><dt>Skipped</dt><dd>1</dd></div><div><dt>Failed</dt><dd>1</dd></div></dl>
+      <p class="notice">Review these outcomes before applying. One failed line needs correction.</p>
+      <ul class="list report" aria-label="Preview outcomes by source line">
+        <li><span>Line 2</span><strong>Created</strong><span>Enroll an existing student.</span></li><li><span>Line 3</span><strong>Created</strong><span>Create a student and enroll them.</span></li>
+        <li><span>Line 4</span><strong>Updated</strong><span>Restore enrollment and set audience to External.</span></li><li><span>Line 5</span><strong>Unchanged</strong><span>Enrollment already matches.</span></li>
+        <li><span>Line 6</span><strong>Skipped</strong><span>Duplicate Student ID in this file.</span></li><li><span>Line 7</span><strong class="failure">Failed</strong><span>Unknown home batch. Check the stream and label.</span></li>
+      </ul>
+      <div class="actions"><a class="button primary" href="#receipt">Import 3 eligible rows</a><a class="button" href="#mapping">Change file or mapping</a></div>
+    </section>
+
+    <section id="receipt" aria-labelledby="receipt-title">
+      <h2 id="receipt-title">Import receipt</h2><p class="notice success">Roster updated. Correct the failed line and preview the corrected file.</p>
+      <dl class="counts"><div><dt>Created</dt><dd>2</dd></div><div><dt>Updated</dt><dd>1</dd></div><div><dt>Unchanged</dt><dd>1</dd></div><div><dt>Skipped</dt><dd>1</dd></div><div><dt>Failed</dt><dd>1</dd></div></dl>
+      <ul class="list report" aria-label="Rows to review"><li><span>Line 6</span><strong>Skipped</strong><span>Duplicate Student ID in this file.</span></li><li><span>Line 7</span><strong class="failure">Failed</strong><span>Unknown home batch. Check the stream and label.</span></li></ul>
+      <div class="actions"><a class="button" href="#mapping">Choose corrected CSV</a><a href="#roster">Back to roster</a></div>
+    </section>
+  </main>
+</body>
+</html>
