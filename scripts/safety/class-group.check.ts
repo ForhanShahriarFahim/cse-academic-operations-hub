@@ -20,3 +20,15 @@ async function exercise(factory: DatabaseFactory) {
 }
 export async function checkClassGroups() { return exercise(pgliteFactory); }
 export async function checkClassGroupsPostgres(bin: string | undefined) { return withDisposableCluster(bin, async cluster => { const lines = await exercise(factoryFor(cluster)); await classGroupRaces(cluster, lines); return lines; }); }
+
+async function exerciseStart(factory: DatabaseFactory) {
+  const database = await factory("crs01d class group start");
+  try {
+    await withHandle(database, async h => { await database.migrate(h); await populateSummerFixture(h.db); });
+    const child = await database.runChild(path.join(REPO_ROOT, "scripts/safety/children/class-group-start-scenarios.ts"));
+    assert.equal(child.status, 0, child.stderr.slice(-9000) || child.stdout.slice(-7000));
+    return (child.report as { lines: string[] }).lines;
+  } finally { await database.dispose(); }
+}
+export async function checkClassGroupStart() { return exerciseStart(pgliteFactory); }
+export async function checkClassGroupStartPostgres(bin: string | undefined) { return withDisposableCluster(bin, cluster => exerciseStart(factoryFor(cluster))); }

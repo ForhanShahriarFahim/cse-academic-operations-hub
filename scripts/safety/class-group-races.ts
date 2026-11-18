@@ -7,6 +7,7 @@ import * as s from "../../src/db/schema";
 import { changeClassGroupInTransaction, termClassGroups, type ClassGroupResult, type ClassGroupTx } from "../../src/lib/class-group-store";
 import { changeOfferingsInTransaction, termOfferings, type OfferingResult, type OfferingTx } from "../../src/lib/offering-store";
 import { lockTermContext } from "../../src/lib/term-lock";
+import { getClassGroupStartReview, startClassGroupsInTransaction } from "../../src/lib/class-group-start-store";
 import type { Actor } from "../../src/lib/auth/policy";
 
 const latch = () => { let release!: () => void; const promise = new Promise<void>(resolve => { release = resolve; }); return { promise, release }; };
@@ -92,6 +93,18 @@ export async function classGroupRaces(cluster: PgCluster, lines: string[]) {
     // The reverse order: an in-flight class-group write makes the exclusive writer wait.
     const reverse = await interleave(create(offerings[7].id), async tx => { await lockTermContext(tx, "exclusive"); return (await tx.select().from(s.teachingGroupOfferings).where(eq(s.teachingGroupOfferings.offeringId, offerings[7].id))).length; }) as [ClassGroupResult, number];
     assert.equal(reverse[0].ok, true); assert.equal(reverse[1], 1, "the exclusive writer sees the committed class group");
+
+    const [lab] = await a.db.select().from(s.courses).where(eq(s.courses.code, "SYN-4102"));
+    const [nextLab] = await a.db.insert(s.courseOfferings).values({ termId: fall.id, courseId: lab.id, batchId: cohorts[0].id, status: "planned" }).returning();
+    const startReview = (await getClassGroupStartReview(a.db as never, fall.id, fixture.termId))!.review!;
+    const labRow = startReview.rows.find(row => row.courseId === lab.id)!;
+    assert.ok(labRow.selectable);
+    const start: Work = tx => startClassGroupsInTransaction(tx, actor, { termId: String(fall.id), sourceId: String(fixture.termId), fingerprint: startReview.fingerprint, reason: "Synthetic concurrent apply" }, [String(labRow.sourceGroupId)]);
+    const starts = await interleave(start, start) as [ClassGroupResult, ClassGroupResult];
+    assert.equal(starts[0].ok, true);
+    assert.equal(starts[1].outcome?.kind, "stale");
+    assert.equal((await groupsOf(nextLab.id)).length, 1);
+    lines.push("CRS-01D concurrent applies wait on the source/destination term locks. The second apply is stale and exactly one group exists.");
 
     lines.push("Independent PostgreSQL transactions observe actual lock waiting: two creates for one offering (one class group, second is a conflict), two editors applying one reviewed edit (second is stale, one allocation), different offerings of one term (serialized, both succeed), class-group creation versus cancelling the same offering in both commit orders (never a grouped cancelled offering), teacher deactivation versus assignment in both orders, and class-group writes against exclusive context-lock holders in both orders, the lock cohort lifecycle and rollover commits take.");
   } finally { await a.close(); await b.close(); await monitor.close(); await cluster.dropDatabase(target); }

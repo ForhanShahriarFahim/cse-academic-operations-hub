@@ -135,7 +135,7 @@ export function usageText(usage: GroupUsage): string {
 }
 
 export const CLASS_GROUP_COMMANDS = ["create", "update", "remove"] as const;
-export const CLASS_GROUP_ACTION_LABELS: Record<string, string> = { "class_group.create": "Class group created", "class_group.update": "Class group changed", "class_group.remove": "Class group removed" };
+export const CLASS_GROUP_ACTION_LABELS: Record<string, string> = { "term_class_groups.start": "Class groups started from a previous term", "class_group.create": "Class group created", "class_group.update": "Class group changed", "class_group.remove": "Class group removed" };
 
 export const GROUP_STATE_FILTERS = ["any", "ready", "vacancy", "no_requirement", "provisional", "merged", "teacher_managed", "reconcile", "unscheduled"] as const;
 const one = (value: string | string[] | undefined) => typeof value === "string" ? value : undefined;

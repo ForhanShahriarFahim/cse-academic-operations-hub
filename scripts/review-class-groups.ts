@@ -43,7 +43,11 @@ async function main() {
       let ready = false; const until = Date.now() + 60000;
       while (!ready && Date.now() < until) { try { ready = (await fetch("http://localhost:3126/api/health", { signal: AbortSignal.timeout(3000) })).ok; } catch {} if (!ready) await new Promise(resolve => setTimeout(resolve, 100)); }
       assert.ok(ready, "Owned CRS-01C production preview ready"); console.log("CRS-01C synthetic owner preview: http://localhost:3127 (application localhost:3126)");
-      if (process.argv.includes("--check")) { const child = spawn(process.execPath, [path.join(REPO_ROOT, "scripts/review-class-groups-browser.cjs")], { env, stdio: "inherit", windowsHide: true }); assert.equal(await new Promise<number | null>(resolve => child.once("exit", resolve)), 0, "CRS-01C browser checks"); }
+      const startCheck = process.argv.includes("--start-check");
+      if (process.argv.includes("--check") || startCheck) {
+        const child = spawn(process.execPath, [path.join(REPO_ROOT, "scripts/review-class-groups-browser.cjs"), ...(startCheck ? ["--start-check"] : [])], { env, stdio: "inherit", windowsHide: true });
+        assert.equal(await new Promise<number | null>(resolve => child.once("exit", resolve)), 0, startCheck ? "CRS-01D browser checks" : "CRS-01C browser checks");
+      }
       if (process.argv.includes("--serve")) await new Promise<void>(resolve => server.once("exit", () => resolve()));
     } finally { server.kill(); await new Promise<void>(resolve => { if (server.exitCode != null) resolve(); else server.once("exit", () => resolve()); }); closeSync(log); control.close(); await database.dispose(); }
   });

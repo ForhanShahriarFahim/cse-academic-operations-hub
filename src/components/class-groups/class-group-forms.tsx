@@ -200,6 +200,12 @@ export function ClassGroupHistory({ termId, initial }: { termId: number; initial
       {event.course && <p className="mt-1"><span className="font-mono font-bold">{event.course}</span> for {event.audience ?? "unknown audience"}</p>}
       {event.before && event.after && <><p className="mt-1">Before: {describe(event.before)}</p><p className="mt-1">After: {describe(event.after)}</p></>}
       {!event.before && event.after && <p className="mt-1">{describe(event.after)}</p>}
+      {event.started && <>
+        <p className="mt-1">{event.started.groups.length} class groups from {event.started.source}</p>
+        <ul className="ml-4 mt-1 list-disc">
+          {event.started.groups.map(({ course, snapshot }, index) => <li key={index}><strong>{course}</strong> · {snapshot.audience.join(", ")} · {describe(snapshot)}</li>)}
+        </ul>
+      </>}
       {event.before && !event.after && <p className="mt-1">Was: {describe(event.before)}</p>}
       {event.reason && <p className="mt-1 text-muted">Reason: {event.reason}</p>}
     </li>)}</ol>

@@ -35,7 +35,7 @@ export async function getTermClassGroups(termValue: string) {
 }
 
 export interface ClassGroupSnapshot { audience: string[]; externalLabel: string | null; externalCount: number | null; deliveryMode: string; requirement: { meetings: number; minutes: number | null; provisional: boolean } | null; teachers: Array<{ code: string; units: string }>; method: string | null; notes: string | null }
-export interface ClassGroupChange { id: number; at: string; actor: string; action: string; course: string | null; audience: string | null; reason: string | null; before: ClassGroupSnapshot | null; after: ClassGroupSnapshot | null }
+export interface ClassGroupChange { id: number; at: string; actor: string; action: string; course: string | null; audience: string | null; reason: string | null; before: ClassGroupSnapshot | null; after: ClassGroupSnapshot | null; started: { source: string; groups: Array<{ course: string; snapshot: ClassGroupSnapshot }> } | null }
 const snapshotOf = (value: unknown): ClassGroupSnapshot | null => {
   if (!value || typeof value !== "object") return null;
   const raw = value as Record<string, unknown>, text = (item: unknown) => typeof item === "string" ? item : null, number = (item: unknown) => typeof item === "number" ? item : null;
@@ -60,7 +60,16 @@ export async function getClassGroupChanges(termId: number, before?: number): Pro
   return {
     changes: rows.slice(0, 20).map(row => {
       const detail = (row.detail ?? {}) as Record<string, unknown>;
-      return { id: row.id, at: row.at.toISOString(), actor: row.actorDisplayName ?? row.actor, action: row.action, course: text(detail.course), audience: text(detail.audience), reason: text(detail.reason), before: snapshotOf(row.before), after: snapshotOf(row.after) };
+      const after = row.after as { groups?: unknown } | null;
+      const started = row.action === "term_class_groups.start" && Array.isArray(after?.groups) ? {
+        source: text(detail.sourceTerm) ?? "Earlier term",
+        groups: (after.groups as unknown[]).flatMap(item => {
+          if (!item || typeof item !== "object" || !("course" in item) || typeof item.course !== "string") return [];
+          const snapshot = snapshotOf(item);
+          return snapshot ? [{ course: item.course, snapshot }] : [];
+        }),
+      } : null;
+      return { id: row.id, at: row.at.toISOString(), actor: row.actorDisplayName ?? row.actor, action: row.action, course: text(detail.course), audience: text(detail.audience), reason: text(detail.reason), before: snapshotOf(row.before), after: started ? null : snapshotOf(row.after), started };
     }),
     next: rows.length > 20 ? rows[19].id : null,
   };
