@@ -69,6 +69,7 @@ The same order works for touch and keyboard. Row reasons and filenames wrap insi
 ## Approval record
 
 - Owner replied “Approved.” on 18 November 2026 after being asked to approve D-1–D-5 in proposal `ab3db9a`. This authorizes implementation and verification of that scope without amendments.
+- Owner replied “accept and merge” on 18 November 2026 after delivery `1b6649e` and disclosure of the stalled default Turbopack build and passing isolated Webpack build. This accepts ATT-02 for local merge.
 
 ## Tasks
 

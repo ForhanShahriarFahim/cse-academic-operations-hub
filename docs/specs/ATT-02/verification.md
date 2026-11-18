@@ -33,7 +33,7 @@ Issue [#9](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/is
 
 ## Delivery and acceptance
 
-The owner approved D-1–D-5 before implementation at `9139a0c`. Delivery acceptance and local merge are pending. GitHub synchronization remains deferred.
+The owner approved D-1–D-5 before implementation at `9139a0c` and accepted delivery `1b6649e` on 18 November 2026 (“accept and merge”), after disclosure of the build limitation. See the [plan](plan.md#current-checkpoint-and-exact-handoff) for the local merge receipt. GitHub synchronization remains deferred.
 
 Start or recreate the disposable preview with `node node_modules/tsx/dist/cli.mjs scripts/review-attendance.ts --serve` after the isolated build. Open [synthetic sign-in](http://localhost:3131/sign-in). Run with `--check` for the scripted browser review. The launcher starts and owns its fixture database and pins the application to it.
 
