@@ -2,7 +2,7 @@
 
 Parent: CRS-01 / #7. [Specification and decisions](spec.md) · [Verification](verification.md) · [Responsive sketch](mockups/index.html)
 Branch/base: `codex/crs-01d` / `75f204e` (local `main`).
-Updated 18 November 2026 (Asia/Dhaka). Status: **Proposed, awaiting implementation approval.**
+Updated 18 November 2026 (Asia/Dhaka). Status: **Approved for implementation.**
 
 ## Inspection and proposed approach
 
@@ -18,13 +18,13 @@ The initial source/destination review can race with edits. The reviewed facts ar
 ## Approval record
 
 - The owner opened this session with “Whats next go for it” after acceptance and local merge of CRS-01C. This starts inspection and the next proposal under the shared workflow.
-- Implementation authorization for the concrete D-1–D-6 scope is pending. Record the owner's actual approval and any amendments in a local commit before implementation.
+- On 18 November 2026 the owner replied “go for the implementation.” after proposal `5ec2cfc` requested approval of D-1–D-6. The owner approved that scope without amendments.
 - Delivery acceptance and local merge follow verification and owner inspection.
 
 ## Tasks
 
 - [x] T-01 — Inspect the current handoff, term rollover/offering basis, class-group writes, legacy import and teacher rules. Propose D-1–D-6, AC-01–AC-08 and a responsive sketch.
-- [ ] T-02 — Obtain and commit actual approval of the concrete scope, including any amendments.
+- [x] T-02 — Record approval of D-1–D-6 before implementation.
 - [ ] T-03 — Implement and exercise the two-term projection, creation eligibility, comparison and change detection (AC-02–AC-04). Depends on T-02.
 - [ ] T-04 — Implement capability checks, atomic guarded apply, audit receipt and existing history integration. Exercise the adapter and race cases (AC-01, AC-05–AC-06).
 - [ ] T-05 — Wire the Class groups entry point and editor review flow. Exercise the guarded synthetic browser, keyboard and responsive states (AC-01, AC-04, AC-07).
