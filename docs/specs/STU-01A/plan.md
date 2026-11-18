@@ -2,7 +2,7 @@
 
 Issue [#37](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/37) · [Specification](spec.md) · [Verification](verification.md)
 
-Status: Accepted for local merge · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
+Status: Accepted and merged locally · Branch `codex/stu-01a` · Base local `main` at `4205eef` · 18 November 2026 (Asia/Dhaka)
 
 ## Inspection and proposed approach
 
@@ -30,7 +30,7 @@ The [desktop and phone sketches](mockups/index.html) use synthetic content. Befo
 - [x] T-04 — Build single roster actions, group and term authorization, stable attendance projections and private data minimization. Close alternate write paths. AC-01, AC-04, AC-08.
 - [x] T-05 — Implement shared CSV mapping/classification, batch review, authenticated confirmation, transactional application and truthful receipts. AC-05–AC-07.
 - [x] T-06 — Complete accessibility, responsive states, adapter/browser review and history/publication regression. Record delivery evidence and present the local synthetic preview before requesting acceptance. AC-01–AC-09.
-- [ ] T-07 — Record owner acceptance and merge into local `main`. Retain parent #37 for STU-01B.
+- [x] T-07 — Record owner acceptance and merge into local `main`. Retain parent #37 for STU-01B.
 
 ## Verification and delivery
 
@@ -44,6 +44,6 @@ On 18 November 2026 (Asia/Dhaka), the owner replied “accepted” after deliver
 
 ## Current checkpoint and exact handoff
 
-Owner approval was committed at `25f5ff2`. Implementation `ef7ff89` and the browser review correction `42fb6ea` are on `codex/stu-01a` from `4205eef`. T-01–T-06 are complete. The default Turbopack build stalled. The final Webpack build, both-adapter suites, and compiled browser review passed. See the verification record for specific evidence limits. The import and batch confirmation proofs are signed and their redemption is recorded with the transactional audit. The implementation uses one transaction-scoped student writer lock to cover absent identities and changing batch membership across identity, enrollment, and attendance capture. The parent issue was confirmed open on 18 November. The last broader GitHub reconciliation was 11 November.
+Owner approval `25f5ff2`, application `ef7ff89`, browser correction `42fb6ea`, delivery `51d692a`, and acceptance `41a2ee3` are retained on `codex/stu-01a` from `4205eef`. Local merge `c4fc99c` has the accepted branch tree. All checklist tasks are complete. The merge introduced no source changes or conflicts. Verification was carried forward from the accepted delivery. See the [verification record](verification.md) for the default-build and coverage limits. Parent #37 remains open.
 
-> Continue on `codex/stu-01a`. Read the current brief, D-1–D-7, and the verification record. Review the compiled synthetic workflow at [the local review link](http://localhost:3135/sign-in) when the preview is running. To start a disposable preview, run `node node_modules/tsx/dist/cli.mjs scripts/review-attendance.ts --serve` with `SAFE01_PG_BIN` pointing at the local PostgreSQL tools. Record actual owner acceptance before merging into local `main`. Keep #37 open for STU-01B.
+> Start the next owner-authorized session from local `main`. Read the brief, workflow, and #37 scope. Inspect and specify STU-01B for Excel import/export and roster and roll-call exports, reusing the accepted preview, enrollment projections, and privacy rules. Record the proposed permissions, audit behavior, and output fields for owner review before implementation.
