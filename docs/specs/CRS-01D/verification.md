@@ -16,7 +16,7 @@
 
 ## Acceptance and delivery
 
-Implementation `4e6ea72` follows owner approval `e8c25ea`. Delivery acceptance and local merge are pending. Parent #7 remains open.
+Implementation `4e6ea72` follows owner approval `e8c25ea`. The owner replied “Accepted +” on 18 November 2026 after receiving delivery `e41afc3` and its disclosed limits. The local merge receipt is recorded in [the plan](plan.md). Parent #7 remains open.
 
 ## Implementation checks
 
