@@ -3,12 +3,11 @@
 import { useTermActions } from "@/components/term-write-context";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { CheckCheck, Save, Trash2 } from "lucide-react";
 import type { ActionResult } from "@/lib/actions";
 
-import type { AttendanceStatus, RosterImportReceipt } from "@/lib/attendance";
+import type { AttendanceStatus } from "@/lib/attendance";
 import { fmtRange } from "@/lib/time";
 import { useConfirm } from "@/components/confirm-dialog";
 
@@ -45,8 +44,7 @@ function AttendanceFeedback({ area, result, pending }: { area: FeedbackArea; res
   </div>;
 }
 
-export function AttendanceManager({ groups, selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance, rollCallHref }: {
-  groups: Group[];
+export function AttendanceManager({ selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance, rollCallHref, initialSessionId, maximum }: {
   selectedGroup: Group;
   teachers: Teacher[];
   roster: StudentRow[];
@@ -57,20 +55,21 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
   canManageRosters: boolean;
   canTakeAttendance: boolean;
   rollCallHref?: string;
+  initialSessionId?: number;
+  maximum: number;
 }) {
   const { createAttendanceSessionAction, deleteAttendanceSessionAction, saveAttendanceAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [results, setResults] = useState<Partial<Record<FeedbackArea, FeedbackResult>>>({});
   const [pendingArea, setPendingArea] = useState<FeedbackArea | null>(null);
   const submitting = useRef(false);
   const manager = useRef<HTMLDivElement>(null);
   const focusRequest = useRef<{ area: FeedbackArea; trigger: HTMLElement | null; field?: HTMLElement | null; success: boolean } | null>(null);
-  const [activeSessionId, setActiveSessionId] = useState(sessions.at(-1)?.id ?? 0);
-  const effectiveSessionId = sessions.some((session) => session.id === activeSessionId)
+  const [activeSessionId, setActiveSessionId] = useState(initialSessionId ?? sessions.at(-1)?.id);
+  const effectiveSessionId = initialSessionId !== undefined || sessions.some(session => session.id === activeSessionId)
     ? activeSessionId
-    : sessions.at(-1)?.id ?? 0;
+    : sessions.at(-1)?.id;
   const activeSession = sessions.find((session) => session.id === effectiveSessionId) ?? null;
   const [statusOverrides, setStatusOverrides] = useState<Record<string, AttendanceStatus>>({});
   const sessionForm = useRef<HTMLFormElement>(null);
@@ -138,14 +137,7 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
 
   return <div ref={manager} className="space-y-4">{confirmDialog}
     <section className="ruled rounded-lg p-4">
-      <div className="grid items-end gap-3 lg:grid-cols-[1fr_auto]">
-        <label><span className="micro-label mb-1 block">Course / teaching group</span>
-          <select value={selectedGroup.id} onChange={(event) => router.push(`/attendance?group=${event.target.value}`)} className={control}>
-            {groups.map((group) => <option key={group.id} value={group.id}>{group.courseCode} · {group.audience} · {group.courseTitle}</option>)}
-          </select>
-        </label>
-        <span className="rounded-md border border-[var(--color-line)] bg-wash px-3 py-2 text-[12px]"><strong>{selectedGroup.courseType === "sessional" ? "Lab / sessional" : "Theory"}</strong> · {summaries[0]?.maximum ?? (selectedGroup.courseType === "sessional" ? 5 : 10)} attendance marks</span>
-      </div>
+      <span className="text-sm"><strong>{selectedGroup.courseType === "sessional" ? "Lab / sessional" : "Theory"}</strong> · {maximum} attendance marks</span>
     </section>
 
     <div className="flex flex-wrap gap-2">
@@ -154,8 +146,8 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
     </div>
 
 
-    {canTakeAttendance && <section className="ruled rounded-lg">
-      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Create attendance session</h2></header>
+    {canTakeAttendance && <section id="attendance-sessions" tabIndex={-1} className="ruled scroll-mt-20 rounded-lg" aria-labelledby="attendance-create-heading">
+      <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 id="attendance-create-heading" className="font-display text-[15px] font-semibold">Create attendance session</h2></header>
       <form ref={sessionForm} className="grid gap-2 p-4 md:grid-cols-6" onSubmit={(event) => { event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); run("create", () => createAttendanceSessionAction(data), () => form.reset()); }}><fieldset className="contents" disabled={pendingArea === "create"}>
         <input type="hidden" name="teachingGroupId" value={selectedGroup.id} />
         <label><span className="micro-label mb-1 block">Date</span><input name="classDate" {...fieldFeedback("create", "classDate")} type="date" min={termStart} max={termEnd} className={control} required /></label>
@@ -168,13 +160,13 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
       {feedback("create")}
     </section>}
 
-    <section className="ruled rounded-lg">
+    <section id="roll-call" tabIndex={-1} className="ruled scroll-mt-20 rounded-lg" aria-labelledby="roll-call-heading">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line-soft)] px-4 py-3">
-        <div><h2 className="font-display text-[15px] font-semibold">Take attendance</h2><p className="mt-0.5 text-[11.5px] text-muted">Late counts as attended; excused is excluded from the denominator. Only students captured when this session was created can be marked.</p></div>
-        <div className="flex flex-wrap gap-1.5">{sessions.map((session) => <button key={session.id} disabled={pending} onClick={() => selectSession(session.id)} className={`rounded-md border px-2.5 py-1.5 text-[11px] font-semibold ${session.id === effectiveSessionId ? "border-[var(--color-pine)] bg-[var(--color-pine)] text-white" : "border-[var(--color-line)] bg-white"}`}>{session.classDate} · {session.phase}</button>)}</div>
+        <div><h2 id="roll-call-heading" className="font-display text-[15px] font-semibold">Take attendance</h2><p className="mt-0.5 text-[11.5px] text-muted">Late counts as attended; excused is excluded from the denominator. Only students captured when this session was created can be marked.</p></div>
+        <div className="flex flex-wrap gap-1.5">{sessions.map((session) => <button key={session.id} disabled={pending} aria-pressed={session.id === effectiveSessionId} onClick={() => selectSession(session.id)} className={`rounded-md border px-2.5 py-1.5 text-[11px] font-semibold ${session.id === effectiveSessionId ? "border-[var(--color-pine)] bg-[var(--color-pine)] text-white" : "border-[var(--color-line)] bg-white"}`}>{session.classDate} · {session.phase}{session.startMinutes != null && session.endMinutes != null ? ` · ${fmtRange(session.startMinutes, session.endMinutes)}` : ""}</button>)}</div>
       </header>
       {feedback("delete")}
-      {!activeSession ? <p className="p-8 text-center text-[12px] text-muted">Create a session to take attendance.</p> : <>
+      {!activeSession ? <p className="p-8 text-center text-[12px] text-muted">{sessions.length ? "Choose a dated session to see its attendance." : "Create a session to take attendance."}</p> : <>
         {canTakeAttendance && <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-line-soft)] px-4 py-2.5">
           <span className="mr-auto text-[12px]"><strong>{activeSession.classDate}</strong> · {activeSession.phase}{activeSession.startMinutes != null && activeSession.endMinutes != null ? ` · ${fmtRange(activeSession.startMinutes, activeSession.endMinutes)}` : ""}</span>
           <button disabled={pending || sessionRoster.length === 0} onClick={() => setStatusOverrides((current) => ({ ...current, ...Object.fromEntries(sessionRoster.map((student) => [`${effectiveSessionId}:${student.id}`, "present" as AttendanceStatus])) }))} className="inline-flex items-center gap-1 rounded-md border border-[var(--color-pine)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--color-pine)]"><CheckCheck size={12} />Mark all present</button>
@@ -188,7 +180,10 @@ export function AttendanceManager({ groups, selectedGroup, teachers, roster, ses
               });
             });
           }} className="inline-flex items-center gap-1 rounded-md bg-[var(--color-pine)] px-3 py-1.5 text-[11px] font-semibold text-white"><Save size={12} />Save</button>
-          <button type="button" disabled={pending} aria-label="Delete this attendance session" title="Delete session" onClick={async () => { if (await ask({ title: "Delete this attendance session?", body: "The session and every mark recorded in it will be removed. Students' other sessions are not affected.", confirmLabel: "Delete session" })) run("delete", () => deleteAttendanceSessionAction(activeSession.id), () => setResults(current => ({ ...current, marks: undefined }))); }} className="rounded p-1.5 text-[var(--color-clay)]"><Trash2 size={13} aria-hidden="true" /></button>
+          <button type="button" disabled={pending} aria-label="Delete this attendance session" title="Delete session" onClick={async () => { if (await ask({ title: "Delete this attendance session?", body: "The session and every mark recorded in it will be removed. Students' other sessions are not affected.", confirmLabel: "Delete session" })) run("delete", () => deleteAttendanceSessionAction(activeSession.id), () => {
+            setActiveSessionId(initialSessionId === undefined ? undefined : 0);
+            setResults(current => ({ ...current, marks: undefined }));
+          }); }} className="rounded p-1.5 text-[var(--color-clay)]"><Trash2 size={13} aria-hidden="true" /></button>
         </div>}
         {feedback("marks")}
         {sessionRoster.length === 0 && <p className="px-4 py-3 text-[12px] text-muted">No students were captured in this session.</p>}

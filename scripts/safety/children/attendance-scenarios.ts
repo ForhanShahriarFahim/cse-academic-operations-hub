@@ -14,6 +14,11 @@ const roster = loadApp<typeof import("../../../src/lib/student-roster-actions")>
 const operations = loadApp<typeof import("../../../src/lib/academic-operations")>("src/lib/academic-operations.ts");
 const workbook = loadApp<typeof import("../../../src/lib/student-workbook")>("src/lib/student-workbook.ts");
 const output = loadApp<typeof import("../../../src/lib/roster-output")>("src/lib/roster-output.ts");
+const attendanceDirectory = loadApp<typeof import("../../../src/lib/attendance-directory")>("src/lib/attendance-directory.ts");
+const selection = loadApp<typeof import("../../../src/lib/attendance-selection")>("src/lib/attendance-selection.ts");
+const auth = loadApp<typeof import("../../../src/lib/auth")>("src/lib/auth/index.ts");
+const portal = loadApp<typeof import("../../../src/lib/data")>("src/lib/data.ts");
+const { buildSnapshot } = loadApp<typeof import("../../../src/lib/serialize")>("src/lib/serialize.ts");
 const form = (values: Record<string, unknown>) => {
   const f = new FormData(); for (const [key, value] of Object.entries(values)) f.set(key, String(value)); return f;
 };
@@ -36,6 +41,50 @@ async function main() {
   const snapshot = async () => JSON.stringify([await sessions(), await records(), await audits()]);
   const initialSessions = await sessions(), initialRecords = await records();
   const noWrite = async (work: () => Promise<unknown>) => { const before = await snapshot(); const result = await work(); assert.equal(await snapshot(), before); return result; };
+
+  await noWrite(async () => {
+    const source = await portal.getPortalData();
+    const now = new Date("2026-06-12T19:00:00Z"); // Saturday just after midnight in Dhaka.
+    const actor = await auth.requireActor();
+    const chooser = await attendanceDirectory.attendanceDirectory(source, actor, now);
+    const merged = chooser.groups.find(item => item.id === group.id)!;
+    for (const stream of ["hsc", "diploma", "other"]) {
+      const batch = chooser.batches.find(item => item.stream === stream && merged.batches.includes(item.value))!;
+      const filters = { department: merged.department, stream, batch: batch.value };
+      const choose = (query: Parameters<typeof selection.resolveAttendance>[0]) =>
+        selection.resolveAttendance(query, false, chooser.departments, chooser.batches, chooser.groups);
+      assert.equal(choose({ ...filters, group: String(group.id) }).selected?.id, group.id);
+      assert.equal(choose({ ...filters, group: [String(group.id), String(lab.id)] }).selected, undefined);
+      assert.equal(choose({ ...filters, batch: "invalid", group: String(group.id) }).badGroup, true);
+    }
+    assert.match(merged.audience, /HSC-22B.*DIP-22B.*EEE-22B/);
+    assert.equal(JSON.stringify(chooser).includes("SYN-9001"), false);
+    const teacher = { ...actor, teacherId: teachers[0].id, assignments: [
+      { role: "teacher" as const, departmentId: null, activeFrom: new Date("2026-05-01"), activeTo: null },
+    ] };
+    const assigned = await attendanceDirectory.attendanceDirectory(source, teacher, now);
+    const today = attendanceDirectory.attendanceToday(source, teacher.teacherId, assigned.groups, now);
+    assert.equal(today.date, "2026-06-13");
+    assert.ok(today.slots.some(slot => slot.teachingGroupId === group.id));
+    const slot = today.slots.find(slot => slot.teachingGroupId === group.id)!;
+    const matching = await attendanceDirectory.todayAttendanceSessions(source.term.id, today.date, [group.id]);
+    assert.equal(selection.exactSlotSession(matching, slot)?.id, initialSessions[0].id);
+    assert.equal(selection.exactSlotSession([...matching, ...matching], slot), undefined);
+    const publishedSnapshot = buildSnapshot({ meetings: [{ ...slot, startMinutes: slot.startMinutes + 10 }],
+      term: source.term, versionNumber: 1, batches: source.batches, breaks: [], externals: [], issues: [],
+      metadata: source.publicationMetadata, timeGrid: source.timeGrid });
+    const published = attendanceDirectory.attendanceToday({ ...source, publishedSnapshot }, teacher.teacherId, assigned.groups, now);
+    assert.equal(published.published, true);
+    assert.equal(published.slots[0]?.startMinutes, slot.startMinutes + 10);
+    assert.equal(selection.exactSlotSession(matching, published.slots[0]), undefined);
+    assert.equal(attendanceDirectory.attendanceToday(source, teacher.teacherId, assigned.groups, new Date("2026-11-19")).slots.length, 0);
+    const unassigned = { ...teacher, teacherId: teachers[2].id };
+    assert.equal((await attendanceDirectory.attendanceDirectory(source, unassigned, now)).groups.length, 0);
+    assert.equal((await operations.getAttendanceData(group.id, { data: source, actor: unassigned })).roster.length, 0);
+    const scoped = { ...actor, assignments: [{ ...actor.assignments[0], departmentId: source.departments.find(row => row.code === "EEE")!.id }] };
+    assert.equal((await attendanceDirectory.attendanceDirectory(source, scoped, now)).groups.length, 0);
+  });
+  lines.push("ATT-01 chooser reconciles merged local/external audiences and URL branches, scopes department and teacher reads, and exactly matches an Asia/Dhaka routine slot without writes.");
 
   ok(await create({ teacherId: teachers[0].id }));
   const first = (await sessions()).at(-1)!;
@@ -112,6 +161,23 @@ async function main() {
   const [otherTerm] = await db.insert(s.academicTerms).values({ name: "Attendance other term", academicYear: 2027, startDate: "2027-01-01", endDate: "2027-05-01", status: "draft" }).returning();
   const [otherGroup] = await db.insert(s.teachingGroups).values({ termId: otherTerm.id, courseId: group.courseId }).returning();
   const [otherSession] = await db.insert(s.attendanceSessions).values({ termId: otherTerm.id, teachingGroupId: otherGroup.id, classDate: "2026-07-08", startMinutes: 540, endMinutes: 600 }).returning();
+  const restoreFixture = new Error("Restore the original active term");
+  await assert.rejects(db.transaction(tx => database.inDatabaseTransaction(tx, async () => {
+    await tx.update(s.academicTerms).set({ status: "completed" }).where(eq(s.academicTerms.id, token.activeTermId));
+    await tx.update(s.academicTerms).set({ status: "active" }).where(eq(s.academicTerms.id, otherTerm.id));
+    await context.advanceTermGeneration(tx);
+    const source = await portal.getPortalData();
+    const actor = await auth.requireActor();
+    const chooser = await attendanceDirectory.attendanceDirectory(source, actor, new Date());
+    assert.equal(source.term.id, otherTerm.id);
+    assert.equal(source.writeContext.generation, token.generation + 1);
+    assert.equal(selection.resolveAttendance({ group: String(group.id), session: String(first.id) },
+      false, chooser.departments, chooser.batches, chooser.groups).badGroup, true);
+    assert.deepEqual((await operations.getAttendanceData(group.id, { data: source, actor })).sessions, []);
+    assert.equal((await operations.getAttendanceData(otherGroup.id, { data: source, actor })).selectedGroup?.id, otherGroup.id);
+    throw restoreFixture;
+  })), error => error === restoreFixture);
+  assert.deepEqual((await context.captureActiveContext()).writeContext, token);
   assert.equal((await noWrite(() => create({ teachingGroupId: otherGroup.id })) as ActionResult).ok, false);
   assert.equal((await noWrite(() => actions.saveAttendanceAction(otherSession.id, [], token)) as ActionResult).ok, false);
   ok(await create({ classDate: "2026-07-08" }));
