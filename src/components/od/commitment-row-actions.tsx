@@ -71,7 +71,7 @@ export function CommitmentRowActions({ row, returnTo, layout = "t" }: { row: Row
   const copy = open ? COPY[open] : null;
 
   return (
-    <div className="flex flex-nowrap items-center justify-end gap-1.5 whitespace-nowrap">
+    <div className="relative flex flex-nowrap items-center justify-end gap-1.5 whitespace-nowrap">
       {primary === "edit" || primary === "resolve"
         ? <Link href={editHref(primary === "resolve")} className={primaryClass}>{primary === "edit" ? "Edit" : "Resolve note"}<span className="sr-only">: {row.title}</span></Link>
         : primary

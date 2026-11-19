@@ -12,12 +12,8 @@ ALTER TABLE "external_commitments" ADD COLUMN IF NOT EXISTS "revision" integer D
 --> statement-breakpoint
 ALTER TABLE "external_commitments" ADD COLUMN IF NOT EXISTS "updated_at" timestamp with time zone;
 --> statement-breakpoint
-ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_lifecycle_ck" CHECK (
-  ("lifecycle_status" = 'active' AND "archived_at" IS NULL AND "archive_reason" IS NULL)
-  OR ("lifecycle_status" = 'archived' AND "archived_at" IS NOT NULL AND "archive_reason" IS NOT NULL
-    AND char_length("archive_reason") >= 1 AND char_length("archive_reason") <= 300));
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'external_commitments_lifecycle_ck' AND conrelid = 'external_commitments'::regclass) THEN ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_lifecycle_ck" CHECK (("lifecycle_status" = 'active' AND "archived_at" IS NULL AND "archive_reason" IS NULL) OR ("lifecycle_status" = 'archived' AND "archived_at" IS NOT NULL AND "archive_reason" IS NOT NULL AND char_length("archive_reason") >= 1 AND char_length("archive_reason") <= 300)); END IF; END $$;
 --> statement-breakpoint
-ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_revision_ck" CHECK ("revision" >= 1);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'external_commitments_revision_ck' AND conrelid = 'external_commitments'::regclass) THEN ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_revision_ck" CHECK ("revision" >= 1); END IF; END $$;
 --> statement-breakpoint
-ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_verification_note_ck" CHECK (
-  "verification_note" IS NULL OR (char_length("verification_note") >= 1 AND char_length("verification_note") <= 300));
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'external_commitments_verification_note_ck' AND conrelid = 'external_commitments'::regclass) THEN ALTER TABLE "external_commitments" ADD CONSTRAINT "external_commitments_verification_note_ck" CHECK ("verification_note" IS NULL OR (char_length("verification_note") >= 1 AND char_length("verification_note") <= 300)); END IF; END $$;

@@ -12,12 +12,12 @@ The owner's “Start OD-01 inspection and specification” on 19 November starte
 
 - [x] T-01 — Inspect the schema, `/od` page and form, server actions, conflict engine, routine and teacher projections, publication validator, room checks and seed data. Draft D-1–D-7 and the review sketches.
 - [x] T-02 — Record and commit the owner's specification approval and any amendments.
-- [ ] T-03 — Add migration `0022` and the schema fields (D-7). Run populated PGlite-copy and PostgreSQL migration fixtures. Covers AC-09.
-- [ ] T-04 — Add database-free rules: choice validation, the completeness level, planning facts, the shared overlap/impact function and the register projection and filters. Add domain tests and register them in `test:domain`. Covers AC-01–AC-04.
-- [ ] T-05 — Replace the create action and add edit, verify-with-note, return to pending, resolve, archive, reactivate and the relabelled delete. Each is audited and checks the revision, permission and active term. Update the SAFE-01 mutation inventory. Covers AC-05, AC-07 and AC-08.
-- [ ] T-06 — Exclude archived records from conflicts, routine projections, teacher routine, room maintenance and deactivation checks, and new publications. Leave snapshots and workload unchanged. Covers AC-06.
-- [ ] T-07 — Build the register, `/od/new`, `/od/[id]/edit` with the impact preview, the action dialogs, `/od/[id]/history` and the navigation rename. Covers AC-01, AC-02, AC-07 and AC-10.
-- [ ] T-08 — Verify with both-adapter fixtures (roles, stale revision, archive effects, audit), run typecheck, lint, domain, safety and the guarded build, then the compiled Edge review at 1440/390/320 px. Record the results in `verification.md`. Covers AC-01–AC-10.
+- [x] T-03 — Add migration `0022` and the schema fields (D-7). Run populated PGlite-copy and PostgreSQL migration fixtures. Covers AC-09.
+- [x] T-04 — Add database-free rules: choice validation, the completeness level, planning facts, the shared overlap/impact function and the register projection and filters. Add domain tests and register them in `test:domain`. Covers AC-01–AC-04.
+- [x] T-05 — Replace the create action and add edit, verify-with-note, return to pending, resolve, archive, reactivate and the relabelled delete. Each is audited and checks the revision, permission and active term. Update the SAFE-01 mutation inventory. Covers AC-05, AC-07 and AC-08.
+- [x] T-06 — Exclude archived records from conflicts, routine projections, teacher routine, room maintenance and deactivation checks, and new publications. Leave snapshots and workload unchanged. Covers AC-06.
+- [x] T-07 — Build the register, `/od/new`, `/od/[id]/edit` with the impact preview, the action dialogs, `/od/[id]/history` and the navigation rename. Covers AC-01, AC-02, AC-07 and AC-10.
+- [x] T-08 — Verify with both-adapter fixtures (roles, stale revision, archive effects, audit), run typecheck, lint, domain, safety and the guarded build, then the compiled Edge review at 1440/390/320 px. Record the results in `verification.md`. Covers AC-01–AC-10.
 - [ ] T-09 — Present the delivery, record owner acceptance and merge into local `main`.
 
 ## Verification and delivery
@@ -26,5 +26,6 @@ This slice changes the schema, so migration evidence on both adapters is require
 
 ## Current checkpoint and exact handoff
 
+- **20 November — delivery ready for owner review.** T-03–T-08 are complete on `codex/od-01a`. Typecheck, lint, domain tests, the default build, all 60 safety groups on both adapters (including the new OD-01A group) and the commitments Edge flows passed. [Verification](verification.md). **Next:** the owner inspects `/od` and accepts the delivery or requests changes. On acceptance, record it in T-09 and merge into local `main`. Applying `0022` to the institutional database is a separate, backed-up, owner-approved step. OD-01B stays unspecified, and #13 stays open.
 - **19 November — approved.** The owner approved D-1–D-7 unchanged. Implementation starts at T-03 on `codex/od-01a`.
 - **19 November — proposal ready.** The specification, plan and sketches are committed on `codex/od-01a`. No code has changed. **Next:** the owner reviews D-1–D-7 and the sketches, then approves them, amends them, or chooses ATT-03B instead. On approval, record it in T-02, commit it, and start T-03.
