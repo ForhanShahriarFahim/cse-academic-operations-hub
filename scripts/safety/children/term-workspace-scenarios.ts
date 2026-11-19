@@ -29,6 +29,15 @@ async function create(name:string){return assertOk(await terms.createTermAction(
 async function ready(name:string){const id=await create(name);assertOk(await terms.saveStartingPolicyAction(null,form({termId:id,revision:1,...policyValues})));return id;}
 async function reviewForm(id:number){const review=await reads.activationEvidence(id);assert.ok(review);return form({termId:id,revision:review.target.term.revision,generation:review.context.generation,previousActiveId:review.active?.term.id??"",fingerprint:review.fingerprint,reason:"Synthetic verification only",acknowledge:"on"});}
 async function activate(id:number){return terms.activateTermAction(null,await reviewForm(id));}
+// SET-01B: the active-term policy no longer changes in place; a dated proposal is the term-context policy writer.
+const policyActions=loadApp<typeof import("../../../src/lib/policy-actions")>("src/lib/policy-actions.ts");
+let proposalRate=300;
+async function proposalForm(){
+  await db.update(s.academicPolicyVersions).set({status:"withdrawn",decidedAt:new Date(),decidedByUserId:sql`${s.academicPolicyVersions.proposedByUserId}`}).where(eq(s.academicPolicyVersions.status,"proposed"));
+  const [active]=await db.select().from(s.academicTerms).where(eq(s.academicTerms.status,"active"));
+  const day=active?new Date(Date.parse(active.startDate+"T00:00:00Z")+86_400_000).toISOString().slice(0,10):"2040-01-02";
+  return form({extraClassRate:String(proposalRate++),extraLoadThresholdCredits:"1",theoryAttendanceMarks:"1",sessionalAttendanceMarks:"1",effectiveFrom:day,reason:"Synthetic verification only"});
+}
 
 /** The complete public action inventory; malformed bodies never reach a write when context is absent/stale. */
 function attempts(token?:TermWriteContext):Array<[string,()=>Promise<ActionResult>]> {
@@ -36,7 +45,7 @@ function attempts(token?:TermWriteContext):Array<[string,()=>Promise<ActionResul
     ["createMeeting",()=>actions.createMeetingAction(form({}),token)],["moveMeeting",()=>actions.moveMeetingAction(1,0,540,600,token)],
     ["updateMeeting",()=>actions.updateMeetingAction(1,{} as Parameters<typeof actions.updateMeetingAction>[1],token)],["deleteMeeting",()=>actions.deleteMeetingAction(1,token)],
     ["createExternal",()=>actions.createExternalAction(form({}),token)],["verifyExternal",()=>actions.verifyExternalAction(1,token)],["deleteExternal",()=>actions.deleteExternalAction(1,token)],["publish",()=>actions.publishAction("Synthetic",token)],
-    ["updatePolicy",()=>academic.updateAcademicPolicyAction(form(policyValues),token)],["createExtra",()=>academic.createExtraLoadClassAction(form({}),token)],
+    ["updatePolicy",()=>academic.updateAcademicPolicyAction(form(policyValues),token)],["proposePolicy",()=>policyActions.proposePolicyChangeAction(form({}),token)],["previewPolicy",()=>policyActions.previewPolicyChangeAction(form({}),token)],["decidePolicy",()=>policyActions.decidePolicyChangeAction(1,{command:"approve"},token)],["createExtra",()=>academic.createExtraLoadClassAction(form({}),token)],
     ["deleteExtra",()=>academic.deleteExtraLoadClassAction(1,token)],["createManual",()=>academic.createManualTopSheetRowAction(form({}),token)],["deleteManual",()=>academic.deleteManualTopSheetRowAction(1,token)],
     ["upsertStudent",()=>academic.upsertStudentAction(form({}),token)],["importStudent",()=>academic.importStudentCsvAction(form({}),token)],["deactivateStudent",()=>academic.deactivateStudentAction(1,1,token)],
     ["createAttendance",()=>academic.createAttendanceSessionAction(form({}),token)],["saveAttendance",()=>academic.saveAttendanceAction(1,[],0,token)],["deleteAttendance",()=>academic.deleteAttendanceSessionAction(1,0,token)],["autoSchedule",()=>academic.applyAutoScheduleAction(token)],
@@ -100,9 +109,9 @@ async function postgresRaces(lines:string[]){
   }
   try{
     let token=(await context.captureActiveContext()).writeContext;let target=await ready("Writer before activation"),review=await reviewForm(target);
-    const first=await hold("academic_policies",()=>academic.updateAcademicPolicyAction(form(policyValues),token),()=>terms.activateTermAction(null,review));assertOk(first[0]);assertOk(first[1]);
+    const proposal=await proposalForm();const first=await hold("academic_policy_versions",()=>policyActions.proposePolicyChangeAction(proposal,token),()=>terms.activateTermAction(null,review));assertOk(first[0]);assertOk(first[1]);
     token=(await context.captureActiveContext()).writeContext;target=await ready("Activation before writer");review=await reviewForm(target);
-    const second=await hold("academic_terms",()=>terms.activateTermAction(null,review),()=>academic.updateAcademicPolicyAction(form(policyValues),token));assertOk(second[0]);assert.equal(second[1].outcome?.kind,"stale");
+    const lateProposal=await proposalForm();const second=await hold("academic_terms",()=>terms.activateTermAction(null,review),()=>policyActions.proposePolicyChangeAction(lateProposal,token));assertOk(second[0]);assert.equal(second[1].outcome?.kind,"stale");
     const x=await ready("Competing activation X"),y=await ready("Competing activation Y"),rx=await reviewForm(x),ry=await reviewForm(y);
     const third=await hold("academic_terms",()=>terms.activateTermAction(null,rx),()=>terms.activateTermAction(null,ry));assertOk(third[0]);assert.equal(third[1].outcome?.kind,"stale");
     const duplicate=await hold("academic_terms",()=>terms.createTermAction(null,form({name:"Concurrent duplicate",academicYear:2040,startDate:"2040-01-01",endDate:"2040-06-30"})),()=>terms.createTermAction(null,form({name:" CONCURRENT   duplicate ",academicYear:2040,startDate:"2040-01-01",endDate:"2040-06-30"})),"insert");assertOk(duplicate[0]);assert.equal(duplicate[1].outcome?.kind,"validation");
@@ -115,7 +124,7 @@ async function postgresRaces(lines:string[]){
 async function pgliteQueue(lines:string[]){
   const token=(await context.captureActiveContext()).writeContext;const target=await ready("PGlite queued activation"),review=await reviewForm(target);
   let held!:()=>void,release!:()=>void;const entered=new Promise<void>(r=>held=r),finish=new Promise<void>(r=>release=r);
-  const writer=db.transaction(tx=>database.inDatabaseTransaction(tx,async()=>{await context.lockTermContext(tx,"share");assertOk(await academic.updateAcademicPolicyAction(form(policyValues),token));held();await finish;}));
+  const queued=await proposalForm();const writer=db.transaction(tx=>database.inDatabaseTransaction(tx,async()=>{await context.lockTermContext(tx,"share");assertOk(await policyActions.proposePolicyChangeAction(queued,token));held();await finish;}));
   await entered;let settled=false;const activation=terms.activateTermAction(null,review).then(result=>{settled=true;return result;});
   await new Promise(r=>setTimeout(r,25));assert.equal(settled,false);release();await writer;assertOk(await activation);
   const old=(await context.captureActiveContext()).writeContext,next=await ready("PGlite activation first"),nextReview=await reviewForm(next);
@@ -159,7 +168,7 @@ async function main(){
   const before=await fingerprintDatabase(raw);assertOk(await activate(draft));const after=await fingerprintDatabase(raw);
   for(const[name,value]of Object.entries(before.tables))if(!["public.academic_terms","public.term_context","public.audit_events"].includes(name))assert.deepEqual(after.tables[name],value,name);
   await refuseAll(initial.writeContext);assert.equal(JSON.stringify((await db.select().from(s.scheduleVersions).where(eq(s.scheduleVersions.id,version.id)))[0].snapshot),saved);
-  assertOk(await academic.updateAcademicPolicyAction(form(policyValues),(await context.captureActiveContext()).writeContext));
+  assertOk(await policyActions.proposePolicyChangeAction(await proposalForm(),(await context.captureActiveContext()).writeContext));
   // Disposable ABA seam; there is intentionally no production reopen action.
   await db.transaction(async tx=>{await tx.update(s.academicTerms).set({status:"completed"}).where(eq(s.academicTerms.id,draft));await tx.update(s.academicTerms).set({status:"active"}).where(eq(s.academicTerms.id,initialTerm));await tx.update(s.termContext).set({generation:sql`${s.termContext.generation}+1`});});
   await refuseAll(initial.writeContext);

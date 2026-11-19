@@ -74,25 +74,26 @@ async function main() {
   await db.update(s.academicPolicies).set({ theoryCreditHours: "4.5", sessionalCreditHours: "7.5" });
   const beforePolicy = (await policies())[0];
   const policyForm = { extraLoadThresholdCredits: "15", extraClassRate: "201.25", theoryAttendanceMarks: "10", sessionalAttendanceMarks: "5", theoryCreditHours: "999.9", sessionalCreditHours: "999.9" };
-  ok(await actions.updateAcademicPolicyAction(form(policyForm), token));
-  let policy = (await policies())[0];
-  assert.equal(policy.theoryCreditHours, beforePolicy.theoryCreditHours); assert.equal(policy.sessionalCreditHours, beforePolicy.sessionalCreditHours);
-  assert.equal(Number(policy.extraClassRate), 201.25);
-  assert.equal((await audits()).at(-1)!.action, "policy.update");
+  // SET-01B D-1: the active term's policy never changes in place, even for a valid or forged payload.
+  const inPlace = await noWrite(() => actions.updateAcademicPolicyAction(form(policyForm), token));
+  assert.equal(inPlace.ok, false); assert.equal(inPlace.outcome?.kind, "conflict");
   assert.equal((await noWrite(() => actions.updateAcademicPolicyAction(form({ ...policyForm, extraClassRate: "-1" }), token))).ok, false);
+  assert.deepEqual((await policies())[0], beforePolicy);
   await db.execute(sql`insert into safe01_fault values (true)`);
   const beforeFault = await snapshot();
   await assert.rejects(create(), error => /SAFE-01 injected audit failure/.test(String((error as { cause?: { message?: string } }).cause?.message ?? error)));
   assert.equal(await snapshot(), beforeFault);
-  await assert.rejects(actions.updateAcademicPolicyAction(form({ ...policyForm, extraClassRate: "202" }), token));
-  assert.equal(await snapshot(), beforeFault);
   await db.execute(sql`delete from safe01_fault`);
   ok(await create());
-  // Missing-policy compatibility still supplies legacy defaults, while editable values are explicit.
+  // A missing baseline prices nothing from defaults and refuses new claims (owner decision, 19 November).
   await db.delete(s.academicPolicies).where(eq(s.academicPolicies.termId, token.activeTermId!));
-  ok(await actions.updateAcademicPolicyAction(form(policyForm), token));
-  policy = (await policies())[0]; assert.equal(Number(policy.theoryCreditHours), 3); assert.equal(Number(policy.sessionalCreditHours), 2);
-  lines.push("Active policy preserves legacy fields despite forged replacements, saves/validates supported fields, audits atomically, and restores compatibility defaults only when the policy row is missing. Injected audit failure rolls back both claim and policy writes; retry succeeds.");
+  const unpriced = await operations.getExtraLoadData();
+  assert.equal(unpriced.policyMissing, true); assert.equal(unpriced.policy, null);
+  assert.ok(unpriced.teacherSummaries.every(row => row.amount === null)); assert.ok(unpriced.classes.every(row => row.rate === null));
+  assert.equal((await noWrite(() => create())).ok, false);
+  await db.insert(s.academicPolicies).values({ ...beforePolicy, id: undefined });
+  ok(await create());
+  lines.push("Active policy no longer changes in place (valid, invalid and forged payloads refuse without a write); legacy fields are untouched. A missing baseline prices nothing from defaults and refuses new claims. Injected audit failure rolls back the claim; retry succeeds.");
 
   await db.update(s.portalUsers).set({ status: "active" }).where(eq(s.portalUsers.email, "teacher-a@example.invalid"));
   signInAs("teacher-a@example.invalid");

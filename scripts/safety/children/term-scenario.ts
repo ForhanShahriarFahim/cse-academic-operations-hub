@@ -76,7 +76,7 @@ async function view() {
     reconciliations: data.sourceReconciliations.map((item) => item.detail),
     attendance,
     extraLoad: {
-      rate: extra.policy.extraClassRate,
+      rate: extra.policy?.extraClassRate ?? null,
       classes: sortNumbers(extra.classes.map((row) => row.id)),
       manual: sortNumbers(extra.manualSummaries.map((row) => row.id)),
       summaries: extra.teacherSummaries.map((row) => [row.teacher.shortCode, row.assignedWorkloadUnits, row.classCount, row.amount]),

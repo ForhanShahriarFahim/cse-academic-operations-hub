@@ -5,9 +5,8 @@
  * Every write runs in the shared term-context transaction, serializes per term
  * with an advisory lock, rechecks the decision evidence and audits atomically.
  */
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
 import { academicPolicies, academicPolicyVersions } from "@/db/schema";
 import { withActiveTermContext } from "./active-term";
 import { auditedChange } from "./auth/audit";
@@ -16,17 +15,13 @@ import { conflicted, denied, invalid, stale, succeeded, type ActionResult } from
 import type { TermWriteContext } from "./term-context-value";
 import { getActiveTerm, getPortalData } from "./data";
 import { dhakaToday } from "./room-lifecycle";
-import { changedFields, parseNote, validateProposal, versionLabel, versionOn, REASON_LIMIT, SHORT_LABELS, VERSION_FIELDS } from "./policy-versions";
-import { impactInput, loadTermPolicy, proposalImpact } from "./policy-store";
+import { changedFields, parseNote, type PolicyImpact, validateProposal, versionLabel, versionOn, REASON_LIMIT, SHORT_LABELS, VERSION_FIELDS } from "./policy-versions";
+import { impactInput, loadTermPolicy, lockTermPolicy, proposalImpact } from "./policy-store";
 
-const POLICY_LOCK = 61041;
 const refresh = () => revalidatePath("/", "layout");
 const IMPACT_CHANGED = "Impact changed; review again. Nothing was saved.";
 
-async function lockPolicy(termId: number) {
-  await db.execute(sql`select pg_advisory_xact_lock(${POLICY_LOCK}::integer, ${termId}::integer)`);
-}
-
+const lockPolicy = (termId: number) => lockTermPolicy(termId, "exclusive");
 export async function proposePolicyChangeAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
   return withActiveTermContext(() => proposeInTerm(formData), context ?? formData);
 }
@@ -58,6 +53,30 @@ async function proposeInTerm(formData: FormData): Promise<ActionResult> {
   return succeeded(policy.timeline
     ? "Proposal saved. Nothing changes until a second administrator approves it."
     : "Baseline proposal saved. Payments and marks stay unpriced until a second administrator approves it.", { entityId: id });
+}
+
+export type PolicyPreview = ActionResult & { preview?: { effectiveFrom: string; impact: PolicyImpact | null; baseline: boolean; changed: string[] } };
+
+/** Read-only: validate a draft proposal and show its impact. Nothing is written. */
+export async function previewPolicyChangeAction(formData: FormData, context?: TermWriteContext): Promise<PolicyPreview> {
+  let preview: PolicyPreview["preview"];
+  const result = await withActiveTermContext(async () => {
+    if (!(formData instanceof FormData)) return invalid("Submit a valid policy form.");
+    const actor = await actionActor("manage_policy");
+    if ("ok" in actor) return actor;
+    const term = await getActiveTerm();
+    const policy = await loadTermPolicy(term.id);
+    if (!policy) return stale("The active term is unavailable. Refresh the page.", "missing");
+    const fields = Object.fromEntries([...VERSION_FIELDS, "effectiveFrom", "reason"].map((key) => [key, formData.get(key)]));
+    const parsed = validateProposal(fields, term, policy.timeline);
+    if (!parsed.ok) return invalid(parsed.errors.form?.[0] ?? "Check the highlighted policy fields.", parsed.errors);
+    const { effectiveFrom, figures } = parsed.value;
+    const { impact } = proposalImpact(policy, { effectiveFrom, figures }, await impactInput(await getPortalData(), dhakaToday()));
+    const changed = policy.timeline ? changedFields(versionOn(policy.timeline, effectiveFrom).figures, figures).map((key) => SHORT_LABELS[key]) : [];
+    preview = { effectiveFrom, impact, baseline: !policy.timeline, changed };
+    return succeeded("Impact preview ready. Nothing has been saved.");
+  }, context ?? formData);
+  return preview && result.ok ? { ...result, preview } : result;
 }
 
 export type PolicyDecision = { command: "approve" | "reject" | "withdraw"; note?: string | null; fingerprint?: string };

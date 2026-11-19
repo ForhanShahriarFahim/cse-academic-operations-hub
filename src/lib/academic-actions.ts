@@ -21,7 +21,9 @@ import {
   students,
 } from "@/db/schema";
 import { ATTENDANCE_STATUSES, type RosterImportReceipt } from "./attendance";
-import { getAttendanceData, getExtraLoadData } from "./academic-operations";
+import { getAttendanceData, getExtraLoadData, getTermPolicyView } from "./academic-operations";
+import { lockTermPolicy } from "./policy-store";
+import { versionOn } from "./policy-versions";
 import { getActiveTerm } from "./data";
 import { isExtraLoadEligible } from "./extra-load";
 import { formatWorkloadUnits } from "./workload";
@@ -77,17 +79,22 @@ async function createExtraLoadClassActionInTerm(formData: FormData): Promise<Act
   const startMinutes = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
   const endMinutes = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
   const notes = String(formData.get("notes") ?? "").trim() || null;
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   const source = await getExtraLoadData();
   const group = source.groups.find((row) => row.id === teachingGroupId);
   const assignedWorkloadUnits = source.loads.get(teacherId) ?? 0;
   if (!Number.isInteger(teacherId) || !group || !group.teacherIds.includes(teacherId)) {
     return { ok: false, message: "Choose a course assigned to that teacher." };
   }
-  if (!isExtraLoadEligible(assignedWorkloadUnits, source.policy.extraLoadThresholdCredits)) {
-    return { ok: false, message: `Extra load starts above ${source.policy.extraLoadThresholdCredits} workload credit-hours; this teacher currently has ${formatWorkloadUnits(assignedWorkloadUnits)}.` };
-  }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(classDate) || classDate < source.data.term.startDate || classDate > source.data.term.endDate) {
     return { ok: false, message: `Choose a date within ${source.data.term.name}.` };
+  }
+  // SET-01B D-2: eligibility uses the threshold in force on the class date; no recorded policy, no claim.
+  const { timeline } = await getTermPolicyView(source.data.term);
+  if (!timeline) return { ok: false, message: "This term has no approved payment policy yet. Extra classes can be recorded once its baseline is approved on Settings." };
+  const threshold = versionOn(timeline, classDate).figures.extraLoadThresholdCredits;
+  if (!isExtraLoadEligible(assignedWorkloadUnits, threshold)) {
+    return { ok: false, message: `Extra load on ${classDate} starts above ${threshold} workload credit-hours; this teacher currently has ${formatWorkloadUnits(assignedWorkloadUnits)}.` };
   }
   if (startMinutes == null || endMinutes == null || endMinutes <= startMinutes) return { ok: false, message: "Enter a valid class time." };
   await auditedChange("extra_load.create", "extra_load_class", async (tx) => {
@@ -109,6 +116,7 @@ async function deleteExtraLoadClassActionInTerm(id: number): Promise<ActionResul
   const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_class", id)) return { ...OUTSIDE_ACTIVE_TERM };
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   await auditedChange("extra_load.delete", "extra_load_class", async (tx) => {
     const [previous] = await tx.delete(extraLoadClasses).where(eq(extraLoadClasses.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };
@@ -124,6 +132,7 @@ async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   const term = await getActiveTerm();
+  await lockTermPolicy(term.id, "share");
   const teacherName = String(formData.get("teacherName") ?? "").trim();
   const classCount = numberField(formData, "classCount");
   const rateOverride = numberField(formData, "rateOverride");
@@ -154,6 +163,7 @@ async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionRe
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_manual_summary", id)) return { ...OUTSIDE_ACTIVE_TERM };
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   await auditedChange("extra_load.manual.delete", "extra_load_manual_summary", async (tx) => {
     const [previous] = await tx.delete(extraLoadManualSummaries).where(eq(extraLoadManualSummaries.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };

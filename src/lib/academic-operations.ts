@@ -5,7 +5,6 @@
 import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { db, databaseReadBatch } from "@/db";
 import {
-  academicPolicies,
   attendanceRecords,
   attendanceSessions,
   auditEvents,
@@ -22,7 +21,9 @@ import { redirect } from "next/navigation";
 import { summarizeAttendance } from "./attendance";
 import { countsInSummary, isUnsubmitted } from "./attendance-lifecycle";
 import { currentRoster } from "./current-roster";
-import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
+import { loadTermPolicy, recordedDate } from "./policy-store";
+import { evaluationDate, fromPaisa, manualAmount, toPaisa, versionOn, versionsUsed } from "./policy-versions";
+import { dhakaToday } from "./room-lifecycle";
 import { allocationTotals } from "./workload";
 
 export interface TeachingGroupOption {
@@ -34,16 +35,13 @@ export interface TeachingGroupOption {
   teacherIds: number[];
 }
 
-export async function getAcademicPolicy(termId: number): Promise<ExtraLoadPolicy> {
-  const [row] = await db.select().from(academicPolicies).where(eq(academicPolicies.termId, termId)).limit(1);
-  return row ? {
-    theoryCreditHours: Number(row.theoryCreditHours),
-    sessionalCreditHours: Number(row.sessionalCreditHours),
-    extraLoadThresholdCredits: Number(row.extraLoadThresholdCredits),
-    extraClassRate: Number(row.extraClassRate),
-    theoryAttendanceMarks: Number(row.theoryAttendanceMarks),
-    sessionalAttendanceMarks: Number(row.sessionalAttendanceMarks),
-  } : DEFAULT_ACADEMIC_POLICY;
+/** SET-01B: the term's policy timeline and the figures in force on its evaluation date (today, or the end of a completed term). */
+export async function getTermPolicyView(term: { id: number; startDate: string; endDate: string; status: string }) {
+  const policy = await loadTermPolicy(term.id);
+  const timeline = policy?.timeline ?? null;
+  const when = evaluationDate(term, dhakaToday());
+  const current = timeline ? versionOn(timeline, when) : null;
+  return { policy, timeline, evaluationDate: when, current, figures: current?.figures ?? null };
 }
 
 export function groupOptions(data: PortalData): TeachingGroupOption[] {
@@ -66,7 +64,8 @@ export function groupOptions(data: PortalData): TeachingGroupOption[] {
 export async function getExtraLoadData(from?: string, to?: string) {
   const data = await getPortalData();
   const actor = await requireActor();
-  const policy = await getAcademicPolicy(data.term.id);
+  const view = await getTermPolicyView(data.term);
+  const { timeline } = view;
   const canReview = await can(actor, "review_extra_load") || await can(actor, "view_payment_reports");
   if (!canReview && (actor.teacherId == null || !await can(actor, "submit_extra_load", { kind: "teacher", teacherId: actor.teacherId }))) {
     redirect("/forbidden");
@@ -85,8 +84,12 @@ export async function getExtraLoadData(from?: string, to?: string) {
   ]);
   const classes = classRows.filter((row) => canReview || row.teacherId === actor.teacherId).map((row) => {
     const teacher = data.teachers.find((item) => item.id === row.teacherId);
+    // SET-01B D-2: each class is paid at the rate in force on its own date.
+    const version = timeline ? versionOn(timeline, row.classDate) : null;
     return {
       ...row,
+      rate: version?.figures.extraClassRate ?? null,
+      policyVersion: version?.version ?? null,
       teacherName: teacher?.fullName ?? "Unknown teacher",
       teacherDesignation: teacher?.designation ?? null,
       teacherShortCode: teacher?.shortCode ?? "—",
@@ -99,17 +102,24 @@ export async function getExtraLoadData(from?: string, to?: string) {
       assignedWorkloadUnits: loads.get(teacher.id) ?? 0,
       hasUnverifiedExternal: data.externals.some((entry) => entry.teacherId === teacher.id && entry.verificationStatus === "pending"),
       classCount: entries.length,
-      amount: paymentForClasses(entries.length, policy.extraClassRate),
+      amount: timeline ? fromPaisa(entries.reduce((sum, row) => sum + toPaisa(row.rate!), 0)) : null,
+      rates: [...new Set(entries.map((row) => row.rate))].filter((rate): rate is number => rate != null),
     };
   }).filter((row) => row.assignedWorkloadUnits > 0 || row.classCount > 0);
-  const manualSummaries = (canReview ? manualRows : []).map((row) => ({
-    ...row,
-    rateOverride: row.rateOverride == null ? null : Number(row.rateOverride),
-    amountOverride: row.amountOverride == null ? null : Number(row.amountOverride),
-    amount: paymentForClasses(row.classCount, row.rateOverride == null ? policy.extraClassRate : Number(row.rateOverride), row.amountOverride == null ? null : Number(row.amountOverride)),
-  }));
+  const manualSummaries = (canReview ? manualRows : []).map((row) => {
+    const rateOverride = row.rateOverride == null ? null : Number(row.rateOverride);
+    const amountOverride = row.amountOverride == null ? null : Number(row.amountOverride);
+    // Manual rows without an override use the rate in force on their recording date.
+    const priced = timeline ? manualAmount(timeline, { recordedDate: recordedDate(row.createdAt), classCount: row.classCount, rateOverride, amountOverride })
+      : amountOverride != null ? { rate: rateOverride, policyVersion: null, amount: amountOverride } : null;
+    return { ...row, rateOverride, amountOverride, rate: priced?.rate ?? rateOverride, policyVersion: priced?.policyVersion ?? null, amount: priced?.amount ?? null };
+  });
+  const used = timeline ? versionsUsed(timeline, [...classes.map((row) => row.policyVersion), ...manualSummaries.map((row) => row.policyVersion)]) : [];
   await assertTermContext(data.writeContext);
-  return { data, policy, groups, loads, classes, teacherSummaries, manualSummaries };
+  return {
+    data, policy: view.figures, policyVersion: view.current?.version ?? null, policyMissing: !timeline, versionsUsed: used,
+    groups, loads, classes, teacherSummaries, manualSummaries,
+  };
 }
 
 export async function getAttendanceData(selectedGroupId: number, portal?: { data: PortalData; actor: Actor }) {
@@ -123,11 +133,11 @@ export async function getAttendanceData(selectedGroupId: number, portal?: { data
   const selectedGroup = canManageRosters || canTakeAttendance || canReviewAttendance ? candidate : undefined;
   if (!selectedGroup) {
     await assertTermContext(data.writeContext);
-    return { data, selectedGroup: null, canManageRosters, canTakeAttendance, canReviewAttendance: false, roster: [], sessions: [], summaries: [], maximum: 0, unsubmitted: 0 };
+    return { data, selectedGroup: null, canManageRosters, canTakeAttendance, canReviewAttendance: false, roster: [], sessions: [], summaries: [], maximum: null, maximumVersion: null, unsubmitted: 0 };
   }
 
-  const [policy, roster, sessionRows] = await databaseReadBatch([
-    () => getAcademicPolicy(data.term.id),
+  const [view, roster, sessionRows] = await databaseReadBatch([
+    () => getTermPolicyView(data.term),
     () => currentRoster(data.term.id, selectedGroup.id),
     () => db.select({ id: attendanceSessions.id, classDate: attendanceSessions.classDate, phase: attendanceSessions.phase,
       startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes, status: attendanceSessions.status, revision: attendanceSessions.revision,
@@ -161,11 +171,13 @@ export async function getAttendanceData(selectedGroupId: number, portal?: { data
     reopenReason: (() => { const detail = reasons.find((row) => row.entityId === session.id)?.detail as { reason?: unknown } | undefined; return typeof detail?.reason === "string" ? detail.reason : null; })(),
     records: recordRows.filter((record) => record.sessionId === session.id).map(({ studentId, status, studentCode, fullName }) => ({ studentId, status, studentCode, fullName })),
   }));
-  const maximum = selectedGroup.courseType === "sessional" ? policy.sessionalAttendanceMarks : policy.theoryAttendanceMarks;
+  // SET-01B D-2: the whole-term maximum in force on the evaluation date; no recorded policy, no marks.
+  const maximum = view.figures ? (selectedGroup.courseType === "sessional" ? view.figures.sessionalAttendanceMarks : view.figures.theoryAttendanceMarks) : null;
+  const maximumVersion = view.current?.version ?? null;
   // ATT-03A D-4: every non-voided session counts, whatever its state.
   const counted = sessions.filter((session) => countsInSummary(session.status));
-  const summaries = roster.map((student) => summarizeAttendance(student.id, counted, maximum));
+  const summaries = roster.map((student) => summarizeAttendance(student.id, counted, maximum ?? 0));
   const unsubmitted = sessions.filter((session) => isUnsubmitted(session.status)).length;
   await assertTermContext(data.writeContext);
-  return { data, selectedGroup, canManageRosters, canTakeAttendance, canReviewAttendance, roster, sessions, summaries, maximum, unsubmitted };
+  return { data, selectedGroup, canManageRosters, canTakeAttendance, canReviewAttendance, roster, sessions, summaries, maximum, maximumVersion, unsubmitted };
 }

@@ -80,7 +80,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
           selectedGroup={source.selectedGroup}
           teachers={data.teachers.filter(teacher => source.selectedGroup?.teacherIds.includes(teacher.id))
             .map(({ id, shortCode, fullName }) => ({ id, shortCode, fullName }))}
-          roster={source.roster} sessions={source.sessions} summaries={source.summaries} maximum={source.maximum}
+          roster={source.roster} sessions={source.sessions} summaries={source.summaries} maximum={source.maximum} maximumVersion={source.maximumVersion}
           termStart={data.term.startDate} termEnd={data.term.endDate}
           canManageRosters={source.canManageRosters} canTakeAttendance={source.canTakeAttendance} canReviewAttendance={source.canReviewAttendance} unsubmitted={source.unsubmitted}
           initialSessionId={initialSessionId}

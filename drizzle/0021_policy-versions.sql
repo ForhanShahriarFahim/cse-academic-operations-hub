@@ -1,4 +1,5 @@
 -- SET-01B: effective-dated policy versions. Additive; writes no rows, so every existing term keeps its baseline figures.
+-- Checks avoid BETWEEN so restored definitions deparse identically (dump/restore fingerprint parity).
 -- Version 1 is approved only for a term that had no baseline row; its approval also records that baseline.
 CREATE TABLE IF NOT EXISTS "academic_policy_versions" (
   "id" serial PRIMARY KEY NOT NULL,
@@ -20,8 +21,8 @@ CREATE TABLE IF NOT EXISTS "academic_policy_versions" (
   "decision_fingerprint" text,
   CONSTRAINT "academic_policy_versions_status_ck" CHECK ("status" IN ('proposed', 'approved', 'rejected', 'withdrawn', 'stale')),
   CONSTRAINT "academic_policy_versions_values_ck" CHECK ("extra_load_threshold_credits" >= 0 AND "extra_class_rate" >= 0 AND "theory_attendance_marks" >= 0 AND "sessional_attendance_marks" >= 0),
-  CONSTRAINT "academic_policy_versions_reason_ck" CHECK (char_length("reason") BETWEEN 1 AND 500 AND "reason" = btrim("reason")),
-  CONSTRAINT "academic_policy_versions_note_ck" CHECK ("decision_note" IS NULL OR (char_length("decision_note") BETWEEN 1 AND 500 AND "decision_note" = btrim("decision_note"))),
+  CONSTRAINT "academic_policy_versions_reason_ck" CHECK (char_length("reason") >= 1 AND char_length("reason") <= 500 AND "reason" = btrim("reason")),
+  CONSTRAINT "academic_policy_versions_note_ck" CHECK ("decision_note" IS NULL OR (char_length("decision_note") >= 1 AND char_length("decision_note") <= 500 AND "decision_note" = btrim("decision_note"))),
   CONSTRAINT "academic_policy_versions_version_ck" CHECK (("status" = 'approved') = ("version" IS NOT NULL) AND ("version" IS NULL OR "version" >= 1)),
   CONSTRAINT "academic_policy_versions_decision_ck" CHECK (
     ("status" = 'proposed' AND "decided_at" IS NULL AND "decided_by_user_id" IS NULL AND "decision_note" IS NULL AND "decision_fingerprint" IS NULL)

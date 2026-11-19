@@ -1,5 +1,6 @@
 "use client";
 
+import { versionLabel } from "@/lib/policy-versions";
 import { useTermActions } from "@/components/term-write-context";
 
 import Link from "next/link";
@@ -50,7 +51,7 @@ function AttendanceFeedback({ area, result, pending }: { area: FeedbackArea; res
   </div>;
 }
 
-export function AttendanceManager({ selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance, canReviewAttendance = false, unsubmitted = 0, rollCallHref, initialSessionId, maximum }: {
+export function AttendanceManager({ selectedGroup, teachers, roster, sessions, summaries, termStart, termEnd, canManageRosters, canTakeAttendance, canReviewAttendance = false, unsubmitted = 0, rollCallHref, initialSessionId, maximum, maximumVersion = null }: {
   selectedGroup: Group;
   teachers: Teacher[];
   roster: StudentRow[];
@@ -64,7 +65,8 @@ export function AttendanceManager({ selectedGroup, teachers, roster, sessions, s
   unsubmitted?: number;
   rollCallHref?: string;
   initialSessionId?: number;
-  maximum: number;
+  maximum: number | null;
+  maximumVersion?: number | null;
 }) {
   const { createAttendanceSessionAction, deleteAttendanceSessionAction, saveAttendanceAction, changeAttendanceSessionAction, lockSubmittedAttendanceAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
@@ -205,7 +207,7 @@ export function AttendanceManager({ selectedGroup, teachers, roster, sessions, s
 
   return <div ref={manager} className="space-y-4">{confirmDialog}{reasonDialog}
     <section className="ruled rounded-lg p-4">
-      <span className="text-sm"><strong>{selectedGroup.courseType === "sessional" ? "Lab / sessional" : "Theory"}</strong> · {maximum} attendance marks</span>
+      <span className="text-sm"><strong>{selectedGroup.courseType === "sessional" ? "Lab / sessional" : "Theory"}</strong> · {maximum == null ? "attendance marks not recorded — approve the term policy on Settings" : <>{maximum} attendance marks <span className="text-muted">({maximumVersion == null ? "policy" : versionLabel(maximumVersion)}, in force today)</span></>}</span>
     </section>
 
     <div className="flex flex-wrap gap-2">
@@ -279,7 +281,7 @@ export function AttendanceManager({ selectedGroup, teachers, roster, sessions, s
 
     <section className="ruled rounded-lg">
       <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Student roster & semester summary</h2><p className="mt-0.5 text-[11.5px] text-muted">Removing an enrollment does not delete historical attendance. Every session except voided ones counts here.{unsubmitted > 0 ? ` ${unsubmitted} session(s) not yet submitted.` : ""}</p></header>
-      <div role="region" aria-label="Student roster and semester summary" tabIndex={0} className="table-region overflow-x-auto p-4"><table className="routine-table text-[12px]"><thead><tr>{["Student", "Audience", "Midterm", "Final", "Semester", "Attendance mark"].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-muted">Import a CSV or add a student to start.</td></tr> : roster.map((student) => { const summary = summaryByStudent.get(student.id); return <tr key={student.id}><td className="px-2.5 py-2"><strong>{student.fullName}</strong><div className="font-mono text-[10.5px] text-muted">{student.studentCode}</div></td><td className="px-2.5 py-2 capitalize">{student.enrollment.audienceType}</td><td className="px-2.5 py-2 font-mono">{summary?.midterm.attended ?? 0}/{summary?.midterm.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.final.attended ?? 0}/{summary?.final.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.semester.percentage ?? 0}%</td><td className="px-2.5 py-2 font-mono font-bold text-[var(--color-pine)]">{summary?.mark ?? 0}/{summary?.maximum ?? (selectedGroup.courseType === "sessional" ? 5 : 10)}</td></tr>; })}</tbody></table></div>
+      <div role="region" aria-label="Student roster and semester summary" tabIndex={0} className="table-region overflow-x-auto p-4"><table className="routine-table text-[12px]"><thead><tr>{["Student", "Audience", "Midterm", "Final", "Semester", "Attendance mark"].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead><tbody>{roster.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-muted">Import a CSV or add a student to start.</td></tr> : roster.map((student) => { const summary = summaryByStudent.get(student.id); return <tr key={student.id}><td className="px-2.5 py-2"><strong>{student.fullName}</strong><div className="font-mono text-[10.5px] text-muted">{student.studentCode}</div></td><td className="px-2.5 py-2 capitalize">{student.enrollment.audienceType}</td><td className="px-2.5 py-2 font-mono">{summary?.midterm.attended ?? 0}/{summary?.midterm.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.final.attended ?? 0}/{summary?.final.total ?? 0}</td><td className="px-2.5 py-2 font-mono">{summary?.semester.percentage ?? 0}%</td><td className="px-2.5 py-2 font-mono font-bold text-[var(--color-pine)]">{maximum == null ? "—" : `${summary?.mark ?? 0}/${maximum}`}</td></tr>; })}</tbody></table></div>
     </section>
   </div>;
 }

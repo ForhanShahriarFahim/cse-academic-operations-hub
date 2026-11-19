@@ -7,6 +7,7 @@ import type { ActionResult } from "@/lib/action-result";
 import * as a0 from "@/lib/actions";
 import * as a1 from "@/lib/academic-actions";
 import * as a2 from "@/lib/time-grid-actions";
+import * as a3 from "@/lib/policy-actions";
 import { setTeacherStatusAction as teacherStatus } from "@/lib/teacher-actions";
 
 const TermScope = createContext<{ value: TermWriteContext; report: (r: ActionResult) => ActionResult } | null>(null);
@@ -32,6 +33,9 @@ export function useTermActions(){
   deleteExternalAction: (id: Parameters<typeof a0.deleteExternalAction>[0]) => a0.deleteExternalAction(id, context).then(report),
   publishAction: (changeSummary: Parameters<typeof a0.publishAction>[0], expectedLatestVersionId: number | null) => a0.publishAction(changeSummary, context, expectedLatestVersionId).then(report),
   updateAcademicPolicyAction: (formData: Parameters<typeof a1.updateAcademicPolicyAction>[0]) => a1.updateAcademicPolicyAction(formData, context).then(report),
+  previewPolicyChangeAction: (formData: FormData) => a3.previewPolicyChangeAction(formData, context).then(report),
+  proposePolicyChangeAction: (formData: FormData) => a3.proposePolicyChangeAction(formData, context).then(report),
+  decidePolicyChangeAction: (versionId: number, decision: a3.PolicyDecision) => a3.decidePolicyChangeAction(versionId, decision, context).then(report),
   createExtraLoadClassAction: (formData: Parameters<typeof a1.createExtraLoadClassAction>[0]) => a1.createExtraLoadClassAction(formData, context).then(report),
   deleteExtraLoadClassAction: (id: Parameters<typeof a1.deleteExtraLoadClassAction>[0]) => a1.deleteExtraLoadClassAction(id, context).then(report),
   createManualTopSheetRowAction: (formData: Parameters<typeof a1.createManualTopSheetRowAction>[0]) => a1.createManualTopSheetRowAction(formData, context).then(report),

@@ -240,3 +240,15 @@ export function policyImpact(before: PolicyTimeline, after: PolicyTimeline, inpu
     empty: !classIds.length && !manual.length && !changed.length && !recordedUnderEarlier.length && !courses.length,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Output trace (spec D-5)
+// ---------------------------------------------------------------------------
+
+export const formatTaka = (amount: number) => amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+/** "Version 1 (Tk 200.00, from 2027-02-01) and Version 2 (Tk 250.00, from 2027-03-01)". */
+export function rateTrace(versions: readonly EffectiveVersion[]): string {
+  const parts = versions.map((version) => `${versionLabel(version.version)} (Tk ${formatTaka(version.figures.extraClassRate)}, from ${version.effectiveFrom})`);
+  return parts.length <= 1 ? parts.join("") : `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
+}

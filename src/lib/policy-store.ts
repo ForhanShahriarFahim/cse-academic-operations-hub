@@ -4,18 +4,27 @@
  * computed from the same data and functions.
  */
 import { createHash } from "node:crypto";
-import { and, asc, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   academicPolicies, academicPolicyVersions, academicTerms, attendanceRecords, attendanceSessions,
-  extraLoadClasses, extraLoadManualSummaries, portalUsers,
+  extraLoadClasses, extraLoadManualSummaries, portalUsers, roleAssignments,
 } from "@/db/schema";
+import { ROLE_CAPABILITIES } from "./auth/policy";
 import type { PortalData } from "./data";
 import { dhakaToday } from "./room-lifecycle";
 import { allocationTotals } from "./workload";
 import {
-  buildTimeline, figuresOf, policyImpact, withProposal, type ImpactInput, type PolicyFigures, type PolicyImpact, type PolicyTimeline,
+  buildTimeline, figuresOf, policyImpact, versionOn, withProposal, type ImpactInput, type PolicyFigures, type PolicyImpact, type PolicyTimeline,
 } from "./policy-versions";
+
+const POLICY_LOCK = 61041;
+/** Policy decisions take the exclusive per-term lock; extra-load writers take it shared so a preview cannot miss a concurrent claim. */
+export async function lockTermPolicy(termId: number, mode: "exclusive" | "share" = "exclusive") {
+  await db.execute(mode === "exclusive"
+    ? sql`select pg_advisory_xact_lock(${POLICY_LOCK}::integer, ${termId}::integer)`
+    : sql`select pg_advisory_xact_lock_shared(${POLICY_LOCK}::integer, ${termId}::integer)`);
+}
 
 type Reader = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -119,4 +128,24 @@ export function proposalImpact(policy: TermPolicy, proposal: { effectiveFrom: st
     recorded: before ? null : { classes: input.classes.map((row) => row.id), manual: input.manual.map((row) => row.id), groups: input.attendance.map((row) => row.groupId) },
   };
   return { impact, fingerprint: fingerprintOf(evidence) };
+}
+
+/** Active accounts that currently hold `approve_policy` (any department scope). Used only to explain an empty approver pool. */
+export async function policyApproverIds(now = new Date()): Promise<number[]> {
+  const roles = (Object.entries(ROLE_CAPABILITIES) as Array<[string, readonly string[]]>).filter(([, caps]) => caps.includes("approve_policy")).map(([role]) => role);
+  const rows = await db.selectDistinct({ id: portalUsers.id }).from(roleAssignments).innerJoin(portalUsers, eq(portalUsers.id, roleAssignments.userId))
+    .where(and(eq(portalUsers.status, "active"), inArray(roleAssignments.role, roles), isNull(roleAssignments.departmentId), lte(roleAssignments.activeFrom, now),
+      or(isNull(roleAssignments.activeTo), gt(roleAssignments.activeTo, now))));
+  return rows.map((row) => row.id).sort((a, b) => a - b);
+}
+
+/** For each history row, the figures in force on its date without it (null when the term had no baseline). */
+export function priorFigures(policy: TermPolicy): Record<number, PolicyFigures | null> {
+  const baseline = policy.baseline?.figures;
+  const approved = policy.history.filter((row) => row.status === "approved").map((row) => ({ id: row.id, version: row.version!, effectiveFrom: row.effectiveFrom, figures: row.figures }));
+  return Object.fromEntries(policy.history.map((row) => {
+    if (!baseline || row.version === 1) return [row.id, null];
+    const without = buildTimeline(policy.term, baseline, approved.filter((item) => item.id !== row.id));
+    return [row.id, versionOn(without, row.effectiveFrom).figures];
+  }));
 }
