@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**ATT-04 / #11 — specification ready for owner review on 19 November.** Proposed coverage includes the three phase views, a student's dated calculation evidence, and read-only completed-term marks based on that term's end-date policy. **Next:** owner decision on D-1–D-4. [Specification](specs/ATT-04/spec.md) · [Plan](specs/ATT-04/plan.md) · [Review sketches](specs/ATT-04/mockups/index.html)
+**ATT-04 / #11 — implemented and verified on 19 November, awaiting delivery acceptance.** The three phase views, dated student evidence and completed-term report are on `codex/att-04` at `9bd775a`. Both disposable adapters and compiled Edge passed. The default Turbopack CSS worker failed and the Webpack retry passed. **Next:** owner reviews the synthetic preview and accepts before the local merge. [Verification and reviewer entry](specs/ATT-04/verification.md) · [Plan](specs/ATT-04/plan.md)
 
 **SET-01B / #14 — accepted and merged locally on 19 November at `1f82693`.** Acceptance and verification are recorded at `2d0cff8`. Policy history, dated rates and thresholds, versioned attendance maxima, reviewed proposals and second-person approval are available. The policy and related regressions passed on both disposable adapters. The compiled Edge and A4 checks passed using Webpack after the default Turbopack CSS worker failed. Institutional migration `0021` and D-06 remain open, and #14 retains its remaining scope. **Next:** owner-started ATT-04 / #11 inspection and specification for explainable attendance marks. [Verification](specs/SET-01B/verification.md) · [Merge receipt and handoff](specs/SET-01B/plan.md)
 
