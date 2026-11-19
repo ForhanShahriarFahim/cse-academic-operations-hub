@@ -18,7 +18,7 @@ The owner's “Start OD-01 inspection and specification” on 19 November starte
 - [x] T-06 — Exclude archived records from conflicts, routine projections, teacher routine, room maintenance and deactivation checks, and new publications. Leave snapshots and workload unchanged. Covers AC-06.
 - [x] T-07 — Build the register, `/od/new`, `/od/[id]/edit` with the impact preview, the action dialogs, `/od/[id]/history` and the navigation rename. Covers AC-01, AC-02, AC-07 and AC-10.
 - [x] T-08 — Verify with both-adapter fixtures (roles, stale revision, archive effects, audit), run typecheck, lint, domain, safety and the guarded build, then the compiled Edge review at 1440/390/320 px. Record the results in `verification.md`. Covers AC-01–AC-10.
-- [ ] T-09 — Present the delivery, record owner acceptance and merge into local `main`.
+- [x] T-09 — Present the delivery, record owner acceptance and merge into local `main`. On 20 November 2026 the owner replied "Accept and merge" in the Claude Code session to delivery `cc0a1e2`. This authorizes the local merge into `main`. It does not authorize applying `0022` to the institutional database.
 
 ## Verification and delivery
 
