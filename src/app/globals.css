@@ -407,3 +407,33 @@ body {
   .room-occupancy .grid { display: block; }
   .room-occupancy .grid > * + * { margin-top: 3mm; }
 }
+
+/* CAL-01 internal A4 calendar copy: the same sheet on screen and on paper. */
+.term-calendar-sheet { page: term-calendar; max-width: 210mm; margin: 0 auto; background: #fff; color: #000; padding: 14mm; box-shadow: 0 1px 3px rgb(0 0 0 / .12); font-size: 10pt; line-height: 1.4; }
+.term-calendar-head { display: flex; justify-content: space-between; gap: 8mm; border-bottom: 1.5pt solid #000; padding-bottom: 3mm; font-size: 8.5pt; }
+.term-calendar-inst { font-family: var(--font-display); font-size: 12.5pt; font-weight: 700; }
+.term-calendar-title { font-family: var(--font-display); font-size: 15pt; font-weight: 700; margin: 5mm 0 3mm; }
+.term-calendar-facts { display: grid; gap: 1.5mm; margin-bottom: 5mm; }
+.term-calendar-facts div { display: grid; grid-template-columns: 42mm minmax(0, 1fr); gap: 3mm; }
+.term-calendar-facts dt { font-weight: 700; }
+.term-calendar-facts dd { overflow-wrap: anywhere; }
+.term-calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.term-calendar-table th, .term-calendar-table td { border: .75pt solid #000; padding: 1.8mm 2mm; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.term-calendar-table th { background: #f0f0f0; font-size: 9pt; }
+.term-calendar-table th:nth-child(1) { width: 30mm; }
+.term-calendar-table th:nth-child(3) { width: 34mm; }
+.term-calendar-table th:nth-child(4) { width: 48mm; }
+.term-calendar-table tr { break-inside: avoid; page-break-inside: avoid; }
+.term-calendar-foot { display: flex; justify-content: space-between; gap: 6mm; margin-top: 4mm; border-top: .75pt solid #000; padding-top: 1.8mm; font-size: 7.5pt; color: #333; }
+@media (max-width: 640px) {
+  .term-calendar-sheet { padding: 5mm; font-size: 9pt; }
+  .term-calendar-head, .term-calendar-foot { flex-direction: column; gap: 1.5mm; }
+  .term-calendar-head .text-right { text-align: left; }
+  .term-calendar-facts div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .term-calendar-table th:nth-child(1), .term-calendar-table th:nth-child(3), .term-calendar-table th:nth-child(4) { width: auto; }
+}
+@page term-calendar { size: A4 portrait; margin: 12mm; }
+@media print {
+  .term-calendar-sheet { box-shadow: none; padding: 0; max-width: none; }
+  .term-calendar-head, .term-calendar-foot { flex-direction: row; }
+}

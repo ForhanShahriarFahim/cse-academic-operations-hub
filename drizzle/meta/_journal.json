@@ -134,6 +134,13 @@
       "when": 1794700800000,
       "tag": "0018_course-catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794787200000,
+      "tag": "0019_term-calendar",
+      "breakpoints": true
     }
   ]
 }
