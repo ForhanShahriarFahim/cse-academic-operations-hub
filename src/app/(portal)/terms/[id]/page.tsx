@@ -22,7 +22,7 @@ export default async function TermPage({params,searchParams}:{params:Promise<{id
       {manager&&batchManager&&(term.status==="draft"||rollover)&&<Link className="underline" href={`/terms/${id}/rollover`}>{rollover?"View preparation receipt":"Prepare next term"}</Link>}
       {manager&&term.status==="draft"&&<Link className="underline" href={`/terms/${id}/activate`}>Review activation</Link>}
       {term.status==="active"&&<Link className="underline" href="/routine/periods">Open Days &amp; periods</Link>}
-      <Link className="underline" href={`/terms/${id}/offerings`}>Term offerings</Link><Link className="underline" href={`/terms/${id}/groups`}>Class groups</Link></div>
+      <Link className="underline" href={`/terms/${id}/offerings`}>Term offerings</Link><Link className="underline" href={`/terms/${id}/groups`}>Class groups</Link><Link className="underline" href={`/terms/${id}/calendar`}>Academic calendar</Link></div>
       {!summary.editable&&<p className="mt-3 text-xs text-muted">Identity and dates are read-only: {term.status!=="draft"?"this term is not an unused draft":"business records already use this draft"}.</p>}
       {!["draft","active","completed"].includes(term.status)&&<p className="mt-3 text-xs text-muted">Legacy status retained as stored. Lifecycle controls are unavailable.</p>}
     </Panel></div>

@@ -733,3 +733,44 @@ export const auditEvents = pgTable(
   },
   (t) => [index("audit_at_idx").on(t.at)],
 );
+
+/** CAL-01: one optional calendar per term. A missing row means nothing is recorded. */
+export const termCalendars = pgTable("term_calendars", {
+  termId: integer("term_id").primaryKey().references(() => academicTerms.id),
+  teachingStart: date("teaching_start"),
+  teachingEnd: date("teaching_end"),
+  teachingSource: text("teaching_source"),
+  teachingSourceUrl: text("teaching_source_url"),
+  revision: integer("revision").notNull().default(1),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, () => [
+  check("term_calendars_teaching_pair_ck", sql.raw(`(teaching_start IS NULL AND teaching_end IS NULL AND teaching_source IS NULL AND teaching_source_url IS NULL) OR (teaching_start IS NOT NULL AND teaching_end IS NOT NULL AND teaching_source IS NOT NULL AND teaching_start <= teaching_end)`)),
+  check("term_calendars_source_ck", sql.raw("teaching_source IS NULL OR (char_length(teaching_source) >= 1 AND char_length(teaching_source) <= 300 AND teaching_source = btrim(teaching_source))")),
+  check("term_calendars_url_ck", sql.raw("teaching_source_url IS NULL OR (char_length(teaching_source_url) <= 500 AND teaching_source_url ~ '^https?://[^[:space:]]+$')")),
+  check("term_calendars_revision_ck", sql.raw("revision > 0")),
+]);
+
+/** CAL-01 dated calendar facts. Exam periods carry an explicit regular-classes effect. */
+export const termCalendarEntries = pgTable("term_calendar_entries", {
+  id: serial("id").primaryKey(),
+  termId: integer("term_id").notNull().references(() => termCalendars.termId),
+  kind: text("kind").notNull(),
+  title: text("title").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  regularClasses: text("regular_classes"),
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("term_calendar_entries_identity_uq").on(t.termId, t.kind, t.startDate, t.endDate, sql`lower(${t.title})`),
+  index("term_calendar_entries_term_dates_idx").on(t.termId, t.startDate, t.endDate),
+  check("term_calendar_entries_kind_ck", sql.raw("kind IN ('public_holiday', 'university_holiday', 'class_suspension', 'midterm', 'final')")),
+  check("term_calendar_entries_dates_ck", sql.raw("start_date <= end_date")),
+  check("term_calendar_entries_effect_ck", sql.raw("(kind IN ('midterm', 'final') AND regular_classes IS NOT NULL AND regular_classes IN ('continue', 'suspended')) OR (kind NOT IN ('midterm', 'final') AND regular_classes IS NULL)")),
+  check("term_calendar_entries_title_ck", sql.raw("char_length(title) >= 1 AND char_length(title) <= 120 AND title = btrim(title)")),
+  check("term_calendar_entries_source_ck", sql.raw("char_length(source) >= 1 AND char_length(source) <= 300 AND source = btrim(source)")),
+  check("term_calendar_entries_url_ck", sql.raw("source_url IS NULL OR (char_length(source_url) <= 500 AND source_url ~ '^https?://[^[:space:]]+$')")),
+]);

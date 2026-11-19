@@ -10,6 +10,7 @@ import { invalid, stale, succeeded, type ActionResult } from "./action-result";
 import { withTermContext } from "./active-term";
 import { lockTermContext, advanceTermGeneration } from "./term-context";
 import { activationEvidence, getTermSummary, hasIdentityDuplicate } from "./term-data";
+import { calendarDatesOutside } from "./calendar-store";
 import { POLICY_FIELDS, termIdentityKey, validateStartingPolicy, validateTermFields } from "./term-records";
 
 async function managedWrite(mode: "share" | "exclusive", work: () => Promise<ActionResult>) {
@@ -58,6 +59,8 @@ export async function editTermAction(_previous: ActionResult | null, form: FormD
     if (!summary.editable) return stale("Only an unused draft can be edited here.");
     const parsed = validateTermFields(input(form));
     if (!parsed.ok) return invalid("Check the highlighted fields.", parsed.errors);
+    const stranded = await calendarDatesOutside(db, id, parsed.fields.startDate, parsed.fields.endDate);
+    if (stranded.length) return invalid("These term dates would leave recorded calendar dates outside the term.", { [parsed.fields.startDate > summary.term.startDate ? "startDate" : "endDate"]: [`Move or remove these calendar dates first: ${stranded.join("; ")}.`] });
     const { name, academicYear } = parsed.fields;
     if (termIdentityKey(name, academicYear) !== termIdentityKey(summary.term.name, summary.term.academicYear)
       && await hasIdentityDuplicate(name, academicYear, id)) return invalid("That term already exists.", { name: ["Use a different name or academic year."] });
