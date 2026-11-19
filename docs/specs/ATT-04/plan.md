@@ -18,8 +18,10 @@ On 19 November the owner replied “Accepted.” to the verified delivery at `9c
 - [x] T-04 — Add authorized term-scoped active and completed loaders using the existing policy timeline, captured records and context locks. Keep roster editing and roll call at their existing entry points. Covers AC-02–AC-05.
 - [x] T-05 — Build phase navigation, student explanation, completed-term entry and read-only Settings text. Covers AC-02–AC-04 and AC-06.
 - [x] T-06 — Verify with domain oracles and synthetic fixtures for both adapters. Recheck ATT-03A and SET-01B on both, run typecheck, lint, domain, guarded default build and compiled Edge review. See the [Webpack result, build limitation and review command](verification.md#production-review). Covers AC-01–AC-06.
-- [ ] T-07 — Record owner acceptance and merge into local `main`. Review the next handoff for ATT-05 separately.
+- [x] T-07 — Record owner acceptance and merge into local `main`. Review the next handoff for ATT-05 separately.
 
 ## Current checkpoint and exact handoff
 
-D-1–D-4 are implemented at `9bd775a` and verified at `9c3406d`. The owner has accepted delivery for merge into local `main`. [Verification and preview](verification.md)
+D-1–D-4 are implemented at `9bd775a` and verified at `9c3406d`. Acceptance `2d24e9e` precedes local merge `770dcc5`, which matches the retained `codex/att-04` tree. [Verification and preview](verification.md)
+
+> In the next owner-started session, inspect and specify ATT-05 / #12 from local `main`. Define the dated course ledger, student matrix, filters, CSV and print parity within existing attendance group permissions. Use ATT-04's captured records, contribution rules and policy trace. Present scope and decisions for approval before implementation. GitHub synchronization follows the next owner-directed boundary.
