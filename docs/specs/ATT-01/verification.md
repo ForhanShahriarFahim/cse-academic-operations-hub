@@ -43,4 +43,4 @@ Open the [synthetic preview](http://localhost:3151/) and choose teacher or admin
 
 To restart the preview from the isolated build, use `node node_modules/tsx/dist/cli.mjs scripts/review-attendance.ts --att-01 --serve`. Add `--check` to run the compiled Edge checks. The script uses loopback and a disposable PostgreSQL database.
 
-Delivery acceptance and local merge are pending. Issue #8 was open when read on 19 November 2026.
+The owner accepted delivery `81a57af` on 19 November 2026, including the disclosed default Turbopack limitation. Issue #8 was open when read on that date.

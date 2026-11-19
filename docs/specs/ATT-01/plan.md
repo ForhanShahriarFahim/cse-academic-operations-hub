@@ -1,6 +1,6 @@
 # ATT-01 — Implementation plan
 
-[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Awaiting delivery acceptance · 19 November 2026, Asia/Dhaka
+[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Accepted · 19 November 2026, Asia/Dhaka
 
 Branch `codex/att-01` from local `main` at `dec448e`. [Specification and decisions](spec.md) · [Verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -15,6 +15,10 @@ Move the chooser out of the marking component. Keep the existing roster and prin
 ## Approval record
 
 - On 19 November 2026 (Asia/Dhaka), the owner replied “Approved.” to the proposal at `c550b12` and its request to approve D-1–D-4. The decisions are approved as written.
+
+## Delivery acceptance
+
+On 19 November 2026 (Asia/Dhaka), the owner replied “Accepted” to delivery `81a57af`, which disclosed the default Turbopack CSS worker failure and the passing isolated Webpack and compiled Edge checks.
 
 ## Tasks
 
@@ -31,6 +35,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Approval is recorded at `c3063a0`. The implemented delivery is on `codex/att-01` and ready for owner inspection. [Verification and review command](verification.md) · [Synthetic preview](http://localhost:3151/)
+Approval is recorded at `c3063a0`. The owner accepted delivery `81a57af` on `codex/att-01`. [Verification and review command](verification.md)
 
-> Review both synthetic accounts and the documented Turbopack limitation. On owner acceptance, record the decision and merge the reviewed ATT-01 delivery into local `main`. Issue #8 synchronization follows the next owner-directed delivery boundary. The local sequence points to CAL-01 inspection after acceptance.
+> Merge the accepted ATT-01 delivery into local `main` and record the merge receipt. Issue #8 synchronization follows the next owner-directed delivery boundary.
