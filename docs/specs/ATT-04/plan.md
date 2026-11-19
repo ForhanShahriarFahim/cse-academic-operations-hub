@@ -8,6 +8,8 @@ Branch `codex/att-04` from local `main` at `fcb342c`. [Specification](spec.md) �
 
 The owner's “Okay, go for the task that is remaining” started inspection and specification. On 19 November the owner replied “Approved” to the request to approve D-1–D-4 on `2b89594`. This authorizes implementation and verification of D-1–D-4.
 
+On 19 November the owner replied “Accepted.” to the verified delivery at `9c3406d`, including the disclosed default Turbopack failure and passing Webpack build. This authorizes the local merge.
+
 ## Tasks
 
 - [x] T-01 — Inspect calculation, permissions, historical policy and workflow. Present D-1–D-4 and review sketches.
@@ -20,4 +22,4 @@ The owner's “Okay, go for the task that is remaining” started inspection and
 
 ## Current checkpoint and exact handoff
 
-D-1–D-4 are implemented at `9bd775a` and verified on the issue branch. The owner can inspect the synthetic preview using the [review launcher](verification.md#owner-review). Await delivery acceptance before the local merge. The institutional migration and historical publication of official marks are separate decisions.
+D-1–D-4 are implemented at `9bd775a` and verified at `9c3406d`. The owner has accepted delivery for merge into local `main`. [Verification and preview](verification.md)
