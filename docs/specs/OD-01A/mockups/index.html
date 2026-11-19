@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OD-01A review sketches</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #202a25; background: #f5f4ee; font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 74rem; margin: auto; padding: clamp(.85rem, 3vw, 2rem); }
+  h1, h2 { margin: 0 0 .4rem; font-family: Georgia, serif; line-height: 1.2; }
+  h3, p { margin: .4rem 0; }
+  a { color: #175643; text-underline-offset: .2em; }
+  a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 3px solid #175643; outline-offset: 3px; }
+  nav.jump { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  section { padding: 1rem; margin: 1rem 0; background: #fff; border: 1px solid #c8ccc3; border-radius: .5rem; min-width: 0; }
+  .meta { color: #46584e; font-size: .9rem; }
+  .notice { border-left: .25rem solid #99712b; background: #fff5dc; padding: .55rem .75rem; }
+  .ok { border-left: .25rem solid #175643; background: #e5efe9; padding: .55rem .75rem; }
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem; align-items: end; }
+  .primary { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border-radius: .4rem; background: #175643; color: #fff; font-weight: 600; text-decoration: none; border: 0; }
+  form.filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; margin: .75rem 0; }
+  label { font-size: .85rem; font-weight: 600; }
+  form.filters label { display: grid; gap: .2rem; }
+  select, input, button, textarea { min-height: 2.75rem; font: inherit; padding: .3rem .5rem; border: 1px solid #9aa597; border-radius: .35rem; background: #fff; }
+  button { border-color: #175643; color: #175643; font-weight: 600; background: #fff; }
+  .counts { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin: .5rem 0; font-size: .9rem; }
+  .counts strong { font-variant-numeric: tabular-nums; font-size: 1.1rem; }
+  .scroll { overflow: auto; max-width: 100%; border: 1px solid #d8ddd4; border-radius: .4rem; }
+  table { width: 100%; border-collapse: collapse; text-align: left; font-size: .88rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: .45rem .5rem; border-bottom: 1px solid #d8ddd4; vertical-align: top; }
+  thead th { position: sticky; top: 0; background: #eef1ec; white-space: nowrap; }
+  tr.hl td { background: #f1f7f3; }
+  .mono { font-family: ui-monospace, Consolas, monospace; }
+  .tag { display: inline-block; border: 1px solid; border-radius: 1rem; padding: 0 .5rem; font-size: .75rem; white-space: nowrap; }
+  .lvA { border-color: #175643; color: #175643; } .lvB { border-color: #4f7a5f; color: #3c5f49; }
+  .lvC { border-color: #99712b; color: #6d4f17; } .lvD { border-color: #9a4a2f; color: #7c2a17; }
+  .ver { border-color: #175643; color: #175643; background: #e5efe9; } .pen { border-color: #9a4a2f; color: #7c2a17; background: #fbeee8; }
+  .review { border-color: #99712b; color: #6d4f17; background: #fff5dc; }
+  .muted { color: #6b7570; }
+  .blocks { font-size: .85rem; }
+  .desktop { display: block; } .phone { display: none; }
+  .phone article { border-bottom: 1px solid #d8ddd4; padding: .7rem 0; }
+  .phone dl { display: grid; grid-template-columns: 6.5rem 1fr; gap: .1rem .5rem; margin: .35rem 0; font-size: .9rem; }
+  .phone dt { color: #46584e; }
+  @media (max-width: 40rem) { .desktop { display: none; } .phone { display: block; } }
+  .split { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1.25rem; }
+  @media (max-width: 52rem) { .split { grid-template-columns: 1fr; } }
+  fieldset { border: 1px solid #d8ddd4; border-radius: .4rem; padding: .6rem .8rem; margin: 0 0 .9rem; }
+  legend { font-weight: 700; padding: 0 .3rem; }
+  .choice { display: grid; grid-template-columns: 1.4rem 1fr; gap: .1rem .4rem; padding: .55rem .4rem; border-radius: .35rem; }
+  .choice.on { background: #e5efe9; outline: 1px solid #175643; }
+  .choice input { min-height: auto; margin-top: .3rem; }
+  .choice small { grid-column: 2; color: #46584e; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .75rem; }
+  .grid label { display: grid; gap: .2rem; }
+  .err { color: #7c2a17; font-size: .82rem; font-weight: 600; }
+  .bad { border-color: #9a4a2f; border-width: 2px; }
+  aside.impact { border: 1px solid #c8ccc3; border-radius: .5rem; padding: .9rem; background: #fbfaf5; align-self: start; position: sticky; top: 1rem; }
+  aside.impact h3 { font-family: Georgia, serif; }
+  aside.impact ul { padding-left: 1.1rem; margin: .3rem 0; }
+  .ladder { list-style: none; padding: 0; margin: .4rem 0; display: grid; gap: .2rem; font-size: .85rem; }
+  .ladder li::before { content: "○ "; color: #9aa597; } .ladder li.got::before { content: "● "; color: #175643; }
+  .dialog { max-width: 32rem; border: 1px solid #9aa597; border-radius: .5rem; padding: 1rem; box-shadow: 0 10px 30px rgb(0 0 0 / .12); background: #fff; }
+  .dialog label { display: grid; gap: .2rem; margin: .5rem 0; }
+  .row { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: flex-end; margin-top: .6rem; }
+  .danger { border-color: #9a4a2f; color: #7c2a17; }
+  ol.timeline { list-style: none; padding: 0; margin: .5rem 0; border-left: 2px solid #d8ddd4; }
+  ol.timeline li { position: relative; padding: .2rem 0 .9rem 1rem; }
+  ol.timeline li::before { content: ""; position: absolute; left: -.42rem; top: .55rem; width: .7rem; height: .7rem; border-radius: 50%; background: #fff; border: 2px solid #175643; }
+  del { color: #7c2a17; } ins { color: #175643; text-decoration: none; font-weight: 600; }
+  menu { margin: 0; padding: 0; list-style: none; display: inline-flex; gap: .35rem; flex-wrap: wrap; }
+  menu button { min-height: 2.25rem; padding: 0 .55rem; font-size: .82rem; }
+</style>
+<main>
+  <p class="meta">OD-01A review sketch · Synthetic data · not the final implementation</p>
+  <nav class="jump" aria-label="Review examples"><a href="#register">Register</a><a href="#form">Guided form and impact</a><a href="#legacy">Needs-review row</a><a href="#archive">Archive</a><a href="#verify">Verify</a><a href="#history">History</a><a href="#phone">Phone</a></nav>
+
+  <section id="register" aria-labelledby="register-title">
+    <div class="head">
+      <div>
+        <p class="meta">Planning records · Summer 2026</p>
+        <h1 id="register-title">Cross-department commitments</h1>
+        <p>Teachers and rooms committed to other departments. Together these records make the <strong>OD row</strong> (“Other Departments”) on the printed routine. A record blocks only what is actually known.</p>
+      </div>
+      <a class="primary" href="#form">Record commitment</a>
+    </div>
+    <div class="ok" role="status">SYN-T2 commitment updated. Planning facts changed, so it returned to Pending.</div>
+    <form class="filters" aria-label="Filter commitments">
+      <label>State<select><option>Active</option><option>Archived</option><option>All</option></select></label>
+      <label>Verification<select><option>Any</option><option>Pending</option><option>Verified</option></select></label>
+      <label>What is committed<select><option>Any</option><option>Our teacher teaches elsewhere</option><option>Another department uses our room</option><option>Teacher and room</option><option>Note only</option></select></label>
+      <label>Search<input type="search" placeholder="Department, course or audience"></label>
+      <button>Apply</button>
+    </form>
+    <p class="counts"><span><strong>6</strong> active</span><span><strong>3</strong> pending</span><span><strong>2</strong> verified</span><span><strong>1</strong> unresolved note</span><span><strong>2</strong> archived</span></p>
+    <div class="desktop">
+      <div class="scroll" role="region" aria-label="Commitment register" tabindex="0">
+        <table>
+          <thead><tr><th>What is committed</th><th>Department</th><th>Teacher</th><th>Room</th><th>Day and time</th><th>Course / audience</th><th>Blocks</th><th>Completeness</th><th>Verification</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>Another department uses our room</td><td class="mono">MATH</td><td class="muted">—</td><td class="mono">NB-301</td><td class="mono">Sun 9:00–10:15</td><td class="muted">—</td><td class="blocks">Room NB-301 only</td><td><span class="tag lvC">C · room and time</span></td><td><span class="tag ver">Verified</span></td><td><menu><li><button>Edit</button></li><li><button>More ▾</button></li></menu></td></tr>
+            <tr class="hl"><td>Our teacher teaches for another department</td><td class="mono">EEE</td><td class="mono">SYN-T2</td><td class="muted">—</td><td class="mono">Mon 11:30–12:45</td><td>EEE-1101 · EEE 1st year</td><td class="blocks">SYN-T2 only</td><td><span class="tag lvB">B · credits missing</span></td><td><span class="tag pen">Pending</span></td><td><menu><li><button>Verify</button></li><li><button>More ▾</button></li></menu></td></tr>
+            <tr><td>Our teacher teaches another department in our room</td><td class="mono">PHY</td><td class="mono">SYN-T4</td><td class="mono">Lab-2</td><td class="mono">Tue 14:00–16:30</td><td>PHY-2105 · PHY 2nd year</td><td class="blocks">SYN-T4 and Lab-2</td><td><span class="tag lvA">A · complete</span></td><td><span class="tag ver">Verified</span></td><td><menu><li><button>Edit</button></li><li><button>More ▾</button></li></menu></td></tr>
+            <tr><td>Only a note</td><td class="mono">CE</td><td class="muted">—</td><td class="muted">—</td><td class="muted">Not known</td><td>“CE may need a CSE teacher for CE-1201”</td><td class="blocks">Nothing — unresolved note</td><td><span class="tag lvD">D · note only</span></td><td><span class="tag pen">Pending</span></td><td><menu><li><button>Resolve note</button></li><li><button>More ▾</button></li></menu></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="meta">“More” holds Edit, Return to pending, Archive, History and Delete mistaken entry, as applicable. Completeness says how much is known. Verification says whether it was confirmed. They change independently.</p>
+    </div>
+    <div class="phone" aria-label="Phone register">
+      <article><h3>MATH uses NB-301</h3><dl><dt>When</dt><dd class="mono">Sun 9:00–10:15</dd><dt>Blocks</dt><dd>Room NB-301 only</dd><dt>Status</dt><dd><span class="tag lvC">C</span> <span class="tag ver">Verified</span></dd></dl><menu><li><button>Edit</button></li><li><button>More ▾</button></li></menu></article>
+    </div>
+  </section>
+
+  <section id="form" aria-labelledby="form-title">
+    <a href="#register">Back to commitments</a>
+    <h2 id="form-title">Edit commitment · EEE · SYN-T2</h2>
+    <p class="notice">This commitment is verified. Changing who, which room, the day or the time returns it to Pending until it is confirmed again.</p>
+    <div class="split">
+      <form aria-label="Commitment details">
+        <fieldset>
+          <legend>What is committed?</legend>
+          <label class="choice on"><input type="radio" name="k" checked><span>Our teacher teaches for another department</span><small>Blocks that teacher at that time. The other department's room is not ours to block.</small></label>
+          <label class="choice"><input type="radio" name="k"><span>Another department uses one of our rooms</span><small>Blocks only that room. No teacher clash is invented.</small></label>
+          <label class="choice"><input type="radio" name="k"><span>Our teacher teaches another department in our room</span><small>Blocks the teacher and the room.</small></label>
+          <label class="choice"><input type="radio" name="k"><span>Only a note — the details are not known yet</span><small>Blocks nothing. Resolve it when the facts arrive.</small></label>
+        </fieldset>
+        <div class="grid">
+          <label>Department *<input value="EEE"></label>
+          <label>Teacher *<select><option>SYN-T2 · Synthetic Teacher Two</option></select></label>
+          <label>Day *<select><option>Monday</option></select></label>
+          <label>Start *<input class="mono" value="11:30 AM"></label>
+          <label>End *<input class="mono bad" value="11:00 AM" aria-describedby="end-err" aria-invalid="true"><span id="end-err" class="err">End must be after the start.</span></label>
+          <label>Course<input value="EEE-1101"></label>
+          <label>Audience<input value="EEE 1st year"></label>
+          <label>Credits<input class="mono" placeholder="e.g. 3.0"></label>
+        </div>
+        <label style="display:grid;gap:.2rem;margin-top:.75rem">Notes and source<textarea rows="2">Email from EEE office, 4 Nov.</textarea></label>
+        <div class="row"><a href="#register">Cancel</a><button class="primary" style="color:#fff">Save changes</button></div>
+      </form>
+      <aside class="impact" aria-labelledby="impact-title" aria-live="polite">
+        <h3 id="impact-title">Impact preview</h3>
+        <p><strong>Will block:</strong> SYN-T2 on Monday 11:30–12:45.</p>
+        <p><strong>Will not block:</strong> any room.</p>
+        <p><strong>Completeness:</strong> <span class="tag lvB">B</span></p>
+        <ul class="ladder" aria-label="Facts for level A"><li class="got">Teacher</li><li class="got">Day and time</li><li class="got">Course</li><li>Credits — add to reach A</li></ul>
+        <p><strong>Clashes in the working draft (1):</strong></p>
+        <ul><li>CSE-2103 · HSC 23A · Mon 11:30–12:45 · SYN-T2</li></ul>
+        <p class="meta">Saving is allowed. The clash then appears in the routine's conflict list as a blocker.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="legacy" aria-labelledby="legacy-title">
+    <h2 id="legacy-title">Older record that needs review</h2>
+    <p><span class="tag review">Needs review</span> Recorded as teaching with no teacher, so it blocks nothing. Edit it and choose what is committed, or resolve it as a note.</p>
+    <p class="meta">Unedited older records keep their stored level. Nothing is changed in the database until someone saves.</p>
+  </section>
+
+  <section id="archive" aria-labelledby="archive-title">
+    <h2 id="archive-title">Archive dialog</h2>
+    <div class="dialog" role="dialog" aria-labelledby="dlg-title">
+      <h3 id="dlg-title">Archive the MATH use of NB-301?</h3>
+      <p>It stops blocking NB-301 and leaves the OD row, the teacher agenda and future publications. Published routines keep it as published. You can reactivate it later, and it then returns as Pending.</p>
+      <p class="notice">SYN-T3's workload counts this commitment (3.00 units). Archiving does not change workload.</p>
+      <label>Reason *<input value="MATH moved this class to their own building from week 6."></label>
+      <div class="row"><button>Cancel</button><button class="danger">Archive commitment</button></div>
+    </div>
+  </section>
+
+  <section id="verify" aria-labelledby="verify-title">
+    <h2 id="verify-title">Verify dialog</h2>
+    <div class="dialog" role="dialog" aria-labelledby="ver-title">
+      <h3 id="ver-title">Verify EEE · SYN-T2 · Mon 11:30–12:45?</h3>
+      <label>How was this confirmed? *<input placeholder="e.g. Confirmed by phone with the EEE routine coordinator"></label>
+      <div class="row"><button>Cancel</button><button class="primary" style="color:#fff">Mark verified</button></div>
+    </div>
+    <p class="meta">Notes only cannot be verified. Resolve the note first.</p>
+  </section>
+
+  <section id="history" aria-labelledby="history-title">
+    <a href="#register">Back to commitments</a>
+    <h2 id="history-title">History · EEE · SYN-T2</h2>
+    <ol class="timeline">
+      <li><strong>Edited</strong> · 19 Nov 2026 10:42 · SYN-Coordinator<br>Time <del>11:00–12:15</del> → <ins>11:30–12:45</ins> · Returned to Pending</li>
+      <li><strong>Verified</strong> · 12 Nov 2026 15:10 · SYN-Coordinator<br>“Confirmed by phone with the EEE routine coordinator.”</li>
+      <li><strong>Resolved from note</strong> · 10 Nov 2026 09:05 · SYN-Admin<br>Original note: “EEE needs a CSE teacher Monday late morning.”</li>
+      <li><strong>Created as note</strong> · 4 Nov 2026 16:20 · SYN-Admin</li>
+    </ol>
+  </section>
+
+  <section id="phone" aria-labelledby="phone-title">
+    <h2 id="phone-title">Phone (390 / 320 px)</h2>
+    <p>The register becomes stacked records, as in the narrow view above. The form becomes a single column, and the impact preview moves below the choice, above the fields, so the effect stays visible while facts are entered. Dialogs fill the width. The page never scrolls sideways.</p>
+  </section>
+</main>
+</html>
