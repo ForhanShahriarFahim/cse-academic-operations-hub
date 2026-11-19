@@ -15,6 +15,7 @@ const refs = loadApp<typeof import("../../../src/lib/teacher-data")>("src/lib/te
 const scope = loadApp<typeof import("../../../src/lib/term-scope")>("src/lib/term-scope.ts");
 const pub = loadApp<typeof import("../../../src/lib/public-routine")>("src/lib/public-routine.ts");
 const actions = freshTermActions(loadApp<typeof import("../../../src/lib/actions")>("src/lib/actions.ts"));
+const commitments = freshTermActions(loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts"));
 const academic = freshTermActions(loadApp<typeof import("../../../src/lib/academic-actions")>("src/lib/academic-actions.ts"));
 const grid = freshTermActions(loadApp<typeof import("../../../src/lib/time-grid-actions")>("src/lib/time-grid-actions.ts"));
 const teachers = freshTermActions(loadApp<typeof import("../../../src/lib/teacher-actions")>("src/lib/teacher-actions.ts"));
@@ -84,8 +85,8 @@ async function main() {
       ["moveMeeting", () => actions.moveMeetingAction(meeting.id, 1, 900, 975)],
       ["updateMeeting", () => actions.updateMeetingAction(meeting.id, { dayOfWeek: 1, startMinutes: 900, endMinutes: 975, teacherIds: [teacher.id], roomIds: [room.id], isException: false, exceptionNote: null })],
       ["deleteMeeting", () => actions.deleteMeetingAction(meeting.id)],
-      ["createExternal", () => actions.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Synthetic EEE", notes: "Unchanged" }))],
-      ["verifyExternal", () => actions.verifyExternalAction(external.id)], ["deleteExternal", () => actions.deleteExternalAction(external.id)],
+      ["createExternal", () => commitments.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Synthetic EEE", notes: "Unchanged" }))],
+      ["verifyExternal", () => commitments.verifyExternalAction(external.id, form({ revision: external.revision, note: "Synthetic" }))], ["deleteExternal", () => actions.deleteExternalAction(external.id)],
       ["publish", () => actions.publishAction("Must refuse")],
       ["policy", () => academic.updateAcademicPolicyAction(form({}))],
       ["createExtra", () => academic.createExtraLoadClassAction(form({ teacherId: teacher.id, teachingGroupId: group, classDate: "2026-06-13", startTime: "9:00 AM", endTime: "10:00 AM" }))],

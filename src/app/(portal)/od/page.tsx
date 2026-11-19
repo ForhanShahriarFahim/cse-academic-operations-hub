@@ -1,90 +1,160 @@
-import { TermWriteProvider } from "@/components/term-write-context";
-import { isAssignable } from "@/lib/teacher-records";
-import { getPortalData } from "@/lib/data";
-import { fmtRange, DAY_NAMES } from "@/lib/time";
-import { PageHeader, Badge, Panel, EmptyNote } from "@/components/ui";
-import { OdManager, OdRowActions } from "@/components/od-manager";
+import Link from "next/link";
 import { ShieldQuestion } from "lucide-react";
+import { TermWriteProvider } from "@/components/term-write-context";
+import { EmptyNote, Notice, PageHeader, Panel, TableRegion } from "@/components/ui";
+import { CommitmentRowActions } from "@/components/od/commitment-row-actions";
+import { getCommitmentWorkspace, requireCommitmentManager, type CommitmentRow } from "@/lib/commitment-data";
+import { COMMITMENT_CHOICES, filterRegister, parseRegisterFilters, registerCounts, registerQuery } from "@/lib/commitment-records";
 
 export const dynamic = "force-dynamic";
 
-const kindLabel: Record<string, string> = {
-  teaching: "Outgoing teaching",
-  room_reservation: "Room only",
-  combined: "Teacher + room",
-  unresolved_note: "Unresolved note",
+const NOTICES: Record<string, string> = {
+  created: "Commitment recorded as Pending.",
+  updated: "Commitment updated.",
+  "returned-edit": "Commitment updated. Planning facts changed, so it returned to Pending.",
+  resolved: "Note resolved into a structured commitment. It is Pending until verified.",
+  verified: "Commitment verified.",
+  returned: "Commitment returned to Pending.",
+  archived: "Commitment archived. It no longer affects planning.",
+  "archived-workload": "Commitment archived. Workload still counts it; archiving does not change workload.",
+  reactivated: "Commitment reactivated as Pending.",
+  deleted: "Mistaken entry deleted. Its audit history remains.",
 };
-const levelTone: Record<string, "pine" | "sage" | "gold" | "clay"> = {
-  A: "pine", B: "sage", C: "gold", D: "clay",
+const LEVEL_CLASS: Record<string, string> = {
+  A: "border-[var(--color-pine)] text-[var(--color-pine)]", B: "border-[var(--color-moss)] text-[var(--color-pine)]",
+  C: "border-[var(--color-gold)] text-gold-text", D: "border-[var(--color-clay)] text-[var(--color-clay)]",
 };
 
-export default async function OdPage() {
-  const data = await getPortalData();
+function Level({ row }: { row: CommitmentRow }) {
+  return <span className={`inline-block whitespace-nowrap rounded-full border px-2 text-[11.5px] font-medium ${LEVEL_CLASS[row.storedLevel] ?? ""}`}>{row.storedLevel} · {row.levelText}</span>;
+}
+function Verification({ row }: { row: CommitmentRow }) {
+  if (row.lifecycleStatus === "archived") return <span className="inline-block whitespace-nowrap rounded-full border border-[var(--color-line)] bg-wash px-2 text-[11.5px] font-medium text-ink-2">Archived</span>;
+  return row.verificationStatus === "verified"
+    ? <span className="inline-block whitespace-nowrap rounded-full border border-[var(--color-pine)]/40 bg-pine-tint px-2 text-[11.5px] font-medium text-[var(--color-pine)]" title={row.verificationNote ?? undefined}>✓ Verified</span>
+    : <span className="inline-block whitespace-nowrap rounded-full border border-[var(--color-clay)]/40 bg-clay-tint px-2 text-[11.5px] font-medium text-[var(--color-clay)]">Pending</span>;
+}
+function Review({ row }: { row: CommitmentRow }) {
+  if (!row.reviewReasons.length && row.storedLevel === row.derivedLevel) return null;
+  const reasons = [...row.reviewReasons, ...(row.storedLevel !== row.derivedLevel ? [`Stored level ${row.storedLevel}; the current rule gives ${row.derivedLevel}. It updates when saved.`] : [])];
+  return <p className="mt-1 max-w-[22rem] whitespace-normal text-[11.5px] leading-snug text-gold-text"><span className="font-semibold">{row.reviewReasons.length ? "Needs review: " : "Note: "}</span>{reasons.join(" ")}</p>;
+}
+const dash = <span className="text-muted" aria-label="Not applicable or not known">—</span>;
+const title = (row: CommitmentRow) => `${row.counterpartDepartment}${row.teacherCode ? ` · ${row.teacherCode}` : ""}${row.roomCode ? ` · ${row.roomCode}` : ""}${row.schedule ? ` · ${row.schedule}` : ""}`;
 
-  return <TermWriteProvider value={data.writeContext}>{(
-    <div>
-      <PageHeader
-        context="Planning records"
-        title="External commitments"
-        description="Rooms and teachers committed to other departments. These records produce the OD row on the printed routine; entries that still need confirming are marked for review."
-        actions={
-          <OdManager
-            teachers={data.teachers.filter((t) => isAssignable(t.status)).map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode }))}
-            rooms={data.rooms.filter((r) => r.isActive).map((r) => ({ id: r.id, code: r.code }))}
-          />
-        }
-      />
+export default async function CommitmentsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  await requireCommitmentManager("/od");
+  const params = await searchParams;
+  const filters = parseRegisterFilters(params);
+  const { term, writeContext, rows } = await getCommitmentWorkspace();
+  const visible = filterRegister(rows, filters);
+  const counts = registerCounts(rows);
+  const returnTo = `/od${registerQuery(filters)}`;
+  const changed = typeof params.changed === "string" ? Number(params.changed) : null;
+  const notice = typeof params.notice === "string" ? NOTICES[params.notice] : undefined;
+  const actionRow = (row: CommitmentRow) => ({ id: row.id, title: title(row), revision: row.revision, commands: row.commands, roomCode: row.roomCode, teacherCode: row.teacherCode, workload: row.workload });
+  const select = "min-h-[2.75rem] rounded-md border border-[var(--color-line)] bg-white px-2 text-[13px]";
 
-      <Panel title="Commitment register" sub={`${data.externals.length} records · completeness levels A (full) to D (unresolved)`}>
-        <div role="region" aria-label="External commitment register" tabIndex={0} className="table-region overflow-x-auto">
-          <table className="routine-table text-[12px]">
-            <thead>
-              <tr>
-                {["Level", "Kind", "Department", "Teacher", "Room", "Schedule", "Course / audience", "Credits", "Verified", "Source", ""].map((h) => (
-                  <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>
+  return (
+    <TermWriteProvider value={writeContext}>
+      <div className="min-w-0">
+        <PageHeader
+          context={`Planning records · ${term.name}`}
+          title="Cross-department commitments"
+          description={<>Teachers and rooms committed to other departments. Together these records make the <strong>OD row</strong> (“Other Departments”) on the printed routine. A record blocks only what is actually known; notes block nothing.</>}
+          actions={<Link href={`/od/new?return=${encodeURIComponent(returnTo)}`} className="inline-flex min-h-[2.75rem] items-center rounded-md bg-[var(--color-pine)] px-4 text-[13px] font-semibold text-white hover:bg-[var(--color-pine-2)]">Record commitment</Link>}
+        />
+        {notice ? <Notice tone="success" className="mb-3">{notice}</Notice> : null}
+
+        <form method="get" action="/od" aria-label="Filter commitments" className="mb-3 flex flex-wrap items-end gap-3">
+          <label className="grid gap-1 text-[12.5px] font-semibold text-ink-2">State
+            <select name="state" defaultValue={filters.state} className={select}><option value="active">Active</option><option value="archived">Archived</option><option value="all">All</option></select>
+          </label>
+          <label className="grid gap-1 text-[12.5px] font-semibold text-ink-2">Verification
+            <select name="verification" defaultValue={filters.verification} className={select}><option value="any">Any</option><option value="pending">Pending</option><option value="verified">Verified</option></select>
+          </label>
+          <label className="grid gap-1 text-[12.5px] font-semibold text-ink-2">What is committed
+            <select name="kind" defaultValue={filters.kind} className={select}><option value="any">Any</option>{COMMITMENT_CHOICES.map((c) => <option key={c.kind} value={c.kind}>{c.short}</option>)}</select>
+          </label>
+          <label className="grid gap-1 text-[12.5px] font-semibold text-ink-2">Search
+            <input type="search" name="q" defaultValue={filters.q} maxLength={80} placeholder="Department, course or audience" className={`${select} w-[min(16rem,80vw)]`} />
+          </label>
+          <button className="min-h-[2.75rem] rounded-md border border-[var(--color-pine)] px-4 text-[13px] font-semibold text-[var(--color-pine)]">Apply</button>
+          {returnTo !== "/od" ? <Link href="/od" className="min-h-[2.75rem] content-center text-[13px] underline">Clear filters</Link> : null}
+        </form>
+
+        <p className="mb-3 flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-ink-2" aria-label="Commitment counts">
+          {([["active", "active"], ["pending", "pending"], ["verified", "verified"], ["unresolved", "unresolved notes"], ["archived", "archived"]] as const).map(([key, label]) => (
+            <span key={key}><strong className="tabular text-[15px]">{counts[key]}</strong> {label}</span>
+          ))}
+        </p>
+
+        <Panel title="Commitment register" sub={`${visible.length} of ${rows.length} records shown · completeness says how much is known, verification says whether it was confirmed`} flush>
+          {visible.length === 0 ? (
+            <div className="p-4"><EmptyNote>{rows.length ? "No commitments match these filters." : "No cross-department commitments are recorded for this term."}</EmptyNote></div>
+          ) : (
+            <>
+              <div className="hidden sm:block">
+                <TableRegion label="Commitment register">
+                  <table className="routine-table w-full text-[12.5px]">
+                    <thead>
+                      <tr>
+                        {["What is committed", "Department", "Teacher", "Room", "Day and time", "Course / audience", "Blocks", "Completeness", "Verification", "Actions"].map((h) => (
+                          <th key={h} scope="col" className={`sticky top-0 bg-wash px-2.5 py-2 text-left ${h === "Actions" ? "text-right" : ""}`}><span className="micro-label">{h}</span></th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visible.map((row) => (
+                        <tr key={row.id} id={`od-${row.id}`} className={`border-t border-[var(--color-line-soft)] align-top ${row.id === changed ? "bg-pine-tint" : row.lifecycleStatus === "archived" ? "bg-wash text-ink-2" : "bg-sheet"}`}>
+                          <th scope="row" className="min-w-[9rem] px-2.5 py-2 text-left font-medium">{row.choice}<Review row={row} /></th>
+                          <td className="px-2.5 py-2 font-mono font-semibold">{row.counterpartDepartment}</td>
+                          <td className="whitespace-nowrap px-2.5 py-2 font-mono">{row.teacherCode ?? dash}</td>
+                          <td className="whitespace-nowrap px-2.5 py-2 font-mono">{row.roomCode ?? dash}</td>
+                          <td className="min-w-[7.5rem] px-2.5 py-2 font-mono text-[12px]">{row.schedule ?? <span className="text-muted">Not known</span>}</td>
+                          <td className="max-w-[16rem] px-2.5 py-2 text-[12px] leading-snug">
+                            {row.courseLabel ?? (row.kind === "unresolved_note" ? <span className="italic">“{row.notes}”</span> : dash)}
+                            {row.audienceLabel ? <span className="block text-muted">{row.audienceLabel}</span> : null}
+                          </td>
+                          <td className="min-w-[8rem] px-2.5 py-2 text-[12px]">{row.lifecycleStatus === "archived" ? <span className="text-muted">Nothing — archived</span> : row.blocks}</td>
+                          <td className="px-2.5 py-2"><Level row={row} /></td>
+                          <td className="px-2.5 py-2"><Verification row={row} />{row.archiveReason ? <span className="mt-1 block max-w-[12rem] text-[11.5px] text-muted">{row.archiveReason}</span> : null}</td>
+                          <td className="whitespace-nowrap px-2.5 py-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableRegion>
+              </div>
+              <ul className="divide-y divide-[var(--color-line-soft)] sm:hidden" aria-label="Commitment register">
+                {visible.map((row) => (
+                  <li key={row.id} id={`od-m-${row.id}`} className={`px-4 py-3 ${row.id === changed ? "bg-pine-tint" : ""}`}>
+                    <h3 className="text-[14px] font-semibold leading-snug">{row.counterpartDepartment} · {row.choice}</h3>
+                    <dl className="mt-1.5 grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-2 gap-y-0.5 text-[13px]">
+                      <dt className="text-muted">When</dt><dd className="font-mono">{row.schedule ?? "Not known"}</dd>
+                      {row.teacherCode ? <><dt className="text-muted">Teacher</dt><dd className="font-mono">{row.teacherCode}</dd></> : null}
+                      {row.roomCode ? <><dt className="text-muted">Room</dt><dd className="font-mono">{row.roomCode}</dd></> : null}
+                      {row.courseLabel || row.kind === "unresolved_note" ? <><dt className="text-muted">{row.kind === "unresolved_note" ? "Note" : "Course"}</dt><dd className="break-words">{row.courseLabel ?? row.notes}</dd></> : null}
+                      <dt className="text-muted">Blocks</dt><dd>{row.lifecycleStatus === "archived" ? "Nothing — archived" : row.blocks}</dd>
+                      <dt className="text-muted">Status</dt><dd className="flex flex-wrap gap-1"><Level row={row} /> <Verification row={row} /></dd>
+                    </dl>
+                    <Review row={row} />
+                    <div className="mt-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} layout="m" /></div>
+                  </li>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.externals.map((e, i) => (
-                <tr key={e.id} className={i % 2 ? "bg-wash" : "bg-sheet"}>
-                  <td className="px-2.5 py-1.5"><Badge tone={levelTone[e.completenessLevel]}>Level {e.completenessLevel}</Badge></td>
-                  <td className="px-2.5 py-1.5 font-medium">{kindLabel[e.kind] ?? e.kind}</td>
-                  <td className="px-2.5 py-1.5 font-mono font-bold text-[var(--color-clay)]">{e.counterpartDepartment}</td>
-                  <td className="px-2.5 py-1.5 font-mono">
-                    {e.teacherShortCode ?? <span className="text-muted" title="Unknown — no teacher conflict invented">—</span>}
-                  </td>
-                  <td className="px-2.5 py-1.5 font-mono">{e.roomCode ?? <span className="text-muted">—</span>}</td>
-                  <td className="px-2.5 py-1.5 font-mono text-[11px]">
-                    {e.dayOfWeek != null && e.startMinutes != null
-                      ? `${DAY_NAMES[e.dayOfWeek].slice(0, 3)} ${fmtRange(e.startMinutes, e.endMinutes!)}`
-                      : <span className="text-muted">unstructured</span>}
-                  </td>
-                  <td className="max-w-[210px] px-2.5 py-1.5 text-[11px] leading-snug text-muted">
-                    {e.courseLabel ?? e.notes ?? "—"}
-                    {e.audienceLabel ? <span className="block text-[10px] text-muted">{e.audienceLabel}</span> : null}
-                  </td>
-                  <td className="px-2.5 py-1.5 font-mono">{e.credits != null ? e.credits.toFixed(1) : <span title="Unknown — not zero">?</span>}</td>
-                  <td className="px-2.5 py-1.5">
-                    <Badge tone={e.verificationStatus === "verified" ? "pine" : "clay"}>{e.verificationStatus}</Badge>
-                  </td>
-                  <td className="max-w-[170px] px-2.5 py-1.5 text-[10.5px] leading-snug text-muted">{e.source}</td>
-                  <td className="px-2.5 py-1.5"><OdRowActions e={e} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+              </ul>
+            </>
+          )}
+        </Panel>
 
-      <div className="mt-4">
-        <EmptyNote>
-          <ShieldQuestion size={13} className="mr-1 inline text-gold-text" />
-          Coverage disclosure: with level B/D records unverified, the system blocks only <em>known</em> teacher
-          and room intervals and never reports “no university-wide conflicts”. Verify records with the
-          counterpart department to raise coverage.
-        </EmptyNote>
+        <div className="mt-4">
+          <EmptyNote>
+            <ShieldQuestion size={13} aria-hidden="true" className="mr-1 inline text-gold-text" />
+            Coverage disclosure: while records are pending or only partly known, the routine blocks only <em>known</em> teacher
+            and room intervals and never reports “no university-wide conflicts”. Verify records with the other department to raise coverage.
+          </EmptyNote>
+        </div>
       </div>
-    </div>
-  )}</TermWriteProvider>;
+    </TermWriteProvider>
+  );
 }

@@ -13,6 +13,7 @@ const context=loadApp<typeof import("../../../src/lib/term-context")>("src/lib/t
 const terms=loadApp<typeof import("../../../src/lib/term-actions")>("src/lib/term-actions.ts");
 const reads=loadApp<typeof import("../../../src/lib/term-data")>("src/lib/term-data.ts");
 const actions=loadApp<typeof import("../../../src/lib/actions")>("src/lib/actions.ts");
+const commitments=loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts");
 const academic=loadApp<typeof import("../../../src/lib/academic-actions")>("src/lib/academic-actions.ts");
 const grid=loadApp<typeof import("../../../src/lib/time-grid-actions")>("src/lib/time-grid-actions.ts");
 const teachers=loadApp<typeof import("../../../src/lib/teacher-actions")>("src/lib/teacher-actions.ts");
@@ -44,7 +45,7 @@ function attempts(token?:TermWriteContext):Array<[string,()=>Promise<ActionResul
   return [
     ["createMeeting",()=>actions.createMeetingAction(form({}),token)],["moveMeeting",()=>actions.moveMeetingAction(1,0,540,600,token)],
     ["updateMeeting",()=>actions.updateMeetingAction(1,{} as Parameters<typeof actions.updateMeetingAction>[1],token)],["deleteMeeting",()=>actions.deleteMeetingAction(1,token)],
-    ["createExternal",()=>actions.createExternalAction(form({}),token)],["verifyExternal",()=>actions.verifyExternalAction(1,token)],["deleteExternal",()=>actions.deleteExternalAction(1,token)],["publish",()=>actions.publishAction("Synthetic",token)],
+    ["createExternal",()=>commitments.createExternalAction(form({}),token)],["editExternal",()=>commitments.editExternalAction(1,form({}),token)],["verifyExternal",()=>commitments.verifyExternalAction(1,form({}),token)],["returnExternal",()=>commitments.returnExternalAction(1,form({}),token)],["archiveExternal",()=>commitments.archiveExternalAction(1,form({}),token)],["reactivateExternal",()=>commitments.reactivateExternalAction(1,form({}),token)],["deleteExternal",()=>actions.deleteExternalAction(1,token)],["publish",()=>actions.publishAction("Synthetic",token)],
     ["updatePolicy",()=>academic.updateAcademicPolicyAction(form(policyValues),token)],["proposePolicy",()=>policyActions.proposePolicyChangeAction(form({}),token)],["previewPolicy",()=>policyActions.previewPolicyChangeAction(form({}),token)],["decidePolicy",()=>policyActions.decidePolicyChangeAction(1,{command:"approve"},token)],["createExtra",()=>academic.createExtraLoadClassAction(form({}),token)],
     ["deleteExtra",()=>academic.deleteExtraLoadClassAction(1,token)],["createManual",()=>academic.createManualTopSheetRowAction(form({}),token)],["deleteManual",()=>academic.deleteManualTopSheetRowAction(1,token)],
     ["upsertStudent",()=>academic.upsertStudentAction(form({}),token)],["importStudent",()=>academic.importStudentCsvAction(form({}),token)],["deactivateStudent",()=>academic.deactivateStudentAction(1,1,token)],

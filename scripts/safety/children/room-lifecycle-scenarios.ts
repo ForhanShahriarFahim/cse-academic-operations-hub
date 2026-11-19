@@ -17,6 +17,7 @@ const s = loadApp<typeof Schema>("src/db/schema.ts");
 const { lifecycleRoomAction, saveRoomAction } = loadApp<typeof RoomActions>("src/lib/room-actions.ts");
 const { getRoomLifecycleEvidence, getRoomRecord } = loadApp<typeof RoomData>("src/lib/room-data.ts");
 const actions = freshTermActions(loadApp<typeof Actions>("src/lib/actions.ts"));
+const commitments = freshTermActions(loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts"));
 const auto = freshTermActions(loadApp<typeof Auto>("src/lib/academic-actions.ts"));
 const { buildAutoSchedulePlan } = loadApp<typeof AutoPlan>("src/lib/schedule-automation.ts");
 const grid = freshTermActions(loadApp<typeof Grid>("src/lib/time-grid-actions.ts"));
@@ -49,8 +50,8 @@ async function main() {
     fd.delete(key); fd.set(key, new File(["x"], "x")); assert.equal((await lifecycleRoomAction(null, fd)).outcome?.kind, "validation");
   }
   assert.ok((await life(room)).ok);
-  const od = form({ kind: "unresolved_note", counterpartDepartment: "Synthetic stale picker", roomId: room.id, notes: "Kept by client" });
-  assert.equal((await actions.createExternalAction(od)).outcome?.kind, "conflict");
+  const od = form({ kind: "room_reservation", counterpartDepartment: "Synthetic stale picker", roomId: room.id, dayOfWeek: 0, startTime: "4:00 PM", endTime: "5:00 PM", notes: "Kept by client" });
+  assert.equal((await commitments.createExternalAction(od)).outcome?.kind, "conflict");
   const [activeTerm] = await db.select().from(s.academicTerms).where(eq(s.academicTerms.status, "active"));
   const [sessional] = await db.select().from(s.courses).where(eq(s.courses.courseType, "sessional"));
   const [baseGroup] = await db.select().from(s.teachingGroups).where(eq(s.teachingGroups.courseId, sessional.id));
@@ -61,7 +62,7 @@ async function main() {
   const teachers = await db.select().from(s.teachers).orderBy(s.teachers.id);
   assert.equal((await actions.updateMeetingAction(baseMeeting.id, { ...baseMeeting, teacherIds: [teachers[0].id, teachers[1].id], roomIds: [room.id], isException: false, exceptionNote: null })).ok, false);
   await db.update(s.meetingRooms).set({ roomId: baseRooms[0].roomId }).where(eq(s.meetingRooms.meetingId, baseMeeting.id));
-  const draftOD = await create(); assert.ok((await actions.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Synthetic first use", roomId: draftOD.id }))).ok);
+  const draftOD = await create(); assert.ok((await commitments.createExternalAction(form({ kind: "room_reservation", counterpartDepartment: "Synthetic first use", roomId: draftOD.id, dayOfWeek: 0, startTime: "4:00 PM", endTime: "5:00 PM" }))).ok);
   const [retained] = await db.select().from(s.rooms).where(eq(s.rooms.id, draftOD.id)); assert.equal(retained.isDraft, false); assert.equal(retained.revision, 2);
   const [dayPlan] = (await db.select().from(s.dayPlans).where(eq(s.dayPlans.termId, activeTerm.id))).filter((p) => p.stream === "HSC" && p.batchId == null && p.patternId != null);
   const [pattern] = await db.select().from(s.periodPatterns).where(eq(s.periodPatterns.id, dayPlan.patternId!));
@@ -119,7 +120,7 @@ async function races(lines: string[], termId: number, baseGroupId: number, baseM
       const lifecycle = () => life(room, action);
       const write = () => writer === "create" ? actions.createMeetingAction(form({ teachingGroupId: groupId, dayOfWeek: 0, startTime: "11:00", endTime: "12:15", teacherIds: [teacherIds[0]], roomIds: [room.id] }))
         : writer === "update" ? actions.updateMeetingAction(baseMeeting.id, { ...baseMeeting, teacherIds: teacherIds.slice(0, 2), roomIds: [room.id], isException: false, exceptionNote: null })
-        : writer === "auto" ? auto.applyAutoScheduleAction() : actions.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Synthetic race", roomId: room.id }));
+        : writer === "auto" ? auto.applyAutoScheduleAction() : commitments.createExternalAction(form({ kind: "room_reservation", counterpartDepartment: "Synthetic race", roomId: room.id, dayOfWeek: 0, startTime: "4:00 PM", endTime: "5:00 PM" }));
       const [winner, loser] = await overlap(firstLife ? `room.${action}` : writer === "create" ? "meeting.create" : writer === "update" ? "meeting.update" : writer === "auto" ? "meeting.auto_create" : "external.create", firstLife ? lifecycle : write, firstLife ? write : lifecycle);
       assert.ok(winner.ok, `${writer}/${action}/${firstLife}: ${winner.message}`); assert.equal(loser.ok, false, `${writer}/${action}/${firstLife}: ${loser.message}`);
       if (writer === "auto" && firstLife) assert.equal((await db.select().from(s.meetings).where(eq(s.meetings.teachingGroupId, groupId))).length, 0);

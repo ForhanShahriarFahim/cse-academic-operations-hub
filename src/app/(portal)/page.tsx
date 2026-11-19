@@ -180,7 +180,7 @@ export default async function DashboardPage() {
             )}
           </Panel>
 
-          <Panel title="External commitments" actions={<Link href="/od" className={linkClass}>Register <ArrowRight size={13} aria-hidden="true" /></Link>}>
+          <Panel title="Cross-department commitments" actions={<Link href="/od" className={linkClass}>Register <ArrowRight size={13} aria-hidden="true" /></Link>}>
             <p className="text-[13px] leading-relaxed text-ink-2">
               {pendingExternal.length
                 ? `${pendingExternal.length} of ${data.externals.length} bookings by other departments still need confirming. Until they are confirmed, the portal cannot say that a room or teacher is free at those times.`

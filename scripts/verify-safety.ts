@@ -37,6 +37,7 @@ import { checkClassGroups, checkClassGroupsPostgres, checkClassGroupStart, check
 import { checkCalendar, checkCalendarPostgres } from "./safety/calendar.check";
 import { checkAttendanceLifecycle, checkAttendanceLifecyclePostgres } from "./safety/attendance-lifecycle.check";
 import { checkPolicyVersions, checkPolicyVersionsPostgres } from "./safety/policy-versions.check";
+import { checkCommitments, checkCommitmentsPostgres } from "./safety/commitments.check";
 import { checkAttendanceMarks, checkAttendanceMarksPostgres } from "./safety/attendance-marks.check";
 import { checkAttendanceLedger, checkAttendanceLedgerPostgres } from "./safety/attendance-ledger.check";
 
@@ -83,6 +84,8 @@ async function main() {
     ["ATT-03A attendance lifecycle (PostgreSQL)", () => checkAttendanceLifecyclePostgres(process.env.SAFE01_PG_BIN), true],
     ["SET-01B policy versions (PGlite)", checkPolicyVersions],
     ["SET-01B policy versions (PostgreSQL)", () => checkPolicyVersionsPostgres(process.env.SAFE01_PG_BIN), true],
+    ["OD-01A commitments (PGlite)", checkCommitments],
+    ["OD-01A commitments (PostgreSQL)", () => checkCommitmentsPostgres(process.env.SAFE01_PG_BIN), true],
     ["ATT-04 attendance marks (PGlite)", checkAttendanceMarks],
     ["ATT-04 attendance marks (PostgreSQL)", () => checkAttendanceMarksPostgres(process.env.SAFE01_PG_BIN), true],
     ["ATT-05 attendance ledger (PGlite)", checkAttendanceLedger],

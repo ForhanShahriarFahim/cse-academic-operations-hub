@@ -7,7 +7,7 @@ import { desc, eq } from "drizzle-orm";
 import { loadApp } from "./controlled-runtime";
 const arity: Record<string,number> = {
   createMeetingAction:1,moveMeetingAction:4,updateMeetingAction:2,deleteMeetingAction:1,
-  createExternalAction:1,verifyExternalAction:1,deleteExternalAction:1,publishAction:1,
+  createExternalAction:1,editExternalAction:2,verifyExternalAction:2,returnExternalAction:2,archiveExternalAction:2,reactivateExternalAction:2,deleteExternalAction:1,publishAction:1,
   updateAcademicPolicyAction:1,createExtraLoadClassAction:1,deleteExtraLoadClassAction:1,
   createManualTopSheetRowAction:1,deleteManualTopSheetRowAction:1,upsertStudentAction:1,
   importStudentCsvAction:1,deactivateStudentAction:2,createAttendanceSessionAction:1,

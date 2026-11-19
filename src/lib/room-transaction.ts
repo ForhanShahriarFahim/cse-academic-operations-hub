@@ -70,7 +70,7 @@ export async function readRoomReferences(reader: RoomReader, roomId: number): Pr
     counterpartDepartment: externalCommitments.counterpartDepartment, kind: externalCommitments.kind, courseLabel: externalCommitments.courseLabel,
     dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes, audienceLabel: externalCommitments.audienceLabel })
     .from(externalCommitments).innerJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId))
-    .where(eq(externalCommitments.roomId, roomId)).orderBy(externalCommitments.id);
+    .where(and(eq(externalCommitments.roomId, roomId), eq(externalCommitments.lifecycleStatus, "active"))).orderBy(externalCommitments.id);
   return { meetings: uses, externals };
 }
 
