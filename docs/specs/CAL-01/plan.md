@@ -1,6 +1,6 @@
 # CAL-01 — Implementation plan
 
-[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Approved · 19 November 2026, Asia/Dhaka
 
 Branch `codex/cal-01` from local `main` at `a4b0ccb`. [Specification and decisions](spec.md) · [Inspection and verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -15,12 +15,14 @@ Branch `codex/cal-01` from local `main` at `a4b0ccb`. [Specification and decisio
 ## Approval record
 
 - “Go for the next task” starts the CAL-01 inspection and specification described in the ATT-01 handoff.
-- Owner decisions D-1–D-5 and implementation authorization are pending. Record actual owner answers and commit the approved plan before changing application code. If the owner requests day swaps in the first delivery, revise the behavior and verification before coding.
+- 19 November 2026, owner: “approve D-1 to D-5 as proposed, and go for it.” D-1–D-5 are accepted unchanged and implementation of T-03–T-05 is authorized.
+- D-1 as accepted: staff enter dates manually from approved university/CSE notices or an owner-confirmed term document. The owner named no separate office and supplied no document, so global `manage_terms` holders enter dates and conflicting notices go to the owner. No institutional dates are entered by the agent.
+- D-2 as accepted: day swaps are deferred out of this delivery. Institutional migration still needs its own operations decision and cold backup.
 
 ## Tasks
 
 - [x] T-01 — Inspect issue #38, sources and current term/date behavior. Present the proposed scope, criteria and sketches.
-- [ ] T-02 — Confirm source authority and day swaps. Record and commit the owner's decisions and implementation approval.
+- [x] T-02 — Confirm source authority and day swaps. Record and commit the owner's decisions and implementation approval.
 - [ ] T-03 — Implement additive storage, date validation and date lookup, with term-bounds protection, server authorization, revision control and transactional audit. Covers AC-01–AC-05.
 - [ ] T-04 — Implement term workspace entry, screen/lookup, manager editing and history, and authenticated A4. Covers AC-01–AC-06.
 - [ ] T-05 — Verify disposable migrations and recovery, parity, final application checks and compiled review. Record evidence and give the owner a runnable review. Covers AC-01–AC-07.

@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**CAL-01 / #38 — proposal ready for owner review, 19 November 2026.** The proposed first delivery covers teaching dates, dated notices and an internal A4 calendar. Confirm the accepted institutional source and whether day swaps are used, then approve or amend the scope before implementation. Issue #38 was open when read on 19 November. [Specification](specs/CAL-01/spec.md) · [Plan and handoff](specs/CAL-01/plan.md) · [Inspection](specs/CAL-01/verification.md)
+**CAL-01 / #38 — approved and in implementation, 19 November 2026.** The owner approved D-1–D-5 as proposed: manual entry from approved notices, day swaps deferred, and a first delivery of teaching dates, dated notices, date lookup and an internal A4 calendar. Follow the plan's task checklist and handoff. Issue #38 was open when read on 19 November. [Specification](specs/CAL-01/spec.md) · [Plan and handoff](specs/CAL-01/plan.md) · [Inspection](specs/CAL-01/verification.md)
 
 **ATT-01 / #8 — accepted and merged locally on 19 November at `1816c08`.** Acceptance `ed3a185` covers delivery `81a57af`. Teachers start from today's routine and can open the dated roll-call. The course finder uses department, stream, batch and canonical teaching group. Both disposable adapters, the isolated Webpack build and compiled Edge review passed. The default Turbopack CSS worker failure remains the accepted build limitation. Issue #8 was open when read on 19 November and awaits owner-directed synchronization. [Verification](specs/ATT-01/verification.md) · [Merge receipt and handoff](specs/ATT-01/plan.md)
 

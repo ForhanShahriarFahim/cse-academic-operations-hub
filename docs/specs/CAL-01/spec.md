@@ -1,6 +1,6 @@
 # CAL-01 — Term academic calendar
 
-[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Approved by the owner · 19 November 2026, Asia/Dhaka
 
 [Implementation plan](plan.md) · [Inspection evidence](verification.md) · [Desktop, phone and A4 sketches](mockups/index.html)
 
@@ -60,7 +60,7 @@ Inside-range dates are candidates for matching a weekly meeting. The calendar ha
 | AC-06 | Desktop and 320/390 px views support keyboard use and readable status, fields and errors. Authenticated A4 matches the saved screen projection including a multi-page calendar and no UI clipping. | Compiled browser, axe, keyboard and native print. |
 | AC-07 | Forward migration and disposable recovery preserve prior records. Existing attendance/manual dates, weekly routines and frozen public output retain parity. | Populated synthetic PGlite and PostgreSQL, restore/reapply and targeted term/attendance/archived output regressions. |
 
-## Owner decisions before implementation
+## Owner decisions (approved as proposed on 19 November 2026)
 
 | ID | Proposed decision |
 | --- | --- |
