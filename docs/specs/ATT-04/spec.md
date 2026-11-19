@@ -1,6 +1,6 @@
 # ATT-04 — Explain attendance marks
 
-[Issue #11](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/11) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #11](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/11) · Approved · 19 November 2026, Asia/Dhaka
 
 ## Inspected baseline
 

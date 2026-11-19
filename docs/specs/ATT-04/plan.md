@@ -1,17 +1,17 @@
 # ATT-04 — Implementation plan
 
-[Issue #11](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/11) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #11](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/11) · Approved · 19 November 2026, Asia/Dhaka
 
 Branch `codex/att-04` from local `main` at `fcb342c`. [Specification](spec.md) · [Review sketches](mockups/index.html) · [Inspection record](verification.md)
 
 ## Approval record
 
-The owner's “Okay, go for the task that is remaining” starts the ATT-04 inspection and specification from the SET-01B handoff. Approval of proposed D-1–D-4 is pending. Record and commit that decision before implementation.
+The owner's “Okay, go for the task that is remaining” started inspection and specification. On 19 November the owner replied “Approved” to the request to approve D-1–D-4 on `2b89594`. This authorizes implementation and verification of D-1–D-4.
 
 ## Tasks
 
 - [x] T-01 — Inspect calculation, permissions, historical policy and workflow. Present D-1–D-4 and review sketches.
-- [ ] T-02 — Record and commit the owner's specification approval and any amendments.
+- [x] T-02 — Record and commit the owner's specification approval and any amendments.
 - [ ] T-03 — Share the phase calculation and contribution rules between summaries, student evidence and the existing policy-impact calculation. Preserve semester parity and explicit no-eligible/missing-policy states. Covers AC-01–AC-03.
 - [ ] T-04 — Add authorized term-scoped active and completed loaders using the existing policy timeline, captured records and context locks. Keep roster editing and roll call at their existing entry points. Covers AC-02–AC-05.
 - [ ] T-05 — Build phase navigation, student explanation, completed-term entry and read-only Settings text. Covers AC-02–AC-04 and AC-06.
@@ -20,4 +20,4 @@ The owner's “Okay, go for the task that is remaining” starts the ATT-04 insp
 
 ## Current checkpoint and exact handoff
 
-Review D-1–D-4 with the owner. The main decisions are the inclusion of provisional session data, how phase marks are labelled, the existing rounding rule, and the completed roster basis. After approval, start T-03. Keep development and verification on synthetic disposable targets. The institutional migration and historical publication of official marks are separate decisions.
+D-1–D-4 are approved. Start T-03. Keep development and verification on synthetic disposable targets. The institutional migration and historical publication of official marks are separate decisions.
