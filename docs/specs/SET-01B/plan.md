@@ -29,7 +29,7 @@ Branch `codex/set-01b` from local `main` at `26f1414`. [Specification and decisi
 - [x] T-04 — Consumers and outputs: extra-load pricing, threshold, attendance maximum, version labels and print. Covers AC-03, AC-06, AC-08.
 - [x] T-05 — Settings and term workspace interface. Covers AC-08, AC-09.
 - [x] T-06 — Verify on disposable data: both adapters, migration fingerprints, races, rollback, compiled review; record evidence and owner review path. Covers AC-01–AC-10. See the [documented build limitation and coverage](verification.md#build-and-edge-review).
-- [ ] T-07 — Record delivery acceptance and merge into local `main`. Keep #14 open.
+- [x] T-07 — Record delivery acceptance and merge into local `main`. Keep #14 open.
 
 ## Verification and delivery
 
@@ -37,4 +37,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Implementation and verification are complete on `codex/set-01b`. The owner authorized the local merge. See [verification](verification.md) for the checks, coverage and review command.
+Implementation corrections are in `a26ac18`. Verification and owner acceptance are recorded at `2d0cff8`. Local merge `1f82693` has the same tree as the retained `codex/set-01b` branch. See [verification](verification.md) for the checks, coverage and review command.
+
+> In the next owner-started session, inspect and specify ATT-04 / #11 from local `main`. Map Midterm, Final and Semester marks to the attendance lifecycle, explain the denominator and rounding, and identify the policy evidence needed to preserve historical results. Present the specification before implementation. Institutional migration `0021` requires a separate operations decision and cold backup. Parent #14 remains open, and GitHub synchronization follows the next owner-directed boundary.
