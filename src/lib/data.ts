@@ -35,7 +35,7 @@ import {
   departmentContacts,
   routineSourceReconciliations,
 } from "@/db/schema";
-import { eq, desc, inArray, isNull, or } from "drizzle-orm";
+import { and, eq, desc, inArray, isNull, or } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { can, getOptionalActor } from "./auth";
 import { publicMetadata } from "./public-routine";
@@ -302,7 +302,8 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
     () => db.select().from(periodPatterns).where(eq(periodPatterns.termId, term.id)),
     () => db.select().from(dayPlans).where(eq(dayPlans.termId, term.id)),
     () => db.select().from(permittedWindows).where(or(eq(permittedWindows.termId, term.id), isNull(permittedWindows.termId))),
-    () => db.select().from(externalCommitments).where(eq(externalCommitments.termId, term.id)),
+    // OD-01A: archived commitments leave planning (conflicts, OD row, teacher routine, publications).
+    () => db.select().from(externalCommitments).where(and(eq(externalCommitments.termId, term.id), eq(externalCommitments.lifecycleStatus, "active"))),
     () => db.select().from(workloadAllocations).where(eq(workloadAllocations.termId, term.id)),
     () => db.select().from(scheduleVersions).where(eq(scheduleVersions.termId, term.id))
       .orderBy(desc(scheduleVersions.versionNumber)),

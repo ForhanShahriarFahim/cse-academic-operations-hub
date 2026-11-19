@@ -144,7 +144,8 @@ async function main() {
  * The second production action must block on the shared room row. No action or room helper is mocked.
  */
 async function actionRaces(lines: string[]) {
-  const { createMeetingAction, updateMeetingAction, createExternalAction } = freshTermActions(loadApp<typeof MeetingActions>("src/lib/actions.ts"));
+  const { createMeetingAction, updateMeetingAction } = freshTermActions(loadApp<typeof MeetingActions>("src/lib/actions.ts"));
+  const { createExternalAction } = freshTermActions(loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts"));
   const { applyAutoScheduleAction } = freshTermActions(loadApp<typeof AcademicActions>("src/lib/academic-actions.ts"));
   const { buildAutoSchedulePlan } = loadApp<typeof Automation>("src/lib/schedule-automation.ts");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3 });
@@ -204,7 +205,7 @@ async function actionRaces(lines: string[]) {
       const write = () => writer === "create" ? createMeetingAction(form(undefined, { teachingGroupId: groupId, dayOfWeek: "0", startTime: "11:00", endTime: "12:15", teacherIds: [teachers[0].id], roomIds: [target.id] }))
         : writer === "update" ? updateMeetingAction(baseMeeting.id, { dayOfWeek: baseMeeting.dayOfWeek, startMinutes: baseMeeting.startMinutes, endMinutes: baseMeeting.endMinutes, teacherIds: [teachers[0].id, teachers[1].id], roomIds: [target.id], isException: false, exceptionNote: null })
         : writer === "auto" ? applyAutoScheduleAction()
-        : createExternalAction(form(undefined, { kind: "unresolved_note", counterpartDepartment: "Synthetic OD", roomId: target.id }));
+        : createExternalAction(form(undefined, { kind: "room_reservation", counterpartDepartment: "Synthetic OD", roomId: target.id, dayOfWeek: "0", startTime: "4:00 PM", endTime: "5:00 PM" }));
       const action = editFirst ? "room.update" : writer === "create" ? "meeting.create" : writer === "update" ? "meeting.update" : writer === "auto" ? "meeting.auto_create" : "external.create";
       const [first, second] = await overlap(action, editFirst ? edit : write, editFirst ? write : edit);
       assert.equal(first.ok, true, `${writer} first: ${first.message}`);

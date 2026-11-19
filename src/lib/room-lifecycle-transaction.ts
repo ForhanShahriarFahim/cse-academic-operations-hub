@@ -33,9 +33,10 @@ export async function readRoomLifecycleEvidence(reader: RoomReader, room: { id: 
   }
   const externals = await reader.select({ id: externalCommitments.id, termName: academicTerms.name, termStart: academicTerms.startDate, termEnd: academicTerms.endDate,
     kind: externalCommitments.kind, counterpart: externalCommitments.counterpartDepartment, course: externalCommitments.courseLabel,
-    dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes })
+    dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes, lifecycleStatus: externalCommitments.lifecycleStatus })
     .from(externalCommitments).leftJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId)).where(eq(externalCommitments.roomId, room.id)).orderBy(externalCommitments.id);
-  for (const row of externals) {
+  // OD-01A: an archived commitment no longer blocks deactivation; permanent deletion still counts it (totals).
+  for (const row of externals.filter((e) => e.lifecycleStatus !== "archived")) {
     const future = futureOD(row, today);
     if (future.kind !== "past") blocking.push({ key: `e${row.id}`, title: `OD #${row.id} · ${row.termName ?? "Missing term"} · ${row.counterpart} · ${row.course ?? row.kind}`,
       detail: `${row.dayOfWeek == null ? "Day unknown" : DAY_NAMES[row.dayOfWeek] ?? "Invalid day"} · ${row.startMinutes != null && row.endMinutes != null ? fmtRange(row.startMinutes, row.endMinutes) : "Time unknown"} · term ${row.termStart ?? "?"}–${row.termEnd ?? "?"} · ${future.kind === "future" ? `First blocking date ${future.firstDate}` : future.reason}`, href: "/od" });

@@ -27,7 +27,7 @@ export async function readMaintenanceImpact(reader: RoomReader, room: { id: numb
     .where(and(eq(meetingRooms.roomId, room.id), eq(meetings.status, "active"))).orderBy(meetings.id, meetingRooms.id);
   const ods = await reader.select({ id: externalCommitments.id, kind: externalCommitments.kind, dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes,
     termId: academicTerms.id, termName: academicTerms.name, termStart: academicTerms.startDate, termEnd: academicTerms.endDate, course: externalCommitments.courseLabel, counterpart: externalCommitments.counterpartDepartment, verification: externalCommitments.verificationStatus })
-    .from(externalCommitments).innerJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId)).where(eq(externalCommitments.roomId, room.id)).orderBy(externalCommitments.id);
+    .from(externalCommitments).innerJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId)).where(and(eq(externalCommitments.roomId, room.id), eq(externalCommitments.lifecycleStatus, "active"))).orderBy(externalCommitments.id);
   const versions = await reader.select({ id: scheduleVersions.id, termId: scheduleVersions.termId, number: scheduleVersions.versionNumber, snapshot: scheduleVersions.snapshot, effectiveFrom: scheduleVersions.effectiveFrom,
     termName: academicTerms.name, termStart: academicTerms.startDate, termEnd: academicTerms.endDate })
     .from(scheduleVersions).innerJoin(academicTerms, eq(academicTerms.id, scheduleVersions.termId)).where(eq(scheduleVersions.state, "published")).orderBy(desc(scheduleVersions.versionNumber), desc(scheduleVersions.id));

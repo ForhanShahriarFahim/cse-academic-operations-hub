@@ -163,7 +163,8 @@ export function levelSummary(level: string, facts: LevelFacts): string {
 
 /** Choice, teacher, room, day and time: changing any of these returns a verified record to Pending. */
 export const PLANNING_FIELDS = ["kind", "teacherId", "roomId", "dayOfWeek", "startMinutes", "endMinutes"] as const;
-export function planningFactsChanged(before: Pick<CommitmentFacts, typeof PLANNING_FIELDS[number]>, after: Pick<CommitmentFacts, typeof PLANNING_FIELDS[number]>): boolean {
+type PlanningFacts = { [K in typeof PLANNING_FIELDS[number]]: K extends "kind" ? string : number | null };
+export function planningFactsChanged(before: PlanningFacts, after: PlanningFacts): boolean {
   return PLANNING_FIELDS.some((field) => (before[field] ?? null) !== (after[field] ?? null));
 }
 
@@ -207,7 +208,7 @@ export function blocksText(e: BlockSubject, names: { teacher?: string | null; ro
 
 export interface ClashMeeting {
   id: number; dayOfWeek: number; startMinutes: number; endMinutes: number; courseCode: string;
-  teachers: Array<{ id: number; shortCode: string; fullName?: string }>; rooms: Array<{ id: number; code: string }>;
+  teachers: Array<{ id: number; shortCode: string; fullName?: string }>; rooms: Array<{ id: number; code: string }>; audience?: string;
 }
 export interface CommitmentClash { meetingId: number; on: "teacher" | "room"; code: string; meeting: ClashMeeting }
 
@@ -297,6 +298,11 @@ export function registerQuery(filters: RegisterFilters): string {
   if (filters.q) params.set("q", filters.q);
   const query = params.toString();
   return query ? `?${query}` : "";
+}
+
+/** A return link back to the register only; anything else falls back to the plain register. */
+export function safeRegisterReturn(value: unknown): string {
+  return typeof value === "string" && /^\/od(\?[A-Za-z0-9_\-.~%=&+]*)?$/.test(value) ? value : "/od";
 }
 
 // ---------------------------------------------------------------------------

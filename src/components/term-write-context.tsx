@@ -8,6 +8,7 @@ import * as a0 from "@/lib/actions";
 import * as a1 from "@/lib/academic-actions";
 import * as a2 from "@/lib/time-grid-actions";
 import * as a3 from "@/lib/policy-actions";
+import * as a4 from "@/lib/commitment-actions";
 import { setTeacherStatusAction as teacherStatus } from "@/lib/teacher-actions";
 
 const TermScope = createContext<{ value: TermWriteContext; report: (r: ActionResult) => ActionResult } | null>(null);
@@ -28,8 +29,12 @@ export function useTermActions(){
   moveMeetingAction: (meetingId: Parameters<typeof a0.moveMeetingAction>[0], dayOfWeek: Parameters<typeof a0.moveMeetingAction>[1], startMinutes: Parameters<typeof a0.moveMeetingAction>[2], endMinutes: Parameters<typeof a0.moveMeetingAction>[3]) => a0.moveMeetingAction(meetingId, dayOfWeek, startMinutes, endMinutes, context).then(report),
   updateMeetingAction: (meetingId: Parameters<typeof a0.updateMeetingAction>[0], update: Parameters<typeof a0.updateMeetingAction>[1]) => a0.updateMeetingAction(meetingId, update, context).then(report),
   deleteMeetingAction: (meetingId: Parameters<typeof a0.deleteMeetingAction>[0]) => a0.deleteMeetingAction(meetingId, context).then(report),
-  createExternalAction: (formData: Parameters<typeof a0.createExternalAction>[0]) => a0.createExternalAction(formData, context).then(report),
-  verifyExternalAction: (id: Parameters<typeof a0.verifyExternalAction>[0]) => a0.verifyExternalAction(id, context).then(report),
+  createExternalAction: (formData: FormData) => a4.createExternalAction(formData, context).then(report),
+  editExternalAction: (id: number, formData: FormData) => a4.editExternalAction(id, formData, context).then(report),
+  verifyExternalAction: (id: number, formData: FormData) => a4.verifyExternalAction(id, formData, context).then(report),
+  returnExternalAction: (id: number, formData: FormData) => a4.returnExternalAction(id, formData, context).then(report),
+  archiveExternalAction: (id: number, formData: FormData) => a4.archiveExternalAction(id, formData, context).then(report),
+  reactivateExternalAction: (id: number, formData: FormData) => a4.reactivateExternalAction(id, formData, context).then(report),
   deleteExternalAction: (id: Parameters<typeof a0.deleteExternalAction>[0]) => a0.deleteExternalAction(id, context).then(report),
   publishAction: (changeSummary: Parameters<typeof a0.publishAction>[0], expectedLatestVersionId: number | null) => a0.publishAction(changeSummary, context, expectedLatestVersionId).then(report),
   updateAcademicPolicyAction: (formData: Parameters<typeof a1.updateAcademicPolicyAction>[0]) => a1.updateAcademicPolicyAction(formData, context).then(report),

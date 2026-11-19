@@ -19,6 +19,7 @@ const { db } = loadApp<typeof Db>("src/db/index.ts"), s = loadApp<typeof Schema>
 const { saveMaintenanceAction: save } = loadApp<typeof MaintenanceActions>("src/lib/room-maintenance-actions.ts");
 const { getRoomMaintenance } = loadApp<typeof MaintenanceData>("src/lib/room-maintenance-data.ts");
 const { lifecycleRoomAction } = loadApp<typeof RoomActions>("src/lib/room-actions.ts");
+const commitments = freshTermActions(loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts"));
 const actions = freshTermActions(loadApp<typeof Actions>("src/lib/actions.ts")), auto = freshTermActions(loadApp<typeof Auto>("src/lib/academic-actions.ts")), grid = freshTermActions(loadApp<typeof Grid>("src/lib/time-grid-actions.ts"));
 const { buildAutoSchedulePlan } = loadApp<typeof AutoPlan>("src/lib/schedule-automation.ts");
 const { getPortalData } = loadApp<typeof Data>("src/lib/data.ts");
@@ -73,8 +74,10 @@ async function main() {
   const [entry] = await db.select().from(s.roomUnavailability).where(eq(s.roomUnavailability.roomId, r.id));
   assert.equal((await actions.moveMeetingAction(meeting.id, 0, 540, 600)).ok, false);
   assert.equal((await actions.updateMeetingAction(meeting.id, { ...meeting, teacherIds: [teacher.id], roomIds: [r.id], isException: true, exceptionNote: "Cannot bypass maintenance" })).ok, false);
-  assert.equal((await actions.createExternalAction(form({ kind: "room_reservation", counterpartDepartment: "Synthetic new", roomId: r.id, dayOfWeek: 0, startTime: "09:00", endTime: "10:00" }))).outcome?.kind, "conflict");
-  assert.ok((await actions.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Unknown use can be recorded", roomId: r.id }))).ok);
+  assert.equal((await commitments.createExternalAction(form({ kind: "room_reservation", counterpartDepartment: "Synthetic new", roomId: r.id, dayOfWeek: 0, startTime: "09:00", endTime: "10:00" }))).outcome?.kind, "conflict");
+  // OD-01A: a new note can always be recorded and stores no room; the legacy room-bearing note above still gates publication.
+  const unknownUse = await commitments.createExternalAction(form({ kind: "unresolved_note", counterpartDepartment: "Unknown use can be recorded", roomId: r.id, notes: "Room use not yet confirmed" })); assert.ok(unknownUse.ok, unknownUse.message);
+  assert.equal((await db.select().from(s.externalCommitments).where(eq(s.externalCommitments.id, (unknownUse.outcome as { entityId: number }).entityId)))[0].roomId, null);
   await db.update(s.meetings).set({ status: "cancelled" }).where(eq(s.meetings.id, meeting.id));
   const blockedPublication = await actions.publishAction("Synthetic uncertainty gate"); assert.equal(blockedPublication.ok, false); assert.match(JSON.stringify(blockedPublication), /maintenance|Unverified room use/i);
   assert.ok((await save(null, form(await command(r.id, { action: "cancel", entryId: String(entry.id), entryRevision: "1", correctionReason: "Outage ended", confirmCancellation: "on" })))).ok);
@@ -144,7 +147,7 @@ async function races(lines: string[], termId: number, courseId: number, teacherI
       const assignment = () => writer === "create" ? actions.createMeetingAction(form({ teachingGroupId: group.id, dayOfWeek: 0, startTime: "09:00", endTime: "10:00", teacherIds: [teacherId], roomIds: [r.id] }))
         : writer === "update" ? actions.updateMeetingAction(m!.id, { dayOfWeek: 0, startMinutes: 550, endMinutes: 610, teacherIds: [teacherId], roomIds: [r.id], isException: false, exceptionNote: null })
         : writer === "move" ? actions.moveMeetingAction(m!.id, 0, 550, 610)
-        : writer === "od" ? actions.createExternalAction(form({ kind: "combined", counterpartDepartment: "Synthetic race OD", teacherId, roomId: r.id, dayOfWeek: 0, startTime: "09:00", endTime: "10:00" }))
+        : writer === "od" ? commitments.createExternalAction(form({ kind: "combined", counterpartDepartment: "Synthetic race OD", teacherId, roomId: r.id, dayOfWeek: 0, startTime: "09:00", endTime: "10:00" }))
         : writer === "auto" ? auto.applyAutoScheduleAction()
         : grid.savePatternAction({ patternId: pattern!.id, expectedUpdatedAt: pattern!.updatedAt.toISOString(), name: pattern!.name, periods: pattern!.periods.map((p, i) => i === 0 ? { start: p.start + 1, end: p.end } : p), breaks: [], updateHours: true, moveClasses: true });
       const assignmentEvent = { create: "meeting.create", update: "meeting.update", move: "meeting.move", od: "external.create", auto: "meeting.auto_create", bulk: "time_grid.pattern.save" }[writer];

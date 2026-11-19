@@ -7,7 +7,7 @@ import { assertMaintenanceClear } from "./room-maintenance-transaction";
 import { physicalOD } from "./room-maintenance";
 
 export async function checkPublicationMaintenance(tx: RoomTransaction, candidate: Pick<PortalData, "term" | "meetings" | "externals" | "maintenance">) {
-  const readOD = () => tx.select().from(externalCommitments).where(eq(externalCommitments.termId, candidate.term.id)).orderBy(externalCommitments.id);
+  const readOD = () => tx.select().from(externalCommitments).where(and(eq(externalCommitments.termId, candidate.term.id), eq(externalCommitments.lifecycleStatus, "active"))).orderBy(externalCommitments.id);
   const beforeOD = await readOD();
   const ids = [...new Set([...candidate.meetings.flatMap((m) => m.rooms.map((r) => r.id)), ...candidate.externals.flatMap((e) => e.roomId != null && e.kind !== "teaching" ? [e.roomId] : []), ...beforeOD.flatMap((e) => e.roomId != null && e.kind !== "teaching" ? [e.roomId] : [])])];
   await lockRooms(tx, ids);

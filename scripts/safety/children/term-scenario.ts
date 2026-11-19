@@ -99,6 +99,8 @@ async function publish(summary: string) {
 /** Each action is attempted against rows of a term that is not active. */
 async function crossTerm(ids: Record<string, number>) {
   const actions = freshTermActions(loadApp<typeof ActionsModule>("src/lib/actions.ts"));
+  const commitments = freshTermActions(loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts"));
+  const odForm = (values: Record<string, string>) => { const f = new FormData(); for (const [k, v] of Object.entries({ revision: "1", ...values })) f.set(k, v); return f; };
   const academic = freshTermActions(loadApp<typeof AcademicActionsModule>("src/lib/academic-actions.ts"));
   const grid = freshTermActions(loadApp<typeof TimeGridActionsModule>("src/lib/time-grid-actions.ts"));
   const meetingForm = new FormData();
@@ -113,7 +115,9 @@ async function crossTerm(ids: Record<string, number>) {
     ["moveMeeting", () => actions.moveMeetingAction(ids.meetingId, 3, 900, 975)],
     ["updateMeeting", () => actions.updateMeetingAction(ids.meetingId, { dayOfWeek: 3, startMinutes: 900, endMinutes: 975, teacherIds: [ids.teacherId], roomIds: [ids.roomId], isException: false, exceptionNote: null })],
     ["deleteMeeting", () => actions.deleteMeetingAction(ids.meetingId)],
-    ["verifyExternal", () => actions.verifyExternalAction(ids.externalId)],
+    ["verifyExternal", () => commitments.verifyExternalAction(ids.externalId, odForm({ note: "Cross-term" }))],
+    ["editExternal", () => commitments.editExternalAction(ids.externalId, odForm({ kind: "unresolved_note", counterpartDepartment: "Cross-term", notes: "Cross-term" }))],
+    ["archiveExternal", () => commitments.archiveExternalAction(ids.externalId, odForm({ reason: "Cross-term" }))],
     ["deleteExternal", () => actions.deleteExternalAction(ids.externalId)],
     ["savePattern", () => grid.savePatternAction({ patternId: ids.patternId, expectedUpdatedAt: null, name: "Cross-term", periods: [{ start: 540, end: 600 }], breaks: [], updateHours: false, moveClasses: false })],
     ["deletePattern", () => grid.deletePatternAction(ids.patternId, null)],

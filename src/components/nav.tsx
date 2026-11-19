@@ -57,7 +57,7 @@ export const navGroups: { label: string | null; items: NavItem[] }[] = [
       { href: "/courses", label: "Courses & offerings", icon: BookOpen },
       { href: "/batches", label: "Batches", icon: GraduationCap },
       { href: "/rooms", label: "Rooms", icon: DoorOpen },
-      { href: "/od", label: "External commitments", icon: ArrowLeftRight, required: ["manage_external_commitments"] },
+      { href: "/od", label: "Cross-department commitments", icon: ArrowLeftRight, required: ["manage_external_commitments"] },
     ],
   },
   {

@@ -82,7 +82,8 @@ records.forEach((record, index) => {
 assert.deepEqual(commitmentClashes(teaching, meetings).map((c) => c.meetingId), [1, 3], "touching ends do not clash; one shared minute does");
 
 // D-4: planning facts and lifecycle availability.
-assert.equal(planningFactsChanged(teaching, { ...teaching, courseLabel: "X" }), false);
+const relabelled: CommitmentFacts = { ...teaching, courseLabel: "X" };
+assert.equal(planningFactsChanged(teaching, relabelled), false);
 assert.equal(planningFactsChanged(teaching, { ...teaching, endMinutes: 780 }), true);
 assert.deepEqual(changedFields({ ...teaching, credits: "3.00" }, { ...teaching, credits: "3.0", notes: "x" }), ["notes"], "numerically equal credits are unchanged");
 assert.deepEqual(availableCommands({ kind: "teaching", lifecycleStatus: "active", verificationStatus: "pending" }), ["edit", "verify", "archive", "delete"]);
