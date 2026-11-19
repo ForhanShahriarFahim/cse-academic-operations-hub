@@ -1,6 +1,6 @@
 # CAL-01 — Implementation plan
 
-[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Approved · 19 November 2026, Asia/Dhaka
+[Issue #38](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/38) · Accepted · 19 November 2026, Asia/Dhaka
 
 Branch `codex/cal-01` from local `main` at `a4b0ccb`. [Specification and decisions](spec.md) · [Inspection and verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -19,6 +19,10 @@ Branch `codex/cal-01` from local `main` at `a4b0ccb`. [Specification and decisio
 - D-1 as accepted: staff enter dates manually from approved university/CSE notices or an owner-confirmed term document. The owner named no separate office and supplied no document, so global `manage_terms` holders enter dates and conflicting notices go to the owner. No institutional dates are entered by the agent.
 - D-2 as accepted: day swaps are deferred out of this delivery. Institutional migration still needs its own operations decision and cold backup.
 
+## Delivery acceptance
+
+On 19 November 2026 (Asia/Dhaka), the owner replied “Accept and merge” to delivery `ae1f302`. The delivery disclosed that the institutional database is not migrated and that day swaps, CSV and previous-term copying are deferred.
+
 ## Tasks
 
 - [x] T-01 — Inspect issue #38, sources and current term/date behavior. Present the proposed scope, criteria and sketches.
@@ -34,6 +38,6 @@ Run typecheck, lint, domain tests and default build with disposable configuratio
 
 ## Current checkpoint and exact handoff
 
-T-01–T-05 are complete on `codex/cal-01` and the delivery is ready for owner review. [Verification, owner review command and pending checks](verification.md)
+The owner accepted delivery `ae1f302` on `codex/cal-01`. [Verification and review command](verification.md)
 
-> Resume CAL-01 / #38 on `codex/cal-01`. Obtain the owner's actual acceptance of the reviewed delivery and any disclosed build limitation. Record it as the T-06 acceptance commit, merge the bounded delivery into local `main`, and confirm that the merged tree matches the accepted branch. Keep #38 open for day swaps, CSV and previous-term copying. Do not migrate the institutional database without an operations decision and a cold backup. GitHub updates follow the next owner-directed synchronization boundary.
+> Merge the accepted CAL-01 delivery into local `main` and record the merge receipt. Keep #38 open for deferred work. Issue #38 synchronization follows the next owner-directed delivery boundary.
