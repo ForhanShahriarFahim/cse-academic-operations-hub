@@ -17,6 +17,7 @@ Branch `codex/att-03a` from local `main` at `ec82ad6`. [Specification and decisi
 
 - 19 November 2026, owner: “Go for the next task.” This starts ATT-03 / #10 inspection and specification from local `main`, following the CAL-01 handoff. It does not approve implementation.
 - 19 November 2026, owner: “Approve D-1–D-5”. D-1–D-5 are accepted unchanged and implementation of T-03–T-05 is authorized. ATT-03B, D-06 and institutional migration are not authorized by this approval.
+- 19 November 2026, owner: “Accept and merge”, in reply to the verified delivery `8224861` on `codex/att-03a`. This accepts ATT-03A and authorizes its merge into local `main`. #10 stays open for ATT-03B. Institutional migration is not authorized.
 
 ## Tasks
 
@@ -33,6 +34,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-T-03–T-05 are complete on `codex/att-03a`. Typecheck, lint, domain tests, all 52 safety groups on both adapters, the default build and the compiled Edge review passed. The review found and fixed one colour-contrast failure on the Reopened label. [Verification](verification.md) records the evidence and the owner review commands. Institutional storage is still not migrated to `0019` or `0020`.
+The owner accepted delivery `8224861` on `codex/att-03a`. [Verification and review command](verification.md)
 
-> Present the verified ATT-03A delivery for owner acceptance. On acceptance, record it and merge `codex/att-03a` into local `main` (T-06), keeping #10 open for ATT-03B.
+> Merge the accepted ATT-03A delivery into local `main` and record the merge receipt. Keep #10 open for ATT-03B.
