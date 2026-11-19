@@ -71,7 +71,7 @@ export function SessionsTable({ ledger, openHref }: { ledger: Ledger; openHref?:
           <td data-label="Status" className="wrap">
             {stateLabel(row.state)}{row.provisional && <Tag>Provisional</Tag>}
             {row.voided && <span className="block text-xs">Excluded · {row.voidReason}</span>}
-            {openHref && !row.voided && <Link prefetch={false} className={`${linkStyle} ml-2 text-sm`} href={openHref(row.id)}
+            {openHref && !row.voided && <Link prefetch={false} className={`${linkStyle} block w-fit text-sm`} href={openHref(row.id)}
               aria-label={`Open session on ${fmtDate(row.date)}${ledgerTime(row.startMinutes, row.endMinutes) ? ` at ${ledgerTime(row.startMinutes, row.endMinutes)}` : ""}`}>Open session</Link>}
           </td>
         </tr>;
@@ -89,7 +89,7 @@ export function StudentMatrix({ ledger, studentHref }: { ledger: Ledger; student
   if (!ledger.matrix.length) return <p role="status" className="text-sm">No students with enrollment or captured attendance in this view.</p>;
   return <>
     <p className="text-sm text-muted">{ledger.columns.length} {ledger.columns.length === 1 ? "session" : "sessions"} · P present, L late, A absent, E excused, — not captured</p>
-    <TableRegion label="Student by session matrix" maxHeight="72vh" className="rounded-md border border-[var(--color-line)]">
+    <TableRegion label="Student by session matrix" maxHeight="72vh" className="relative rounded-md border border-[var(--color-line)]">
       <table className="ledger">
         <caption className="sr-only">Each student&apos;s recorded status for every non-voided session in this view, with attended and eligible totals.</caption>
         <thead><tr>
@@ -103,7 +103,7 @@ export function StudentMatrix({ ledger, studentHref }: { ledger: Ledger; student
         <tbody>{ledger.matrix.map(row => {
           const href = studentHref?.(row);
           return <tr key={row.id}>
-            <th scope="row" className="max-w-[16rem] !whitespace-normal">
+            <th scope="row" className="min-w-[9rem] max-w-[16rem] !whitespace-normal [overflow-wrap:normal]">
               {href ? <Link prefetch={false} className={linkStyle} href={href}>{row.name}</Link> : <span className="font-semibold">{row.name}</span>}
               <span className="block text-xs text-muted">{row.code}{row.notOnRoster && <Tag>Not on current roster</Tag>}</span>
             </th>

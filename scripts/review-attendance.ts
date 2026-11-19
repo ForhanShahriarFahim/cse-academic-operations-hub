@@ -53,8 +53,8 @@ async function main() {
           await handle.client.query(`with session as (
             insert into attendance_sessions(term_id, teaching_group_id, teacher_id, class_date, phase, start_minutes, end_minutes, status, submitted_at, submitted_by_user_id)
             values ($1, $2, $3, '2027-01-16', 'midterm', 630, 705, 'submitted', now(), $6) returning id
-          ) insert into attendance_records(session_id, student_id, status) select id, $4, 'present' from session
-            union all select id, $5, 'excused' from session`, [spring.termId, spring.mergedGroupId, teacherA, one, visiting, summer.adminUserId]);
+          ) insert into attendance_records(session_id, student_id, status) select id, $4::integer, 'present' from session
+            union all select id, $5::integer, 'excused' from session`, [spring.termId, spring.mergedGroupId, teacherA, one, visiting, summer.adminUserId]);
           await handle.client.query(`with session as (
             insert into attendance_sessions(term_id, teaching_group_id, teacher_id, class_date, phase, start_minutes, end_minutes, status, void_reason, voided_at, voided_by_user_id, submitted_at, submitted_by_user_id)
             values ($1, $2, $3, '2027-01-23', 'midterm', 630, 705, 'voided', 'Synthetic duplicate entry', now(), $5, now(), $5) returning id
@@ -258,12 +258,13 @@ async function checkLedger(group: number) {
     await page.waitForURL(/phase=final/);
     assert.equal(await summaryValue("Classes held").textContent(), "1");
     await page.getByText(/Final · All teachers/).waitFor();
-    await page.getByRole("link", { name: "Students", exact: true }).click();
+    await page.getByRole("navigation", { name: "Ledger view" }).getByRole("link", { name: "Students" }).click();
     await page.waitForURL(/view=students/);
     assert.match(page.url(), /phase=final/, "changing tabs keeps the filters");
     await page.getByRole("region", { name: "Student by session matrix" }).waitFor();
     await page.getByRole("link", { name: "Clear filters" }).click();
     await page.getByRole("cell", { name: "2 / 3" }).waitFor();
+    assert.equal(await page.getByLabel("Phase").inputValue(), "all", "Clear filters resets the form");
     await capture("students");
     await page.getByRole("link", { name: "Synthetic Student One" }).click();
     await page.getByRole("heading", { name: "Dated sessions" }).waitFor();
@@ -275,7 +276,7 @@ async function checkLedger(group: number) {
     await page.pdf({ path: `${output}/matrix.pdf`, preferCSSPageSize: true });
     await page.emulateMedia({ media: "screen" });
     await page.getByRole("link", { name: "Back to attendance ledger" }).click();
-    await page.getByRole("link", { name: "Sessions", exact: true }).click();
+    await page.getByRole("navigation", { name: "Ledger view" }).getByRole("link", { name: "Sessions" }).click();
     await page.getByRole("link", { name: "Print ledger" }).click();
     await page.getByRole("heading", { name: "Printable attendance ledger" }).waitFor();
     await page.getByText("Total · 3 classes held").waitFor();

@@ -53,7 +53,9 @@ export default async function AttendanceLedgerPage({ searchParams }: { searchPar
       </Link>)}
     </nav>
 
-    <form method="get" action="/attendance/ledger" aria-label="Filter ledger" className="flex flex-wrap items-end gap-3">
+    {/* Keyed by the applied filters so client navigation (tabs, Clear filters) resets the uncontrolled fields. */}
+    <form key={`${view}:${filters.phase}:${filters.teacher}:${filters.from}:${filters.to}`} method="get" action="/attendance/ledger"
+      aria-label="Filter ledger" className="flex flex-wrap items-end gap-3">
       <input type="hidden" name="term" value={termId} /><input type="hidden" name="group" value={groupId} />
       {view !== "sessions" && <input type="hidden" name="view" value={view} />}
       <label className="grid gap-1 text-sm font-semibold">Phase
