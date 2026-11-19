@@ -22,7 +22,8 @@
 ## Checks and findings
 
 - `npm run typecheck`, `npm run lint` and `npm run test:domain` passed. The default `npm run build` (Turbopack) passed and listed `/attendance/ledger`, `/export` and `/print`. The earlier CSS-worker failure did not recur in these runs.
-- Safety groups ATT-05, ATT-04, ATT-03A, SET-01B and BUG-ATT-MARKS passed on both adapters. The full-suite result is recorded below.
+- Safety groups ATT-05, ATT-04, ATT-03A, SET-01B and BUG-ATT-MARKS passed on both adapters.
+- **Full `npm run test:safety`: did not pass.** The first 47 groups passed, and the run stopped at `BUG-29 time zones (PGlite)`. Its timestamp-type inventory expected `academic_policy_versions` columns that the checked database did not report. The same group fails identically on local `main` at `7179605`, so the failure predates ATT-05, which changes no schema. The groups after BUG-29 (AUTH-02 onward) were not reached in this run. This is recorded as a pending, pre-existing issue outside ATT-05's scope.
 - Found and fixed during verification:
   - The synthetic fixtures were missing actors required by the lifecycle constraints.
   - The review fixture SQL needed integer casts.
