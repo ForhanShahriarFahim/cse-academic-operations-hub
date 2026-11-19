@@ -46,5 +46,5 @@ Start the disposable review server with `npm run ux:review -- --fresh`. To sign 
 ## Pending
 
 - The institutional database has not been migrated. Migration `0019` requires an operations decision and a cold backup first.
-- Owner acceptance and the local merge (T-06) are pending. Issue #38 was read only, and no GitHub synchronization was done.
+- The owner accepted delivery `ae1f302` (acceptance `b192ef5`), and local merge `6969eb2` matches the accepted tree. Issue #38 was read only and awaits owner-directed GitHub synchronization.
 - Day swaps (D-2), CSV and previous-term copying remain deferred #38 work.

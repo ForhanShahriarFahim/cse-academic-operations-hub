@@ -30,7 +30,7 @@ On 19 November 2026 (Asia/Dhaka), the owner replied “Accept and merge” to de
 - [x] T-03 — Implement additive storage, date validation and date lookup, with term-bounds protection, server authorization, revision control and transactional audit. Covers AC-01–AC-05.
 - [x] T-04 — Implement term workspace entry, screen/lookup, manager editing and history, and authenticated A4. Covers AC-01–AC-06.
 - [x] T-05 — Verify disposable migrations and recovery, parity, final application checks and compiled review. Record evidence and give the owner a runnable review. Covers AC-01–AC-07.
-- [ ] T-06 — Record delivery acceptance and merge the bounded delivery into local `main`. Keep the parent issue open for deferred #38 work.
+- [x] T-06 — Record delivery acceptance and merge the bounded delivery into local `main`. Keep the parent issue open for deferred #38 work.
 
 ## Verification and delivery
 
@@ -38,6 +38,6 @@ Run typecheck, lint, domain tests and default build with disposable configuratio
 
 ## Current checkpoint and exact handoff
 
-The owner accepted delivery `ae1f302` on `codex/cal-01`. [Verification and review command](verification.md)
+Approval is recorded at `fb88cf9`. Acceptance `b192ef5` covers delivery `ae1f302`. Local merge `6969eb2` matches the accepted branch tree. The `codex/cal-01` branch is retained. Issue #38 stays open for day swaps, CSV and previous-term copying. [Verification and review command](verification.md)
 
-> Merge the accepted CAL-01 delivery into local `main` and record the merge receipt. Keep #38 open for deferred work. Issue #38 synchronization follows the next owner-directed delivery boundary.
+> In the next owner-started session, inspect and specify ATT-03 / #10 (dated session draft, submit, lock, reopen and void) from local `main`. Calendar suggestions can now use CAL-01's date lookup. Migrating the institutional database to `0019` needs its own operations decision and a cold backup. Issue #38 synchronization follows the next owner-directed delivery boundary.
