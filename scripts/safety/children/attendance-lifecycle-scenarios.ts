@@ -42,6 +42,14 @@ async function main() {
   for (const row of fixtureSessions) assert.deepEqual([row.status, row.revision, row.submittedAt, row.submittedByUserId, row.lockedAt, row.voidedAt, row.voidReason], ["draft", 0, null, null, null, null, null]);
   const baseline = await operations.getAttendanceData(group.id);
   assert.equal(baseline.unsubmitted, baseline.sessions.length);
+  // AC-05 parity: the pre-ATT-03A rule (every session counts, from raw rows) gives the same summaries as the migrated loader.
+  const { summarizeAttendance } = loadApp<typeof import("../../../src/lib/attendance")>("src/lib/attendance.ts");
+  const rawSessions = await db.select().from(s.attendanceSessions).where(eq(s.attendanceSessions.teachingGroupId, group.id));
+  const rawRecords = await db.select().from(s.attendanceRecords);
+  const legacy = rawSessions.map(row => ({ phase: row.phase, records: rawRecords.filter(record => record.sessionId === row.id).map(record => ({ studentId: record.studentId, status: record.status })) }));
+  assert.ok(legacy.some(item => item.records.length > 0), "parity needs recorded fixture marks");
+  assert.deepEqual(baseline.summaries, baseline.roster.map(student => summarizeAttendance(student.id, legacy as never, baseline.maximum)), "migrated summaries match the pre-ATT-03A counting");
+  lines.push("Summary parity: on migrated fixture sessions the loader's summaries equal the pre-ATT-03A rule computed independently from the raw sessions and records.");
 
   // AC-01: the assigned teacher's draft → submitted → reopened → resubmitted path.
   signInAs("teacher-a@example.invalid");

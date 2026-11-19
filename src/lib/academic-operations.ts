@@ -147,9 +147,9 @@ export async function getAttendanceData(selectedGroupId: number, portal?: { data
     : [];
   const userIds = [...new Set(sessionRows.flatMap((row) => [row.submittedByUserId, row.lockedByUserId, row.voidedByUserId]).filter((id): id is number => id != null))];
   const reopenedIds = sessionRows.filter((row) => row.status === "reopened").map((row) => row.id);
-  const [users, reasons] = await Promise.all([
-    userIds.length ? db.select({ id: portalUsers.id, displayName: portalUsers.displayName }).from(portalUsers).where(inArray(portalUsers.id, userIds)) : [],
-    reopenedIds.length ? db.select({ entityId: auditEvents.entityId, detail: auditEvents.detail }).from(auditEvents).where(and(eq(auditEvents.entity, "attendance_session"),
+  const [users, reasons] = await databaseReadBatch([
+    () => userIds.length ? db.select({ id: portalUsers.id, displayName: portalUsers.displayName }).from(portalUsers).where(inArray(portalUsers.id, userIds)) : [],
+    () => reopenedIds.length ? db.select({ entityId: auditEvents.entityId, detail: auditEvents.detail }).from(auditEvents).where(and(eq(auditEvents.entity, "attendance_session"),
       inArray(auditEvents.entityId, reopenedIds), inArray(auditEvents.action, ["attendance.reopen", "attendance.restore"]))).orderBy(desc(auditEvents.id)) : [],
   ]);
   const name = (id: number | null) => id == null ? null : users.find((user) => user.id === id)?.displayName ?? "Unknown user";

@@ -13,7 +13,7 @@ export const dhakaStamp = (iso: string) => stamp.format(new Date(iso));
 
 const STATE_TONE: Record<string, string> = {
   draft: "text-muted", submitted: "text-[var(--color-pine)]", locked: "text-[var(--color-pine)]",
-  reopened: "text-[var(--color-gold)]", voided: "text-[var(--color-clay)]",
+  reopened: "text-[var(--color-gold-text)]", voided: "text-[var(--color-clay)]",
 };
 /** The state is always spelled out; the mark shape is a secondary cue, never colour alone. */
 export function StateBadge({ state }: { state: string }) {

@@ -16,8 +16,10 @@ import { dhakaToday } from "../src/lib/room-lifecycle";
 import { todayIndex } from "../src/lib/teacher-routine-data";
 
 const stu01b = process.argv.includes("--stu-01b");
-const att01 = process.argv.includes("--att-01");
-const appPort = att01 ? 3150 : stu01b ? 3146 : 3134;
+const att03a = process.argv.includes("--att-03a");
+// ATT-03A reuses the ATT-01 teacher and Today setup on its own ports.
+const att01 = process.argv.includes("--att-01") || att03a;
+const appPort = att03a ? 3160 : att01 ? 3150 : stu01b ? 3146 : 3134;
 const controlPort = appPort + 1;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
@@ -49,6 +51,12 @@ async function main() {
           "update attendance_sessions set class_date = $1 where teaching_group_id = $2 returning id", [date, group])).rows[0].id;
         await handle.client.query(
           "insert into attendance_sessions(term_id, teaching_group_id, class_date, phase) select term_id, teaching_group_id, class_date, 'final' from attendance_sessions where id = $1",
+          [matchedSession],
+        );
+        // ATT-03A submits the second session, so give it the roll-call records the app's create action would write.
+        if (att03a) await handle.client.query(
+          `insert into attendance_records(session_id, student_id, status)
+             select (select max(id) from attendance_sessions), student_id, 'absent' from attendance_records where session_id = $1`,
           [matchedSession],
         );
         await handle.client.query(
@@ -92,7 +100,8 @@ async function main() {
       }
       assert.ok(ready, "Synthetic preview did not start.");
       console.log(`Student roster synthetic review: ${controlOrigin}/sign-in`);
-      if (process.argv.includes("--check") && att01) await checkSelection(group, emptyGroup, matchedSession);
+      if (process.argv.includes("--check") && att03a) await checkLifecycle(group, matchedSession);
+      else if (process.argv.includes("--check") && att01) await checkSelection(group, emptyGroup, matchedSession);
       if (process.argv.includes("--check") && !att01) await checkBrowser(emptyGroup, async () => {
         await withHandle(database, async handle => {
           await handle.client.query(`with added as (
@@ -425,6 +434,123 @@ async function checkBrowser(emptyGroup: number, addPrintRoster: () => Promise<vo
     assert.equal(await page.getByText(/Long Synthetic Student Name/).count(), 57);
     await page.pdf({ path: `${captures}/roll-call-multi-a4.pdf`, preferCSSPageSize: true });
     console.log("Student roster browser: CSV and Excel preview and confirmation, both downloads, roster parity, denied download, A4 roll-call, directory and enrollment flows, captured marks, axe and three viewport checks passed.");
+  } finally { await browser.close(); }
+}
+
+/** ATT-03A compiled review: teacher submit/reopen/resubmit, reviewer lock/void/restore/lock-all, history, keyboard, axe and three widths. */
+async function checkLifecycle(group: number, matchedSession: number) {
+  const output = ".tmp/att-03a/browser";
+  await mkdir(output, { recursive: true });
+  const browser = await chromium.launch({ channel: "msedge" });
+  const axeAt = async (page: import("playwright").Page, label: string) => {
+    await page.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
+    const violations = await page.evaluate(async () => {
+      const axe = (window as Window & { axe?: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string; nodes: Array<{ target: unknown; failureSummary?: string }> }> }> } }).axe!;
+      return (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] })).violations
+        .map(item => ({ id: item.id, nodes: item.nodes.map(node => `${JSON.stringify(node.target)} ${node.failureSummary ?? ""}`) }));
+    });
+    assert.deepEqual(violations, [], `${label} accessibility: ${JSON.stringify(violations)}`);
+  };
+  const widths = async (page: import("playwright").Page, name: string) => {
+    for (const width of [1440, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name} overflows at ${width}px`);
+      await axeAt(page, `${name} ${width}px`);
+      await page.screenshot({ path: `${output}/${name}-${width}.png`, fullPage: true });
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+  };
+  const status = (page: import("playwright").Page, text: RegExp) => page.getByRole("status").filter({ hasText: text }).first().waitFor();
+  const reason = async (page: import("playwright").Page, trigger: string, confirm: string, text: string) => {
+    await page.getByRole("button", { name: trigger, exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.waitFor();
+    await page.waitForFunction(() => document.activeElement?.id === "reason-text");
+    if (text) await dialog.getByRole("textbox").fill(text);
+    await dialog.getByRole("button", { name: confirm, exact: true }).click();
+  };
+  try {
+    const teacher = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await teacher.goto(`${controlOrigin}/teacher`);
+    await teacher.getByRole("link", { name: /Open roll-call for SYN-4101/ }).click();
+    await teacher.getByText("Not submitted yet.").waitFor();
+    await widths(teacher, "teacher-draft");
+    await teacher.getByRole("button", { name: "Mark all present" }).click();
+    await teacher.getByText(/unsaved, was/).first().waitFor();
+    await teacher.getByRole("button", { name: "Submit roll-call" }).click();
+    await status(teacher, /Roll-call submitted/);
+    await teacher.getByText(/Last submitted by Synthetic Teacher A/).waitFor();
+    assert.equal(await teacher.getByRole("combobox", { name: /^Attendance for / }).count(), 0, "a submitted roll-call is read-only");
+    assert.equal(await teacher.getByRole("button", { name: "Lock", exact: true }).count(), 0, "teachers are not offered Lock");
+    assert.equal(await teacher.getByRole("button", { name: "Delete draft" }).count(), 0);
+    await widths(teacher, "teacher-submitted");
+
+    // Reason dialog: keyboard focus, validation, Escape returns focus to the trigger.
+    await teacher.getByRole("button", { name: "Reopen for correction" }).focus();
+    await teacher.keyboard.press("Enter");
+    await teacher.getByRole("dialog").waitFor();
+    await teacher.waitForFunction(() => document.activeElement?.id === "reason-text");
+    await teacher.keyboard.press("Escape");
+    await teacher.waitForFunction(() => document.activeElement?.textContent === "Reopen for correction");
+    await reason(teacher, "Reopen for correction", "Reopen session", "");
+    await teacher.getByRole("alert").filter({ hasText: "Enter at least 3 characters." }).waitFor();
+    await axeAt(teacher, "reason dialog with error");
+    await teacher.getByRole("dialog").screenshot({ path: `${output}/reason-dialog-error.png` });
+    await teacher.getByRole("dialog").getByRole("textbox").fill("Visiting student arrived within ten minutes");
+    await teacher.getByRole("dialog").getByRole("button", { name: "Reopen session", exact: true }).click();
+    await status(teacher, /Session reopened for correction/);
+    await teacher.getByText("Reason for correction:").waitFor();
+    await teacher.getByRole("combobox", { name: "Attendance for Synthetic Visiting Student" }).selectOption("late");
+    await teacher.getByText("unsaved, was Present").waitFor();
+    await widths(teacher, "teacher-reopened");
+    await teacher.getByRole("button", { name: "Resubmit" }).click();
+    await status(teacher, /Roll-call submitted/);
+    await teacher.getByText("Session history").click();
+    await teacher.getByText(/Resubmitted · Synthetic Teacher A/).waitFor();
+    await teacher.getByText(/Reopened for correction · Synthetic Teacher A/).waitFor();
+    await teacher.getByText("Reason: Visiting student arrived within ten minutes").waitFor();
+    await teacher.getByText(/Present → Late/).waitFor();
+    await widths(teacher, "teacher-history");
+
+    // A second dated session for lock-all.
+    await teacher.getByRole("button", { name: /final/ }).click();
+    await teacher.getByRole("button", { name: "Submit roll-call" }).click();
+    await status(teacher, /Roll-call submitted/);
+
+    const admin = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await admin.goto(`${controlOrigin}/sign-in`);
+    await admin.goto(`${origin}/attendance?group=${group}&session=${matchedSession}`);
+    await admin.getByRole("button", { name: "Lock all submitted (2)" }).waitFor();
+    await reason(admin, "Lock", "Lock session", "Checked against the paper register");
+    await status(admin, /Session locked/);
+    await admin.getByText(/Locked by Synthetic Admin/).waitFor();
+    await widths(admin, "reviewer-locked");
+
+    await teacher.reload();
+    await teacher.getByRole("button", { name: /midterm/ }).click();
+    await teacher.getByText("Only an attendance reviewer can reopen or void a locked session.").waitFor();
+    assert.equal(await teacher.getByRole("button", { name: "Reopen for correction" }).count(), 0);
+    await widths(teacher, "teacher-locked");
+
+    await reason(admin, "Void session", "Void session", "Class was recorded against the wrong slot");
+    await status(admin, /Session voided/);
+    await admin.getByText("Reason voided:").waitFor();
+    await widths(admin, "reviewer-voided");
+    await reason(admin, "Restore", "Restore session", "Voided by mistake");
+    await status(admin, /Session restored as reopened/);
+    await admin.getByText("Reason for correction:").waitFor();
+
+    await admin.getByRole("button", { name: "Lock all submitted (1)" }).click();
+    await admin.getByRole("dialog").getByRole("heading", { name: "Lock 1 submitted session(s)?" }).waitFor();
+    await admin.getByRole("dialog").getByText("1 submitted", { exact: true }).waitFor();
+    await admin.getByRole("dialog").getByText(/1 reopened/).first().waitFor();
+    await axeAt(admin, "lock-all dialog");
+    await admin.getByRole("dialog").screenshot({ path: `${output}/lock-all-dialog.png` });
+    await admin.getByRole("dialog").getByRole("button", { name: "Lock 1 session(s)" }).click();
+    await status(admin, /1 submitted session\(s\) locked/);
+    await admin.getByText(/session\(s\) not yet submitted/).waitFor();
+    await widths(admin, "reviewer-after-lock-all");
+    console.log("ATT-03A browser: teacher submit, read-only state, keyboard reason dialog with validation and Escape, reopen/correction/resubmit, history, reviewer lock, teacher locked view, void, restore, lock-all confirmation, axe and 1440/390/320 checks passed.");
   } finally { await browser.close(); }
 }
 

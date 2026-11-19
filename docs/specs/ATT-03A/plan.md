@@ -22,9 +22,9 @@ Branch `codex/att-03a` from local `main` at `ec82ad6`. [Specification and decisi
 
 - [x] T-01 — Inspect issue #10, prior attendance slices and the current session code. Present this specification, decisions and sketches.
 - [x] T-02 — Record and commit the owner's decisions and implementation approval.
-- [ ] T-03 — Add migration `0020`, transition rules, authority and audited server actions with revision control. Covers AC-01–AC-06.
-- [ ] T-04 — Add state display, actions, reason dialogs and History in the attendance workspace. Covers AC-01–AC-03 and AC-07.
-- [ ] T-05 — Verify on disposable data: both adapters, races, fault rollback, migration recovery, summary parity and compiled review. Record the evidence and a runnable owner review. Covers AC-01–AC-08.
+- [x] T-03 — Add migration `0020`, transition rules, authority and audited server actions with revision control. Covers AC-01–AC-06.
+- [x] T-04 — Add state display, actions, reason dialogs and History in the attendance workspace. Covers AC-01–AC-03 and AC-07.
+- [x] T-05 — Verify on disposable data: both adapters, races, fault rollback, migration recovery, summary parity and compiled review. Record the evidence and a runnable owner review. Covers AC-01–AC-08.
 - [ ] T-06 — Record delivery acceptance and merge into local `main`. Keep #10 open for ATT-03B.
 
 ## Verification and delivery
@@ -33,6 +33,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Approval is recorded on `codex/att-03a`. Implementation of T-03–T-05 is in progress. Institutional storage is still not migrated to `0019`.
+T-03–T-05 are complete on `codex/att-03a`. Typecheck, lint, domain tests, all 52 safety groups on both adapters, the default build and the compiled Edge review passed. The review found and fixed one colour-contrast failure on the Reopened label. [Verification](verification.md) records the evidence and the owner review commands. Institutional storage is still not migrated to `0019` or `0020`.
 
-> Continue T-03–T-05 on `codex/att-03a` against the approved [specification](spec.md), then present the verified delivery for owner acceptance.
+> Present the verified ATT-03A delivery for owner acceptance. On acceptance, record it and merge `codex/att-03a` into local `main` (T-06), keeping #10 open for ATT-03B.
