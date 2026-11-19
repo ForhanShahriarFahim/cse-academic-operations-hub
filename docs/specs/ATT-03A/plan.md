@@ -26,7 +26,7 @@ Branch `codex/att-03a` from local `main` at `ec82ad6`. [Specification and decisi
 - [x] T-03 — Add migration `0020`, transition rules, authority and audited server actions with revision control. Covers AC-01–AC-06.
 - [x] T-04 — Add state display, actions, reason dialogs and History in the attendance workspace. Covers AC-01–AC-03 and AC-07.
 - [x] T-05 — Verify on disposable data: both adapters, races, fault rollback, migration recovery, summary parity and compiled review. Record the evidence and a runnable owner review. Covers AC-01–AC-08.
-- [ ] T-06 — Record delivery acceptance and merge into local `main`. Keep #10 open for ATT-03B.
+- [x] T-06 — Record delivery acceptance and merge into local `main`. Keep #10 open for ATT-03B.
 
 ## Verification and delivery
 
@@ -34,6 +34,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-The owner accepted delivery `8224861` on `codex/att-03a`. [Verification and review command](verification.md)
+Approval is recorded at `c41bf0c`. Acceptance `fbcbf09` covers delivery `8224861`. Local merge `6bd5605` matches the accepted branch tree. The `codex/att-03a` branch is retained. Issue #10 stays open for ATT-03B. [Verification and review command](verification.md)
 
-> Merge the accepted ATT-03A delivery into local `main` and record the merge receipt. Keep #10 open for ATT-03B.
+> In the next owner-started session, inspect and specify SET-01B / #14 (effective policy history and reviewed changes for marks, workload and payments) from local `main`. ATT-03B (meeting link, unscheduled reason, calendar suggestions and roll-call ergonomics) remains proposed under #10. Migrating the institutional database to `0019` and `0020` needs its own operations decision and a cold backup. Issue #10 and #38 synchronization follows the next owner-directed delivery boundary.
