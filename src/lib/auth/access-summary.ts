@@ -31,6 +31,7 @@ export const CAPABILITY_LABELS: Record<Capability, string> = {
   manage_students: "Manage the private student directory",
   manage_rosters: "Manage student rosters",
   take_attendance: "Take attendance",
+  review_attendance: "Lock, reopen, void and restore attendance sessions",
   submit_extra_load: "Submit extra class load",
   review_extra_load: "Review extra class load claims",
   view_payment_reports: "See payment reports",
