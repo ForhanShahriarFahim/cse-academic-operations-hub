@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATT-05 review sketches</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #202a25; background: #f5f4ee; font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 72rem; margin: auto; padding: clamp(.85rem, 3vw, 2rem); }
+  h1, h2 { margin: 0 0 .4rem; font-family: Georgia, serif; line-height: 1.2; }
+  h3, p { margin: .4rem 0; }
+  a { color: #175643; text-underline-offset: .2em; }
+  a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 3px solid #175643; outline-offset: 3px; }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  section { padding: 1rem; margin: 1rem 0; background: #fff; border: 1px solid #c8ccc3; border-radius: .5rem; min-width: 0; }
+  .meta { color: #46584e; font-size: .9rem; }
+  .notice { border-left: .25rem solid #99712b; background: #fff5dc; padding: .55rem .75rem; }
+  .tabs { gap: .5rem; }
+  .tabs a, .tabs strong { display: inline-flex; min-height: 2.75rem; align-items: center; padding: 0 .9rem; border: 1px solid #c8ccc3; border-radius: .4rem; background: #fff; font-weight: 600; text-decoration: none; }
+  .tabs strong { border-color: #175643; background: #e5efe9; color: #175643; }
+  form.filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; }
+  form.filters label { display: grid; gap: .2rem; font-size: .85rem; font-weight: 600; }
+  select, input, button { min-height: 2.75rem; font: inherit; padding: .3rem .5rem; border: 1px solid #9aa597; border-radius: .35rem; background: #fff; }
+  button { border-color: #175643; color: #175643; font-weight: 600; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .5rem; margin: .75rem 0; }
+  .summary div { border: 1px solid #d8ddd4; border-radius: .4rem; padding: .5rem .7rem; }
+  .summary strong { display: block; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .scroll { overflow: auto; max-width: 100%; border: 1px solid #d8ddd4; border-radius: .4rem; }
+  table { width: 100%; border-collapse: collapse; text-align: left; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: .45rem .5rem; border-bottom: 1px solid #d8ddd4; vertical-align: top; white-space: nowrap; }
+  thead th { position: sticky; top: 0; background: #eef1ec; }
+  td.n, th.n { text-align: right; }
+  tr.voided td { color: #6b7570; text-decoration: line-through; text-decoration-color: #9aa597; }
+  tr.voided td:last-child { text-decoration: none; }
+  .tag { display: inline-block; border: 1px solid #99712b; color: #6d4f17; border-radius: 1rem; padding: 0 .45rem; font-size: .75rem; }
+  .matrix th[scope=row], .matrix thead th:first-child { position: sticky; left: 0; background: #fff; z-index: 1; }
+  .matrix thead th:first-child { background: #eef1ec; z-index: 2; }
+  .matrix td.c { text-align: center; width: 3rem; }
+  .desktop { display: block; }
+  .phone { display: none; }
+  .phone article { border-bottom: 1px solid #d8ddd4; padding: .6rem 0; }
+  @media (max-width: 40rem) { .desktop { display: none; } .phone { display: block; } }
+  .sheet { background: #fff; border: 1px solid #9aa597; padding: 1rem; margin: .5rem 0; font-size: .75rem; }
+  .sheet.landscape { aspect-ratio: 297 / 210; max-width: 44rem; }
+  .sheet.portrait { aspect-ratio: 210 / 297; max-width: 26rem; }
+</style>
+<main>
+  <p class="meta">ATT-05 review sketch · Synthetic data · not the final implementation</p>
+  <nav aria-label="Review examples"><a href="#sessions">Sessions ledger</a><a href="#students">Student matrix</a><a href="#phone">Phone</a><a href="#print">A4 print</a><a href="#entry">Entry points</a></nav>
+
+  <section id="sessions" aria-labelledby="sessions-title">
+    <a href="#entry">Back to attendance and roll-call</a>
+    <p class="meta">Summer 2026 · Working ledger</p>
+    <h1 id="sessions-title">Attendance ledger</h1>
+    <p><strong>CSE-2101 · Data Structures</strong> · HSC 22B + Diploma 22B</p>
+    <nav class="tabs" aria-label="Ledger view"><strong aria-current="page">Sessions</strong><a href="#students">Students</a></nav>
+    <form class="filters" aria-label="Filter ledger">
+      <label>Phase<select><option>All phases</option><option>Midterm</option><option>Final</option></select></label>
+      <label>Teacher<select><option>All teachers</option><option>SYN-T1 · Synthetic Teacher One</option><option>SYN-T2 · Synthetic Teacher Two</option><option>Not recorded</option></select></label>
+      <label>From<input type="date" value="2026-06-01"></label>
+      <label>To<input type="date" value="2026-09-30"></label>
+      <button type="button">Apply filters</button> <a href="#sessions">Clear</a>
+    </form>
+    <div class="summary" aria-label="Summary for this view">
+      <div><span class="meta">Classes held</span><strong>5</strong></div>
+      <div><span class="meta">Teachers</span><strong>2</strong><span class="meta">+ 1 not recorded</span></div>
+      <div><span class="meta">Present + late</span><strong>186</strong><span class="meta">of 212 eligible</span></div>
+      <div><span class="meta">Attendance</span><strong>87.7%</strong></div>
+      <div><span class="meta">Excused</span><strong>4</strong></div>
+    </div>
+    <p class="notice">1 reopened session is provisional. 1 voided session is listed and excluded from totals.</p>
+    <div class="actions"><a href="#print">Print ledger</a><a href="#sessions">Download CSV</a></div>
+    <div class="desktop scroll" role="region" aria-label="Sessions, 6 rows" tabindex="0"><table>
+      <thead><tr><th scope="col">Date</th><th scope="col">Day</th><th scope="col">Time</th><th scope="col">Phase</th><th scope="col">Teacher</th><th class="n" scope="col">Present</th><th class="n" scope="col">Late</th><th class="n" scope="col">Absent</th><th class="n" scope="col">Excused</th><th class="n" scope="col">Not captured</th><th class="n" scope="col">Attendance</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        <tr><td>13 Jun 2026</td><td>Sat</td><td>09:00–10:15</td><td>Midterm</td><td>SYN-T1</td><td class="n">40</td><td class="n">2</td><td class="n">1</td><td class="n">0</td><td class="n">0</td><td class="n">97.7%</td><td>Locked</td></tr>
+        <tr><td>20 Jun 2026</td><td>Sat</td><td>09:00–10:15</td><td>Midterm</td><td>SYN-T1</td><td class="n">33</td><td class="n">3</td><td class="n">6</td><td class="n">1</td><td class="n">0</td><td class="n">85.7%</td><td>Submitted · <a href="#entry">Open session</a></td></tr>
+        <tr class="voided"><td>27 Jun 2026</td><td>Sat</td><td>09:00–10:15</td><td>Midterm</td><td>SYN-T2</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td>Voided · Duplicate of 20 Jun</td></tr>
+        <tr><td>11 Jul 2026</td><td>Sat</td><td>Time not recorded</td><td>Final</td><td>Not recorded</td><td class="n">35</td><td class="n">0</td><td class="n">7</td><td class="n">1</td><td class="n">0</td><td class="n">83.3%</td><td>Submitted · <a href="#entry">Open session</a></td></tr>
+        <tr><td>18 Jul 2026</td><td>Sat</td><td>09:00–10:15</td><td>Final</td><td>SYN-T2</td><td class="n">36</td><td class="n">1</td><td class="n">5</td><td class="n">1</td><td class="n">1</td><td class="n">88.1%</td><td>Reopened <span class="tag">Provisional</span> · <a href="#entry">Open session</a></td></tr>
+        <tr><td>25 Jul 2026</td><td>Sat</td><td>09:00–10:15</td><td>Final</td><td>SYN-T2</td><td class="n">34</td><td class="n">2</td><td class="n">7</td><td class="n">1</td><td class="n">0</td><td class="n">83.7%</td><td>Locked</td></tr>
+      </tbody>
+    </table></div>
+    <p class="meta">Attendance = (present + late) ÷ (present + late + absent). Excused and not-captured students are not counted. Voided sessions are excluded from totals.</p>
+  </section>
+
+  <section id="students" aria-labelledby="students-title">
+    <h2 id="students-title">Students</h2>
+    <nav class="tabs" aria-label="Ledger view sketch"><a href="#sessions">Sessions</a><strong aria-current="page">Students</strong></nav>
+    <p class="meta">Same filters as Sessions · 5 sessions · P present, L late, A absent, E excused, — not captured</p>
+    <div class="desktop scroll matrix" role="region" aria-label="Student by session matrix" tabindex="0"><table class="matrix">
+      <thead><tr><th scope="col">Student</th><th scope="col" class="c">13 Jun<br><small>Mid</small></th><th scope="col" class="c">20 Jun<br><small>Mid</small></th><th scope="col" class="c">11 Jul<br><small>Final</small></th><th scope="col" class="c">18 Jul<br><small>Final</small></th><th scope="col" class="c">25 Jul<br><small>Final</small></th><th class="n" scope="col">Attended</th><th class="n" scope="col">%</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="#students">Synthetic Student One</a><br><small>SYN-0001</small></th><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Absent">A</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Late">L</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="n">4 / 5</td><td class="n">80.0%</td></tr>
+        <tr><th scope="row"><a href="#students">Synthetic Student Two</a><br><small>SYN-0002</small></th><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Excused">E</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="n">4 / 4</td><td class="n">100.0%</td></tr>
+        <tr><th scope="row"><a href="#students">Synthetic Student Three</a><br><small>SYN-0003 · <span class="tag">Not on current roster</span></small></th><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Absent">A</abbr></td><td class="c"><abbr title="Not captured">—</abbr></td><td class="c"><abbr title="Not captured">—</abbr></td><td class="c"><abbr title="Not captured">—</abbr></td><td class="n">1 / 2</td><td class="n">50.0%</td></tr>
+        <tr><th scope="row"><a href="#students">Synthetic Student Four</a><br><small>SYN-0004 · joined late</small></th><td class="c"><abbr title="Not captured">—</abbr></td><td class="c"><abbr title="Not captured">—</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="c"><abbr title="Absent">A</abbr></td><td class="c"><abbr title="Present">P</abbr></td><td class="n">2 / 3</td><td class="n">66.7%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="meta">Names open the ATT-04 dated explanation. Marks stay on the Attendance marks page.</p>
+  </section>
+
+  <section id="phone" aria-labelledby="phone-title">
+    <h2 id="phone-title">Phone (390 / 320 px)</h2>
+    <p class="meta">The filters stack into one column. Sessions become stacked rows, and the matrix keeps its own horizontal scroll with a sticky student column.</p>
+    <div style="max-width:22rem;border:1px dashed #9aa597;padding:.75rem;border-radius:.5rem">
+      <article><strong>Sat 13 Jun · 09:00–10:15</strong><br>Midterm · SYN-T1 · Locked<br><span class="meta">P 40 · L 2 · A 1 · E 0 · 97.7%</span></article>
+      <article><strong>Sat 20 Jun · 09:00–10:15</strong><br>Midterm · SYN-T1 · Submitted<br><span class="meta">P 33 · L 3 · A 6 · E 1 · 85.7%</span><br><a href="#entry">Open session</a></article>
+      <article style="color:#6b7570"><strong>Sat 27 Jun · Voided</strong><br>Duplicate of 20 Jun · excluded from totals</article>
+      <article><strong>Sat 18 Jul · 09:00–10:15</strong> <span class="tag">Provisional</span><br>Final · SYN-T2 · Reopened<br><span class="meta">P 36 · L 1 · A 5 · E 1 · 1 not captured · 88.1%</span></article>
+    </div>
+  </section>
+
+  <section id="print" aria-labelledby="print-title">
+    <h2 id="print-title">A4 print / Save as PDF</h2>
+    <p class="meta">Every page repeats the heading: term, course, audience, group, filters, generated date and notes.</p>
+    <div class="sheet portrait" aria-label="Portrait sessions sheet sketch">
+      <strong>Attendance ledger · Sessions</strong><br>Summer 2026 · CSE-2101 Data Structures · HSC 22B + Diploma 22B · Group 14<br>
+      Filters: all phases · all teachers · 1 Jun–30 Sep 2026 · Generated 19 November 2026<br>
+      Classes held 5 · Attendance 87.7% · 1 provisional · 1 voided (excluded)<hr>
+      Date · Day · Time · Phase · Teacher · P · L · A · E · NC · % · Status<br>13 Jun 2026 · Sat · 09:00–10:15 · Midterm · SYN-T1 · 40 · 2 · 1 · 0 · 0 · 97.7% · Locked<br>…
+    </div>
+    <div class="sheet landscape" aria-label="Landscape matrix sheet sketch">
+      <strong>Attendance ledger · Students · block 1 of 3 (sessions 1–16)</strong><br>Same heading and filters<hr>
+      Student ID · Name · 13 Jun · 20 Jun · 11 Jul · … (up to 16 sessions)<br>SYN-0001 · Synthetic Student One · P · A · P · …<br>…<br><em>Block 3 also includes the totals: Attended / Eligible · %</em>
+    </div>
+  </section>
+
+  <section id="entry" aria-labelledby="entry-title">
+    <h2 id="entry-title">Entry points</h2>
+    <p><strong>Attendance workspace, selected group:</strong> My classes · Change group · Attendance marks · <a href="#sessions">Attendance ledger</a></p>
+    <p><strong>Completed term → Attendance marks → class group list:</strong> each group has <a href="#sessions">Marks</a> and <a href="#sessions">Ledger</a> links, and the ledger is read-only with no “Open session”.</p>
+  </section>
+</main>

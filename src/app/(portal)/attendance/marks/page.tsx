@@ -6,7 +6,7 @@ import {
 } from "@/lib/attendance";
 import { isUnsubmitted, stateLabel } from "@/lib/attendance-lifecycle";
 import { getAttendanceMarks } from "@/lib/attendance-marks";
-import { attendanceHref, attendanceId, attendanceMarksHref as marksHref, type AttendanceQuery } from "@/lib/attendance-selection";
+import { attendanceHref, attendanceId, attendanceLedgerHref, attendanceMarksHref as marksHref, type AttendanceQuery } from "@/lib/attendance-selection";
 import { versionLabel } from "@/lib/policy-versions";
 import { fmtDate, fmtRange } from "@/lib/time";
 
@@ -35,10 +35,14 @@ export default async function AttendanceMarksPage({ searchParams }: { searchPara
     <section className="ruled rounded-lg p-4" aria-labelledby="attendance-marks-groups">
       <h2 id="attendance-marks-groups" className="font-display text-lg font-semibold">Choose a class group</h2>
       {report.groups.length ? <ul className="divide-y divide-[var(--color-line)]">
-        {report.groups.map(group => <li key={group.id} className="py-3 [overflow-wrap:anywhere]">
-          <Link className={linkStyle} prefetch={false} href={marksHref(termId, group.id)}>
-            {group.courseCode} · {group.courseTitle} · {group.audience || "Group"} #{group.id}
-          </Link>
+        {report.groups.map(group => <li key={group.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3 [overflow-wrap:anywhere]">
+          <span>{group.courseCode} · {group.courseTitle} · {group.audience || "Group"} #{group.id}</span>
+          <span className="flex gap-4">
+            <Link className={linkStyle} prefetch={false} href={marksHref(termId, group.id)}
+              aria-label={`Marks for ${group.courseCode} · ${group.audience || "Group"} #${group.id}`}>Marks</Link>
+            <Link className={linkStyle} prefetch={false} href={attendanceLedgerHref(termId, group.id)}
+              aria-label={`Ledger for ${group.courseCode} · ${group.audience || "Group"} #${group.id}`}>Ledger</Link>
+          </span>
         </li>)}
       </ul> : <p className="mt-2 text-sm">No class groups with attendance access are available for this term.</p>}
     </section>

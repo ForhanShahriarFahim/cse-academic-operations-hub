@@ -17,10 +17,12 @@ import { todayIndex } from "../src/lib/teacher-routine-data";
 
 const stu01b = process.argv.includes("--stu-01b");
 const att03a = process.argv.includes("--att-03a");
-const att04 = process.argv.includes("--att-04");
+const att05 = process.argv.includes("--att-05");
+// ATT-05 reuses the ATT-04 completed/active term fixture on its own ports.
+const att04 = process.argv.includes("--att-04") || att05;
 // ATT-03A reuses the ATT-01 teacher and Today setup on its own ports.
 const att01 = process.argv.includes("--att-01") || att03a;
-const appPort = att04 ? 3180 : att03a ? 3160 : att01 ? 3150 : stu01b ? 3146 : 3134;
+const appPort = att05 ? 3190 : att04 ? 3180 : att03a ? 3160 : att01 ? 3150 : stu01b ? 3146 : 3134;
 const controlPort = appPort + 1;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
@@ -46,6 +48,19 @@ async function main() {
           values ($1, $2, '2027-02-06', 'final', 600, 660) returning id
         ) insert into attendance_records(session_id, student_id, status) select id, $3, 'absent' from session`,
         [spring.termId, spring.mergedGroupId, summer.studentIds[0]]);
+        if (att05) {
+          const [teacherA] = summer.teacherIds, [one, , visiting] = summer.studentIds;
+          await handle.client.query(`with session as (
+            insert into attendance_sessions(term_id, teaching_group_id, teacher_id, class_date, phase, start_minutes, end_minutes, status, submitted_at, submitted_by_user_id)
+            values ($1, $2, $3, '2027-01-16', 'midterm', 630, 705, 'submitted', now(), $6) returning id
+          ) insert into attendance_records(session_id, student_id, status) select id, $4::integer, 'present' from session
+            union all select id, $5::integer, 'excused' from session`, [spring.termId, spring.mergedGroupId, teacherA, one, visiting, summer.adminUserId]);
+          await handle.client.query(`with session as (
+            insert into attendance_sessions(term_id, teaching_group_id, teacher_id, class_date, phase, start_minutes, end_minutes, status, void_reason, voided_at, voided_by_user_id, submitted_at, submitted_by_user_id)
+            values ($1, $2, $3, '2027-01-23', 'midterm', 630, 705, 'voided', 'Synthetic duplicate entry', now(), $5, now(), $5) returning id
+          ) insert into attendance_records(session_id, student_id, status) select id, $4, 'present' from session`,
+          [spring.termId, spring.mergedGroupId, teacherA, one, summer.adminUserId]);
+        }
         return { group: spring.mergedGroupId, archivedTerm: summer.termId, emptyGroup: 0, matchedSession: 0 };
       }
       const emptyGroup = Number((await handle.client.query<{ id: number }>(
@@ -111,7 +126,8 @@ async function main() {
       }
       assert.ok(ready, "Synthetic preview did not start.");
       console.log(`Student roster synthetic review: ${controlOrigin}/sign-in`);
-      if (process.argv.includes("--check") && att04) await checkMarks();
+      if (process.argv.includes("--check") && att05) await checkLedger(group);
+      else if (process.argv.includes("--check") && att04) await checkMarks();
       else if (process.argv.includes("--check") && att03a) await checkLifecycle(group, matchedSession);
       else if (process.argv.includes("--check") && att01) await checkSelection(group, emptyGroup, matchedSession);
       if (process.argv.includes("--check") && !att01 && !att04) await checkBrowser(emptyGroup, async () => {
@@ -183,13 +199,98 @@ async function checkMarks() {
     await page.goto(`${controlOrigin}/completed`);
     await page.getByRole("link", { name: "Attendance marks", exact: true }).click();
     await page.getByRole("heading", { name: "Choose a class group" }).waitFor();
-    await page.getByRole("link", { name: /SYN-4101.*Synthetic Theory/ }).click();
+    await page.getByRole("link", { name: /Marks for SYN-4101/ }).click();
     await page.getByRole("heading", { name: "Semester attendance marks" }).waitFor();
     await page.getByText(/Version 1 effective.*evaluated/).waitFor();
     await capture("completed");
     await page.goto(`${origin}/settings#policy`);
     await page.getByText(/Round the mark to two decimals and the percentage separately to one decimal/).waitFor();
     console.log(`ATT-04 compiled browser review passed. Captures in ${output}.`);
+  } finally { await browser.close(); }
+}
+
+async function checkLedger(group: number) {
+  const output = ".tmp/att-05/browser";
+  await mkdir(output, { recursive: true });
+  const browser = await chromium.launch({ channel: "msedge" });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    async function capture(name: string) {
+      for (const width of [1440, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
+        const violations = await page.evaluate(async () => {
+          const { axe } = window as unknown as { axe: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string; nodes: Array<{ target: string[] }> }> }> } };
+          const result = await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] });
+          return result.violations.map(row => ({ id: row.id, targets: row.nodes.map(node => node.target) }));
+        });
+        assert.deepEqual(violations, [], `Accessibility at ${name}, ${width}px`);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${name}, ${width}px`);
+        await page.screenshot({ path: `${output}/${name}-${width}.png`, fullPage: true });
+      }
+      await page.setViewportSize({ width: 1440, height: 900 });
+    }
+    const summaryValue = (label: string) => page.getByLabel("Summary for this view")
+      .locator("div", { has: page.getByText(label, { exact: true }) }).locator("dd").first();
+
+    await page.goto(`${controlOrigin}/sign-in`);
+    const entry = page.getByRole("link", { name: "Attendance ledger", exact: true });
+    await entry.focus();
+    await entry.press("Enter");
+    await page.getByRole("heading", { name: "Attendance ledger", exact: true }).waitFor();
+    const term = await page.evaluate(() => new URL(location.href).searchParams.get("term"));
+    assert.equal(await summaryValue("Classes held").textContent(), "3");
+    assert.equal(await summaryValue("Attendance").textContent(), "75.0%");
+    await page.getByText("1 voided session is listed and excluded from totals.", { exact: false }).waitFor();
+    await page.getByText("Synthetic duplicate entry", { exact: false }).waitFor();
+    assert.equal(await page.getByRole("link", { name: /^Open session on/ }).count(), 3, "every non-voided session opens its roll-call");
+    await capture("sessions");
+
+    // Screen, CSV and print agree for the same query.
+    const response = await page.request.get(`${origin}/attendance/ledger/export?term=${term}&group=${group}`);
+    assert.equal(response.headers()["cache-control"], "private, no-store, max-age=0");
+    const csv = await response.text();
+    assert.ok(csv.includes('"Total","","","","","2","1","1","1","","75.0","3 classes held",""'), csv);
+    assert.ok(!/phone|\+000/i.test(csv), "no contact fields in the export");
+
+    await page.getByLabel("Phase").selectOption("final");
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await page.waitForURL(/phase=final/);
+    assert.equal(await summaryValue("Classes held").textContent(), "1");
+    await page.getByText(/Final · All teachers/).waitFor();
+    await page.getByRole("navigation", { name: "Ledger view" }).getByRole("link", { name: "Students" }).click();
+    await page.waitForURL(/view=students/);
+    assert.match(page.url(), /phase=final/, "changing tabs keeps the filters");
+    await page.getByRole("region", { name: "Student by session matrix" }).waitFor();
+    await page.getByRole("link", { name: "Clear filters" }).click();
+    await page.getByRole("cell", { name: "2 / 3" }).waitFor();
+    assert.equal(await page.getByLabel("Phase").inputValue(), "all", "Clear filters resets the form");
+    await capture("students");
+    await page.getByRole("link", { name: "Synthetic Student One" }).click();
+    await page.getByRole("heading", { name: "Dated sessions" }).waitFor();
+    await page.goBack();
+
+    await page.getByRole("link", { name: "Print matrix" }).click();
+    await page.getByRole("heading", { name: "Printable student matrix" }).waitFor();
+    await page.emulateMedia({ media: "print" });
+    await page.pdf({ path: `${output}/matrix.pdf`, preferCSSPageSize: true });
+    await page.emulateMedia({ media: "screen" });
+    await page.getByRole("link", { name: "Back to attendance ledger" }).click();
+    await page.getByRole("navigation", { name: "Ledger view" }).getByRole("link", { name: "Sessions" }).click();
+    await page.getByRole("link", { name: "Print ledger" }).click();
+    await page.getByRole("heading", { name: "Printable attendance ledger" }).waitFor();
+    await page.getByText("Total · 3 classes held").waitFor();
+    await page.emulateMedia({ media: "print" });
+    await page.pdf({ path: `${output}/sessions.pdf`, preferCSSPageSize: true });
+    await page.emulateMedia({ media: "screen" });
+
+    await page.goto(`${controlOrigin}/completed`);
+    await page.getByRole("link", { name: "Attendance marks", exact: true }).click();
+    await page.getByRole("link", { name: /Ledger for SYN-4101/ }).click();
+    await page.getByText("Completed term · read-only").waitFor();
+    assert.equal(await page.getByRole("link", { name: /^Open session on/ }).count(), 0, "completed terms are read-only");
+    await capture("completed");
+    console.log(`ATT-05 compiled browser review passed. Captures and PDFs in ${output}.`);
   } finally { await browser.close(); }
 }
 
