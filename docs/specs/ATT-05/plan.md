@@ -8,6 +8,8 @@ Branch `codex/att-05` from local `main` at `7179605`. [Specification](spec.md) �
 
 The owner's “Start ATT-05” on 19 November started inspection and specification. On 19 November the owner replied “Approve D-1–D-6” to the specification at `f30a440`. This authorizes implementation and verification of D-1–D-6 unchanged.
 
+On 19 November the owner replied “Accept and merge” to the verified delivery at `da09957`, including the disclosed pre-existing BUG-29 safety failure. This authorizes the local merge.
+
 ## Tasks
 
 - [x] T-01 — Inspect the attendance workspace, ATT-04 marks loader, schema, lifecycle and roster outputs. Draft D-1–D-6 and review sketches.
