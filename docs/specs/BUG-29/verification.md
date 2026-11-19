@@ -128,3 +128,4 @@ The owner's go-ahead came in the acceptance message. T-08 ran on `0962b77`, the 
 - **Fix.** The three `0021` columns were added to `ADDED_AFTER_BUG29` on `codex/bug-29-inventory`. Any migration after 0007 that adds a time column must extend this list too.
 - **Checks.** `npm run test:safety -- BUG-29` with `SAFE01_PG_BIN` passed both groups. Fresh migration covers 54 instant columns in all three zones. Then the full `npm run test:safety` with `SAFE01_PG_BIN` exited 0 with all 58 groups passed, including the groups after BUG-29 that had not been reached since SET-01B: AUTH-02, BUG-48, BUG-26, TCH-01 and BUG-27. The default PGlite directory was never opened.
 - **Acceptance.** On 19 November 2026 the owner replied "Accept and merge" in the Claude Code session to delivery `c42ff29`. This authorizes the local merge into `main`.
+- **Merge.** `codex/bug-29-inventory` was merged into local `main` at `2f5635b`, with a tree identical to the branch. Nothing was pushed.
