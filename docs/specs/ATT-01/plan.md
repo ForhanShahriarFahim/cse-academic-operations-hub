@@ -27,7 +27,7 @@ On 19 November 2026 (Asia/Dhaka), the owner replied “Accepted” to delivery `
 - [x] T-03 — Implement scoped group projection, cascade and URL validation, including old links and empty states. Covers AC-02–AC-04.
 - [x] T-04 — Implement routine-based teacher landing and safe group/session entry, retaining roster, print and marking behavior. Covers AC-01 and AC-03–AC-06.
 - [x] T-05 — Verify final behavior, record evidence and give the owner a runnable synthetic review. Both adapters, isolated Webpack and compiled Edge passed. Default Turbopack failed at the CSS worker. Covers AC-01–AC-06.
-- [ ] T-06 — Record owner acceptance of the committed delivery and merge the bounded delivery into local `main`.
+- [x] T-06 — Record owner acceptance of the committed delivery and merge the bounded delivery into local `main`.
 
 ## Verification and delivery
 
@@ -35,6 +35,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Approval is recorded at `c3063a0`. The owner accepted delivery `81a57af` on `codex/att-01`. [Verification and review command](verification.md)
+Approval is recorded at `c3063a0`. Acceptance `ed3a185` covers delivery `81a57af`. Local merge `1816c08` matches the accepted branch tree. The `codex/att-01` branch is retained. [Verification and review command](verification.md)
 
-> Merge the accepted ATT-01 delivery into local `main` and record the merge receipt. Issue #8 synchronization follows the next owner-directed delivery boundary.
+> In the next owner-started session, inspect and specify CAL-01 / #38 from local `main`. Confirm the official calendar source and day-swap rules before any implementation approval. Issue #8 synchronization follows the next owner-directed delivery boundary.
