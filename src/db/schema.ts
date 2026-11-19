@@ -259,6 +259,38 @@ export const academicPolicies = pgTable(
   (t) => [uniqueIndex("academic_policies_term_uq").on(t.termId)],
 );
 
+// SET-01B: the policy row above is a term's baseline (version 1, effective from
+// its start date). Later changes are proposed, decided by a second person and
+// kept here append-only; decided rows are immutable (trigger in migration 0021).
+export const academicPolicyVersions = pgTable(
+  "academic_policy_versions",
+  {
+    id: serial("id").primaryKey(),
+    termId: integer("term_id").notNull().references(() => academicTerms.id),
+    version: integer("version"), // assigned on approval only
+    status: text("status").notNull().default("proposed"), // proposed | approved | rejected | withdrawn | stale
+    effectiveFrom: date("effective_from").notNull(),
+    extraLoadThresholdCredits: numeric("extra_load_threshold_credits", { precision: 4, scale: 1 }).notNull(),
+    extraClassRate: numeric("extra_class_rate", { precision: 10, scale: 2 }).notNull(),
+    theoryAttendanceMarks: numeric("theory_attendance_marks", { precision: 4, scale: 1 }).notNull(),
+    sessionalAttendanceMarks: numeric("sessional_attendance_marks", { precision: 4, scale: 1 }).notNull(),
+    reason: text("reason").notNull(),
+    proposedByUserId: integer("proposed_by_user_id").notNull().references(() => portalUsers.id),
+    proposedAt: timestamp("proposed_at", { withTimezone: true }).notNull().defaultNow(),
+    proposalFingerprint: text("proposal_fingerprint").notNull(),
+    decidedByUserId: integer("decided_by_user_id").references(() => portalUsers.id),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    decisionNote: text("decision_note"),
+    decisionFingerprint: text("decision_fingerprint"),
+  },
+  (t) => [
+    index("academic_policy_versions_term_idx").on(t.termId, t.effectiveFrom),
+    uniqueIndex("academic_policy_versions_open_uq").on(t.termId).where(sql`${t.status} = 'proposed'`),
+    uniqueIndex("academic_policy_versions_date_uq").on(t.termId, t.effectiveFrom).where(sql`${t.status} = 'approved'`),
+    uniqueIndex("academic_policy_versions_number_uq").on(t.termId, t.version),
+  ],
+);
+
 export const batches = pgTable(
   "batches",
   {

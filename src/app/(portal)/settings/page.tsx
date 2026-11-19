@@ -4,8 +4,11 @@ import Link from "next/link";
 import { INSTITUTION } from "@/lib/constants";
 import { PageHeader, Panel, EmptyNote } from "@/components/ui";
 import { CircleAlert, CircleCheck } from "lucide-react";
-import { getAcademicPolicy } from "@/lib/academic-operations";
-import { PolicyManager } from "@/components/policy-manager";
+import { getTermPolicyView } from "@/lib/academic-operations";
+import { PolicyPanel } from "@/components/policy/policy-panel";
+import { impactInput, policyApproverIds, priorFigures, proposalImpact } from "@/lib/policy-store";
+import { can, requireActor } from "@/lib/auth";
+import { dhakaToday } from "@/lib/room-lifecycle";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +37,16 @@ const OPERATIONAL = [
 
 export default async function SettingsPage() {
   const data = await getPortalData();
-  const policy = await getAcademicPolicy(data.term.id);
+  const actor = await requireActor();
+  const view = await getTermPolicyView(data.term);
+  const policy = view.policy!;
+  const priors = priorFigures(policy);
+  const open = policy.open ? {
+    row: policy.open, prior: priors[policy.open.id] ?? null,
+    ...proposalImpact(policy, { effectiveFrom: policy.open.effectiveFrom, figures: policy.open.figures }, await impactInput(data, dhakaToday())),
+  } : null;
+  const abilities = { propose: await can(actor, "manage_policy"), approve: await can(actor, "approve_policy"), actorId: actor.id };
+  const otherApprovers = policy.open ? (await policyApproverIds()).filter((id) => id !== policy.open!.proposedById).length : 0;
 
   return <TermWriteProvider value={data.writeContext}>{(
     <div>
@@ -98,7 +110,9 @@ export default async function SettingsPage() {
 
       <div className="mt-4">
         <p className="mb-4 text-sm"><Link href="/terms" className="font-semibold text-[var(--color-pine)] underline">Academic terms</Link> · Create drafts, review activation and view historical publications.</p>
-        <PolicyManager policy={policy} />
+        <PolicyPanel term={data.term} current={view.current} evaluationDate={view.evaluationDate} baseline={policy.baseline?.figures ?? null}
+          legacy={policy.baseline ? { theory: policy.baseline.theoryCreditHours, sessional: policy.baseline.sessionalCreditHours } : null}
+          history={policy.history} priorFigures={priors} open={open} abilities={abilities} otherApprovers={otherApprovers} />
       </div>
 
       <div className="mt-4">

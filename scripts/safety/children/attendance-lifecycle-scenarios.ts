@@ -48,7 +48,7 @@ async function main() {
   const rawRecords = await db.select().from(s.attendanceRecords);
   const legacy = rawSessions.map(row => ({ phase: row.phase, records: rawRecords.filter(record => record.sessionId === row.id).map(record => ({ studentId: record.studentId, status: record.status })) }));
   assert.ok(legacy.some(item => item.records.length > 0), "parity needs recorded fixture marks");
-  assert.deepEqual(baseline.summaries, baseline.roster.map(student => summarizeAttendance(student.id, legacy as never, baseline.maximum)), "migrated summaries match the pre-ATT-03A counting");
+  assert.deepEqual(baseline.summaries, baseline.roster.map(student => summarizeAttendance(student.id, legacy as never, baseline.maximum!)), "migrated summaries match the pre-ATT-03A counting");
   lines.push("Summary parity: on migrated fixture sessions the loader's summaries equal the pre-ATT-03A rule computed independently from the raw sessions and records.");
 
   // AC-01: the assigned teacher's draft → submitted → reopened → resubmitted path.

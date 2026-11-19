@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Policy history sketches · SET-01B</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; --paper: #f4f1e8; --ink: #202923; --pine: #184b38; --wash: #eef3e9; --muted: #526059; --line: #c8cfc4; --gold: #a8712b; --goldwash: #f7eedd; --clay: #8f3b25; --claywash: #f6e7e1; --sheet: #fffefa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    main { max-width: 70rem; margin: auto; padding: clamp(.85rem, 4vw, 2.8rem); overflow-wrap: anywhere; }
+    main > header { border-top: 4px solid var(--pine); padding-top: 1rem; }
+    h1, h2, h3 { margin: 0; font-family: Georgia, serif; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 5vw, 3.1rem); }
+    h2 { font-size: clamp(1.35rem, 4vw, 1.85rem); }
+    h3 { font-size: 1.1rem; }
+    p { margin: .45rem 0 0; }
+    a { color: var(--pine); text-underline-offset: .2em; }
+    :focus-visible { outline: 3px solid #8a5819; outline-offset: 3px; }
+    .context { margin: 0 0 .35rem; color: var(--pine); font-weight: 700; font-size: .9rem; }
+    .muted { color: var(--muted); font-size: .9rem; }
+    .toc { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .9rem; }
+    .panel { margin-top: 1.5rem; padding: clamp(.85rem, 3vw, 1.5rem); background: var(--sheet); border: 1px solid var(--line); border-radius: .55rem; }
+    .caption { margin: 0 0 1rem; padding-bottom: .6rem; border-bottom: 1px dashed var(--line); }
+    .caption h2 + p { color: var(--muted); }
+    .button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; padding: .4rem .85rem; border: 1px solid var(--pine); border-radius: .35rem; color: var(--pine); background: var(--sheet); font: inherit; font-size: .92rem; font-weight: 650; cursor: pointer; }
+    .button.primary { background: var(--pine); color: white; }
+    .button.quiet { border-color: var(--line); color: var(--ink); }
+    .button.danger { border-color: var(--clay); color: var(--clay); }
+    .button[disabled] { opacity: .55; cursor: not-allowed; }
+    .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .grid { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+    .figures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; margin: .8rem 0 0; }
+    .figure { padding: .6rem .7rem; border: 1px solid var(--line); border-radius: .4rem; }
+    .figure dt { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .figure dd { margin: .1rem 0 0; font: 600 1.25rem Georgia, serif; }
+    .tag { display: inline-block; padding: .05rem .45rem; border-radius: 1rem; font-size: .78rem; font-weight: 700; border: 1px solid currentColor; }
+    .tag.pine { color: var(--pine); background: var(--wash); }
+    .tag.gold { color: #7a5016; background: var(--goldwash); }
+    .tag.clay { color: var(--clay); background: var(--claywash); }
+    .tag.muted { color: var(--muted); }
+    ol.timeline { list-style: none; margin: .8rem 0 0; padding: 0 0 0 1rem; border-left: 2px solid var(--line); }
+    ol.timeline li { position: relative; padding: 0 0 1rem .6rem; }
+    ol.timeline li::before { content: ""; position: absolute; left: -1.43rem; top: .35rem; width: .7rem; height: .7rem; border-radius: 50%; background: var(--sheet); border: 2px solid var(--pine); }
+    ol.timeline li.open::before { border-color: var(--gold); background: var(--goldwash); }
+    ol.timeline li.rejected::before { border-color: var(--muted); }
+    .change { font-variant-numeric: tabular-nums; }
+    .change del { color: var(--muted); }
+    .change ins { text-decoration: none; font-weight: 700; }
+    .proposal { border: 1px solid var(--gold); background: #fffaf0; border-radius: .45rem; padding: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+    th, td { padding: .4rem .45rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    td.num, th.num { text-align: right; }
+    .scroll { overflow-x: auto; }
+    label { display: grid; gap: .25rem; font-size: .9rem; font-weight: 600; }
+    input, textarea { font: inherit; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: .35rem; background: white; min-height: 2.75rem; }
+    .form { display: grid; gap: .8rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form .wide { grid-column: 1 / -1; }
+    .hint { font-weight: 400; color: var(--muted); font-size: .82rem; }
+    .note { margin-top: .8rem; padding: .6rem .75rem; border-left: 3px solid var(--pine); background: var(--wash); font-size: .9rem; }
+    .note.warn { border-color: var(--clay); background: var(--claywash); }
+    .phone { width: 390px; max-width: 100%; margin: auto; border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; background: var(--sheet); }
+    .phone .figures { grid-template-columns: 1fr 1fr; }
+    .a4 { max-width: 40rem; margin: auto; padding: 1.4rem 1.6rem; border: 1px solid var(--line); background: white; font-family: Georgia, serif; }
+    .a4 table { font-family: system-ui, sans-serif; }
+    .a4 footer { margin-top: 1.2rem; padding-top: .5rem; border-top: 1px solid var(--line); font: .78rem system-ui, sans-serif; color: var(--muted); }
+    @media (max-width: 760px) { .grid, .form { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="context">SET-01B · #14 · proposal sketches · invented example values only</p>
+    <h1>Policy history and reviewed changes</h1>
+    <p class="muted">Not institutional data and not runtime proof. Figures, names and dates are made up to show layout and states.</p>
+    <nav class="toc" aria-label="Sketches">
+      <a href="#settings">1. Settings with open proposal</a>
+      <a href="#propose">2. Propose a change</a>
+      <a href="#own">3. Own proposal / stale</a>
+      <a href="#phone">4. Phone, 390 px</a>
+      <a href="#outputs">5. Sheets and trace</a>
+    </nav>
+  </header>
+
+  <section class="panel" id="settings" aria-labelledby="s1">
+    <div class="caption"><h2 id="s1">1. Settings — a second administrator reviews</h2><p>Desktop, 1440 px. The figures in force today stay visible while a proposal waits.</p></div>
+    <div class="grid">
+      <div>
+        <h3>In force today <span class="tag pine">Version 2</span></h3>
+        <p class="muted">Example Term · effective 1 Mar · approved by R. Example</p>
+        <dl class="figures">
+          <div class="figure"><dt>Payment per extra class</dt><dd>৳250.00</dd></div>
+          <div class="figure"><dt>Extra-load threshold</dt><dd>15.0 h</dd></div>
+          <div class="figure"><dt>Theory attendance marks</dt><dd>10.0</dd></div>
+          <div class="figure"><dt>Sessional attendance marks</dt><dd>5.0</dd></div>
+        </dl>
+        <p class="muted">Rounding: payments exact to the paisa · marks to 2 decimals · percentages to 1 decimal.</p>
+        <h3 style="margin-top:1.2rem">History</h3>
+        <ol class="timeline">
+          <li class="open"><span class="tag gold">Awaiting approval</span> <strong>Version 3</strong> · from 1 Apr<br><span class="change">Rate <del>৳250</del> → <ins>৳300</ins></span><br><span class="muted">Proposed by A. Example, 18 Apr — “Syndicate rate revision, memo 12.”</span></li>
+          <li><span class="tag pine">Approved</span> <strong>Version 2</strong> · from 1 Mar<br><span class="change">Rate <del>৳200</del> → <ins>৳250</ins></span><br><span class="muted">A. Example proposed · R. Example approved, 2 Mar</span></li>
+          <li class="rejected"><span class="tag muted">Rejected</span> Proposal · from 15 Feb<br><span class="change">Theory marks <del>10</del> → <ins>15</ins></span><br><span class="muted">R. Example: “Not approved by the academic council.”</span></li>
+          <li><span class="tag pine">Baseline</span> <strong>Version 1</strong> · from term start, 1 Feb<br><span class="muted">Starting policy saved before activation.</span></li>
+        </ol>
+      </div>
+      <div class="proposal" role="region" aria-labelledby="p1">
+        <h3 id="p1">Version 3 — review impact</h3>
+        <p class="muted">Effective from 1 Apr (backdated 17 days). Proposed by A. Example.</p>
+        <p class="note"><strong>Reason.</strong> Syndicate rate revision, memo 12.</p>
+        <h3 style="margin-top:1rem;font-size:1rem">Payments that change</h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Teacher</th><th class="num">Classes from 1 Apr</th><th class="num">Before</th><th class="num">After</th></tr></thead>
+          <tbody>
+            <tr><td>Teacher A</td><td class="num">4</td><td class="num">৳1,000.00</td><td class="num">৳1,200.00</td></tr>
+            <tr><td>Teacher B</td><td class="num">2</td><td class="num">৳500.00</td><td class="num">৳600.00</td></tr>
+            <tr><th scope="row">Total</th><td class="num">6</td><td class="num">৳1,500.00</td><td class="num"><strong>+৳300.00</strong></td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted">Classes before 1 Apr keep ৳250. Manual rows: 1 without an override changes (recorded 10 Apr). Threshold and attendance marks: unchanged.</p>
+        <label style="margin-top:1rem">Decision note <span class="hint">Required to reject; optional to approve. Up to 500 characters.</span><textarea rows="2"></textarea></label>
+        <label style="display:flex;gap:.5rem;align-items:flex-start;margin-top:.6rem;font-weight:400"><input type="checkbox" style="min-height:auto;margin-top:.3rem"> I reviewed the 6 repriced classes and 1 manual row for Version 3.</label>
+        <div class="actions"><button class="button primary" type="button">Approve version 3</button><button class="button danger" type="button">Reject</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="propose" aria-labelledby="s2">
+    <div class="caption"><h2 id="s2">2. Propose a change</h2><p>Only changed fields are highlighted. Saving creates a proposal; nothing in force changes.</p></div>
+    <form class="form" onsubmit="return false">
+      <label>Payment per extra class (৳) <span class="hint">Now ৳250.00</span><input inputmode="decimal" value="300.00"></label>
+      <label>Extra-load threshold (h) <span class="hint">Now 15.0</span><input inputmode="decimal" value="15.0"></label>
+      <label>Theory attendance marks <span class="hint">Now 10.0</span><input inputmode="decimal" value="10.0"></label>
+      <label>Sessional attendance marks <span class="hint">Now 5.0</span><input inputmode="decimal" value="5.0"></label>
+      <label>Effective from <span class="hint">Within the term, after 1 Feb</span><input type="date" value="2027-04-01"></label>
+      <label class="wide">Reason <span class="hint">1–500 characters. Shown to the approver and kept in history.</span><textarea rows="2">Syndicate rate revision, memo 12.</textarea></label>
+      <div class="wide actions" style="margin-top:0"><button class="button primary" type="button">Preview impact</button><button class="button quiet" type="button">Cancel</button></div>
+    </form>
+    <p class="note warn">Backdated: this reprices classes already recorded on or after 1 Apr. The preview lists them before you submit.</p>
+  </section>
+
+  <section class="panel" id="own" aria-labelledby="s3">
+    <div class="caption"><h2 id="s3">3. Proposer's view and stale states</h2><p>The person who proposed sees no approve button.</p></div>
+    <div class="grid">
+      <div class="proposal">
+        <h3>Version 3 — waiting for a second administrator</h3>
+        <p class="muted">You proposed this change. Another person with policy approval must decide it.</p>
+        <div class="actions"><button class="button quiet" type="button">Withdraw proposal</button></div>
+      </div>
+      <div>
+        <p class="note warn" role="alert"><strong>Impact changed; review again.</strong> Two more classes were recorded after you opened this review. Nothing was saved. <a href="#settings">Refresh the review</a>.</p>
+        <p class="note">No one else can approve policy changes yet. Ask a system administrator to grant policy approval to a second person.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="phone" aria-labelledby="s4">
+    <div class="caption"><h2 id="s4">4. Phone, 390 px</h2><p>Figures first, proposal card next, history collapses. No page-wide scroll; only the impact table scrolls.</p></div>
+    <div class="phone">
+      <h3>In force today <span class="tag pine">V2</span></h3>
+      <dl class="figures">
+        <div class="figure"><dt>Per class</dt><dd>৳250</dd></div>
+        <div class="figure"><dt>Threshold</dt><dd>15.0 h</dd></div>
+        <div class="figure"><dt>Theory marks</dt><dd>10.0</dd></div>
+        <div class="figure"><dt>Sessional</dt><dd>5.0</dd></div>
+      </dl>
+      <div class="proposal" style="margin-top:1rem">
+        <span class="tag gold">Awaiting approval</span>
+        <h3 style="margin-top:.4rem">V3 · from 1 Apr</h3>
+        <p class="change">Rate <del>৳250</del> → <ins>৳300</ins> · 6 classes · <strong>+৳300.00</strong></p>
+        <div class="actions"><button class="button primary" type="button">Review</button></div>
+      </div>
+      <details style="margin-top:1rem"><summary><strong>History (4)</strong></summary><p class="muted">Timeline as on desktop.</p></details>
+    </div>
+  </section>
+
+  <section class="panel" id="outputs" aria-labelledby="s5">
+    <div class="caption"><h2 id="s5">5. Sheets and trace</h2><p>A teacher with classes either side of a change shows each rate. The official top sheet keeps its layout and adds a footer.</p></div>
+    <div class="grid">
+      <div>
+        <h3>Teacher A — extra classes</h3>
+        <div class="scroll"><table>
+          <thead><tr><th>Date</th><th>Course</th><th class="num">Rate</th></tr></thead>
+          <tbody>
+            <tr><td>28 Mar</td><td>CSE-0000</td><td class="num">৳250.00 <span class="tag muted">V2</span></td></tr>
+            <tr><td>3 Apr</td><td>CSE-0000</td><td class="num">৳300.00 <span class="tag muted">V3</span></td></tr>
+            <tr><th scope="row" colspan="2">Total, 2 classes</th><td class="num"><strong>৳550.00</strong></td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted" style="margin-top:.8rem">Attendance summary: “Out of 10.0 — Version 2, in force today.”</p>
+      </div>
+      <div class="a4" aria-label="A4 top sheet sketch">
+        <strong>Department top sheet — extra classes</strong>
+        <table style="margin-top:.6rem"><thead><tr><th>#</th><th>Name</th><th class="num">Classes</th><th class="num">Amount</th></tr></thead>
+          <tbody><tr><td>1</td><td>Teacher A</td><td class="num">2</td><td class="num">550.00</td></tr><tr><td>2</td><td>Teacher B</td><td class="num">2</td><td class="num">600.00</td></tr></tbody></table>
+        <footer>Rates from policy Version 2 (৳250, from 1 Mar) and Version 3 (৳300, from 1 Apr). Printed 20 Apr.</footer>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

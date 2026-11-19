@@ -5,6 +5,8 @@ import { getRolloverSummary } from "@/lib/rollover-data";
 import { getTermDirectory } from "@/lib/term-data";
 import { can, requireActor } from "@/lib/auth";
 import { PageHeader, Panel, Notice } from "@/components/ui";
+import { PolicyHistory } from "@/components/policy/policy-history";
+import { loadTermPolicy, priorFigures } from "@/lib/policy-store";
 export default async function TermPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>}){
   const id=Number((await params).id);if(!Number.isSafeInteger(id)||id<1)notFound();
   const summary=await getTermWorkspace(id);if(!summary)notFound();
@@ -13,6 +15,7 @@ export default async function TermPage({params,searchParams}:{params:Promise<{id
   const batchManager=await can(actor,"manage_batches");
   const terms=await getTermDirectory();const active=terms.filter(t=>t.status==="active");
   const overlaps=terms.filter(t=>t.id!==id&&t.startDate<=term.endDate&&t.endDate>=term.startDate);
+  const policy=await loadTermPolicy(id);
   const published=summary.versions.filter(v=>v.state==="published"||v.state==="superseded");
   return <div><Link href="/terms" className="mb-3 inline-block text-sm underline">← All academic terms</Link><PageHeader context={`Viewing ${term.status} term`} title={term.name} description={`Active across the portal: ${active.length===1?active[0].name:active.length?"Unavailable":"None"}. Viewing this term does not change that selection.`} actions={<Link href="/routine" className="text-sm font-semibold underline">Open active routine</Link>}/>
     {(await searchParams).activated==="1"&&<Notice tone="success">Activation saved. Historical records and publications are retained. Publication is a separate action.</Notice>}
@@ -28,6 +31,9 @@ export default async function TermPage({params,searchParams}:{params:Promise<{id
     </Panel></div>
     {!!overlaps.length&&<p className="my-4 text-sm text-muted">Date overlap with: {overlaps.map(t=>t.name).join(", ")}. Overlap does not prevent a valid draft or activation.</p>}
     {rollover&&<div className="my-5"><Panel title="Cohort preparation"><p className="text-sm">From {rollover.source}: {rollover.placements} placements · {rollover.held} held · {rollover.graduated} graduated. Preparation did not activate this term.</p></Panel></div>}
+    {policy&&term.status!=="draft"&&<div className="mt-5"><Panel title="Policy history" sub="Read-only. Each version applies from its date; payments follow the class date.">
+      <PolicyHistory termStart={term.startDate} baseline={policy.baseline?.figures??null} history={policy.history} priorFigures={priorFigures(policy)} />
+      {term.status==="active"&&<p className="mt-3 text-xs"><Link className="font-semibold underline" href="/settings#policy">Propose or review a change on Settings</Link></p>}</Panel></div>}
     <div className="mt-5"><Panel title="Saved publications">{published.length?<ul className="divide-y divide-[var(--color-line-soft)]">{published.map(v=><li key={v.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"><span>Version {v.versionNumber} · {v.state}<span className="block text-xs text-muted">Published {v.publishedAt??"date unavailable"}</span></span><Link className="font-semibold underline" href={`/terms/${id}/publications/${v.id}`}>View frozen publication</Link></li>)}</ul>:<p className="text-sm text-muted">No saved published routine. Draft versions are not part of this archive.</p>}<p className="mt-3 text-xs text-muted">Read-only snapshot views; private contacts are redacted. Attendance and payment records are outside this archive.</p></Panel></div>
   </div>;
 }

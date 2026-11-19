@@ -10,6 +10,7 @@ import { fmtRange } from "@/lib/time";
 import type { ActionResult } from "@/lib/actions";
 import { useConfirm } from "@/components/confirm-dialog";
 import { isExtraLoadEligible } from "@/lib/extra-load";
+import { formatTaka, versionLabel } from "@/lib/policy-versions";
 import { formatWorkloadUnits } from "@/lib/workload";
 
 interface Teacher { id: number; fullName: string; shortCode: string; designation: string | null }
@@ -17,22 +18,23 @@ interface Group { id: number; courseCode: string; courseTitle: string; audience:
 interface Entry {
   id: number; teacherId: number; teacherName: string; teacherShortCode: string;
   classDate: string; startMinutes: number; endMinutes: number;
-  courseCodeSnapshot: string; batchLabelSnapshot: string;
+  courseCodeSnapshot: string; batchLabelSnapshot: string; rate: number | null; policyVersion: number | null;
 }
-interface Summary { teacher: Teacher; assignedWorkloadUnits: number; hasUnverifiedExternal: boolean; classCount: number; amount: number }
-interface Manual { id: number; teacherName: string; classCount: number; amount: number; notes: string | null }
+interface Summary { teacher: Teacher; assignedWorkloadUnits: number; hasUnverifiedExternal: boolean; classCount: number; amount: number | null; rates: number[] }
+interface Manual { id: number; teacherName: string; classCount: number; amount: number | null; rate: number | null; policyVersion: number | null; notes: string | null }
 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[12.5px]";
 
 export function ExtraLoadManager({
-  groups, entries, summaries, manualRows, threshold, rate, termStart, termEnd, canReview, canSubmit,
+  groups, entries, summaries, manualRows, threshold, rate, multipleRates = false, termStart, termEnd, canReview, canSubmit,
 }: {
   groups: Group[];
   entries: Entry[];
   summaries: Summary[];
   manualRows: Manual[];
-  threshold: number;
-  rate: number;
+  threshold: number | null;
+  rate: number | null;
+  multipleRates?: boolean;
   termStart: string;
   termEnd: string;
   canReview: boolean;
@@ -40,8 +42,9 @@ export function ExtraLoadManager({
 }) {
   const { createExtraLoadClassAction, createManualTopSheetRowAction, deleteExtraLoadClassAction, deleteManualTopSheetRowAction } = useTermActions();
   const [ask, confirmDialog] = useConfirm();
-  const eligible = summaries.filter((row) => isExtraLoadEligible(row.assignedWorkloadUnits, threshold));
-  const printable = summaries.filter((row) => isExtraLoadEligible(row.assignedWorkloadUnits, threshold) || row.classCount > 0);
+  const eligibleNow = (units: number) => threshold != null && isExtraLoadEligible(units, threshold);
+  const eligible = summaries.filter((row) => eligibleNow(row.assignedWorkloadUnits));
+  const printable = summaries.filter((row) => eligibleNow(row.assignedWorkloadUnits) || row.classCount > 0);
   const [teacherId, setTeacherId] = useState(eligible[0]?.teacher.id ?? 0);
   const [from, setFrom] = useState(termStart);
   const [to, setTo] = useState(termEnd);
@@ -70,7 +73,7 @@ export function ExtraLoadManager({
         {canSubmit && <section className="ruled rounded-lg">
           <header className="border-b border-[var(--color-line-soft)] px-4 py-3">
             <h2 className="font-display text-[15px] font-semibold">Record a daily extra class</h2>
-            <p className="mt-0.5 text-[11.5px] text-muted">Only teachers above {formatWorkloadUnits(threshold)} workload credit-hours are eligible.</p>
+            <p className="mt-0.5 text-[11.5px] text-muted">{threshold == null ? "No approved threshold yet; extra classes cannot be recorded." : `Only teachers above ${formatWorkloadUnits(threshold)} workload credit-hours are eligible today. The threshold in force on the class date is checked when saving.`}</p>
           </header>
           <form ref={classForm} className="grid gap-3 p-4" onSubmit={(event) => { event.preventDefault(); submit(classForm.current!, createExtraLoadClassAction); }}>
             <label>
@@ -112,14 +115,14 @@ export function ExtraLoadManager({
                 <thead><tr className="border-b border-[var(--color-line)] text-left"><th className="py-1.5">Teacher</th><th>Workload credit-hours</th><th>Classes</th><th>Amount</th><th className="text-right">Sheet</th></tr></thead>
                 <tbody>{printable.length === 0 ? <tr><td colSpan={5} className="py-4 text-muted">No eligible teachers or recorded claims.</td></tr> : printable.map((row) => <tr key={row.teacher.id} className="border-b border-[var(--color-line-soft)]">
                   <td className="py-2 font-medium">{row.teacher.fullName}
-                    {!isExtraLoadEligible(row.assignedWorkloadUnits, threshold) && <span className="block text-[11px] text-muted">Existing claims only</span>}
+                    {!eligibleNow(row.assignedWorkloadUnits) && <span className="block text-[11px] text-muted">Existing claims only</span>}
                     {row.hasUnverifiedExternal && <span className="block text-[11px] text-muted">External teaching pending verification</span>}
-                  </td><td className="font-mono">{formatWorkloadUnits(row.assignedWorkloadUnits)}</td><td className="font-mono">{row.classCount}</td><td className="font-mono">৳{row.amount.toLocaleString()}</td>
+                  </td><td className="font-mono">{formatWorkloadUnits(row.assignedWorkloadUnits)}</td><td className="font-mono">{row.classCount}</td><td className="font-mono">{row.amount == null ? "Not priced" : `৳${formatTaka(row.amount)}`}{row.rates.length > 1 && <span className="block text-[10.5px] text-muted">{row.rates.map(formatTaka).join(" / ")} by date</span>}</td>
                   <td className="text-right"><Link href={`/extra-load/teacher/${row.teacher.id}/print?from=${from}&to=${to}`} target="_blank" className="inline-flex items-center gap-1 text-[var(--color-pine)] hover:underline"><FileText size={12} />Print</Link></td>
                 </tr>)}</tbody>
               </table>
             </div>
-            <p className="mt-2 text-[10.5px] text-muted">Default payment: ৳{rate.toLocaleString()} per recorded class. Signatures remain blank on print.</p>
+            <p className="mt-2 text-[10.5px] text-muted">{rate == null ? "Payments are not priced until a baseline policy is approved." : `Payment today: ৳${formatTaka(rate)} per recorded class${multipleRates ? "; earlier classes keep the rate in force on their date" : ""}.`} Signatures remain blank on print.</p>
           </div>
         </section>
       </div>
@@ -127,9 +130,9 @@ export function ExtraLoadManager({
       <section className="ruled rounded-lg">
         <header className="border-b border-[var(--color-line-soft)] px-4 py-3"><h2 className="font-display text-[15px] font-semibold">Recorded extra classes</h2></header>
         <div role="region" aria-label="Recorded extra classes" tabIndex={0} className="table-region overflow-x-auto p-4">
-          <table className="routine-table text-[12px]"><thead><tr>{["Date", "Teacher", "Course", "Batch / audience", "Time", ""].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead>
-            <tbody>{entries.length === 0 ? <tr><td colSpan={6} className="px-3 py-6 text-center text-muted">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
-              <td className="px-2.5 py-2 font-mono">{entry.classDate}</td><td className="px-2.5 py-2">{entry.teacherShortCode} · {entry.teacherName}</td><td className="px-2.5 py-2 font-mono font-semibold">{entry.courseCodeSnapshot}</td><td className="px-2.5 py-2">{entry.batchLabelSnapshot}</td><td className="px-2.5 py-2 font-mono">{fmtRange(entry.startMinutes, entry.endMinutes)}</td>
+          <table className="routine-table text-[12px]"><thead><tr>{["Date", "Teacher", "Course", "Batch / audience", "Time", "Rate", ""].map((h) => <th key={h} className="px-2.5 py-2 text-left"><span className="micro-label">{h}</span></th>)}</tr></thead>
+            <tbody>{entries.length === 0 ? <tr><td colSpan={7} className="px-3 py-6 text-center text-muted">No extra classes recorded yet.</td></tr> : entries.map((entry) => <tr key={entry.id}>
+              <td className="px-2.5 py-2 font-mono">{entry.classDate}</td><td className="px-2.5 py-2">{entry.teacherShortCode} · {entry.teacherName}</td><td className="px-2.5 py-2 font-mono font-semibold">{entry.courseCodeSnapshot}</td><td className="px-2.5 py-2">{entry.batchLabelSnapshot}</td><td className="px-2.5 py-2 font-mono">{fmtRange(entry.startMinutes, entry.endMinutes)}</td><td className="whitespace-nowrap px-2.5 py-2 font-mono">{entry.rate == null ? "—" : `৳${formatTaka(entry.rate)}`}{entry.policyVersion != null && <span className="ml-1 text-[10.5px] text-muted">{versionLabel(entry.policyVersion)}</span>}</td>
               <td className="px-2.5 py-2 text-right">{canSubmit && <button type="button" aria-label={`Remove extra class ${entry.courseCodeSnapshot} on ${entry.classDate}`} title="Remove" disabled={pending} onClick={async () => { if (await ask({ title: `Remove ${entry.courseCodeSnapshot} on ${entry.classDate}?`, body: `This extra class will no longer count toward ${entry.teacherName}'s claim or appear on printed sheets.`, confirmLabel: "Remove extra class" })) startTransition(async () => setResult(await deleteExtraLoadClassAction(entry.id))); }} className="rounded p-1 text-[var(--color-clay)] hover:bg-[var(--color-clay)]/10"><Trash2 size={13} aria-hidden="true" /></button>}</td>
             </tr>)}</tbody>
           </table>
@@ -142,12 +145,12 @@ export function ExtraLoadManager({
           <form ref={manualForm} className="grid grid-cols-2 gap-2" onSubmit={(event) => { event.preventDefault(); submit(manualForm.current!, createManualTopSheetRowAction); }}>
             <label className="col-span-2"><span className="micro-label mb-1 block">Teacher name</span><input name="teacherName" placeholder="e.g. Md. Forhan Shahriar Fahim" className={control} required /></label>
             <label><span className="micro-label mb-1 block">Number of classes</span><input name="classCount" type="number" min="0" step="1" className={control} required /></label>
-            <label><span className="micro-label mb-1 block">Rate override (optional)</span><input name="rateOverride" type="number" min="0" step="0.01" placeholder={String(rate)} className={control} /></label>
+            <label><span className="micro-label mb-1 block">Rate override (optional)</span><input name="rateOverride" type="number" min="0" step="0.01" placeholder={rate == null ? "not recorded" : String(rate)} className={control} /></label>
             <label><span className="micro-label mb-1 block">Amount override</span><input name="amountOverride" type="number" min="0" step="0.01" placeholder="auto" className={control} /></label>
             <label><span className="micro-label mb-1 block">Note</span><input name="notes" placeholder="optional" className={control} /></label>
             <button disabled={pending} className="col-span-2 rounded-md border border-[var(--color-pine)] px-3 py-2 text-[12px] font-semibold text-[var(--color-pine)]">Add manual row</button>
           </form>
-          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-muted">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">৳{row.amount.toLocaleString()}</span><button aria-label={`Remove manual row for ${row.teacherName}`} onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
+          <div>{manualRows.length === 0 ? <p className="rounded-md border border-dashed border-[var(--color-line)] p-4 text-center text-[12px] text-muted">No manual teachers added.</p> : manualRows.map((row) => <div key={row.id} className="flex items-center gap-3 border-b border-[var(--color-line-soft)] py-2 text-[12px]"><span className="font-medium">{row.teacherName}</span><span className="ml-auto font-mono">{row.classCount} × class</span><span className="font-mono font-semibold">{row.amount == null ? "Not priced" : `৳${formatTaka(row.amount)}`}</span><button aria-label={`Remove manual row for ${row.teacherName}`} onClick={() => startTransition(async () => setResult(await deleteManualTopSheetRowAction(row.id)))} className="text-[var(--color-clay)]"><Trash2 size={13} /></button></div>)}</div>
         </div>
       </section>}
     </div>

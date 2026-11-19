@@ -9,7 +9,6 @@ import { and, asc, desc, eq, isNull, lt, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
-  academicPolicies,
   attendanceRecords,
   attendanceSessions,
   auditEvents,
@@ -22,7 +21,9 @@ import {
   students,
 } from "@/db/schema";
 import { ATTENDANCE_STATUSES, type RosterImportReceipt } from "./attendance";
-import { getAttendanceData, getExtraLoadData } from "./academic-operations";
+import { getAttendanceData, getExtraLoadData, getTermPolicyView } from "./academic-operations";
+import { lockTermPolicy } from "./policy-store";
+import { versionOn } from "./policy-versions";
 import { getActiveTerm } from "./data";
 import { isExtraLoadEligible } from "./extra-load";
 import { formatWorkloadUnits } from "./workload";
@@ -40,7 +41,6 @@ import {
   sessionActionLabel, stateLabel, statusChanges, type SessionCommand, type SessionRoles, type StatusChange,
 } from "./attendance-lifecycle";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
-import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
 import { conflicted, denied as deniedResult, invalid, stale, succeeded } from "./action-result";
 
 function refresh() {
@@ -57,29 +57,12 @@ function numberField(formData: FormData, name: string): number | null {
 export async function updateAcademicPolicyAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
   return withTermContext(() => updateAcademicPolicyActionInTerm(formData), context ?? formData);
 }
-async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<ActionResult> {
+async function updateAcademicPolicyActionInTerm(_formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
-  const term = await getActiveTerm();
-  // Legacy metadata is no longer editable here, including via a forged payload.
-  // Preserve it inside the audited transaction; only the four live settings are parsed.
-  const parsed = validateStartingPolicy({
-    ...Object.fromEntries(POLICY_FIELDS.map((key) => [key, formData.get(key)])),
-    theoryCreditHours: "3", sessionalCreditHours: "2",
-  });
-  if (!parsed.ok) return invalid("Enter valid non-negative policy values.", parsed.errors);
-  const { theoryCreditHours: _theory, sessionalCreditHours: _sessional, ...numericValues } = parsed.values;
-  await auditedChange("policy.update", "academic_policy", async (tx) => {
-    const [previous] = await tx.select().from(academicPolicies).where(eq(academicPolicies.termId, term.id)).limit(1);
-    const [updated] = await tx.insert(academicPolicies).values({ termId: term.id, ...numericValues,
-      theoryCreditHours: previous?.theoryCreditHours ?? _theory,
-      sessionalCreditHours: previous?.sessionalCreditHours ?? _sessional,
-    })
-      .onConflictDoUpdate({ target: academicPolicies.termId, set: { ...numericValues, updatedAt: new Date() } }).returning();
-    return { result: null, entityId: term.id, before: previous ?? null, after: updated };
-  });
-  refresh();
-  return { ok: true, message: "Academic and payment policy updated for this term." };
+  // SET-01B D-1: an active term's policy never changes in place. Propose a dated version instead.
+  const message = "Policy values no longer change in place. Propose a dated change on Settings; a second administrator approves it.";
+  return conflicted(message, [{ severity: "blocker", title: "Reviewed policy change required", detail: message }]);
 }
 
 // Class days, periods and class hours are edited in Days & periods (RUT-04, time-grid-actions.ts).
@@ -96,17 +79,22 @@ async function createExtraLoadClassActionInTerm(formData: FormData): Promise<Act
   const startMinutes = parseTimeToMinutes(String(formData.get("startTime") ?? ""));
   const endMinutes = parseTimeToMinutes(String(formData.get("endTime") ?? ""));
   const notes = String(formData.get("notes") ?? "").trim() || null;
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   const source = await getExtraLoadData();
   const group = source.groups.find((row) => row.id === teachingGroupId);
   const assignedWorkloadUnits = source.loads.get(teacherId) ?? 0;
   if (!Number.isInteger(teacherId) || !group || !group.teacherIds.includes(teacherId)) {
     return { ok: false, message: "Choose a course assigned to that teacher." };
   }
-  if (!isExtraLoadEligible(assignedWorkloadUnits, source.policy.extraLoadThresholdCredits)) {
-    return { ok: false, message: `Extra load starts above ${source.policy.extraLoadThresholdCredits} workload credit-hours; this teacher currently has ${formatWorkloadUnits(assignedWorkloadUnits)}.` };
-  }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(classDate) || classDate < source.data.term.startDate || classDate > source.data.term.endDate) {
     return { ok: false, message: `Choose a date within ${source.data.term.name}.` };
+  }
+  // SET-01B D-2: eligibility uses the threshold in force on the class date; no recorded policy, no claim.
+  const { timeline } = await getTermPolicyView(source.data.term);
+  if (!timeline) return { ok: false, message: "This term has no approved payment policy yet. Extra classes can be recorded once its baseline is approved on Settings." };
+  const threshold = versionOn(timeline, classDate).figures.extraLoadThresholdCredits;
+  if (!isExtraLoadEligible(assignedWorkloadUnits, threshold)) {
+    return { ok: false, message: `Extra load on ${classDate} starts above ${threshold} workload credit-hours; this teacher currently has ${formatWorkloadUnits(assignedWorkloadUnits)}.` };
   }
   if (startMinutes == null || endMinutes == null || endMinutes <= startMinutes) return { ok: false, message: "Enter a valid class time." };
   await auditedChange("extra_load.create", "extra_load_class", async (tx) => {
@@ -128,6 +116,7 @@ async function deleteExtraLoadClassActionInTerm(id: number): Promise<ActionResul
   const denied = await guardAction("submit_extra_load", { kind: "extra_load_class", classId: id });
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_class", id)) return { ...OUTSIDE_ACTIVE_TERM };
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   await auditedChange("extra_load.delete", "extra_load_class", async (tx) => {
     const [previous] = await tx.delete(extraLoadClasses).where(eq(extraLoadClasses.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };
@@ -143,6 +132,7 @@ async function createManualTopSheetRowActionInTerm(formData: FormData): Promise<
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   const term = await getActiveTerm();
+  await lockTermPolicy(term.id, "share");
   const teacherName = String(formData.get("teacherName") ?? "").trim();
   const classCount = numberField(formData, "classCount");
   const rateOverride = numberField(formData, "rateOverride");
@@ -173,6 +163,7 @@ async function deleteManualTopSheetRowActionInTerm(id: number): Promise<ActionRe
   const denied = await guardAction("review_extra_load");
   if (denied) return denied;
   if (!await isInActiveTerm("extra_load_manual_summary", id)) return { ...OUTSIDE_ACTIVE_TERM };
+  await lockTermPolicy((await getActiveTerm()).id, "share");
   await auditedChange("extra_load.manual.delete", "extra_load_manual_summary", async (tx) => {
     const [previous] = await tx.delete(extraLoadManualSummaries).where(eq(extraLoadManualSummaries.id, id)).returning();
     return { result: null, entityId: id, before: previous ?? null };

@@ -3,7 +3,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db, inDatabaseTransaction } from "@/db";
-import { academicTerms, academicPolicies } from "@/db/schema";
+import { academicTerms, academicPolicies, academicPolicyVersions } from "@/db/schema";
 import { auditedChange } from "./auth/audit";
 import { guardAction } from "./auth/action-guard";
 import { invalid, stale, succeeded, type ActionResult } from "./action-result";
@@ -116,10 +116,13 @@ export async function activateTermAction(_previous: ActionResult | null, form: F
         .where(and(eq(academicTerms.id, review.active.term.id), eq(academicTerms.status, "active")));
       await tx.update(academicTerms).set({ status: "active", revision: sql`${academicTerms.revision} + 1` }).where(eq(academicTerms.id, id));
       await advanceTermGeneration(tx);
+      // SET-01B D-3: a term switch makes the outgoing term's open policy proposal stale.
+      const staled = review.active ? await tx.update(academicPolicyVersions).set({ status: "stale", decidedAt: new Date() })
+        .where(and(eq(academicPolicyVersions.termId, review.active.term.id), eq(academicPolicyVersions.status, "proposed"))).returning({ id: academicPolicyVersions.id }) : [];
       return { result: null, entityId: id,
         before: { active: review.active?.term ?? null, target: review.target.term, generation: review.context.generation },
         after: { activeId: id, completedId: review.active?.term.id ?? null, generation: review.context.generation + 1 },
-        detail: { reason, reviewFingerprint: review.fingerprint },
+        detail: { reason, reviewFingerprint: review.fingerprint, stalePolicyProposals: staled.map(row => row.id) },
       };
     });
     refresh(); return succeeded(`${review.target.term.name} is now active. Previous publications and historical records are retained.`, { entityId: id });

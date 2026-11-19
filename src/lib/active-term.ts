@@ -27,8 +27,8 @@ export async function withTermContext(work: () => Promise<ActionResult>): Promis
   }
 }
 
-export async function withActiveTermContext(work: () => Promise<ActionResult>, expected?: unknown): Promise<ActionResult> {
+export async function withActiveTermContext(work: () => Promise<ActionResult>, expected?: unknown, lock?: "share" | "exclusive"): Promise<ActionResult> {
   const denied = await guardAction("view_internal_portal");
   if (denied) return denied;
-  return withTermContext(() => activeTermWrite(expected, work));
+  return withTermContext(() => activeTermWrite(expected, work, lock));
 }
