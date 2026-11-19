@@ -34,7 +34,7 @@ const ACADEMIC_TABLES = sql.raw(`
   term_calendar_entries, term_calendars, term_rollovers, schedule_versions, attendance_records, attendance_sessions,
   course_enrollments, extra_load_classes, extra_load_manual_summaries, students,
   class_representatives, department_contacts, routine_source_reconciliations,
-  academic_policies, workload_allocations, meeting_rooms, meeting_teachers, meetings,
+  academic_policy_versions, academic_policies, workload_allocations, meeting_rooms, meeting_teachers, meetings,
   teaching_requirements, teaching_group_offerings, teaching_groups,
   course_offerings, batch_term_placements, courses, batches,
   day_plans, period_patterns, permitted_windows, break_rules, external_commitments,

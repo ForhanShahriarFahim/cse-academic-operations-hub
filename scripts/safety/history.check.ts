@@ -51,7 +51,7 @@ function historyQueries(termId: number, auditMaxId: number): Record<string, stri
   return {
     term: `select id, name, academic_year, start_date, end_date, effective_from from academic_terms where id = ${termId}`,
     ...Object.fromEntries([
-      "academic_policies", "batch_term_placements", "class_representatives", "department_contacts",
+      "academic_policies", "academic_policy_versions", "batch_term_placements", "class_representatives", "department_contacts",
       "routine_source_reconciliations", "course_offerings", "teaching_groups", "external_commitments",
       "workload_allocations", "schedule_versions", "extra_load_classes", "extra_load_manual_summaries",
       "course_enrollments", "attendance_sessions", "permitted_windows", "period_patterns", "day_plans",

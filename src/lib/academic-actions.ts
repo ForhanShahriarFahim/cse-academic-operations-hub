@@ -9,7 +9,6 @@ import { and, asc, desc, eq, isNull, lt, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
-  academicPolicies,
   attendanceRecords,
   attendanceSessions,
   auditEvents,
@@ -40,7 +39,6 @@ import {
   sessionActionLabel, stateLabel, statusChanges, type SessionCommand, type SessionRoles, type StatusChange,
 } from "./attendance-lifecycle";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
-import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
 import { conflicted, denied as deniedResult, invalid, stale, succeeded } from "./action-result";
 
 function refresh() {
@@ -57,29 +55,12 @@ function numberField(formData: FormData, name: string): number | null {
 export async function updateAcademicPolicyAction(formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
   return withTermContext(() => updateAcademicPolicyActionInTerm(formData), context ?? formData);
 }
-async function updateAcademicPolicyActionInTerm(formData: FormData): Promise<ActionResult> {
+async function updateAcademicPolicyActionInTerm(_formData: FormData): Promise<ActionResult> {
   const denied = await guardAction("manage_policy");
   if (denied) return denied;
-  const term = await getActiveTerm();
-  // Legacy metadata is no longer editable here, including via a forged payload.
-  // Preserve it inside the audited transaction; only the four live settings are parsed.
-  const parsed = validateStartingPolicy({
-    ...Object.fromEntries(POLICY_FIELDS.map((key) => [key, formData.get(key)])),
-    theoryCreditHours: "3", sessionalCreditHours: "2",
-  });
-  if (!parsed.ok) return invalid("Enter valid non-negative policy values.", parsed.errors);
-  const { theoryCreditHours: _theory, sessionalCreditHours: _sessional, ...numericValues } = parsed.values;
-  await auditedChange("policy.update", "academic_policy", async (tx) => {
-    const [previous] = await tx.select().from(academicPolicies).where(eq(academicPolicies.termId, term.id)).limit(1);
-    const [updated] = await tx.insert(academicPolicies).values({ termId: term.id, ...numericValues,
-      theoryCreditHours: previous?.theoryCreditHours ?? _theory,
-      sessionalCreditHours: previous?.sessionalCreditHours ?? _sessional,
-    })
-      .onConflictDoUpdate({ target: academicPolicies.termId, set: { ...numericValues, updatedAt: new Date() } }).returning();
-    return { result: null, entityId: term.id, before: previous ?? null, after: updated };
-  });
-  refresh();
-  return { ok: true, message: "Academic and payment policy updated for this term." };
+  // SET-01B D-1: an active term's policy never changes in place. Propose a dated version instead.
+  const message = "Policy values no longer change in place. Propose a dated change on Settings; a second administrator approves it.";
+  return conflicted(message, [{ severity: "blocker", title: "Reviewed policy change required", detail: message }]);
 }
 
 // Class days, periods and class hours are edited in Days & periods (RUT-04, time-grid-actions.ts).
