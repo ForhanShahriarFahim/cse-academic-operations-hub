@@ -19,7 +19,7 @@ On 19 November the owner replied “Accept and merge” to the verified delivery
 - [x] T-05 — Build the ledger page with tabs, the filter form, the summary, the responsive Sessions table, the scrollable matrix and entry links from the workspace and completed term. Covers AC-01, AC-02 and AC-06.
 - [x] T-06 — Add the CSV export route and A4 print page that render the same projection. Covers AC-02 and AC-04.
 - [x] T-07 — Verify with both-adapter fixtures for roles, forgery, two terms, deactivation and export parity. Recheck ATT-03A, ATT-04 and SET-01B regressions. Run typecheck, lint, domain, safety and the guarded build, then the compiled Edge review at 1440/390/320 px plus A4 print. Record the results in `verification.md`. Covers AC-01–AC-07.
-- [ ] T-08 — Present the delivery, record owner acceptance and merge into local `main`.
+- [x] T-08 — Present the delivery, record owner acceptance and merge into local `main`.
 
 ## Verification and delivery
 
@@ -29,4 +29,6 @@ No migration is expected, so the institutional database is untouched. Use dispos
 
 D-1–D-6 are implemented at `358825e` and verified, with review fixes at `c1c3fe3` and `1806aab`. Typecheck, lint, domain, the default build, both-adapter ATT-05/ATT-04/ATT-03A/SET-01B/BUG-ATT-MARKS groups and compiled Edge/A4 passed. The full safety suite stops at a pre-existing BUG-29 failure that also occurs on `main`. [Verification and owner review](verification.md)
 
-> Next: the owner inspects the delivery through the review launcher. After actual acceptance (T-08), record it and merge `codex/att-05` into local `main`. The BUG-29 inventory failure is separate work. GitHub synchronization waits for an owner-directed boundary.
+Acceptance `0ec4057` covers delivery `da09957`. Local merge `cd94084` matches the retained `codex/att-05` tree.
+
+> In the next owner-started session, start from local `main` at the ATT-05 merge. First, inspect and repair the pre-existing `BUG-29 time zones` safety failure. Its timestamp inventory expects `academic_policy_versions` columns that the checked database does not report. It fails identically on `7179605`. Then run the full `npm run test:safety`, including the groups after BUG-29 that were not reached. Then the owner chooses between OD-01 / #13 (next in the delivery sequence) and ATT-03B / #10 (routine-meeting links and roll-call ergonomics, which would also allow a scheduled-meeting column in the ledger). Neither is authorized yet. Issue #12 stays open on GitHub until an owner-directed synchronization.
