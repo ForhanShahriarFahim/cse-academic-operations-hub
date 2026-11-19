@@ -107,19 +107,19 @@ export default async function CommitmentsPage({ searchParams }: { searchParams: 
                     <tbody>
                       {visible.map((row) => (
                         <tr key={row.id} id={`od-${row.id}`} className={`border-t border-[var(--color-line-soft)] align-top ${row.id === changed ? "bg-pine-tint" : row.lifecycleStatus === "archived" ? "bg-wash text-ink-2" : "bg-sheet"}`}>
-                          <th scope="row" className="px-2.5 py-2 text-left font-medium">{row.choice}<Review row={row} /></th>
+                          <th scope="row" className="min-w-[9rem] px-2.5 py-2 text-left font-medium">{row.choice}<Review row={row} /></th>
                           <td className="px-2.5 py-2 font-mono font-semibold">{row.counterpartDepartment}</td>
-                          <td className="px-2.5 py-2 font-mono">{row.teacherCode ?? dash}</td>
-                          <td className="px-2.5 py-2 font-mono">{row.roomCode ?? dash}</td>
-                          <td className="whitespace-nowrap px-2.5 py-2 font-mono text-[12px]">{row.schedule ?? <span className="text-muted">Not known</span>}</td>
+                          <td className="whitespace-nowrap px-2.5 py-2 font-mono">{row.teacherCode ?? dash}</td>
+                          <td className="whitespace-nowrap px-2.5 py-2 font-mono">{row.roomCode ?? dash}</td>
+                          <td className="min-w-[7.5rem] px-2.5 py-2 font-mono text-[12px]">{row.schedule ?? <span className="text-muted">Not known</span>}</td>
                           <td className="max-w-[16rem] px-2.5 py-2 text-[12px] leading-snug">
                             {row.courseLabel ?? (row.kind === "unresolved_note" ? <span className="italic">“{row.notes}”</span> : dash)}
                             {row.audienceLabel ? <span className="block text-muted">{row.audienceLabel}</span> : null}
                           </td>
-                          <td className="px-2.5 py-2 text-[12px]">{row.lifecycleStatus === "archived" ? <span className="text-muted">Nothing — archived</span> : row.blocks}</td>
+                          <td className="min-w-[8rem] px-2.5 py-2 text-[12px]">{row.lifecycleStatus === "archived" ? <span className="text-muted">Nothing — archived</span> : row.blocks}</td>
                           <td className="px-2.5 py-2"><Level row={row} /></td>
                           <td className="px-2.5 py-2"><Verification row={row} />{row.archiveReason ? <span className="mt-1 block max-w-[12rem] text-[11.5px] text-muted">{row.archiveReason}</span> : null}</td>
-                          <td className="px-2.5 py-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} /></td>
+                          <td className="whitespace-nowrap px-2.5 py-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} /></td>
                         </tr>
                       ))}
                     </tbody>
