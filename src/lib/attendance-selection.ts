@@ -48,12 +48,20 @@ export function resolveAttendance(query: AttendanceQuery, teacher: boolean, depa
   };
 }
 
-export function attendanceHref(query: Record<string, string | number | undefined>, anchor?: string) {
+function attendanceQueryString(query: Record<string, string | number | undefined>) {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     if (value !== undefined) params.set(key, String(value));
   }
-  return `/attendance${params.size ? `?${params}` : ""}${anchor ? `#${anchor}` : ""}`;
+  return params.size ? `?${params}` : "";
+}
+
+export function attendanceHref(query: Record<string, string | number | undefined>, anchor?: string) {
+  return `/attendance${attendanceQueryString(query)}${anchor ? `#${anchor}` : ""}`;
+}
+
+export function attendanceMarksHref(term: number, group?: number, phase?: string, student?: number) {
+  return `/attendance/marks${attendanceQueryString({ term, group, phase, student })}`;
 }
 
 export function exactSlotSession<T extends { groupId: number; startMinutes: number | null; endMinutes: number | null }>(

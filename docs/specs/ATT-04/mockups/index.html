@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATT-04 review sketches</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #202a25; background: #f5f4ee; font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 66rem; margin: auto; padding: clamp(.85rem, 3vw, 2rem); }
+  h1, h2 { margin: 0 0 .4rem; font-family: Georgia, serif; line-height: 1.2; }
+  h3, p { margin: .4rem 0; }
+  a { color: #175643; text-underline-offset: .2em; }
+  a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid #175643; outline-offset: 3px; }
+  nav { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  section, details { padding: 1rem; margin: 1rem 0; background: #fff; border: 1px solid #c8ccc3; border-radius: .5rem; }
+  .meta { color: #46584e; }
+  .notice { border-left: .25rem solid #99712b; background: #fff5dc; padding: .55rem .75rem; }
+  .counts { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-variant-numeric: tabular-nums; }
+  .table { overflow: auto; }
+  table { width: 100%; border-collapse: collapse; text-align: left; }
+  th, td { padding: .55rem .5rem; border-bottom: 1px solid #d8ddd4; vertical-align: top; }
+  .desktop { display: block; }
+  .phone { display: none; }
+  @media (max-width: 36rem) { .desktop { display: none; } .phone { display: block; } }
+</style>
+<main>
+  <p class="meta">ATT-04 review sketch · Synthetic data</p>
+  <h1>Attendance marks</h1>
+  <p>CSE-2101 · HSC 22B + Diploma 22B · Summer 2026</p>
+  <nav aria-label="Review examples"><a href="#semester">Working summary</a><a href="#student">Student explanation</a><a href="#completed">Completed term</a></nav>
+
+  <section id="semester" aria-labelledby="semester-title">
+    <h2 id="semester-title">Semester marks</h2>
+    <p class="meta">Theory · out of 10 · Version 2 effective 5 July · evaluated 30 September 2026</p>
+    <nav aria-label="Phase sketch"><strong aria-current="page">Semester</strong><a href="#midterm">Midterm example</a><a href="#final">Final example</a></nav>
+    <p class="notice">Working marks include 1 reopened session.</p>
+    <div class="desktop table" role="region" aria-label="Semester marks" tabindex="0"><table>
+      <thead><tr><th scope="col">Student</th><th scope="col">Attended / eligible</th><th scope="col">Percentage</th><th scope="col">Mark</th></tr></thead>
+      <tbody><tr><th scope="row"><a href="#student">Synthetic Student One</a><br><small>SYN-0001</small></th><td>4 / 5</td><td>80.0%</td><td><strong>8.00</strong> / 10</td></tr>
+      <tr><th scope="row">Synthetic Student Two<br><small>SYN-0002</small></th><td>0 / 0<br><small>No eligible sessions</small></td><td>—</td><td>0.00 / 10</td></tr></tbody>
+    </table></div>
+    <div class="phone">
+      <p><a href="#student"><strong>Synthetic Student One</strong></a><br><small>SYN-0001</small></p>
+      <p class="counts"><span>4 / 5 sessions</span><span>80.0%</span><strong>8.00 / 10</strong></p>
+      <hr><p><strong>Synthetic Student Two</strong><br><small>SYN-0002</small></p>
+      <p>0 / 0 sessions · No eligible sessions · 0.00 / 10</p>
+    </div>
+    <details open><summary>Phase examples</summary><p id="midterm">Midterm · 1 / 2 · 50.0% · 5.00 / 10</p><p id="final">Final · 3 / 3 · 100.0% · 10.00 / 10</p><p>Semester uses the combined counts. Phase marks are progress estimates.</p></details>
+  </section>
+
+  <section id="student" aria-labelledby="student-title">
+    <a href="#semester">Back to Semester marks</a>
+    <h2 id="student-title">Synthetic Student One</h2>
+    <p>SYN-0001 · CSE-2101 · Semester</p>
+    <p><strong>8.00 out of 10</strong> · 4 attended ÷ 5 eligible × 10</p>
+    <p class="meta">Version 2 effective 5 July 2026 · marks round to two decimals</p>
+    <details open><summary>Dated sessions</summary>
+      <ul>
+        <li>13 June, 09:00 · Midterm · Present · Locked · +1 attended, +1 eligible</li>
+        <li>20 June, 09:00 · Midterm · Absent · Submitted · +1 eligible</li>
+        <li>27 June, 09:00 · Midterm · Excused · Locked · excluded</li>
+        <li>4 July, 09:00 · Midterm · Uncaptured · Submitted · excluded</li>
+        <li>11 July, 09:00 · Final · Late · Reopened · +1 attended, +1 eligible</li>
+        <li>18 July, 09:00 · Final · Present · Submitted · +1 attended, +1 eligible</li>
+        <li>25 July, 09:00 · Final · Present · Locked · +1 attended, +1 eligible</li>
+        <li>1 August, 09:00 · Final · Present · Voided · excluded</li>
+      </ul>
+    </details>
+  </section>
+
+  <section id="completed" aria-labelledby="completed-title">
+    <h2 id="completed-title">Spring 2026 attendance marks</h2>
+    <p>Completed term · read-only · CSE-1201 · HSC 24B</p>
+    <p class="meta">Version 1 effective 10 January · evaluated at term end, 31 May 2026</p>
+    <p>Synthetic Student Three · 3 / 4 attended · 75.0% · <strong>7.50 / 10</strong></p>
+    <p>The report includes students retained in this term's captured attendance.</p>
+  </section>
+</main>
+</html>

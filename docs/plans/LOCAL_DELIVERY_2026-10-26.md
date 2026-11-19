@@ -92,7 +92,7 @@ This is a dependency-informed order, not a promise that every item takes one ses
 
 ## Current handoff
 
-- **19 November — current handoff:** SET-01B / #14 was accepted (`2d0cff8`) and merged locally (`1f82693`). Next, the owner starts ATT-04 / #11 inspection and specification from local `main`. [Verification](../specs/SET-01B/verification.md) · [Merge receipt and handoff](../specs/SET-01B/plan.md#current-checkpoint-and-exact-handoff).
+- **19 November — current handoff:** ATT-04 / #11 is implemented and verified on `codex/att-04`, awaiting delivery acceptance before the local merge. [Verification and preview](../specs/ATT-04/verification.md) · [Plan and handoff](../specs/ATT-04/plan.md#current-checkpoint-and-exact-handoff).
 - **19 November — previous handoff:** ATT-03A / #10 approved unchanged (“Approve D-1–D-5”); implementation in progress on `codex/att-03a` from `ec82ad6`. [Specification](../specs/ATT-03A/spec.md) · [Sketches](../specs/ATT-03A/mockups/index.html) · [Exact handoff](../specs/ATT-03A/plan.md#current-checkpoint-and-exact-handoff).
 - **19 November — previous handoff:** CAL-01 / #38 was accepted (`b192ef5`) and merged locally (`6969eb2`). Next, the owner starts ATT-03 / #10 inspection and specification from local `main`. [Verification](../specs/CAL-01/verification.md) · [Merge receipt and handoff](../specs/CAL-01/plan.md#current-checkpoint-and-exact-handoff).
 - **19 November — previous handoff:** CAL-01 / #38 proposal is ready on `codex/cal-01` from `a4b0ccb`. Confirm the institutional source and day-swap policy and decide D-1–D-5 before implementation. [Specification](../specs/CAL-01/spec.md) · [Exact handoff](../specs/CAL-01/plan.md#current-checkpoint-and-exact-handoff).

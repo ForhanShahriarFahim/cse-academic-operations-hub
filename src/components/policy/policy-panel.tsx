@@ -8,6 +8,7 @@ import type { ActionResult } from "@/lib/action-result";
 import type { PolicyHistoryRow } from "@/lib/policy-store";
 import type { PolicyPreview } from "@/lib/policy-actions";
 import { ROUNDING_NOTE, VERSION_FIELDS, VERSION_LABELS, versionLabel, type PolicyFigures, type PolicyImpact } from "@/lib/policy-versions";
+import { ATTENDANCE_CALCULATION } from "@/lib/attendance";
 import { FigureChanges, ImpactSummary, PolicyHistory, StatusTag, formatFigure } from "./policy-history";
 
 const control = "w-full rounded-md border border-[var(--color-line)] bg-white px-2.5 py-2 text-[13px] min-h-11";
@@ -56,9 +57,10 @@ export function PolicyPanel(props: PolicyPanelProps) {
                 <dd className="mt-0.5 font-display text-[18px] font-semibold tabular-nums">{formatFigure(key, current.figures[key])}</dd>
               </div>)}
             </dl>
-            <p className="mt-2 text-[11.5px] text-muted">Rounding: {ROUNDING_NOTE}</p>
             {legacy && <p className="mt-1 text-[11.5px] text-muted">Legacy metadata (read-only, not versioned): theory {legacy.theory}; sessional {legacy.sessional}.</p>}
           </> : <p role="status" className="mt-2 rounded-md border border-[var(--color-clay)]/40 bg-[var(--color-clay)]/5 px-3 py-2 text-[12.5px]">No policy is recorded for this term. Extra-class payments and attendance marks are not priced or marked until a baseline is proposed and approved.</p>}
+          <p className="mt-2 text-[11.5px] text-muted">{ROUNDING_NOTE}</p>
+          <p className="mt-1 text-[11.5px] text-muted">Attendance calculation. {ATTENDANCE_CALCULATION}</p>
         </div>
         <div>
           <h3 className="font-display text-[14px] font-semibold">History</h3>

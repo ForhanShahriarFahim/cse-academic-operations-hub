@@ -1,3 +1,5 @@
+import { countsInSummary } from "./attendance-lifecycle";
+
 export const ATTENDANCE_STATUSES = ["present", "absent", "late", "excused"] as const;
 export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
 
@@ -118,12 +120,39 @@ export function parseStudentRows(headers: ReadonlyArray<StudentCsvField | null>,
   return { rows, issues } as const;
 }
 
-/** Late counts as attended; excused sessions are removed from the denominator. */
+export const ATTENDANCE_CALCULATION = "Divide attended sessions by eligible sessions and multiply by the policy maximum. Round the mark to two decimals and the percentage separately to one decimal, rounding half steps up.";
+export const ATTENDANCE_PHASES = ["semester", "midterm", "final"] as const;
+export type AttendancePhase = typeof ATTENDANCE_PHASES[number];
+export const ATTENDANCE_PHASE_LABELS = { semester: "Semester", midterm: "Midterm", final: "Final" } as const;
+
+export function attendanceContribution(sessionState: string, recordedStatus: string | null) {
+  const attended = recordedStatus === "present" || recordedStatus === "late";
+  if (!countsInSummary(sessionState)) return { attended: 0, total: 0, explanation: "Voided session" };
+  if (recordedStatus == null) return { attended: 0, total: 0, explanation: "Student was not captured" };
+  if (recordedStatus === "excused") return { attended: 0, total: 0, explanation: "Excused" };
+  return { attended: Number(attended), total: 1, explanation: attended ? "+1 attended, +1 eligible" : "+1 eligible" };
+}
+
+export function attendanceMarkFromCounts(attended: number, total: number, maximum: number): number {
+  return total ? Math.round((attended / total) * maximum * 100) / 100 : 0;
+}
+
+export function attendanceResult(attended: number, total: number, maximum: number | null) {
+  return {
+    attended, total,
+    percentage: total ? Math.round(attended / total * 1000) / 10 : null,
+    mark: maximum == null ? null : attendanceMarkFromCounts(attended, total, maximum),
+  };
+}
+
+const totals = (statuses: readonly string[]) => statuses.reduce((sum, status) => {
+  const contribution = attendanceContribution("submitted", status);
+  return { attended: sum.attended + contribution.attended, total: sum.total + contribution.total };
+}, { attended: 0, total: 0 });
+
 export function attendanceMark(statuses: AttendanceStatus[], maximum: number): number {
-  const counted = statuses.filter((status) => status !== "excused");
-  if (counted.length === 0) return 0;
-  const attended = counted.filter((status) => status === "present" || status === "late").length;
-  return Math.round((attended / counted.length) * maximum * 100) / 100;
+  const { attended, total } = totals(statuses);
+  return attendanceMarkFromCounts(attended, total, maximum);
 }
 
 export interface AttendanceSessionInput {
@@ -139,18 +168,15 @@ export function summarizeAttendance(studentId: number, sessions: readonly Attend
       const record = session.records.find((record) => record.studentId === studentId);
       return record ? [record.status as AttendanceStatus] : [];
     });
-  const totals = (statuses: AttendanceStatus[]) => ({
-    attended: statuses.filter((status) => status === "present" || status === "late").length,
-    total: statuses.filter((status) => status !== "excused").length,
-  });
   const semester = statusesFor();
   const { attended, total } = totals(semester);
+  const { percentage, mark } = attendanceResult(attended, total, maximum);
   return {
     studentId,
     midterm: totals(statusesFor("midterm")),
     final: totals(statusesFor("final")),
-    semester: { attended, total, percentage: total ? Math.round(attended / total * 1000) / 10 : 0 },
-    mark: attendanceMark(semester, maximum),
+    semester: { attended, total, percentage: percentage ?? 0 },
+    mark: mark ?? 0,
     maximum,
   };
 }

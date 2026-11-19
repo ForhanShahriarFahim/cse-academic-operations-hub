@@ -7,6 +7,7 @@
  * relevant date, else the baseline (spec D-1/D-2).
  */
 import { validTermDate } from "./term-records";
+import { attendanceMarkFromCounts } from "./attendance";
 
 export const VERSION_FIELDS = ["extraClassRate", "extraLoadThresholdCredits", "theoryAttendanceMarks", "sessionalAttendanceMarks"] as const;
 export type VersionField = typeof VERSION_FIELDS[number];
@@ -68,9 +69,7 @@ export const versionLabel = (version: number) => version === 0 ? "Proposed" : `V
 
 export const toPaisa = (taka: number) => Math.round(taka * 100);
 export const fromPaisa = (paisa: number) => paisa / 100;
-export function markFor(attended: number, counted: number, maximum: number): number {
-  return counted === 0 ? 0 : Math.round((attended / counted) * maximum * 100) / 100;
-}
+export { attendanceMarkFromCounts as markFor };
 
 /** Each class is paid at the rate in force on its class date. */
 export function priceClasses<T extends { classDate: string }>(timeline: PolicyTimeline, classes: readonly T[]) {
@@ -229,8 +228,8 @@ export function policyImpact(before: PolicyTimeline, after: PolicyTimeline, inpu
     if (maxBefore === maxAfter) return [];
     let studentsChanged = 0, largestChange = 0;
     for (const student of [...group.students].sort((a, b) => a.studentId - b.studentId)) {
-      const was = markFor(student.attended, student.counted, maxBefore);
-      const will = markFor(student.attended, student.counted, maxAfter);
+      const was = attendanceMarkFromCounts(student.attended, student.counted, maxBefore);
+      const will = attendanceMarkFromCounts(student.attended, student.counted, maxAfter);
       if (was === will) continue;
       marks.push({ groupId: group.groupId, studentId: student.studentId, before: was, after: will });
       studentsChanged += 1;

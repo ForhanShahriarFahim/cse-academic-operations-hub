@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import "./verify-room-records";
-import { attendanceMark, parseStudentCsv, summarizeAttendance } from "../src/lib/attendance";
+import { attendanceContribution, attendanceMark, attendanceResult, parseStudentCsv, summarizeAttendance } from "../src/lib/attendance";
 import { csvCell } from "../src/lib/routine-csv";
 import { allocationTotals, computeWorkloads, formatWorkloadUnits } from "../src/lib/workload";
 import { amountInWords, isExtraLoadEligible, paymentForClasses } from "../src/lib/extra-load";
@@ -37,6 +37,13 @@ assert.ok("error" in parseStudentCsv("ID,Student ID,Name\n001,001,Synthetic"));
 assert.equal(attendanceMark(["present", "late", "absent", "excused"], 10), 6.67);
 assert.equal(attendanceMark(["present", "absent"], 5), 2.5);
 assert.equal(attendanceMark(["excused"], 10), 0);
+assert.deepEqual(attendanceResult(1, 3, 10), { attended: 1, total: 3, percentage: 33.3, mark: 3.33 });
+assert.equal(attendanceResult(1, 8, 1).mark, 0.13);
+assert.deepEqual(attendanceResult(0, 0, 10), { attended: 0, total: 0, percentage: null, mark: 0 });
+assert.equal(attendanceResult(1, 1, null).mark, null);
+assert.equal(attendanceResult(1, 1, 0).mark, 0);
+assert.equal(attendanceContribution("voided", "present").total, 0);
+assert.equal(attendanceContribution("reopened", "late").attended, 1);
 
 const capturedSessions = [
   { phase: "midterm", records: [{ studentId: 1, status: "present" }] },
