@@ -1,6 +1,6 @@
 # SET-01B — Implementation plan
 
-[Issue #14](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/14) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #14](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/14) · Approved · 19 November 2026, Asia/Dhaka
 
 Branch `codex/set-01b` from local `main` at `26f1414`. [Specification and decisions](spec.md) · [Workflow sketches](mockups/index.html)
 
@@ -17,11 +17,12 @@ Branch `codex/set-01b` from local `main` at `26f1414`. [Specification and decisi
 
 - 19 November 2026, owner: “Go for the next task.” This starts SET-01B / #14 inspection and specification from local `main`, following the ATT-03A handoff. It does not approve implementation.
 - 19 November 2026, owner answered three design questions: payment rate by class date; second-person approval; attendance marks allowed with impact preview. Recorded in the [specification](spec.md#owner-choices-recorded-during-inspection). Not implementation approval.
+- 19 November 2026, owner: “Approve D-1–D-6”. D-1–D-6 are accepted unchanged and implementation of T-03–T-06 is authorized. Institutional migration, D-06 resolution and merge before acceptance are not authorized.
 
 ## Tasks
 
 - [x] T-01 — Inspect #14, SET-01A and policy consumers. Present this specification, decisions and sketches.
-- [ ] T-02 — Record and commit the owner's decisions and implementation approval.
+- [x] T-02 — Record and commit the owner's decisions and implementation approval.
 - [ ] T-03 — Migration `0021`, resolution and impact module, authority and audited actions. Covers AC-01–AC-05, AC-07.
 - [ ] T-04 — Consumers and outputs: extra-load pricing, threshold, attendance maximum, version labels and print. Covers AC-03, AC-06, AC-08.
 - [ ] T-05 — Settings and term workspace interface. Covers AC-08, AC-09.
@@ -34,4 +35,4 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Proposal on `codex/set-01b`; awaiting owner approval of D-1–D-6. Next action after approval: record it (T-02), then T-03.
+Approval recorded on `codex/set-01b`. Next action: T-03.

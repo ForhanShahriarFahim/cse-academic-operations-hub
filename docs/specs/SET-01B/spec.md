@@ -2,7 +2,7 @@
 
 Parent: [SET-01 / #14](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/14)
 
-Status: **Proposed — awaiting owner approval of D-1–D-6**
+Status: **Approved for implementation, 19 November 2026** (owner: “Approve D-1–D-6”; [approval record](plan.md#approval-record))
 
 Updated: 19 November 2026, Asia/Dhaka
 
