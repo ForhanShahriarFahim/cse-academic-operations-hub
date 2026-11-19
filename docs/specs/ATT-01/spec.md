@@ -1,6 +1,6 @@
 # ATT-01 — Find a class and open attendance
 
-[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Approved for implementation · 19 November 2026, Asia/Dhaka
 
 ## Problem and outcome
 

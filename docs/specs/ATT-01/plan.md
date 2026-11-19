@@ -1,6 +1,6 @@
 # ATT-01 — Implementation plan
 
-[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Approved for implementation · 19 November 2026, Asia/Dhaka
 
 Branch `codex/att-01` from local `main` at `dec448e`. [Specification and decisions](spec.md) · [Verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -14,13 +14,12 @@ Move the chooser out of the marking component. Keep the existing roster and prin
 
 ## Approval record
 
-- Owner authorization for implementation is pending. “Go for the next task” started the inspection and specification named in the STU-01B handoff.
-- Record the actual dated approval of D-1–D-4 and any amendments here. Commit the approved plan before writing application code.
+- On 19 November 2026 (Asia/Dhaka), the owner replied “Approved.” to the proposal at `c550b12` and its request to approve D-1–D-4. The decisions are approved as written.
 
 ## Tasks
 
 - [x] T-01 — Inspect issue #8, owner input, data and permissions, and present the bounded specification with an attendance design pass.
-- [ ] T-02 — Record and commit owner approval.
+- [x] T-02 — Record and commit owner approval.
 - [ ] T-03 — Implement scoped group projection, cascade and URL validation, including old links and empty states. Covers AC-02–AC-04.
 - [ ] T-04 — Implement routine-based teacher landing and safe group/session entry, retaining roster, print and marking behavior. Covers AC-01 and AC-03–AC-06.
 - [ ] T-05 — Verify final behavior, record evidence and give the owner a runnable synthetic review. Covers AC-01–AC-06.
@@ -32,6 +31,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-The proposal is ready for owner review on `codex/att-01`. [D-1–D-4 and acceptance criteria](spec.md) · [Sketches](mockups/index.html)
+Implementation is approved on `codex/att-01`. [D-1–D-4 and acceptance criteria](spec.md) · [Sketches](mockups/index.html)
 
-> Review the ATT-01 sketches and approve or amend D-1–D-4. Once approved, record the owner's decision and commit the approved plan on `codex/att-01`, then implement T-03 and T-04. Use the current attendance and STU-01 review fixtures for the neighboring regressions. Present the verified workflow for owner acceptance before local merge.
+> Implement T-03 and T-04 under the approved decisions. Use the current attendance and STU-01 review fixtures for the neighboring regressions. Present the verified workflow for owner acceptance before local merge.
