@@ -46,7 +46,7 @@ export function PolicyHistory({ termStart, baseline, history, priorFigures, comp
         {row.decidedAt && row.status !== "stale" && <><br />{row.status === "withdrawn" ? "Withdrawn" : row.status === "approved" ? "Approved" : "Rejected"} by {row.decidedBy}, {shortDate(row.decidedAt)}{row.decisionNote ? ` — “${row.decisionNote}”` : ""}</>}
         {row.status === "stale" && row.decidedAt && <><br />Closed when the active term changed, {shortDate(row.decidedAt)}.</>}</p>}
     </li>)}
-    {baseline && <li className="relative pb-1">
+    {baseline && !history.some((row) => row.version === 1 && row.status === "approved") && <li className="relative pb-1">
       <span aria-hidden="true" className="absolute -left-[23px] top-1 h-3 w-3 rounded-full border-2 border-[var(--color-pine)] bg-white" />
       <p className="flex flex-wrap items-center gap-2 text-[12.5px]"><span className="inline-block rounded-[10px] border border-[var(--color-pine)]/30 bg-pine-tint px-2 py-px text-[11px] font-semibold text-[var(--color-pine)]">Baseline</span>
         <strong>Version 1</strong><span className="text-muted">from term start, {termStart}</span></p>
@@ -71,10 +71,11 @@ export function ImpactSummary({ impact, baseline }: { impact: PolicyImpact | nul
           <tbody>
             {payments.teachers.map((row) => <tr key={row.teacherId} className="border-b border-[var(--color-line-soft)]"><td>{row.teacherName}</td><td className="text-right font-mono">{row.classes}</td><td className="text-right font-mono">৳{formatTaka(row.before)}</td><td className="text-right font-mono">৳{formatTaka(row.after)}</td></tr>)}
             {payments.manual.map((row) => <tr key={`m${row.id}`} className="border-b border-[var(--color-line-soft)]"><td>{row.teacherName} <span className="text-muted">(manual row)</span></td><td className="text-right font-mono">—</td><td className="text-right font-mono">৳{formatTaka(row.before)}</td><td className="text-right font-mono">৳{formatTaka(row.after)}</td></tr>)}
-            <tr className="font-semibold"><td>Total</td><td className="text-right font-mono">{payments.classIds.length}</td><td className="text-right font-mono">৳{formatTaka(payments.totalBefore)}</td><td className="text-right font-mono">{delta >= 0 ? "+" : "−"}৳{formatTaka(Math.abs(delta))}</td></tr>
+            <tr className="font-semibold"><td>Total</td><td className="text-right font-mono">{payments.classIds.length}</td><td className="text-right font-mono">৳{formatTaka(payments.totalBefore)}</td><td className="text-right font-mono">৳{formatTaka(payments.totalAfter)}</td></tr>
           </tbody>
         </table>
       </div>
+      <p className="mt-1">Total change {delta >= 0 ? "+" : "−"}৳{formatTaka(Math.abs(delta))}</p>
     </div>}
     {(threshold.changed.length > 0 || threshold.recordedUnderEarlier.length > 0) && <div>
       <h4 className="font-semibold">Extra-load eligibility</h4>

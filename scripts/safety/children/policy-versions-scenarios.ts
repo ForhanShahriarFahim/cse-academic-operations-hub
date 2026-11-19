@@ -128,11 +128,25 @@ async function main() {
 
   // Attendance maximum is whole-term, as of the evaluation date (the term end for this fixture).
   signInAs(ADMIN); ok(await policy.proposePolicyChangeAction(proposal({ effectiveFrom: "2026-09-01", extraClassRate: "325", extraLoadThresholdCredits: "2", theoryAttendanceMarks: "12" }), token));
-  const v5 = await latest(); signInAs(APPROVER); ok(await decide(v5.id, "approve"));
+  const v5 = await latest();
+  signInAs(APPROVER);
+  const reviewedMarks = await fingerprintFor(v5.id);
+  signInAs(ADMIN);
+  const [session] = (await operations.getAttendanceData(merged.id)).sessions;
+  const present = session.records.find(row => row.status === "present")!;
+  const absent = session.records.find(row => row.status === "absent")!;
+  ok(await academic.saveAttendanceAction(session.id, [
+    { studentId: present.studentId, status: "absent" },
+    { studentId: absent.studentId, status: "present" },
+  ], session.revision, token));
+  signInAs(APPROVER);
+  assert.equal(kind(await noWrite(() => decide(v5.id, "approve", { fingerprint: reviewedMarks }))), "stale",
+    "the affected students changed even though the course totals did not");
+  ok(await decide(v5.id, "approve"));
   marks = await operations.getAttendanceData(merged.id);
   assert.equal(marks.maximum, 12); assert.equal(marks.maximumVersion, 4);
   assert.ok(marks.summaries.every(row => row.maximum === 12));
-  lines.push("An approved attendance maximum applies to the whole term from its evaluation date and names its version.");
+  lines.push("An attendance change that swaps affected students but preserves course totals makes approval stale. After fresh review, the approved maximum applies to the whole term and names its version.");
 
   // AC-05: an audit failure rolls the approval back; withdrawal is the proposer's.
   signInAs(ADMIN); ok(await policy.proposePolicyChangeAction(proposal({ effectiveFrom: "2026-09-10", extraClassRate: "400", extraLoadThresholdCredits: "2", theoryAttendanceMarks: "12" }), token));

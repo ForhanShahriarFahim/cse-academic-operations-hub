@@ -33,11 +33,11 @@ export async function assertTermContext(expected: TermWriteContext, reader: Term
   }
   return current;
 }
-export async function activeTermWrite(input: unknown, work: () => Promise<ActionResult>) {
+export async function activeTermWrite(input: unknown, work: () => Promise<ActionResult>, lock: "share" | "exclusive" = "share") {
   const expected = parseTermWriteContext(input);
   if (!expected) throw new TermContextChanged("This page has no valid academic term context. No changes were saved. Refresh before continuing.");
   return db.transaction(tx => inDatabaseTransaction(tx, async () => {
-    await lockTermContext(tx, "share");
+    await lockTermContext(tx, lock);
     await assertTermContext(expected, tx);
     return work();
   }));

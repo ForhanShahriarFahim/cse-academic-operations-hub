@@ -84,7 +84,7 @@ const input: ImpactInput = {
 };
 const ratePlan = { effectiveFrom: "2027-04-01", figures: { ...base, extraClassRate: 300 } };
 const after = withProposal(timeline, ratePlan);
-const impact = policyImpact(timeline, after, input);
+const { impact } = policyImpact(timeline, after, input);
 assert.deepEqual(impact.payments.classIds, [2, 3, 4], "classes before the date keep their rate");
 assert.deepEqual(impact.payments.teachers.map((row) => [row.teacherName, row.classes, row.before, row.after]), [["Teacher A", 1, 250, 300], ["Teacher B", 2, 500, 600]]);
 assert.deepEqual(impact.payments.manual, [{ id: 21, teacherName: "Visiting", before: 500, after: 600 }]);
@@ -93,14 +93,16 @@ assert.equal(impact.attendance.courses.length, 0); assert.equal(impact.threshold
 const afterPriced = priceClasses(after, input.classes);
 assert.equal(afterPriced.filter((row) => impact.payments.classIds.includes(row.id)).reduce((sum, row) => sum + row.rate, 0), 900, "preview matches approved pricing");
 
-const thresholdImpact = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-05", figures: { ...v2.figures, extraLoadThresholdCredits: 17 } }), input);
+const { impact: thresholdImpact } = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-05", figures: { ...v2.figures, extraLoadThresholdCredits: 17 } }), input);
 assert.deepEqual(thresholdImpact.threshold.changed.map((row) => [row.teacherName, row.before, row.after]), [["Teacher A", true, false]]);
 assert.deepEqual(thresholdImpact.threshold.recordedUnderEarlier, [], "Teacher A's only class after the date is 3 Apr; nothing recorded on/after 5 Apr");
-assert.deepEqual(policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-02", figures: { ...v2.figures, extraLoadThresholdCredits: 17 } }), input).threshold.recordedUnderEarlier, [2]);
+assert.deepEqual(policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-02", figures: { ...v2.figures, extraLoadThresholdCredits: 17 } }), input).impact.threshold.recordedUnderEarlier, [2]);
 
-const marksImpact = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-15", figures: { ...v2.figures, theoryAttendanceMarks: 12 } }), input);
+const marksReview = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-04-15", figures: { ...v2.figures, theoryAttendanceMarks: 12 } }), input);
+const marksImpact = marksReview.impact;
 assert.deepEqual(marksImpact.attendance.courses.map((row) => [row.maxBefore, row.maxAfter, row.studentsChanged, row.largestChange, row.lockedSessions]), [[10, 12, 1, 1.5, 2]]);
-const future = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-05-01", figures: { ...v2.figures, theoryAttendanceMarks: 12 } }), input);
+assert.deepEqual(marksReview.marks, [{ groupId: 5, studentId: 1, before: 7.5, after: 9 }]);
+const { impact: future } = policyImpact(timeline, withProposal(timeline, { effectiveFrom: "2027-05-01", figures: { ...v2.figures, theoryAttendanceMarks: 12 } }), input);
 assert.equal(future.empty, true, "a future-dated change affects nothing yet");
 
 console.log("SET-01B policy versions: resolution, validation, pricing, marks parity and impact preview verified.");

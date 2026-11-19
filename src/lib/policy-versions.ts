@@ -180,15 +180,17 @@ export interface PolicyImpact {
   empty: boolean;
 }
 
-export function policyImpact(before: PolicyTimeline, after: PolicyTimeline, input: ImpactInput): PolicyImpact {
+export function policyImpact(before: PolicyTimeline, after: PolicyTimeline, input: ImpactInput) {
   // Payments: every class whose rate differs between the two timelines.
   const byTeacher = new Map<number, { teacherId: number; teacherName: string; classes: number; before: number; after: number }>();
   const classIds: number[] = [];
+  const classRates: Array<{ id: number; before: number; after: number }> = [];
   for (const row of [...input.classes].sort((a, b) => a.id - b.id)) {
     const was = toPaisa(versionOn(before, row.classDate).figures.extraClassRate);
     const will = toPaisa(versionOn(after, row.classDate).figures.extraClassRate);
     if (was === will) continue;
     classIds.push(row.id);
+    classRates.push({ id: row.id, before: was, after: will });
     const entry = byTeacher.get(row.teacherId) ?? { teacherId: row.teacherId, teacherName: row.teacherName, classes: 0, before: 0, after: 0 };
     entry.classes += 1; entry.before += was; entry.after += will;
     byTeacher.set(row.teacherId, entry);
@@ -221,24 +223,30 @@ export function policyImpact(before: PolicyTimeline, after: PolicyTimeline, inpu
     const figures = versionOn(timeline, when).figures;
     return type === "sessional" ? figures.sessionalAttendanceMarks : figures.theoryAttendanceMarks;
   };
+  const marks: Array<{ groupId: number; studentId: number; before: number; after: number }> = [];
   const courses = [...input.attendance].sort((a, b) => a.groupId - b.groupId).flatMap((group) => {
     const maxBefore = maximum(before, group.courseType), maxAfter = maximum(after, group.courseType);
     if (maxBefore === maxAfter) return [];
     let studentsChanged = 0, largestChange = 0;
-    for (const student of group.students) {
-      const difference = Math.abs(markFor(student.attended, student.counted, maxAfter) - markFor(student.attended, student.counted, maxBefore));
-      if (difference > 0) { studentsChanged += 1; largestChange = Math.max(largestChange, Math.round(difference * 100) / 100); }
+    for (const student of [...group.students].sort((a, b) => a.studentId - b.studentId)) {
+      const was = markFor(student.attended, student.counted, maxBefore);
+      const will = markFor(student.attended, student.counted, maxAfter);
+      if (was === will) continue;
+      marks.push({ groupId: group.groupId, studentId: student.studentId, before: was, after: will });
+      studentsChanged += 1;
+      largestChange = Math.max(largestChange, Math.round(Math.abs(will - was) * 100) / 100);
     }
     return studentsChanged ? [{ groupId: group.groupId, courseCode: group.courseCode, audience: group.audience, courseType: group.courseType,
       maxBefore, maxAfter, studentsChanged, largestChange, lockedSessions: group.lockedSessions }] : [];
   });
 
-  return {
+  const impact: PolicyImpact = {
     payments: { teachers, classIds, manual, totalBefore, totalAfter },
     threshold: { evaluationDate: when, changed, recordedUnderEarlier },
     attendance: { evaluationDate: when, courses },
     empty: !classIds.length && !manual.length && !changed.length && !recordedUnderEarlier.length && !courses.length,
   };
+  return { impact, classRates, marks };
 }
 
 // ---------------------------------------------------------------------------

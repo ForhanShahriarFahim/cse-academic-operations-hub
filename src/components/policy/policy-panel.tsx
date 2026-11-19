@@ -37,6 +37,7 @@ const fieldErrors = (result: ActionResult | null) => result?.outcome?.kind === "
 
 export function PolicyPanel(props: PolicyPanelProps) {
   const { term, current, evaluationDate, baseline, legacy, history, priorFigures, open, abilities, otherApprovers } = props;
+  const [receipt, setReceipt] = useState<ActionResult | null>(null);
   return <section id="policy" aria-labelledby="policy-heading" className="ruled scroll-mt-20 rounded-lg">
     <header className="border-b border-[var(--color-line-soft)] px-4 py-3">
       <h2 id="policy-heading" className="font-display text-[15px] font-semibold">Academic, attendance &amp; payment policy</h2>
@@ -65,8 +66,9 @@ export function PolicyPanel(props: PolicyPanelProps) {
         </div>
       </div>
       <div className="min-w-0 space-y-5">
-        {open ? <OpenProposal open={open} abilities={abilities} otherApprovers={otherApprovers} baseline={!baseline} />
-          : abilities.propose ? <ProposeForm term={term} current={current} baseline={!baseline} />
+        <Feedback result={receipt} />
+        {open ? <OpenProposal key={`${open.row.id}:${open.fingerprint}`} open={open} abilities={abilities} otherApprovers={otherApprovers} baseline={!baseline} onCommit={setReceipt} />
+          : abilities.propose ? <ProposeForm term={term} current={current} baseline={!baseline} onCommit={setReceipt} />
             : <p className="text-[12.5px] text-muted">No proposal is waiting. Only administrators with policy permission can propose changes.</p>}
         {open && abilities.propose && <p className="text-[11.5px] text-muted">One proposal at a time: a new change can be proposed once this one is decided or withdrawn.</p>}
         <p className="text-[12px]">Class days, periods and class hours are set per term in <Link href="/routine/periods" className="font-semibold text-[var(--color-pine)] underline underline-offset-2">Days &amp; periods</Link>.</p>
@@ -75,7 +77,7 @@ export function PolicyPanel(props: PolicyPanelProps) {
   </section>;
 }
 
-function OpenProposal({ open, abilities, otherApprovers, baseline }: { open: NonNullable<PolicyPanelProps["open"]>; abilities: PolicyPanelProps["abilities"]; otherApprovers: number; baseline: boolean }) {
+function OpenProposal({ open, abilities, otherApprovers, baseline, onCommit }: { open: NonNullable<PolicyPanelProps["open"]>; abilities: PolicyPanelProps["abilities"]; otherApprovers: number; baseline: boolean; onCommit: (result: ActionResult | null) => void }) {
   const { decidePolicyChangeAction } = useTermActions();
   const [pending, start] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
@@ -85,7 +87,10 @@ function OpenProposal({ open, abilities, otherApprovers, baseline }: { open: Non
   const own = row.proposedById === abilities.actorId;
   const canDecide = abilities.approve && !own;
   const decide = (command: "approve" | "reject" | "withdraw") => start(async () => {
-    setResult(await decidePolicyChangeAction(row.id, { command, note: note || null, fingerprint }));
+    onCommit(null);
+    const next = await decidePolicyChangeAction(row.id, { command, note: note || null, fingerprint });
+    if (next.ok) onCommit(next);
+    setResult(next.ok ? null : next);
   });
   const errors = fieldErrors(result);
   const affected = impact ? impact.payments.classIds.length + impact.payments.manual.length : 0;
@@ -118,7 +123,7 @@ function OpenProposal({ open, abilities, otherApprovers, baseline }: { open: Non
   </div>;
 }
 
-function ProposeForm({ term, current, baseline }: { term: PolicyPanelProps["term"]; current: PolicyPanelProps["current"]; baseline: boolean }) {
+function ProposeForm({ term, current, baseline, onCommit }: { term: PolicyPanelProps["term"]; current: PolicyPanelProps["current"]; baseline: boolean; onCommit: (result: ActionResult | null) => void }) {
   const { previewPolicyChangeAction, proposePolicyChangeAction } = useTermActions();
   const form = useRef<HTMLFormElement>(null);
   const [pending, start] = useTransition();
@@ -126,13 +131,18 @@ function ProposeForm({ term, current, baseline }: { term: PolicyPanelProps["term
   const [preview, setPreview] = useState<PolicyPreview["preview"] | null>(null);
   const reset = () => { if (preview) setPreview(null); };
   const run = (action: "preview" | "propose") => start(async () => {
+    onCommit(null);
     const data = new FormData(form.current!);
     if (action === "preview") {
       const next = await previewPolicyChangeAction(data);
       setResult(next); setPreview(next.ok ? next.preview ?? null : null);
     } else {
       const next = await proposePolicyChangeAction(data);
-      setResult(next); if (next.ok) setPreview(null);
+      if (next.ok) {
+        onCommit(next);
+        setPreview(null);
+      }
+      setResult(next.ok ? null : next);
     }
   });
   const errors = fieldErrors(result);

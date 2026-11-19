@@ -8,7 +8,7 @@ import { and, asc, eq, gt, inArray, isNull, lte, ne, or, sql } from "drizzle-orm
 import { db } from "@/db";
 import {
   academicPolicies, academicPolicyVersions, academicTerms, attendanceRecords, attendanceSessions,
-  extraLoadClasses, extraLoadManualSummaries, portalUsers, roleAssignments,
+  courseEnrollments, extraLoadClasses, extraLoadManualSummaries, portalUsers, roleAssignments, students,
 } from "@/db/schema";
 import { ROLE_CAPABILITIES } from "./auth/policy";
 import type { PortalData } from "./data";
@@ -86,7 +86,11 @@ export async function impactInput(data: PortalData, today: string, reader: Reade
       attended: sql<number>`count(*) filter (where ${attendanceRecords.status} in ('present', 'late'))`.mapWith(Number),
       counted: sql<number>`count(*) filter (where ${attendanceRecords.status} <> 'excused')`.mapWith(Number),
     }).from(attendanceRecords).innerJoin(attendanceSessions, eq(attendanceSessions.id, attendanceRecords.sessionId))
-      .where(and(eq(attendanceSessions.termId, termId), ne(attendanceSessions.status, "voided")))
+      .innerJoin(courseEnrollments, and(eq(courseEnrollments.termId, attendanceSessions.termId),
+        eq(courseEnrollments.teachingGroupId, attendanceSessions.teachingGroupId), eq(courseEnrollments.studentId, attendanceRecords.studentId)))
+      .innerJoin(students, eq(students.id, attendanceRecords.studentId))
+      .where(and(eq(attendanceSessions.termId, termId), ne(attendanceSessions.status, "voided"),
+        eq(courseEnrollments.status, "active"), eq(students.status, "active")))
       .groupBy(attendanceSessions.teachingGroupId, attendanceRecords.studentId)
       .orderBy(asc(attendanceSessions.teachingGroupId), asc(attendanceRecords.studentId)),
     await reader.select({ groupId: attendanceSessions.teachingGroupId, count: sql<number>`count(*)`.mapWith(Number) })
@@ -120,12 +124,13 @@ export const fingerprintOf = (value: unknown) => createHash("sha256").update(JSO
 /** Preview for a proposal against the current approved timeline. A missing baseline compares against nothing recorded. */
 export function proposalImpact(policy: TermPolicy, proposal: { effectiveFrom: string; figures: PolicyFigures }, input: ImpactInput): { impact: PolicyImpact | null; fingerprint: string } {
   const before = policy.timeline;
-  const impact = before ? policyImpact(before, withProposal(before, proposal), input) : null;
+  const review = before ? policyImpact(before, withProposal(before, proposal), input) : null;
+  const impact = review?.impact ?? null;
   const evidence = {
     termId: policy.term.id, proposal, approved: policy.history.filter((row) => row.status === "approved").map((row) => row.id).sort((a, b) => a - b),
-    baseline: policy.baseline?.figures ?? null, impact,
-    // A recorded baseline covers everything recorded so far; fingerprint the counts it will price.
-    recorded: before ? null : { classes: input.classes.map((row) => row.id), manual: input.manual.map((row) => row.id), groups: input.attendance.map((row) => row.groupId) },
+    baseline: policy.baseline?.figures ?? null, review,
+    // A recovered baseline applies to every recorded row in the term.
+    recorded: before ? null : { classes: input.classes, manual: input.manual, attendance: input.attendance },
   };
   return { impact, fingerprint: fingerprintOf(evidence) };
 }

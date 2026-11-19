@@ -82,7 +82,9 @@ export async function previewPolicyChangeAction(formData: FormData, context?: Te
 export type PolicyDecision = { command: "approve" | "reject" | "withdraw"; note?: string | null; fingerprint?: string };
 
 export async function decidePolicyChangeAction(versionId: number, decision: PolicyDecision, context?: TermWriteContext): Promise<ActionResult> {
-  return withActiveTermContext(() => decideInTerm(versionId, decision), context);
+  // The impact depends on payments, allocations, rosters and attendance. Keep
+  // those term writes out until the recomputed evidence and decision commit.
+  return withActiveTermContext(() => decideInTerm(versionId, decision), context, "exclusive");
 }
 async function decideInTerm(versionId: number, decision: PolicyDecision): Promise<ActionResult> {
   const command = decision?.command;

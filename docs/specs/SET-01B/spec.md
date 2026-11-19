@@ -74,8 +74,8 @@ A future-dated change has no effect until its date. A backdated change reprices 
 
 - **Propose:** `manage_policy` holders submit new values, an effective-from date, and a reason of 1–500 characters, with the term's write context. Values use the existing validation bounds. At most one open proposal per term; another proposal waits. A proposal that changes nothing is refused.
 - **Approve or reject:** a new `approve_policy` capability, granted to system and academic administrators. The server refuses when the decider proposed the change. Approval requires a note of 0–500 characters and the fingerprint of the impact the decider saw; rejection requires a note of 1–500. The proposer may withdraw an open proposal.
-- **Locking:** proposal, decision and withdrawal run inside the existing shared term-context transaction, lock the term's policy rows, recheck status, authority, revision and impact fingerprint under that lock, and write the audit event atomically. A changed impact (new classes, new attendance, another approval) refuses with “Impact changed; review again” and no write.
-- Only an active term's policy can change. Completed terms are read-only. A term switch makes open proposals stale: they cannot be approved and are shown as stale until withdrawn.
+- **Locking:** proposal, decision and withdrawal run inside the term-context transaction and take the term's policy lock. Decisions also take the exclusive term-context lock while they recheck evidence, so concurrent attendance, roster, workload or payment writes cannot change it before commit. The term generation, proposal status and decision fingerprint guard against stale pages, and the policy write and audit commit atomically. A changed impact refuses with “Impact changed; review again” and no write.
+- Only an active term's policy can change. Completed terms are read-only. A term switch closes open proposals and retains them in history with status `stale`.
 - If only one person holds `approve_policy`, nothing can be approved. The screen says so; it does not fall back to self-approval.
 
 ### D-4 — Impact preview
@@ -97,7 +97,9 @@ Extra-load screens and the teacher sheet show the rate per class line and a vers
 
 ### D-6 — Migration, preservation and usable states
 
-Forward-only migration `0021` (confirm the journal first) creates the version table, constraints and indexes, and adds a revision to the baseline. It writes no version rows: existing baselines keep producing exactly today's figures. A term with no baseline keeps the SET-01A unavailable behavior; the default fallback is not used to price or mark history in an active or completed term. Repeat preparation is safe. Exercise populated PGlite and PostgreSQL migration, backup/restore and two-connection races on disposable data only.
+Forward-only migration `0021` creates the version table, constraints and indexes. It writes no version rows and leaves existing baselines in place. A term with no baseline keeps the SET-01A unavailable behavior. Repeat preparation is safe. Exercise populated PGlite and PostgreSQL migration, backup/restore and concurrency on disposable data only.
+
+**Addendum, 19 November 2026 (owner: “Reviewed baseline”).** During T-03 the owner chose how a term with no baseline recovers. Nothing is priced or marked from defaults. An administrator proposes a baseline effective on the term start, and a second person with `approve_policy` approves it; approval creates the baseline as Version 1. Until then, extra-class pricing, the top sheet and attendance marks show an explicit unavailable state, and new extra-load classes are refused.
 
 Use the paper/ink/pine/gold language, labelled keyboard controls, associated errors, live feedback and a focusable confirmation. Cover empty history, open proposal, own-proposal (cannot approve), stale, denied, pending, conflict and success states at 1440, 390 and 320 px without page-wide overflow, plus the A4 top sheet.
 
@@ -106,7 +108,7 @@ Use the paper/ink/pine/gold language, labelled keyboard controls, associated err
 | ID | Observable condition | Verification method |
 |---|---|---|
 | AC-01 | Active-term values change only by an approved version; the old in-place update refuses; completed terms are read-only. | Direct-call matrix; persisted-state comparison. |
-| AC-02 | Proposer cannot approve; only `approve_policy` decides; every entry point rechecks authority, term context and revision. | Role/actor/session matrix including forged payloads. |
+| AC-02 | Proposer cannot approve; only `approve_policy` decides; entry points recheck authority, term generation and applicable proposal status or review evidence. | Role/actor/session matrix including forged payloads. |
 | AC-03 | Payment, threshold and attendance values resolve by D-2 for past, future and backdated versions, including mixed-rate teachers and manual rows. | Pure domain tests; both-adapter fixtures. |
 | AC-04 | Impact preview matches the figures after approval; a changed impact refuses without a write. | Before/after projection comparison; race cases. |
 | AC-05 | Approved or rejected versions and the baseline of a used term are immutable; audit is atomic. | Constraint tests and fault-injected rollback. |
