@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attendance workflows · ATT-01 proposal</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; --paper: #f4f1e8; --ink: #202923; --pine: #184b38; --wash: #eef3e9; --muted: #526059; --line: #c8cfc4; --gold: #ac7836; }
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: 1rem; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    main { max-width: 62rem; margin: 0 auto; padding: clamp(1rem, 4vw, 3rem); }
+    h1, h2, h3 { margin: 0; font-family: Georgia, serif; line-height: 1.12; }
+    h1 { font-size: clamp(2.1rem, 6vw, 3.8rem); }
+    h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+    h3 { font-size: 1.28rem; }
+    p { margin: .4rem 0 0; }
+    a { color: var(--pine); text-underline-offset: .2em; }
+    :focus-visible { outline: 3px solid #8a5819; outline-offset: 3px; }
+    nav, .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .9rem; }
+    nav { margin-top: 1.25rem; }
+    main > header { border-top: 4px solid var(--pine); padding-top: 1.3rem; }
+    .panel { margin-top: 1.5rem; padding: clamp(1rem, 3vw, 1.65rem); background: #fffefa; border: 1px solid var(--line); border-radius: .6rem; overflow-wrap: anywhere; }
+    .panel:target { border-color: var(--pine); }
+    .divider { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 3px solid var(--gold); }
+    .meta { color: var(--muted); font-size: .89rem; }
+    .context { margin: 0 0 .4rem; color: var(--pine); font-size: .8rem; font-weight: 700; letter-spacing: .045em; }
+    .actions, .sheet, fieldset, .notice { margin: 1rem 0 0; }
+    .subhead { margin-top: 1.4rem; }
+    .classes { list-style: none; margin: .35rem 0 0; padding: 0; }
+    .classes li { display: grid; grid-template-columns: minmax(7.5rem, .65fr) minmax(0, 2fr) auto; gap: .55rem 1rem; align-items: center; padding: .85rem 0; border-bottom: 1px solid var(--line); }
+    .classes .course { font-weight: 700; }
+    .button { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .45rem .75rem; border: 1px solid var(--pine); border-radius: .35rem; color: var(--pine); font-weight: 650; text-decoration: none; }
+    .primary { background: var(--pine); color: white; }
+    fieldset { min-width: 0; border: 0; padding: 0; }
+    .selectors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+    label { display: block; min-width: 0; font-weight: 650; }
+    select, input { display: block; width: 100%; min-width: 0; min-height: 2.75rem; margin-top: .2rem; padding: .4rem; border: 1px solid #818f83; border-radius: .3rem; background: white; color: var(--ink); font: inherit; }
+    .notice { display: block; padding: .7rem .8rem; border-left: 3px solid var(--gold); background: var(--paper); }
+    .notice + .notice { margin-top: .45rem; }
+    .sheet { overflow-x: auto; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .55rem .6rem; border-bottom: 1px solid var(--line); text-align: left; }
+    th { background: var(--wash); }
+    td select, .attendance-row input { margin: 0; }
+    .attendance-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .55rem; padding: .65rem 0; border-bottom: 1px solid var(--line); }
+    .totals { font-weight: 650; color: var(--pine); }
+    @media (max-width: 40rem) {
+      .classes li, .selectors { grid-template-columns: minmax(0, 1fr); }
+      .classes li .button { justify-self: start; }
+      th, td { padding: .4rem; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="context">ATT-01 proposal · Issue #8</p>
+    <h1>Attendance workflows</h1>
+    <p>Static examples with sample classes and students. Links jump between views.</p>
+    <nav aria-label="Workflow sketches">
+      <a href="#my-classes">My classes</a>
+      <a href="#find-course">Find a course</a>
+      <a href="#workspace">Group workspace</a>
+      <a href="#later">Later attendance features</a>
+    </nav>
+  </header>
+
+  <section class="panel" id="my-classes" aria-labelledby="my-classes-heading">
+    <p class="context">Attendance · Summer 2026</p>
+    <h2 id="my-classes-heading">My classes</h2>
+    <p class="actions"><a href="#find-course">Find a course</a></p>
+    <h3 class="subhead">Today's classes</h3>
+    <p class="meta">Friday, 20 November · Dhaka · Published weekly routine</p>
+    <ul class="classes">
+      <li>
+        <span>9:30–10:45 AM<br><span class="meta">Room 406</span></span>
+        <div><div class="course">CSE-2101 · Data Structures</div><span class="meta">HSC-27B + DIP-21B · Session available</span></div>
+        <a class="button primary" href="#roll-call" aria-label="Open roll-call for Data Structures at 9:30 AM">Open roll-call</a>
+      </li>
+      <li>
+        <span>11:00 AM–12:15 PM<br><span class="meta">Room 408</span></span>
+        <div><div class="course">CSE-2102 · Data Structures Lab</div><span class="meta">DIP-21B</span></div>
+        <a class="button" href="#dated-sessions" aria-label="Open class for Data Structures Lab at 11:00 AM">Open class</a>
+      </li>
+    </ul>
+    <h3 class="subhead">All my classes</h3>
+    <p><a href="#workspace">CSE-2101 · Data Structures · HSC-27B + DIP-21B</a></p>
+    <p><a href="#dated-sessions">CSE-2102 · Data Structures Lab · DIP-21B</a></p>
+    <p><a href="#unscheduled">CSE-4100 · Project · HSC-25A</a> <span class="meta">No fixed time</span></p>
+  </section>
+
+  <section class="panel" id="find-course" aria-labelledby="find-heading">
+    <p class="context">Attendance · Summer 2026</p>
+    <h2 id="find-heading">Find a course</h2>
+    <fieldset aria-label="Course filters" class="selectors">
+      <label>Department<select><option>CSE</option></select></label>
+      <label>Stream<select><option>Diploma</option></select></label>
+      <label>Batch<select><option>DIP-21B · Semester 3</option></select></label>
+    </fieldset>
+    <h3 class="subhead">Course / teaching group</h3>
+    <ul class="classes">
+      <li><span>CSE-2101</span><div><strong>Data Structures</strong><br><span class="meta">HSC-27B + DIP-21B</span></div><a class="button primary" href="#workspace" aria-label="Open group for Data Structures">Open group</a></li>
+      <li><span>CSE-2102</span><div><strong>Data Structures Lab</strong><br><span class="meta">DIP-21B</span></div><a class="button" href="#dated-sessions" aria-label="Open group for Data Structures Lab">Open group</a></li>
+    </ul>
+    <details class="subhead">
+      <summary>Empty and unavailable examples</summary>
+      <p class="notice">No classes on today's weekly routine. Choose from All my classes.</p>
+      <p class="notice">No course offerings in this batch. Choose another batch.</p>
+      <p class="notice">No teaching groups with attendance access for this selection. Change filters.</p>
+      <p class="notice">This attendance link is unavailable. <a href="#find-course">Find a course</a> or <a href="#my-classes">return to My classes</a>.</p>
+    </details>
+  </section>
+
+  <section class="panel" id="workspace" aria-labelledby="workspace-heading">
+    <p class="context">Attendance · Summer 2026</p>
+    <h2 id="workspace-heading">CSE-2101 · Data Structures</h2>
+    <p>HSC-27B + DIP-21B</p>
+    <div class="actions"><a href="#my-classes">My classes</a><a href="#find-course">Change group</a><a href="../../STU-01B/mockups/index.html#roll-call">Printable roll-call</a><a href="../../STU-01B/mockups/index.html">Manage roster</a></div>
+    <h3 class="subhead" id="roll-call">Take attendance</h3>
+    <p><strong>20 November · Final</strong> · 9:30–10:45 AM</p>
+    <div class="sheet" role="region" aria-label="Captured students" tabindex="0">
+      <table>
+        <thead><tr><th scope="col">Student ID</th><th scope="col">Student name</th><th scope="col">Attendance</th></tr></thead>
+        <tbody>
+          <tr><td>0012</td><td>Sample Student A</td><td><select aria-label="Attendance for Sample Student A"><option>Present</option><option>Absent</option><option>Late</option><option>Excused</option></select></td></tr>
+          <tr><td>0015</td><td>Sample Student B</td><td><select aria-label="Attendance for Sample Student B"><option>Absent</option><option>Present</option><option>Late</option><option>Excused</option></select></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="notice"><strong>Saved</strong> · Attendance saved for 2 students.</p>
+  </section>
+
+  <section class="panel" id="dated-sessions" aria-labelledby="dated-heading">
+    <p class="context">Attendance · Summer 2026</p>
+    <h2 id="dated-heading">CSE-2102 · Data Structures Lab</h2>
+    <p>DIP-21B · Friday's routine slot, 11:00 AM–12:15 PM</p>
+    <h3 class="subhead">Attendance sessions</h3>
+    <p>No session matches this time. Open an existing date or create a session.</p>
+    <p class="actions"><a href="#create-session">Create attendance session</a><a href="#my-classes">Back to My classes</a></p>
+    <h3 class="subhead" id="create-session">Create attendance session</h3>
+    <fieldset aria-label="Existing session form excerpt" class="selectors">
+      <label>Date<input type="date"></label>
+      <label>Phase<select><option>Before / midterm</option><option>After midterm / final</option></select></label>
+      <label>Teacher<select><option>—</option><option>ST</option></select></label>
+      <label>Start (optional)<input type="time"></label>
+      <label>End (optional)<input type="time"></label>
+    </fieldset>
+    <p class="actions"><span class="button primary">Create session</span></p>
+  </section>
+
+  <section class="panel" id="unscheduled" aria-labelledby="unscheduled-heading">
+    <p class="context">Attendance · Summer 2026</p>
+    <h2 id="unscheduled-heading">CSE-4100 · Project</h2>
+    <p>HSC-25A · No fixed time</p>
+    <p>Choose an existing session or enter a class date.</p>
+    <p class="actions"><a href="#my-classes">Back to My classes</a></p>
+  </section>
+
+  <header class="divider" id="later">
+    <h2>Later attendance features</h2>
+    <p>Design sketches for separate issue approvals.</p>
+  </header>
+  <section class="panel" aria-labelledby="future-roll-call">
+    <p class="context">CAL-01 / ATT-03 · Class date and lifecycle</p>
+    <h3 id="future-roll-call">Roll-call · 20 November, 9:30 AM</h3>
+    <p class="meta">CSE-2101 · HSC-27B + DIP-21B · Draft</p>
+    <p>Routine and calendar suggestion · Change date or time</p>
+    <label class="subhead">Find a student<input type="search" placeholder="Student ID or name"></label>
+    <div class="attendance-row"><strong>0012 · Sample Student A</strong><span class="button">Present</span></div>
+    <div class="attendance-row"><strong>0015 · Sample Student B</strong><span class="button">Late</span></div>
+    <p class="actions"><span class="totals">1 Present · 1 Late</span><span class="button primary">Submit roll-call</span></p>
+    <p class="notice">A submitted session can be locked. An authorized correction reopens or voids it with a recorded reason.</p>
+  </section>
+  <section class="panel" aria-labelledby="marks">
+    <p class="context">ATT-04 · Marks and calculation</p>
+    <h3 id="marks">Attendance marks</h3>
+    <p>Midterm · Final · <strong>Semester</strong></p>
+    <div class="sheet" role="region" aria-label="Example marks" tabindex="0">
+      <table><thead><tr><th scope="col">Student</th><th scope="col">Attended / eligible</th><th scope="col">Percent</th><th scope="col">Awarded</th></tr></thead>
+      <tbody><tr><td>0012 · Sample Student A</td><td>9 / 10</td><td>90%</td><td>9 / 10</td></tr></tbody></table>
+    </div>
+    <p class="notice">Show the effective policy version, attendance rules and rounding used for the awarded mark.</p>
+  </section>
+  <section class="panel" aria-labelledby="ledger">
+    <p class="context">ATT-05 · Term ledger and reports</p>
+    <h3 id="ledger">Attendance history · CSE-2101</h3>
+    <p>Academic term · Phase · Date range · Teacher</p>
+    <p class="actions"><strong>Sessions</strong><span>Student matrix</span><span class="button">Download CSV</span><span class="button">Print report</span></p>
+    <div class="sheet" role="region" aria-label="Example dated ledger" tabindex="0">
+      <table><thead><tr><th scope="col">Class</th><th scope="col">Phase</th><th scope="col">Present</th><th scope="col">Absent</th><th scope="col">Late</th><th scope="col">Excused</th></tr></thead>
+      <tbody><tr><th scope="row"><a href="#roll-call">20 Nov · 9:30 AM</a></th><td>Final</td><td>31</td><td>2</td><td>1</td><td>0</td></tr></tbody></table>
+    </div>
+  </section>
+</main>
+</body>
+</html>
