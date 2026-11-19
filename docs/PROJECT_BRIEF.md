@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**ATT-05 / #12 — specification proposed on 19 November on `codex/att-05` from `7179605`; awaiting owner approval.** D-1–D-6 define a read-only group ledger of dated sessions with recorded teacher, status counts and lifecycle, a student-by-session matrix, phase/teacher/date filters, and CSV and A4 print from one projection. No migration is expected. Implementation is not authorized. **Next:** the owner approves or amends D-1–D-6, then T-02 records the approval. [Specification](specs/ATT-05/spec.md) · [Sketches](specs/ATT-05/mockups/index.html) · [Plan and handoff](specs/ATT-05/plan.md)
+**ATT-05 / #12 — D-1–D-6 approved on 19 November; implementation in progress on `codex/att-05` from `7179605`.** D-1–D-6 define a read-only group ledger of dated sessions with recorded teacher, status counts and lifecycle, a student-by-session matrix, phase/teacher/date filters, and CSV and A4 print from one projection. No migration is expected. **Next:** T-03 onward in the plan. [Specification](specs/ATT-05/spec.md) · [Sketches](specs/ATT-05/mockups/index.html) · [Plan and handoff](specs/ATT-05/plan.md)
 
 **ATT-04 / #11 — accepted and merged locally on 19 November at `770dcc5`.** Acceptance `2d24e9e` covers delivery `9c3406d`. The three phase views, dated student evidence and read-only completed-term report are available. Both disposable adapters and compiled Edge passed. The default Turbopack CSS worker failed and the Webpack retry passed. **Next:** owner-started ATT-05 / #12 inspection and specification for the dated attendance ledger, student matrix and exports. [Verification](specs/ATT-04/verification.md) · [Merge receipt and handoff](specs/ATT-04/plan.md)
 

@@ -1,6 +1,6 @@
 # ATT-05 — Course attendance ledger, student matrix and exports
 
-[Issue #12](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/12) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #12](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/12) · Approved · 19 November 2026, Asia/Dhaka
 
 [Product requirement](../../PRODUCT_REQUIREMENTS.md#att-05--whole-semester-course-attendance-ledger) · [Plan](plan.md) · [Review sketches](mockups/index.html)
 
