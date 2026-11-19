@@ -714,6 +714,13 @@ export const externalCommitments = pgTable(
     source: text("source"),
     lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
     notes: text("notes"),
+    // OD-01A (migration 0022): active | archived, independent of verification.
+    lifecycleStatus: text("lifecycle_status").notNull().default("active"),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    archiveReason: text("archive_reason"),
+    verificationNote: text("verification_note"),
+    revision: integer("revision").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true }),
   },
   (t) => [index("ec_term_idx").on(t.termId)],
 );

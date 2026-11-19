@@ -10,6 +10,7 @@ import { overlaps, fmtRange, DAY_NAMES } from "./time";
 import { blockingBreaks, isClosedDay, type TimeGrid } from "./time-grid";
 import { knownAudienceSize, knownAudienceSubtotal, meetingStreams, type MeetingView, type ExternalCommitmentView } from "./serialize";
 import { maintenanceOverlap, physicalOD, type MaintenanceContext } from "./room-maintenance";
+import { commitmentClashes } from "./commitment-records";
 
 export interface BreakRule {
   id: number; name: string; scope: string; stream: string | null;
@@ -191,35 +192,28 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
   for (const m of input.meetings) {
     const streams = meetingStreams(m);
 
-    // External commitments (OD).
+    // External commitments (OD): one overlap rule shared with the OD-01A impact preview.
     for (const e of input.externals) {
-      if (e.dayOfWeek == null || e.startMinutes == null || e.endMinutes == null) continue;
-      if (e.dayOfWeek !== m.dayOfWeek) continue;
-      if (!overlaps(m.startMinutes, m.endMinutes, e.startMinutes, e.endMinutes)) continue;
-
-      if ((e.kind === "teaching" || e.kind === "combined") && e.teacherId != null) {
-        const t = m.teachers.find((x) => x.id === e.teacherId);
-        if (t) {
+      for (const clash of commitmentClashes(e, [m])) {
+        if (clash.on === "teacher") {
+          const t = m.teachers.find((x) => x.id === e.teacherId)!;
           issues.push({
             id: `etc-${e.id}-${m.id}`,
             severity: "blocker",
             type: "external_teacher_conflict",
             title: `Outgoing teaching clash: ${t.shortCode}`,
-            detail: `${t.fullName} is committed to ${e.counterpartDepartment}${e.courseLabel ? ` (${e.courseLabel})` : ""} on ${DAY_NAMES[m.dayOfWeek]} ${fmtRange(e.startMinutes, e.endMinutes)} — overlaps ${m.courseCode}.`,
+            detail: `${t.fullName} is committed to ${e.counterpartDepartment}${e.courseLabel ? ` (${e.courseLabel})` : ""} on ${DAY_NAMES[m.dayOfWeek]} ${fmtRange(e.startMinutes!, e.endMinutes!)} — overlaps ${m.courseCode}.`,
             dayOfWeek: m.dayOfWeek,
             meetingIds: [m.id],
           });
-        }
-      }
-      if ((e.kind === "room_reservation" || e.kind === "combined") && e.roomId != null) {
-        const r = m.rooms.find((x) => x.id === e.roomId);
-        if (r) {
+        } else {
+          const r = m.rooms.find((x) => x.id === e.roomId)!;
           issues.push({
             id: `erc-${e.id}-${m.id}`,
             severity: "blocker",
             type: "external_room_conflict",
             title: `External reservation clash: ${r.code}`,
-            detail: `${r.code} is reserved by ${e.counterpartDepartment} on ${DAY_NAMES[m.dayOfWeek]} ${fmtRange(e.startMinutes, e.endMinutes)} — overlaps ${m.courseCode}. Room-only OD entries block the room, not an invented teacher.`,
+            detail: `${r.code} is reserved by ${e.counterpartDepartment} on ${DAY_NAMES[m.dayOfWeek]} ${fmtRange(e.startMinutes!, e.endMinutes!)} — overlaps ${m.courseCode}. Room-only OD entries block the room, not an invented teacher.`,
             dayOfWeek: m.dayOfWeek,
             meetingIds: [m.id],
           });
