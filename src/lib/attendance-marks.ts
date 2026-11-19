@@ -12,45 +12,60 @@ import { cohortRead, readTermContext } from "./term-context";
 
 type MarksRequest = { termId: number; groupId?: number; studentId?: number; phase: AttendancePhase };
 
+type Actor = NonNullable<Awaited<ReturnType<typeof getOptionalActor>>>;
+
+/**
+ * ATT-04/ATT-05 report access: bind the term (active only while it is the
+ * current term context, or completed) and return the requested groups the
+ * actor may read. Call inside `cohortRead`.
+ */
+export async function readAttendanceReportGroups(actor: Actor, termId: number, groupId?: number) {
+  const [term] = await db.select().from(academicTerms).where(eq(academicTerms.id, termId));
+  if (!term || (term.status !== "active" && term.status !== "completed")) return { kind: "missing" } as const;
+  const completed = term.status === "completed";
+  if (!completed) {
+    const { state } = await readTermContext();
+    if (state.kind !== "one" || state.term.id !== term.id) return { kind: "missing" } as const;
+  }
+  const groups = await db.select({
+    id: teachingGroups.id, courseCode: courses.code, courseTitle: courses.title, courseType: courses.courseType,
+    externalAudience: teachingGroups.externalAudienceLabel,
+  }).from(teachingGroups).innerJoin(courses, eq(courses.id, teachingGroups.courseId))
+    .where(and(eq(teachingGroups.termId, termId), groupId === undefined ? undefined : eq(teachingGroups.id, groupId)))
+    .orderBy(asc(courses.code), asc(teachingGroups.id));
+
+  const permitted: typeof groups = [];
+  for (const group of groups) {
+    const target = { kind: "teaching_group", teachingGroupId: group.id } as const;
+    if (await can(actor, "take_attendance", target) || await can(actor, "review_attendance", target)
+      || await can(actor, "manage_rosters", target)) permitted.push(group);
+  }
+  if (groupId !== undefined && !permitted.length) return { kind: "missing" } as const;
+
+  const batchesByGroup = permitted.length ? await db.select({
+    groupId: teachingGroupOfferings.teachingGroupId, stream: batches.stream, label: batches.label,
+  }).from(teachingGroupOfferings)
+    .innerJoin(courseOfferings, eq(courseOfferings.id, teachingGroupOfferings.offeringId))
+    .innerJoin(batches, eq(batches.id, courseOfferings.batchId))
+    .where(and(eq(courseOfferings.termId, termId), inArray(teachingGroupOfferings.teachingGroupId, permitted.map(group => group.id))))
+    .orderBy(asc(batches.stream), asc(batches.label)) : [];
+  const labelled = permitted.map(group => ({
+    ...group, audience: [...batchesByGroup.filter(row => row.groupId === group.id).map(row => `${row.stream} ${row.label}`),
+      ...(group.externalAudience ? [group.externalAudience] : [])].join(" + "),
+  }));
+  return { kind: "groups", term, groups: labelled } as const;
+}
+
 export async function getAttendanceMarks({ termId, groupId, studentId, phase }: MarksRequest) {
   const actor = await getOptionalActor();
   if (!actor) return { kind: "sign-in" } as const;
   if (!await can(actor, "view_internal_portal")) return { kind: "denied" } as const;
 
   return cohortRead(async () => {
-    const [term] = await db.select().from(academicTerms).where(eq(academicTerms.id, termId));
-    if (!term || (term.status !== "active" && term.status !== "completed")) return { kind: "missing" } as const;
+    const access = await readAttendanceReportGroups(actor, termId, groupId);
+    if (access.kind !== "groups") return access;
+    const { term, groups: labelled } = access;
     const completed = term.status === "completed";
-    if (!completed) {
-      const { state } = await readTermContext();
-      if (state.kind !== "one" || state.term.id !== term.id) return { kind: "missing" } as const;
-    }
-    const groups = await db.select({
-      id: teachingGroups.id, courseCode: courses.code, courseTitle: courses.title, courseType: courses.courseType,
-      externalAudience: teachingGroups.externalAudienceLabel,
-    }).from(teachingGroups).innerJoin(courses, eq(courses.id, teachingGroups.courseId))
-      .where(and(eq(teachingGroups.termId, termId), groupId === undefined ? undefined : eq(teachingGroups.id, groupId)))
-      .orderBy(asc(courses.code), asc(teachingGroups.id));
-
-    const permitted: typeof groups = [];
-    for (const group of groups) {
-      const target = { kind: "teaching_group", teachingGroupId: group.id } as const;
-      if (await can(actor, "take_attendance", target) || await can(actor, "review_attendance", target)
-        || await can(actor, "manage_rosters", target)) permitted.push(group);
-    }
-    if (groupId !== undefined && !permitted.length) return { kind: "missing" } as const;
-
-    const batchesByGroup = permitted.length ? await db.select({
-      groupId: teachingGroupOfferings.teachingGroupId, stream: batches.stream, label: batches.label,
-    }).from(teachingGroupOfferings)
-      .innerJoin(courseOfferings, eq(courseOfferings.id, teachingGroupOfferings.offeringId))
-      .innerJoin(batches, eq(batches.id, courseOfferings.batchId))
-      .where(and(eq(courseOfferings.termId, termId), inArray(teachingGroupOfferings.teachingGroupId, permitted.map(group => group.id))))
-      .orderBy(asc(batches.stream), asc(batches.label)) : [];
-    const labelled = permitted.map(group => ({
-      ...group, audience: [...batchesByGroup.filter(row => row.groupId === group.id).map(row => `${row.stream} ${row.label}`),
-        ...(group.externalAudience ? [group.externalAudience] : [])].join(" + "),
-    }));
     if (groupId === undefined) return { kind: "groups", term, groups: labelled } as const;
     const [group] = labelled;
 

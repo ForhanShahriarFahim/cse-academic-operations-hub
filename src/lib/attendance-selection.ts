@@ -71,3 +71,7 @@ export function exactSlotSession<T extends { groupId: number; startMinutes: numb
     && session.startMinutes === slot.startMinutes && session.endMinutes === slot.endMinutes);
   return matches.length === 1 ? matches[0] : undefined;
 }
+
+export function attendanceLedgerHref(term: number, group: number, query: Record<string, string | number | undefined> = {}, path: "" | "/export" | "/print" = "") {
+  return `/attendance/ledger${path}${attendanceQueryString({ term, group, ...query })}`;
+}

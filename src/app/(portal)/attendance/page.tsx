@@ -6,7 +6,7 @@ import { AttendanceFilters, AttendanceFocus, AttendanceLinkPending } from "@/com
 import { PageHeader } from "@/components/ui";
 import { getAttendanceData } from "@/lib/academic-operations";
 import { attendanceDirectory, attendanceEntry, attendanceSlotKey, attendanceToday, todayAttendanceSessions } from "@/lib/attendance-directory";
-import { attendanceHref, attendanceId, attendanceMarksHref, exactSlotSession, resolveAttendance, type AttendanceGroup, type AttendanceQuery } from "@/lib/attendance-selection";
+import { attendanceHref, attendanceId, attendanceLedgerHref, attendanceMarksHref, exactSlotSession, resolveAttendance, type AttendanceGroup, type AttendanceQuery } from "@/lib/attendance-selection";
 import { requireActor } from "@/lib/auth";
 import { getPortalData } from "@/lib/data";
 import { rosterOutputQuery } from "@/lib/roster-output-links";
@@ -67,6 +67,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
       <nav aria-label="Attendance views" className="flex flex-wrap gap-4">
         {access.teacher && myClasses}{findCourse}
         <Link className={linkStyle} prefetch={false} href={attendanceMarksHref(data.term.id, selected.id)}>Attendance marks</Link>
+        <Link className={linkStyle} prefetch={false} href={attendanceLedgerHref(data.term.id, selected.id)}>Attendance ledger</Link>
       </nav>
       <div id="attendance-group" tabIndex={-1} className="min-w-0 scroll-mt-20 [overflow-wrap:anywhere]">
         <h2 className="font-display text-2xl font-semibold">{groupLabel(selected)}</h2>

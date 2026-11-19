@@ -7,6 +7,7 @@ import { assertTermContext, lockTermContext } from "./term-context";
 import { ActiveTermUnavailable } from "./term-state";
 import { parseTermWriteContext } from "./term-context-value";
 import { positiveId, studentAudit } from "./student-store";
+import { safeCsv } from "./csv-safe";
 import { writeStudentWorkbook, XLSX_CONTENT_TYPE } from "./student-workbook";
 
 export const PRIVATE_ROSTER_CACHE = "private, no-store, max-age=0";
@@ -48,14 +49,8 @@ export async function withRosterOutput<T>(query: RosterQuery, allowAttendance: b
 
 export type RosterRow = { studentCode: string; fullName: string; audience: string };
 
-function csvCell(text: string) {
-  const safe = /^[\s\u0000-\u001f\u200b-\u200f\ufeff]*[=+\-@＝＋－＠]|^[\t\r\n]/u.test(text) ? `'${text}` : text;
-  return `"${safe.replaceAll('"', '""')}"`;
-}
-
 export function rosterCsv(rows: RosterRow[]) {
-  return "\uFEFF" + [rosterHeadings, ...rows.map(({ studentCode, fullName, audience }) => [studentCode, fullName, audience])]
-    .map(row => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  return safeCsv([rosterHeadings, ...rows.map(({ studentCode, fullName, audience }) => [studentCode, fullName, audience])]);
 }
 
 export function excelAttachment(filename: string, rows: readonly (readonly string[])[]) {
