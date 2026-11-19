@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attendance session lifecycle sketches · ATT-03A</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; --paper: #f4f1e8; --ink: #202923; --pine: #184b38; --wash: #eef3e9; --muted: #526059; --line: #c8cfc4; --gold: #a8712b; --clay: #8f3b25; --sheet: #fffefa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    main { max-width: 68rem; margin: auto; padding: clamp(.85rem, 4vw, 2.8rem); overflow-wrap: anywhere; }
+    main > header { border-top: 4px solid var(--pine); padding-top: 1rem; }
+    h1, h2, h3 { margin: 0; font-family: Georgia, serif; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 5vw, 3.1rem); }
+    h2 { font-size: clamp(1.35rem, 4vw, 1.85rem); }
+    h3 { font-size: 1.1rem; }
+    p { margin: .45rem 0 0; }
+    a { color: var(--pine); text-underline-offset: .2em; }
+    :focus-visible { outline: 3px solid #8a5819; outline-offset: 3px; }
+    .context { margin: 0 0 .35rem; color: var(--pine); font-weight: 700; font-size: .9rem; }
+    .muted { color: var(--muted); font-size: .9rem; }
+    .toc { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .9rem; }
+    .panel { margin-top: 1.5rem; padding: clamp(.85rem, 3vw, 1.5rem); background: var(--sheet); border: 1px solid var(--line); border-radius: .55rem; }
+    .panel:target { border-color: var(--pine); box-shadow: 0 0 0 1px var(--pine); }
+    .caption { margin: 0 0 .9rem; padding-bottom: .6rem; border-bottom: 1px dashed var(--line); }
+    .caption h2 + p { color: var(--muted); }
+    .button { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; padding: .4rem .8rem; border: 1px solid var(--pine); border-radius: .35rem; color: var(--pine); background: var(--sheet); font: inherit; font-size: .92rem; font-weight: 650; cursor: pointer; }
+    .button.primary { background: var(--pine); color: white; }
+    .button.quiet { border-color: var(--line); color: var(--ink); }
+    .button.danger { border-color: var(--clay); color: var(--clay); }
+    .button[disabled] { opacity: .55; cursor: not-allowed; }
+    .sessions { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+    .chip { display: inline-flex; flex-direction: column; min-height: 2.75rem; padding: .3rem .6rem; border: 1px solid var(--line); border-radius: .35rem; background: var(--sheet); font-size: .8rem; line-height: 1.25; }
+    .chip b { font-size: .85rem; }
+    .chip[aria-pressed="true"] { border-color: var(--pine); box-shadow: inset 0 -3px 0 var(--pine); }
+    .chip.voided b { text-decoration: line-through; }
+    .state { display: inline-flex; align-items: center; gap: .3rem; font-size: .78rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+    .state::before { content: ""; width: .55rem; height: .55rem; border: 2px solid currentColor; border-radius: 50%; }
+    .state.submitted::before { background: currentColor; }
+    .state.locked::before { border-radius: 1px; background: currentColor; }
+    .state.voided { color: var(--clay); }
+    .state.voided::before { border-radius: 0; height: 2px; border-width: 1px; background: currentColor; }
+    .state.reopened { color: var(--gold); }
+    .state.draft { color: var(--muted); }
+    .state.submitted, .state.locked { color: var(--pine); }
+    .rollhead { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .6rem 1rem; margin-top: 1rem; padding: .75rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .rollhead .who { flex: 1 1 18rem; min-width: 0; }
+    .rollhead .who p { margin: .15rem 0 0; }
+    .actions { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .banner { margin-top: .8rem; padding: .6rem .8rem; border-left: 3px solid var(--pine); background: var(--wash); }
+    .banner.gold { border-color: var(--gold); background: #f7efdf; }
+    .banner.clay { border-color: var(--clay); background: #f6e9e3; }
+    .banner p { margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: .8rem; font-size: .92rem; }
+    th, td { padding: .5rem .55rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    td select { min-height: 2.5rem; width: 100%; max-width: 9rem; padding: .3rem; border: 1px solid #818f83; border-radius: .3rem; background: white; font: inherit; }
+    td.readonly { font-weight: 650; }
+    .changed { background: #f7efdf; }
+    .totals { margin-top: .6rem; color: var(--muted); font-size: .88rem; }
+    .dialog { max-width: 32rem; margin: 1rem auto 0; padding: 1.1rem 1.2rem; border: 1px solid var(--ink); border-radius: .5rem; background: white; box-shadow: 0 10px 30px rgba(32, 41, 35, .18); }
+    .dialog label { display: block; margin-top: .8rem; font-weight: 650; }
+    .dialog textarea { display: block; width: 100%; min-height: 5.5rem; margin-top: .25rem; padding: .45rem; border: 1px solid #818f83; border-radius: .3rem; font: inherit; resize: vertical; }
+    .dialog .hint { margin-top: .25rem; color: var(--muted); font-size: .84rem; }
+    .dialog .actions { justify-content: flex-end; margin-top: 1rem; }
+    .history { margin: .8rem 0 0; padding: 0; list-style: none; border-left: 2px solid var(--line); }
+    .history li { position: relative; margin-left: 1rem; padding: .1rem 0 .9rem; }
+    .history li::before { content: ""; position: absolute; left: -1.38rem; top: .45rem; width: .6rem; height: .6rem; border-radius: 50%; background: var(--sheet); border: 2px solid var(--pine); }
+    .history .what { font-weight: 700; }
+    .history .reason { margin-top: .2rem; padding-left: .55rem; border-left: 2px solid var(--gold); font-style: italic; }
+    .history .diff { margin-top: .25rem; font-family: ui-monospace, Consolas, monospace; font-size: .82rem; color: var(--muted); }
+    details summary { cursor: pointer; font-weight: 700; color: var(--pine); min-height: 2.75rem; display: flex; align-items: center; }
+    .lockall li { margin-top: .2rem; }
+    .phone { width: min(100%, 24rem); margin: 0 auto; padding: .8rem; border: 10px solid var(--ink); border-radius: 1.6rem; background: var(--sheet); }
+    .phone .rollhead { flex-direction: column; }
+    .phone .actions .button { flex: 1 1 100%; justify-content: center; }
+    .phone .row { display: flex; justify-content: space-between; gap: .6rem; padding: .55rem 0; border-bottom: 1px solid var(--line); }
+    .phone .row span:last-child { font-weight: 650; }
+    .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    @media (max-width: 44rem) {
+      .compare { grid-template-columns: minmax(0, 1fr); }
+      th:nth-child(1), td:nth-child(1) { display: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="context">Attendance · Spring 2027 · CSE-2101 Data Structures · HSC-27B + DIP-21B</p>
+    <h1>Session lifecycle</h1>
+    <p class="muted">ATT-03A workflow sketch. Synthetic students, teachers and dates. Session creation, marking rules and summaries are unchanged; only state, actions and history are new.</p>
+    <nav class="toc" aria-label="Sketch views">
+      <a href="#draft">1 · Draft</a>
+      <a href="#submitted">2 · Submitted</a>
+      <a href="#reopen">3 · Reopen with reason</a>
+      <a href="#reopened">4 · Reopened correction</a>
+      <a href="#locked">5 · Locked</a>
+      <a href="#lockall">6 · Lock all submitted</a>
+      <a href="#voided">7 · Voided</a>
+      <a href="#history">8 · History</a>
+      <a href="#phone">9 · Phone</a>
+    </nav>
+  </header>
+
+  <section class="panel" id="draft" aria-labelledby="draft-title">
+    <div class="caption"><h2 id="draft-title">1 · Draft roll-call</h2><p>The teacher marks, saves as often as needed, then submits. Submit saves what is on screen and submits it in one step.</p></div>
+    <ul class="sessions" aria-label="Dated sessions">
+      <li><button class="chip" aria-pressed="false"><b>13 Jan · 9:30</b><span class="state locked">Locked</span></button></li>
+      <li><button class="chip" aria-pressed="false"><b>16 Jan · 9:30</b><span class="state submitted">Submitted</span></button></li>
+      <li><button class="chip voided" aria-pressed="false"><b>18 Jan · 9:30</b><span class="state voided">Voided</span></button></li>
+      <li><button class="chip" aria-pressed="false"><b>18 Jan · 11:00</b><span class="state reopened">Reopened</span></button></li>
+      <li><button class="chip" aria-pressed="true"><b>20 Jan · 9:30</b><span class="state draft">Draft</span></button></li>
+    </ul>
+    <div class="rollhead">
+      <div class="who"><span class="state draft">Draft</span><h3>Tuesday 20 January 2027 · 9:30–11:00 AM · Midterm</h3><p class="muted">Not submitted yet. Teacher ST.</p></div>
+      <div class="actions"><button class="button quiet">Mark all present</button><button class="button">Save draft</button><button class="button primary">Submit roll-call</button><button class="button danger" aria-label="Delete this draft session">Delete draft</button></div>
+    </div>
+    <table>
+      <thead><tr><th>SL.</th><th>Student ID</th><th>Student name</th><th>Attendance</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0012</td><td>Sample Student A</td><td><select aria-label="Attendance for Sample Student A"><option>Present</option></select></td></tr>
+        <tr><td>2</td><td>0015</td><td>Sample Student B</td><td><select aria-label="Attendance for Sample Student B"><option>Late</option></select></td></tr>
+        <tr><td>3</td><td>0021</td><td>Sample Student C</td><td><select aria-label="Attendance for Sample Student C"><option>Absent</option></select></td></tr>
+      </tbody>
+    </table>
+    <p class="totals">1 present · 1 late · 1 absent · 0 excused. Delete is available only while a session has never been submitted.</p>
+  </section>
+
+  <section class="panel" id="submitted" aria-labelledby="submitted-title">
+    <div class="caption"><h2 id="submitted-title">2 · Submitted (read-only)</h2><p>Statuses are shown as text, not controls. The teacher may reopen with a reason or void it. A reviewer also sees Lock.</p></div>
+    <div class="rollhead">
+      <div class="who"><span class="state submitted">Submitted</span><h3>Friday 16 January 2027 · 9:30–11:00 AM · Midterm</h3><p class="muted">Submitted by Sample Teacher ST · 16 Jan 2027, 11:08 AM</p></div>
+      <div class="actions"><button class="button">Reopen for correction</button><button class="button danger">Void session</button><button class="button primary">Lock</button></div>
+    </div>
+    <p class="muted">Lock appears only for an attendance reviewer. Save, Mark all present and Delete are not offered, and the server refuses them.</p>
+    <table>
+      <thead><tr><th>SL.</th><th>Student ID</th><th>Student name</th><th>Attendance</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0012</td><td>Sample Student A</td><td class="readonly">Present</td></tr>
+        <tr><td>2</td><td>0015</td><td>Sample Student B</td><td class="readonly">Absent</td></tr>
+        <tr><td>3</td><td>0021</td><td>Sample Student C</td><td class="readonly">Excused</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="reopen" aria-labelledby="reopen-title">
+    <div class="caption"><h2 id="reopen-title">3 · Reopen with a reason</h2><p>Reopen, void and restore use the same labelled dialog. The reason is required and stays in place if the server refuses the request.</p></div>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="reopen-dialog-title">
+      <h3 id="reopen-dialog-title">Reopen 16 January for correction?</h3>
+      <p class="muted">The submitted roll-call is kept in History. The session becomes editable and must be submitted again.</p>
+      <label for="reason">Reason for correction</label>
+      <textarea id="reason" aria-describedby="reason-hint">Student B arrived during the first ten minutes; recorded as absent by mistake.</textarea>
+      <p class="hint" id="reason-hint">3–300 characters. Describe the correction; do not include marks, grades or contact details.</p>
+      <div class="actions"><button class="button quiet">Cancel</button><button class="button primary">Reopen session</button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="reopened" aria-labelledby="reopened-title">
+    <div class="caption"><h2 id="reopened-title">4 · Reopened correction</h2><p>Editable again. Rows changed since the last submission are marked in text, so the correction is visible before resubmitting.</p></div>
+    <div class="rollhead">
+      <div class="who"><span class="state reopened">Reopened</span><h3>Friday 16 January 2027 · 9:30–11:00 AM · Midterm</h3><p class="muted">Reopened by Sample Teacher ST · 19 Jan 2027, 2:14 PM</p></div>
+      <div class="actions"><button class="button">Save correction</button><button class="button primary">Resubmit</button><button class="button danger">Void session</button></div>
+    </div>
+    <div class="banner gold"><p><strong>Reason:</strong> Student B arrived during the first ten minutes; recorded as absent by mistake.</p></div>
+    <table>
+      <thead><tr><th>SL.</th><th>Student ID</th><th>Student name</th><th>Attendance</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0012</td><td>Sample Student A</td><td><select aria-label="Attendance for Sample Student A"><option>Present</option></select></td></tr>
+        <tr class="changed"><td>2</td><td>0015</td><td>Sample Student B <span class="muted">· was Absent</span></td><td><select aria-label="Attendance for Sample Student B, changed from Absent"><option>Late</option></select></td></tr>
+        <tr><td>3</td><td>0021</td><td>Sample Student C</td><td><select aria-label="Attendance for Sample Student C"><option>Excused</option></select></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="locked" aria-labelledby="locked-title">
+    <div class="caption"><h2 id="locked-title">5 · Locked</h2><p>The same session as seen by its teacher and by a reviewer.</p></div>
+    <div class="compare">
+      <div>
+        <p class="context">Assigned teacher</p>
+        <div class="rollhead">
+          <div class="who"><span class="state locked">Locked</span><h3>13 January · 9:30 AM</h3><p class="muted">Submitted by ST · 13 Jan, 11:02 AM<br>Locked by Sample Reviewer · 15 Jan, 4:40 PM</p></div>
+        </div>
+        <div class="banner"><p>Only an attendance reviewer can reopen or void a locked session.</p></div>
+      </div>
+      <div>
+        <p class="context">Attendance reviewer</p>
+        <div class="rollhead">
+          <div class="who"><span class="state locked">Locked</span><h3>13 January · 9:30 AM</h3><p class="muted">Submitted by ST · 13 Jan, 11:02 AM<br>Locked by Sample Reviewer · 15 Jan, 4:40 PM</p></div>
+          <div class="actions"><button class="button">Reopen for correction</button><button class="button danger">Void session</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="lockall" aria-labelledby="lockall-title">
+    <div class="caption"><h2 id="lockall-title">6 · Lock all submitted (reviewer)</h2><p>A group-level action. The confirmation names exactly what will and will not change.</p></div>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="lockall-dialog-title">
+      <h3 id="lockall-dialog-title">Lock 7 submitted sessions?</h3>
+      <ul class="lockall">
+        <li><strong>7 submitted</strong> will be locked: 5 Midterm, 2 Final.</li>
+        <li>Not affected: 1 draft, 1 reopened, 3 already locked, 1 voided.</li>
+      </ul>
+      <label for="lock-note">Note (optional)</label>
+      <textarea id="lock-note" aria-describedby="lock-note-hint">Midterm attendance checked against the paper register.</textarea>
+      <p class="hint" id="lock-note-hint">Up to 300 characters.</p>
+      <div class="actions"><button class="button quiet">Cancel</button><button class="button primary">Lock 7 sessions</button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="voided" aria-labelledby="voided-title">
+    <div class="caption"><h2 id="voided-title">7 · Voided</h2><p>Kept, read-only and excluded from summaries, the duplicate check and the Today card. A new session can be created for the same date and time.</p></div>
+    <div class="rollhead">
+      <div class="who"><span class="state voided">Voided</span><h3>Sunday 18 January 2027 · 9:30–11:00 AM · Midterm</h3><p class="muted">Voided by Sample Teacher ST · 18 Jan, 12:30 PM</p></div>
+      <div class="actions"><button class="button">Restore</button></div>
+    </div>
+    <div class="banner clay"><p><strong>Reason:</strong> Class was rescheduled to 11:00; this roll-call was opened for the wrong slot.</p></div>
+    <p class="muted">Restore is offered only to a reviewer. It returns the session to Reopened and is refused if an active session already uses the same date and time.</p>
+  </section>
+
+  <section class="panel" id="history" aria-labelledby="history-title">
+    <div class="caption"><h2 id="history-title">8 · Session history</h2><p>A disclosure under each roll-call. Newest first, Asia/Dhaka time, changed students as ID before → after.</p></div>
+    <details open>
+      <summary>History · 16 January 2027 session</summary>
+      <ol class="history">
+        <li><span class="what">Resubmitted</span> · Sample Teacher ST · 19 Jan 2027, 2:20 PM<div class="diff">0015 Absent → Late</div></li>
+        <li><span class="what">Reopened for correction</span> · Sample Teacher ST · 19 Jan 2027, 2:14 PM<div class="reason">Student B arrived during the first ten minutes; recorded as absent by mistake.</div></li>
+        <li><span class="what">Submitted</span> · Sample Teacher ST · 16 Jan 2027, 11:08 AM<div class="diff">0012 Absent → Present · 0021 Absent → Excused</div></li>
+        <li><span class="what">Draft saved</span> · Sample Teacher ST · 16 Jan 2027, 10:05 AM<div class="diff">0012 Absent → Present</div></li>
+        <li><span class="what">Session created</span> · Sample Teacher ST · 16 Jan 2027, 9:31 AM<div class="diff">3 students captured, all Absent</div></li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="panel" id="phone" aria-labelledby="phone-title">
+    <div class="caption"><h2 id="phone-title">9 · Phone, 390 px</h2><p>State and actor stay above the list; actions stack full width. ATT-03B later redesigns phone marking itself.</p></div>
+    <div class="phone">
+      <p class="context">CSE-2101 · HSC-27B + DIP-21B</p>
+      <div class="rollhead">
+        <div class="who"><span class="state submitted">Submitted</span><h3>Fri 16 Jan · 9:30 AM</h3><p class="muted">By ST · 16 Jan, 11:08 AM</p></div>
+        <div class="actions"><button class="button">Reopen for correction</button><button class="button danger">Void session</button></div>
+      </div>
+      <div class="row"><span>0012 · Sample Student A</span><span>Present</span></div>
+      <div class="row"><span>0015 · Sample Student B</span><span>Absent</span></div>
+      <div class="row"><span>0021 · Sample Student C</span><span>Excused</span></div>
+      <details><summary>History</summary><p class="muted">Same timeline as view 8.</p></details>
+    </div>
+  </section>
+</main>
+</body>
+</html>
