@@ -1,6 +1,6 @@
 # ATT-03A — Attendance session submit, lock and correction
 
-[Issue #10](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/10) · Proposed for owner approval · 19 November 2026, Asia/Dhaka
+[Issue #10](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/10) · Approved by the owner · 19 November 2026, Asia/Dhaka
 
 [Implementation plan](plan.md) · [Inspection evidence](verification.md) · [Desktop and phone sketches](mockups/index.html)
 
@@ -75,7 +75,7 @@ ATT-03A does not change how sessions are created, how marks are calculated or wh
 | AC-07 | Desktop, 390 px and 320 px views show state in words, keep actions reachable by keyboard and announce results. Reason dialogs and History are readable without page-wide overflow. No accessibility violations are found. | Compiled Edge review, keyboard checks and axe. |
 | AC-08 | Typecheck, lint, domain tests, default build and the affected safety groups pass, or an unavailable check is recorded as pending. No institutional database is opened or migrated. | Recorded command results, target isolation and diff review. |
 
-## Owner decisions (proposed)
+## Owner decisions (approved as proposed on 19 November 2026)
 
 | ID | Proposed decision |
 | --- | --- |

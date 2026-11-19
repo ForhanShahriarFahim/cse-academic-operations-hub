@@ -1,6 +1,6 @@
 # ATT-03A — Implementation plan
 
-[Issue #10](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/10) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #10](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/10) · Approved · 19 November 2026, Asia/Dhaka
 
 Branch `codex/att-03a` from local `main` at `ec82ad6`. [Specification and decisions](spec.md) · [Inspection evidence](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -16,12 +16,12 @@ Branch `codex/att-03a` from local `main` at `ec82ad6`. [Specification and decisi
 ## Approval record
 
 - 19 November 2026, owner: “Go for the next task.” This starts ATT-03 / #10 inspection and specification from local `main`, following the CAL-01 handoff. It does not approve implementation.
-- Implementation approval of D-1–D-5: pending.
+- 19 November 2026, owner: “Approve D-1–D-5”. D-1–D-5 are accepted unchanged and implementation of T-03–T-05 is authorized. ATT-03B, D-06 and institutional migration are not authorized by this approval.
 
 ## Tasks
 
 - [x] T-01 — Inspect issue #10, prior attendance slices and the current session code. Present this specification, decisions and sketches.
-- [ ] T-02 — Record and commit the owner's decisions and implementation approval.
+- [x] T-02 — Record and commit the owner's decisions and implementation approval.
 - [ ] T-03 — Add migration `0020`, transition rules, authority and audited server actions with revision control. Covers AC-01–AC-06.
 - [ ] T-04 — Add state display, actions, reason dialogs and History in the attendance workspace. Covers AC-01–AC-03 and AC-07.
 - [ ] T-05 — Verify on disposable data: both adapters, races, fault rollback, migration recovery, summary parity and compiled review. Record the evidence and a runnable owner review. Covers AC-01–AC-08.
@@ -33,6 +33,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-The proposal is on `codex/att-03a`. No application code, schema or database has changed. Institutional storage is still not migrated to `0019`.
+Approval is recorded on `codex/att-03a`. Implementation of T-03–T-05 is in progress. Institutional storage is still not migrated to `0019`.
 
-> Review [the ATT-03A specification](spec.md) and [sketches](mockups/index.html). Approve or amend D-1–D-5. After approval, record the owner's words here, commit the approval, then implement T-03–T-05 on `codex/att-03a`.
+> Continue T-03–T-05 on `codex/att-03a` against the approved [specification](spec.md), then present the verified delivery for owner acceptance.
