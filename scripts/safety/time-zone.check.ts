@@ -36,6 +36,8 @@ const ADDED_AFTER_BUG29 = new Set([
   "room_unavailability.created_at", "room_unavailability.updated_at",
   "batch_term_placements.count_verified_at", // 0015 (BAT-01A)
   "term_rollovers.created_at", // 0016 (BAT-01B): absent from the pre-0007 fixture
+  "term_calendars.teaching_start", "term_calendars.teaching_end", "term_calendars.created_at", "term_calendars.updated_at", // 0019 (CAL-01)
+  "term_calendar_entries.start_date", "term_calendar_entries.end_date", "term_calendar_entries.created_at", "term_calendar_entries.updated_at",
 ]);
 const JOURNAL_LENGTH = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
 
