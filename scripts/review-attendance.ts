@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 import { chromium } from "playwright";
 import { postgresChildEnv } from "./safety/app-env";
 import { postgresDatabase, withHandle } from "./safety/database";
-import { populateSummerFixture } from "./safety/fixture";
+import { populateSpringFixture, populateSummerFixture } from "./safety/fixture";
 import { withDisposableCluster } from "./safety/pg-cluster";
 import { reviewSession } from "./ux-review";
 import { workbookFixture } from "./verify-student-workbook";
@@ -17,9 +17,10 @@ import { todayIndex } from "../src/lib/teacher-routine-data";
 
 const stu01b = process.argv.includes("--stu-01b");
 const att03a = process.argv.includes("--att-03a");
+const att04 = process.argv.includes("--att-04");
 // ATT-03A reuses the ATT-01 teacher and Today setup on its own ports.
 const att01 = process.argv.includes("--att-01") || att03a;
-const appPort = att03a ? 3160 : att01 ? 3150 : stu01b ? 3146 : 3134;
+const appPort = att04 ? 3180 : att03a ? 3160 : att01 ? 3150 : stu01b ? 3146 : 3134;
 const controlPort = appPort + 1;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
@@ -31,13 +32,22 @@ async function main() {
     const target = await cluster.createDatabase("safe01_stu01a_browser");
     const database = postgresDatabase(target, () => cluster.dropDatabase(target));
     const session = reviewSession();
-    const { group, emptyGroup, matchedSession } = await withHandle(database, async handle => {
+    const { group, emptyGroup, matchedSession, archivedTerm } = await withHandle(database, async handle => {
       await database.migrate(handle);
-      await populateSummerFixture(handle.db);
+      const summer = await populateSummerFixture(handle.db);
       await handle.client.query("insert into auth_session(id,expires_at,token,user_id) values('stu01a-review',now()+interval '1 day',$1,'synthetic-auth-user')", [session.token]);
       const group = Number((await handle.client.query<{ teaching_group_id: number }>(
         "select teaching_group_id from attendance_sessions order by id limit 1",
       )).rows[0].teaching_group_id);
+      if (att04) {
+        const spring = await populateSpringFixture(handle.db, summer);
+        await handle.client.query(`with session as (
+          insert into attendance_sessions(term_id, teaching_group_id, class_date, phase, start_minutes, end_minutes)
+          values ($1, $2, '2027-02-06', 'final', 600, 660) returning id
+        ) insert into attendance_records(session_id, student_id, status) select id, $3, 'absent' from session`,
+        [spring.termId, spring.mergedGroupId, summer.studentIds[0]]);
+        return { group: spring.mergedGroupId, archivedTerm: summer.termId, emptyGroup: 0, matchedSession: 0 };
+      }
       const emptyGroup = Number((await handle.client.query<{ id: number }>(
         "insert into teaching_groups(term_id, course_id) select term_id, course_id from teaching_groups where id = $1 returning id", [group],
       )).rows[0].id);
@@ -67,20 +77,21 @@ async function main() {
           [session.teacherToken],
         );
       }
-      return { group, emptyGroup, matchedSession };
+      return { group, emptyGroup, matchedSession, archivedTerm: 0 };
     });
     const control = createServer((request, response) => {
-      if (request.url === "/sign-in" || (att01 && request.url === "/teacher")) {
+      if (request.url === "/sign-in" || (att04 && request.url === "/completed") || (att01 && request.url === "/teacher")) {
         const teacher = request.url === "/teacher";
         response.writeHead(302, {
           "Set-Cookie": `better-auth.session_token=${teacher ? session.teacherCookie : session.cookie}; Path=/; HttpOnly; SameSite=Lax`,
-          Location: `${origin}/attendance${att01 ? "" : `?group=${group}`}`,
+          Location: request.url === "/completed" ? `${origin}/terms/${archivedTerm}` : `${origin}/attendance${att01 ? "" : `?group=${group}`}`,
         }).end();
         return;
       }
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
         .end(`<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>Synthetic attendance review</h1>
-          <p><a href="/sign-in">Open Attendance as administrator</a></p>${att01 ? '<p><a href="/teacher">Open Attendance as teacher</a></p>' : ""}`);
+          <p><a href="/sign-in">Open Attendance as administrator</a></p>${att01 ? '<p><a href="/teacher">Open Attendance as teacher</a></p>' : ""}
+          ${att04 ? '<p><a href="/completed">Open completed term as administrator</a></p>' : ""}`);
     });
     await new Promise<void>((resolve, reject) => {
       control.once("error", reject);
@@ -100,9 +111,10 @@ async function main() {
       }
       assert.ok(ready, "Synthetic preview did not start.");
       console.log(`Student roster synthetic review: ${controlOrigin}/sign-in`);
-      if (process.argv.includes("--check") && att03a) await checkLifecycle(group, matchedSession);
+      if (process.argv.includes("--check") && att04) await checkMarks();
+      else if (process.argv.includes("--check") && att03a) await checkLifecycle(group, matchedSession);
       else if (process.argv.includes("--check") && att01) await checkSelection(group, emptyGroup, matchedSession);
-      if (process.argv.includes("--check") && !att01) await checkBrowser(emptyGroup, async () => {
+      if (process.argv.includes("--check") && !att01 && !att04) await checkBrowser(emptyGroup, async () => {
         await withHandle(database, async handle => {
           await handle.client.query(`with added as (
               insert into students(student_code, full_name)
@@ -121,6 +133,64 @@ async function main() {
       await database.dispose();
     }
   });
+}
+
+async function checkMarks() {
+  const output = ".tmp/att-04/browser";
+  await mkdir(output, { recursive: true });
+  const browser = await chromium.launch({ channel: "msedge" });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    async function capture(name: string) {
+      for (const width of [1440, 390, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
+        const violations = await page.evaluate(async () => {
+          const { axe } = window as unknown as { axe: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string; nodes: Array<{ target: string[] }> }> }> } };
+          const result = await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] });
+          return result.violations.map(row => ({ id: row.id, targets: row.nodes.map(node => node.target) }));
+        });
+        assert.deepEqual(violations, [], `Accessibility at ${name}, ${width}px`);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `Overflow at ${name}, ${width}px`);
+        await page.screenshot({ path: `${output}/${name}-${width}.png`, fullPage: true });
+      }
+    }
+    await page.goto(`${controlOrigin}/sign-in`);
+    await page.getByRole("link", { name: "Attendance marks", exact: true }).click();
+    await page.getByRole("heading", { name: "Semester attendance marks" }).waitFor();
+    await page.getByText("5.00 / 10", { exact: true }).waitFor();
+    await capture("semester");
+    await page.getByRole("link", { name: "Midterm", exact: true }).click();
+    await page.getByRole("heading", { name: "Midterm attendance marks" }).waitFor();
+    await page.getByText("10.00 / 10", { exact: true }).first().waitFor();
+    await capture("midterm");
+    const final = page.getByRole("link", { name: "Final", exact: true });
+    await final.focus();
+    await final.press("Enter");
+    await page.getByRole("heading", { name: "Final attendance marks" }).waitFor();
+    assert.equal(await page.getByRole("link", { name: "Final", exact: true }).getAttribute("aria-current"), "page");
+    await page.getByText("No eligible sessions", { exact: true }).waitFor();
+    await capture("final");
+    await page.getByRole("link", { name: "Synthetic Student One" }).click();
+    await page.getByRole("heading", { name: "Dated sessions" }).waitFor();
+    await page.getByText("+1 eligible", { exact: true }).waitFor();
+    await capture("student");
+    await page.getByRole("link", { name: "Back to final marks" }).click();
+    await page.getByRole("heading", { name: "Final attendance marks" }).waitFor();
+    await page.getByRole("link", { name: "Back to attendance and roll-call" }).click();
+    await page.getByRole("heading", { name: "Take attendance" }).waitFor();
+
+    await page.goto(`${controlOrigin}/completed`);
+    await page.getByRole("link", { name: "Attendance marks", exact: true }).click();
+    await page.getByRole("heading", { name: "Choose a class group" }).waitFor();
+    await page.getByRole("link", { name: /SYN-4101.*Synthetic Theory/ }).click();
+    await page.getByRole("heading", { name: "Semester attendance marks" }).waitFor();
+    await page.getByText(/Version 1 effective.*evaluated/).waitFor();
+    await capture("completed");
+    await page.goto(`${origin}/settings#policy`);
+    await page.getByText(/Round the mark to two decimals and the percentage separately to one decimal/).waitFor();
+    console.log(`ATT-04 compiled browser review passed. Captures in ${output}.`);
+  } finally { await browser.close(); }
 }
 
 async function checkSelection(group: number, emptyGroup: number, matchedSession: number) {

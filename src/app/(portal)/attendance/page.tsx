@@ -6,7 +6,7 @@ import { AttendanceFilters, AttendanceFocus, AttendanceLinkPending } from "@/com
 import { PageHeader } from "@/components/ui";
 import { getAttendanceData } from "@/lib/academic-operations";
 import { attendanceDirectory, attendanceEntry, attendanceSlotKey, attendanceToday, todayAttendanceSessions } from "@/lib/attendance-directory";
-import { attendanceHref, attendanceId, exactSlotSession, resolveAttendance, type AttendanceGroup, type AttendanceQuery } from "@/lib/attendance-selection";
+import { attendanceHref, attendanceId, attendanceMarksHref, exactSlotSession, resolveAttendance, type AttendanceGroup, type AttendanceQuery } from "@/lib/attendance-selection";
 import { requireActor } from "@/lib/auth";
 import { getPortalData } from "@/lib/data";
 import { rosterOutputQuery } from "@/lib/roster-output-links";
@@ -64,7 +64,10 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
     {(selection.badGroup || (selection.selected && !selected) || (!selected && (query.session !== undefined || query.slot !== undefined))) &&
       <p role="status" className="ruled rounded-md p-3 text-sm">This attendance link is unavailable. Choose a class or find a course.</p>}
     {selected && source?.selectedGroup ? <>
-      <nav aria-label="Attendance views" className="flex flex-wrap gap-4">{access.teacher && myClasses}{findCourse}</nav>
+      <nav aria-label="Attendance views" className="flex flex-wrap gap-4">
+        {access.teacher && myClasses}{findCourse}
+        <Link className={linkStyle} prefetch={false} href={attendanceMarksHref(data.term.id, selected.id)}>Attendance marks</Link>
+      </nav>
       <div id="attendance-group" tabIndex={-1} className="min-w-0 scroll-mt-20 [overflow-wrap:anywhere]">
         <h2 className="font-display text-2xl font-semibold">{groupLabel(selected)}</h2>
         <p className="mt-1 text-sm text-muted">{data.term.name} · {selected.audience}</p>

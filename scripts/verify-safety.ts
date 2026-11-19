@@ -37,6 +37,7 @@ import { checkClassGroups, checkClassGroupsPostgres, checkClassGroupStart, check
 import { checkCalendar, checkCalendarPostgres } from "./safety/calendar.check";
 import { checkAttendanceLifecycle, checkAttendanceLifecyclePostgres } from "./safety/attendance-lifecycle.check";
 import { checkPolicyVersions, checkPolicyVersionsPostgres } from "./safety/policy-versions.check";
+import { checkAttendanceMarks, checkAttendanceMarksPostgres } from "./safety/attendance-marks.check";
 
 function metadataFingerprint(directory: string): string {
   if (!existsSync(directory)) return "absent";
@@ -81,6 +82,8 @@ async function main() {
     ["ATT-03A attendance lifecycle (PostgreSQL)", () => checkAttendanceLifecyclePostgres(process.env.SAFE01_PG_BIN), true],
     ["SET-01B policy versions (PGlite)", checkPolicyVersions],
     ["SET-01B policy versions (PostgreSQL)", () => checkPolicyVersionsPostgres(process.env.SAFE01_PG_BIN), true],
+    ["ATT-04 attendance marks (PGlite)", checkAttendanceMarks],
+    ["ATT-04 attendance marks (PostgreSQL)", () => checkAttendanceMarksPostgres(process.env.SAFE01_PG_BIN), true],
     ["BUG-25 publications (PGlite)", () => checkPublications()],
     ["BUG-25 publications (PostgreSQL)", () => checkPublicationsPostgres(process.env.SAFE01_PG_BIN), true],
     ["BAT-01B rollover (PGlite)", () => checkRollover()],

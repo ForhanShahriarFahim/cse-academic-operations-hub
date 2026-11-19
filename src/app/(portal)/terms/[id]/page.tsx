@@ -7,6 +7,7 @@ import { can, requireActor } from "@/lib/auth";
 import { PageHeader, Panel, Notice } from "@/components/ui";
 import { PolicyHistory } from "@/components/policy/policy-history";
 import { loadTermPolicy, priorFigures } from "@/lib/policy-store";
+import { attendanceMarksHref } from "@/lib/attendance-selection";
 export default async function TermPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>}){
   const id=Number((await params).id);if(!Number.isSafeInteger(id)||id<1)notFound();
   const summary=await getTermWorkspace(id);if(!summary)notFound();
@@ -25,6 +26,7 @@ export default async function TermPage({params,searchParams}:{params:Promise<{id
       {manager&&batchManager&&(term.status==="draft"||rollover)&&<Link className="underline" href={`/terms/${id}/rollover`}>{rollover?"View preparation receipt":"Prepare next term"}</Link>}
       {manager&&term.status==="draft"&&<Link className="underline" href={`/terms/${id}/activate`}>Review activation</Link>}
       {term.status==="active"&&<Link className="underline" href="/routine/periods">Open Days &amp; periods</Link>}
+      {term.status==="completed"&&<Link className="underline" href={attendanceMarksHref(id)}>Attendance marks</Link>}
       <Link className="underline" href={`/terms/${id}/offerings`}>Term offerings</Link><Link className="underline" href={`/terms/${id}/groups`}>Class groups</Link><Link className="underline" href={`/terms/${id}/calendar`}>Academic calendar</Link></div>
       {!summary.editable&&<p className="mt-3 text-xs text-muted">Identity and dates are read-only: {term.status!=="draft"?"this term is not an unused draft":"business records already use this draft"}.</p>}
       {!["draft","active","completed"].includes(term.status)&&<p className="mt-3 text-xs text-muted">Legacy status retained as stored. Lifecycle controls are unavailable.</p>}
