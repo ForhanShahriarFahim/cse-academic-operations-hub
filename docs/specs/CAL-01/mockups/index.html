@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Academic calendar workflow sketches · CAL-01</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; --paper: #f4f1e8; --ink: #202923; --pine: #184b38; --wash: #eef3e9; --muted: #526059; --line: #c8cfc4; --gold: #a8712b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 1rem/1.5 system-ui, sans-serif; }
+    main { max-width: 67rem; margin: auto; padding: clamp(.85rem, 4vw, 2.8rem); overflow-wrap: anywhere; }
+    main > header { border-top: 4px solid var(--pine); padding-top: 1rem; }
+    h1, h2, h3 { margin: 0; font-family: Georgia, serif; line-height: 1.15; }
+    h1 { font-size: clamp(2rem, 5vw, 3.25rem); }
+    h2 { font-size: clamp(1.45rem, 4vw, 2rem); }
+    h3 { font-size: 1.2rem; }
+    p { margin: .45rem 0 0; }
+    a { color: var(--pine); text-underline-offset: .2em; }
+    :focus-visible { outline: 3px solid #8a5819; outline-offset: 3px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem .85rem; margin-top: .9rem; }
+    .button { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .45rem .75rem; border: 1px solid var(--pine); border-radius: .35rem; color: var(--pine); background: #fffefa; font: inherit; font-weight: 650; text-decoration: none; }
+    .primary { background: var(--pine); color: white; }
+    .panel { margin-top: 1.25rem; padding: clamp(.85rem, 3vw, 1.55rem); background: #fffefa; border: 1px solid var(--line); border-radius: .55rem; }
+    .panel:target { border-color: var(--pine); }
+    .muted { color: var(--muted); font-size: .9rem; }
+    .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .8rem 1rem; }
+    .context { margin: 0 0 .35rem; color: var(--pine); font-weight: 700; font-size: .9rem; }
+    .entries { margin: .7rem 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .entries li { display: grid; grid-template-columns: minmax(7rem, .7fr) minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; gap: .15rem .95rem; padding: .65rem 0; border-bottom: 1px solid var(--line); }
+    .notice { margin-top: .85rem; padding: .65rem .8rem; background: var(--wash); border-left: 3px solid var(--gold); }
+    .notice p { margin: 0; }
+    label, legend { display: block; min-width: 0; font-weight: 650; }
+    label + label { margin-top: .65rem; }
+    .split label + label { margin-top: 0; }
+    input, select { display: block; width: 100%; min-width: 0; min-height: 2.75rem; margin-top: .2rem; padding: .4rem; border: 1px solid #818f83; border-radius: .3rem; background: white; color: var(--ink); font: inherit; }
+    input[type="radio"] { display: inline-block; width: auto; min-height: 0; margin: 0 .4rem 0 0; }
+    fieldset { margin: .8rem 0; padding: .65rem; border: 1px solid var(--line); }
+    .fields { display: grid; gap: .8rem; margin-top: .85rem; }
+    .sheet .muted { color: inherit; }
+    @media (max-width: 42rem) {
+      .split, .entries li { grid-template-columns: minmax(0, 1fr); }
+    }
+    @page { size: A4 portrait; margin: 15mm; }
+    @media print {
+      body, .sheet { background: white; color: black; }
+      main { max-width: none; padding: 0; }
+      .screen-only { display: none !important; }
+      .sheet { border: 0; margin: 0; padding: 0; }
+      .entries li { grid-template-columns: minmax(6rem, .7fr) minmax(0, 1.4fr) minmax(0, 1fr); break-inside: avoid; border-color: #777; }
+      h2, h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header class="screen-only">
+    <p class="context">Terms / Spring 2027 · Active</p>
+    <h1>Academic calendar</h1>
+    <p class="muted">Workflow sketch with example dates and notices.</p>
+    <nav class="actions" aria-label="Calendar sketch views">
+      <a href="#saved">Saved calendar</a>
+      <a href="#edit">Edit an exam period</a>
+      <a href="#empty">Empty calendar</a>
+      <a href="#print">A4 preview</a>
+    </nav>
+  </header>
+
+  <section class="panel screen-only" id="saved" aria-labelledby="saved-title">
+    <div class="split">
+      <div>
+        <h2 id="saved-title">Regular teaching dates</h2>
+        <p><strong>9 January – 8 May 2027</strong></p>
+        <p class="muted">Term dates 1 January – 30 June 2027</p>
+        <p class="muted">Source · Academic office term circular, 16 December 2026</p>
+        <div class="actions"><a href="#teaching-dates">Edit teaching dates</a></div>
+      </div>
+      <div>
+        <h3>Check a date</h3>
+        <label for="lookup" class="muted">Date in Asia/Dhaka</label>
+        <input id="lookup" type="date" value="2027-03-10" readonly>
+        <div class="notice">
+          <p><strong>Regular classes suspended</strong></p>
+          <p>University holiday and midterm period recorded for 10 March.</p>
+        </div>
+      </div>
+    </div>
+    <h3 style="margin-top: 1rem">Calendar entries</h3>
+    <ul class="entries" aria-label="Saved calendar entries">
+      <li><span>8–13 March</span><span><strong>Midterm exams</strong><br>Regular classes may continue</span><span class="muted">Exam office notice 04<br><a href="#edit">Edit midterm period</a></span></li>
+      <li><span>10 March</span><span><strong>University holiday</strong><br>Regular classes suspended</span><span class="muted">Academic office notice 07</span></li>
+      <li><span>17–26 May</span><span><strong>Final exams</strong><br>Regular classes suspended</span><span class="muted">Exam office notice 12</span></li>
+    </ul>
+    <div class="actions"><a class="button primary" href="#add">Add calendar entry</a><a class="button" href="#print">Print calendar</a><a href="#history">Change history</a></div>
+  </section>
+
+  <section class="panel screen-only" id="teaching-dates" aria-labelledby="teaching-title">
+    <p class="context">Spring 2027 / Academic calendar</p>
+    <h2 id="teaching-title">Edit teaching dates</h2>
+    <p class="muted">Term dates 1 January – 30 June 2027</p>
+    <div class="fields">
+      <div class="split">
+        <label>First class day<input type="date" value="2027-01-09"></label>
+        <label>Last class day<input type="date" value="2027-05-08"></label>
+      </div>
+      <label>Source reference<input value="Academic office term circular, 16 December 2026"></label>
+      <label>Public source link (optional)<input type="url"></label>
+      <label>Reason for correction<input></label>
+    </div>
+    <div class="actions"><button class="button primary" type="button" disabled>Save teaching dates</button><a href="#saved">Back to calendar</a></div>
+  </section>
+
+  <section class="panel screen-only" id="add" aria-labelledby="add-title">
+    <p class="context">Spring 2027 / Academic calendar</p>
+    <h2 id="add-title">Add calendar entry</h2>
+    <div class="fields">
+      <label>Type<select><option>Public holiday</option><option selected>University holiday</option><option>Class suspension</option><option>Midterm period</option><option>Final period</option></select></label>
+      <label>Title<input></label>
+      <div class="split">
+        <label>Start date<input type="date"></label>
+        <label>End date<input type="date"></label>
+      </div>
+      <label>Source reference<input></label>
+      <label>Public source link (optional)<input type="url"></label>
+    </div>
+    <p class="muted">Use a notice that suspends regular classes for the whole term audience. For one day, enter the same date twice.</p>
+    <div class="actions"><button class="button primary" type="button" disabled>Save entry</button><a href="#saved">Back to calendar</a></div>
+  </section>
+
+  <section class="panel screen-only" id="edit" aria-labelledby="edit-title">
+    <p class="context">Spring 2027 / Academic calendar</p>
+    <h2 id="edit-title">Edit midterm period</h2>
+    <div class="fields">
+      <label>Title<input value="Midterm exams"></label>
+      <div class="split">
+        <label>Start date<input type="date" value="2027-03-08"></label>
+        <label>End date<input type="date" value="2027-03-13"></label>
+      </div>
+      <label>Source reference<input value="Exam office notice 04"></label>
+      <label>Public source link (optional)<input type="url"></label>
+      <label>Reason for correction<input></label>
+    </div>
+    <fieldset>
+      <legend>Regular classes during this period</legend>
+      <label><input type="radio" name="effect" checked> Regular classes may continue</label>
+      <label><input type="radio" name="effect"> Regular classes suspended</label>
+    </fieldset>
+    <div class="actions"><button class="button primary" type="button" disabled>Save changes</button><a href="#saved">Back to calendar</a></div>
+  </section>
+
+  <section class="panel screen-only" id="empty" aria-labelledby="empty-title">
+    <p class="context">Spring 2025 · Completed</p>
+    <h2 id="empty-title">Academic calendar</h2>
+    <p>Teaching dates have not been recorded.</p>
+    <p>No calendar entries have been recorded for this term.</p>
+    <p class="muted">Completed terms are read-only.</p>
+  </section>
+
+  <section class="panel screen-only" id="history" aria-labelledby="history-title">
+    <p class="context">Spring 2027 / Academic calendar</p>
+    <h2 id="history-title">Change history</h2>
+    <ul class="entries" aria-label="Calendar changes">
+      <li><span>1 March 2027, 14:05</span><span><strong>Midterm period updated</strong><br>End date changed from 12 to 13 March.</span><span class="muted">Academic administrator<br>Exam office issued a revised notice.</span></li>
+    </ul>
+    <p class="muted">Times shown in Asia/Dhaka.</p>
+    <div class="actions"><a href="#saved">Back to calendar</a></div>
+  </section>
+
+  <article class="panel sheet" id="print" aria-labelledby="print-title">
+    <p class="muted">Spring 2027 · Active · Internal calendar copy</p>
+    <h2 id="print-title">Academic calendar</h2>
+    <p>Term dates 1 January – 30 June 2027</p>
+    <p>Regular teaching dates 9 January – 8 May 2027</p>
+    <p class="muted">Source · Academic office term circular, 16 December 2026</p>
+    <ul class="entries" aria-label="Calendar entries in the printed copy">
+      <li><span>8–13 March</span><span><strong>Midterm exams</strong><br>Regular classes may continue</span><span>Exam office notice 04</span></li>
+      <li><span>10 March</span><span><strong>University holiday</strong><br>Regular classes suspended</span><span>Academic office notice 07</span></li>
+      <li><span>17–26 May</span><span><strong>Final exams</strong><br>Regular classes suspended</span><span>Exam office notice 12</span></li>
+    </ul>
+    <p class="muted">Printed 3 March 2027, 10:00 (Asia/Dhaka)</p>
+    <div class="actions screen-only"><button class="button" type="button" onclick="window.print()">Print example</button></div>
+  </article>
+</main>
+</body>
+</html>
