@@ -109,7 +109,7 @@ async function postgresRaces(lines:string[]){
   }
   try{
     let token=(await context.captureActiveContext()).writeContext;let target=await ready("Writer before activation"),review=await reviewForm(target);
-    const proposal=await proposalForm();const first=await hold("academic_policy_versions",()=>policyActions.proposePolicyChangeAction(proposal,token),()=>terms.activateTermAction(null,review));assertOk(first[0]);assertOk(first[1]);
+    const proposal=await proposalForm();const first=await hold("academic_policy_versions",()=>policyActions.proposePolicyChangeAction(proposal,token),()=>terms.activateTermAction(null,review),"insert");assertOk(first[0]);assertOk(first[1]);
     token=(await context.captureActiveContext()).writeContext;target=await ready("Activation before writer");review=await reviewForm(target);
     const lateProposal=await proposalForm();const second=await hold("academic_terms",()=>terms.activateTermAction(null,review),()=>policyActions.proposePolicyChangeAction(lateProposal,token));assertOk(second[0]);assert.equal(second[1].outcome?.kind,"stale");
     const x=await ready("Competing activation X"),y=await ready("Competing activation Y"),rx=await reviewForm(x),ry=await reviewForm(y);

@@ -19,6 +19,7 @@ Branch `codex/set-01b` from local `main` at `26f1414`. [Specification and decisi
 - 19 November 2026, owner answered three design questions: payment rate by class date; second-person approval; attendance marks allowed with impact preview. Recorded in the [specification](spec.md#owner-choices-recorded-during-inspection). Not implementation approval.
 - 19 November 2026, owner: “Approve D-1–D-6”. D-1–D-6 are accepted unchanged and implementation of T-03–T-06 is authorized. Institutional migration, D-06 resolution and merge before acceptance are not authorized.
 - 19 November 2026, owner: “Reviewed baseline (Recommended)”. A term without a baseline recovers through a baseline proposal effective on the term start, approved by a second person; nothing is priced or marked from defaults. Recorded as a [D-6 addendum](spec.md#d-6--migration-preservation-and-usable-states).
+- 19 November 2026, owner: “ok go for it and everything is accepted.” This authorizes finishing the verification and the proposed local merge. The [verification record](verification.md) documents the build result and the limits of the coverage.
 
 ## Tasks
 
@@ -27,7 +28,7 @@ Branch `codex/set-01b` from local `main` at `26f1414`. [Specification and decisi
 - [x] T-03 — Migration `0021`, resolution and impact module, authority and audited actions. Covers AC-01–AC-05, AC-07.
 - [x] T-04 — Consumers and outputs: extra-load pricing, threshold, attendance maximum, version labels and print. Covers AC-03, AC-06, AC-08.
 - [x] T-05 — Settings and term workspace interface. Covers AC-08, AC-09.
-- [ ] T-06 — Verify on disposable data: both adapters, migration fingerprints, races, rollback, compiled review; record evidence and owner review path. Covers AC-01–AC-10.
+- [x] T-06 — Verify on disposable data: both adapters, migration fingerprints, races, rollback, compiled review; record evidence and owner review path. Covers AC-01–AC-10. See the [documented build limitation and coverage](verification.md#build-and-edge-review).
 - [ ] T-07 — Record delivery acceptance and merge into local `main`. Keep #14 open.
 
 ## Verification and delivery
@@ -36,4 +37,4 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Implementation is on `codex/set-01b`. See [verification](verification.md) for the checks and review command.
+Implementation and verification are complete on `codex/set-01b`. The owner authorized the local merge. See [verification](verification.md) for the checks, coverage and review command.
