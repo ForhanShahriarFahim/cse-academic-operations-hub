@@ -11,7 +11,7 @@ const arity: Record<string,number> = {
   updateAcademicPolicyAction:1,createExtraLoadClassAction:1,deleteExtraLoadClassAction:1,
   createManualTopSheetRowAction:1,deleteManualTopSheetRowAction:1,upsertStudentAction:1,
   importStudentCsvAction:1,deactivateStudentAction:2,createAttendanceSessionAction:1,
-  saveAttendanceAction:2,deleteAttendanceSessionAction:1,applyAutoScheduleAction:0,
+  saveAttendanceAction:3,deleteAttendanceSessionAction:2,changeAttendanceSessionAction:2,lockSubmittedAttendanceAction:3,applyAutoScheduleAction:0,
   savePatternAction:1,deletePatternAction:2,setDayPlanAction:1,removeExceptionAction:2,copyGridFromTermAction:2,
 };
 export function freshTermActions<T extends object>(module:T):T {

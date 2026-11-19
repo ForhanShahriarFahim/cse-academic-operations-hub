@@ -5,7 +5,7 @@ import { appendTermContext, type TermWriteContext } from "./term-context-value";
 import { addRosterStudent, changeRosterEnrollment, reviewStudentCsv } from "./student-roster-actions";
 import { lockRosterTerm, lockStudents, positiveId, withRoster } from "./student-store";
 
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lt, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
@@ -19,6 +19,7 @@ import {
   meetingRooms,
   meetings,
   meetingTeachers,
+  students,
 } from "@/db/schema";
 import { ATTENDANCE_STATUSES, type RosterImportReceipt } from "./attendance";
 import { getAttendanceData, getExtraLoadData } from "./academic-operations";
@@ -32,10 +33,15 @@ import { auditedChange } from "./auth/audit";
 import { lockRooms, roomAssignmentGuard, validateRoomAssignment } from "./room-transaction";
 import { retainAssignedRooms } from "./room-lifecycle-transaction";
 import { assertGroupMaintenanceClear } from "./room-maintenance-transaction";
-import { actionActor, guardAction } from "./auth/action-guard";
+import { actionActor, guardAction, type ActionDenied } from "./auth/action-guard";
+import { can } from "./auth";
+import {
+  COMMAND_MESSAGES, REASON_MAX, REASON_MIN, REASON_REQUIRED, STALE_SESSION_MESSAGE, decideSession, isSessionCommand, parseReason,
+  sessionActionLabel, stateLabel, statusChanges, type SessionCommand, type SessionRoles, type StatusChange,
+} from "./attendance-lifecycle";
 import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { POLICY_FIELDS, validateStartingPolicy } from "./term-records";
-import { conflicted, invalid, stale } from "./action-result";
+import { conflicted, denied as deniedResult, invalid, stale, succeeded } from "./action-result";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -243,6 +249,7 @@ async function createAttendanceSessionActionInTerm(formData: FormData): Promise<
     eq(attendanceSessions.classDate, classDate),
     startMinutes == null ? isNull(attendanceSessions.startMinutes) : eq(attendanceSessions.startMinutes, startMinutes),
     endMinutes == null ? isNull(attendanceSessions.endMinutes) : eq(attendanceSessions.endMinutes, endMinutes),
+    ne(attendanceSessions.status, "voided"),
   )).limit(1);
   if (duplicate) {
     const time = startMinutes != null && endMinutes != null ? fmtRange(startMinutes, endMinutes) : "time not specified";
@@ -261,53 +268,180 @@ async function createAttendanceSessionActionInTerm(formData: FormData): Promise<
   return { ok: true, message: "Attendance session created with every student initially marked absent." };
 }
 
-export async function saveAttendanceAction(sessionId: number, values: Array<{ studentId: number; status: string }>, context?: TermWriteContext): Promise<ActionResult> {
-  return withTermContext(() => saveAttendanceActionInTerm(sessionId, values), context);
-}
-async function saveAttendanceActionInTerm(sessionId: number, values: Array<{ studentId: number; status: string }>): Promise<ActionResult> {
-  const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId });
-  if (denied) return denied;
-  if (!Number.isInteger(sessionId) || values.some((value) => !Number.isInteger(value.studentId) || !ATTENDANCE_STATUSES.includes(value.status as never))) {
-    return { ok: false, message: "Attendance payload is invalid." };
-  }
-  if (!await isInActiveTerm("attendance_session", sessionId)) return { ...OUTSIDE_ACTIVE_TERM };
-  const [session] = await db.select({ id: attendanceSessions.id }).from(attendanceSessions).where(eq(attendanceSessions.id, sessionId)).limit(1);
-  if (!session) return { ok: false, message: "The attendance session no longer exists." };
-  const existingRecords = await db.select({ studentId: attendanceRecords.studentId, status: attendanceRecords.status }).from(attendanceRecords).where(eq(attendanceRecords.sessionId, sessionId));
-  const allowedStudentIds = new Set(existingRecords.map((row) => row.studentId));
-  const submittedStudentIds = values.map((value) => value.studentId);
-  if (new Set(submittedStudentIds).size !== submittedStudentIds.length || submittedStudentIds.some((id) => !allowedStudentIds.has(id))) {
-    return { ok: false, message: "Attendance can only be saved for students captured in this session." };
-  }
-  await auditedChange("attendance.save", "attendance_session", async (tx) => {
-    for (const value of values) {
-      await tx.insert(attendanceRecords).values({ sessionId, studentId: value.studentId, status: value.status })
-        .onConflictDoUpdate({ target: [attendanceRecords.sessionId, attendanceRecords.studentId], set: { status: value.status, updatedAt: new Date() } });
-    }
-    return { result: null, entityId: sessionId,
-      before: existingRecords.filter((row) => submittedStudentIds.includes(row.studentId)),
-      after: values };
-  });
-  refresh();
-  return { ok: true, message: `Attendance saved for ${values.length} student(s).` };
+type AttendanceValue = { studentId: number; status: string };
+export interface SessionCommandInput { command: SessionCommand; revision: number; reason?: string | null; values?: AttendanceValue[] }
+
+/** Saves marks on an editable (draft or reopened) session the user saw at `revision`. */
+export async function saveAttendanceAction(sessionId: number, values: AttendanceValue[], revision: number, context?: TermWriteContext): Promise<ActionResult> {
+  return changeAttendanceSessionAction(sessionId, { command: "save", revision, values }, context);
 }
 
-export async function deleteAttendanceSessionAction(id: number, context?: TermWriteContext): Promise<ActionResult> {
-  return withTermContext(() => deleteAttendanceSessionActionInTerm(id), context);
+export async function deleteAttendanceSessionAction(id: number, revision: number, context?: TermWriteContext): Promise<ActionResult> {
+  return changeAttendanceSessionAction(id, { command: "delete", revision }, context);
 }
-async function deleteAttendanceSessionActionInTerm(id: number): Promise<ActionResult> {
-  const denied = await guardAction("take_attendance", { kind: "attendance_session", sessionId: id });
-  if (denied) return denied;
-  if (!await isInActiveTerm("attendance_session", id)) return { ...OUTSIDE_ACTIVE_TERM };
-  await auditedChange("attendance.session.delete", "attendance_session", async (tx) => {
-    const [session] = await tx.select().from(attendanceSessions).where(eq(attendanceSessions.id, id)).limit(1);
-    const records = await tx.select().from(attendanceRecords).where(eq(attendanceRecords.sessionId, id));
-    await tx.delete(attendanceRecords).where(eq(attendanceRecords.sessionId, id));
-    await tx.delete(attendanceSessions).where(eq(attendanceSessions.id, id));
-    return { result: null, entityId: id, before: { session, records } };
+
+/** ATT-03A: every lifecycle command (D-2), authorized per D-3 and checked against the revision under a row lock. */
+export async function changeAttendanceSessionAction(sessionId: number, input: SessionCommandInput, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => changeAttendanceSessionInTerm(sessionId, input), context);
+}
+
+const ATTENDANCE_DENIED = () => deniedResult("You do not have permission to make this change.", "forbidden");
+async function sessionRoles(sessionId: number): Promise<SessionRoles | ActionDenied> {
+  const actor = await actionActor("view_internal_portal");
+  if ("ok" in actor) return actor;
+  const target = { kind: "attendance_session", sessionId } as const;
+  const roles = { taker: await can(actor, "take_attendance", target), reviewer: await can(actor, "review_attendance", target) };
+  return roles.taker || roles.reviewer ? roles : ATTENDANCE_DENIED();
+}
+
+const REFUSED: Record<SessionCommand, string> = {
+  save: "edited", submit: "submitted", reopen: "reopened", lock: "locked", void: "voided", restore: "restored",
+  delete: "deleted. Void it with a reason instead",
+};
+
+async function changeAttendanceSessionInTerm(sessionId: number, input: SessionCommandInput): Promise<ActionResult> {
+  const command = input?.command;
+  if (!isSessionCommand(command) || !Number.isInteger(sessionId) || sessionId <= 0 || !Number.isInteger(input.revision) || input.revision < 0) {
+    return { ok: false, message: "Attendance request is invalid." };
+  }
+  const roles = await sessionRoles(sessionId);
+  if ("ok" in roles) return roles;
+  const values = input.values ?? [];
+  if ((command === "save" || command === "submit") && (!Array.isArray(values) || values.some((value) => !Number.isInteger(value?.studentId) || !ATTENDANCE_STATUSES.includes(value?.status as never)))) {
+    return { ok: false, message: "Attendance payload is invalid." };
+  }
+  const reason = parseReason(input.reason, REASON_REQUIRED[command]);
+  if (reason === undefined) {
+    const message = REASON_REQUIRED[command] === "required" ? `Enter a reason of ${REASON_MIN}–${REASON_MAX} characters.` : `Keep the note to ${REASON_MAX} characters or fewer.`;
+    return invalid(message, { reason: [message] });
+  }
+  if (!await isInActiveTerm("attendance_session", sessionId)) return { ...OUTSIDE_ACTIVE_TERM };
+  const term = await getActiveTerm();
+  if (command === "restore") {
+    // Same per-group serialization as creation, taken before the row lock in the same order as create.
+    const [target] = await db.select({ teachingGroupId: attendanceSessions.teachingGroupId }).from(attendanceSessions).where(eq(attendanceSessions.id, sessionId)).limit(1);
+    if (target) await db.execute(sql`select pg_advisory_xact_lock(${ATTENDANCE_CREATE_LOCK}::integer, ${target.teachingGroupId}::integer)`);
+  }
+  const [session] = await db.select().from(attendanceSessions).where(eq(attendanceSessions.id, sessionId)).for("update");
+  if (!session || session.termId !== term.id) return stale("The attendance session no longer exists. Reload the page.", "missing");
+  if (session.revision !== input.revision) return stale(STALE_SESSION_MESSAGE);
+  const decision = decideSession(command, session.status, roles);
+  if (!decision.ok) {
+    if (decision.reason === "role") return ATTENDANCE_DENIED();
+    const message = `A ${stateLabel(session.status).toLowerCase()} session cannot be ${REFUSED[command]}.`;
+    return conflicted(message, [{ severity: "blocker", title: "This session's state does not allow that", detail: message }]);
+  }
+  const existing = await db.select({ studentId: attendanceRecords.studentId, status: attendanceRecords.status, studentCode: students.studentCode })
+    .from(attendanceRecords).innerJoin(students, eq(students.id, attendanceRecords.studentId))
+    .where(eq(attendanceRecords.sessionId, sessionId)).orderBy(students.studentCode, students.id);
+  let changes: StatusChange[] = [];
+  if (command === "save" || command === "submit") {
+    const allowed = new Set(existing.map((row) => row.studentId));
+    const ids = values.map((value) => value.studentId);
+    if (new Set(ids).size !== ids.length || ids.some((id) => !allowed.has(id))) {
+      return { ok: false, message: "Attendance can only be saved for students captured in this session." };
+    }
+    if (command === "submit" && existing.length === 0) return { ok: false, message: "A session with no captured students cannot be submitted." };
+    changes = statusChanges(existing, values);
+    if (command === "save" && changes.length === 0) return succeeded("No attendance changes to save.", { entityId: sessionId });
+  }
+  if (command === "restore") {
+    const [duplicate] = await db.select({ id: attendanceSessions.id }).from(attendanceSessions).where(and(
+      eq(attendanceSessions.termId, session.termId), eq(attendanceSessions.teachingGroupId, session.teachingGroupId),
+      eq(attendanceSessions.classDate, session.classDate), ne(attendanceSessions.status, "voided"), ne(attendanceSessions.id, session.id),
+      session.startMinutes == null ? isNull(attendanceSessions.startMinutes) : eq(attendanceSessions.startMinutes, session.startMinutes),
+      session.endMinutes == null ? isNull(attendanceSessions.endMinutes) : eq(attendanceSessions.endMinutes, session.endMinutes),
+    )).limit(1);
+    if (duplicate) {
+      const time = session.startMinutes != null && session.endMinutes != null ? fmtRange(session.startMinutes, session.endMinutes) : "time not specified";
+      const message = `Another active session already exists on ${session.classDate} (${time}). Void that session first; nothing was restored.`;
+      return conflicted(message, [{ severity: "blocker", title: "Attendance session already exists", detail: message }]);
+    }
+  }
+  const action = command === "delete" ? "attendance.session.delete" : `attendance.${command}`;
+  await auditedChange(action, "attendance_session", async (tx, actor) => {
+    if (command === "delete") {
+      const records = await tx.select().from(attendanceRecords).where(eq(attendanceRecords.sessionId, sessionId));
+      await tx.delete(attendanceRecords).where(eq(attendanceRecords.sessionId, sessionId));
+      await tx.delete(attendanceSessions).where(eq(attendanceSessions.id, sessionId));
+      return { result: null, entityId: sessionId, before: { session, records }, detail: { from: session.status, to: null } };
+    }
+    for (const change of changes) {
+      await tx.update(attendanceRecords).set({ status: change.to, updatedAt: new Date() })
+        .where(and(eq(attendanceRecords.sessionId, sessionId), eq(attendanceRecords.studentId, change.studentId)));
+    }
+    const now = new Date();
+    const set: Partial<typeof attendanceSessions.$inferInsert> = { status: decision.to!, revision: session.revision + 1 };
+    if (command === "submit") Object.assign(set, { submittedAt: now, submittedByUserId: actor.id });
+    if (command === "lock") Object.assign(set, { lockedAt: now, lockedByUserId: actor.id });
+    if (command === "reopen" || command === "restore") Object.assign(set, { lockedAt: null, lockedByUserId: null, voidedAt: null, voidedByUserId: null, voidReason: null });
+    if (command === "void") Object.assign(set, { lockedAt: null, lockedByUserId: null, voidedAt: now, voidedByUserId: actor.id, voidReason: reason });
+    const [after] = await tx.update(attendanceSessions).set(set).where(eq(attendanceSessions.id, sessionId)).returning();
+    const state = (row: typeof session) => ({ status: row.status, revision: row.revision, submittedAt: row.submittedAt, submittedByUserId: row.submittedByUserId,
+      lockedAt: row.lockedAt, lockedByUserId: row.lockedByUserId, voidedAt: row.voidedAt, voidedByUserId: row.voidedByUserId, voidReason: row.voidReason });
+    // Reopening a locked roll-call keeps its full locked marks as the starting point of the correction.
+    const before = command === "reopen" && session.status === "locked"
+      ? { ...state(session), records: existing.map(({ studentId, studentCode, status }) => ({ studentId, studentCode, status })) }
+      : state(session);
+    return { result: null, entityId: sessionId, before, after: state(after),
+      detail: { from: session.status, to: after.status, reason: command === "lock" ? null : reason, note: command === "lock" ? reason : null, changes } };
   });
   refresh();
-  return { ok: true, message: "Attendance session removed." };
+  return succeeded(command === "save" ? `Attendance saved for ${changes.length} changed student(s).` : COMMAND_MESSAGES[command], { entityId: sessionId });
+}
+
+/** Reviewer: lock every currently submitted session in one group. `sessionIds` is what the confirmation showed. */
+export async function lockSubmittedAttendanceAction(teachingGroupId: number, sessionIds: number[], note: string | null, context?: TermWriteContext): Promise<ActionResult> {
+  return withTermContext(() => lockSubmittedAttendanceInTerm(teachingGroupId, sessionIds, note), context);
+}
+async function lockSubmittedAttendanceInTerm(teachingGroupId: number, sessionIds: number[], note: string | null): Promise<ActionResult> {
+  if (!Number.isInteger(teachingGroupId) || !Array.isArray(sessionIds) || sessionIds.some((id) => !Number.isInteger(id))) return { ok: false, message: "Attendance request is invalid." };
+  const denied = await guardAction("review_attendance", { kind: "teaching_group", teachingGroupId });
+  if (denied) return denied;
+  const parsed = parseReason(note, "optional");
+  if (parsed === undefined) {
+    const message = `Keep the note to ${REASON_MAX} characters or fewer.`;
+    return invalid(message, { reason: [message] });
+  }
+  if (!await isInActiveTerm("teaching_group", teachingGroupId)) return { ...OUTSIDE_ACTIVE_TERM };
+  const term = await getActiveTerm();
+  const rows = await db.select().from(attendanceSessions).where(and(eq(attendanceSessions.termId, term.id),
+    eq(attendanceSessions.teachingGroupId, teachingGroupId), eq(attendanceSessions.status, "submitted"))).orderBy(asc(attendanceSessions.id)).for("update");
+  const expected = [...new Set(sessionIds)].sort((a, b) => a - b);
+  if (rows.length !== expected.length || rows.some((row, index) => row.id !== expected[index])) {
+    return stale("The submitted sessions for this group changed. Reload before locking.");
+  }
+  if (!rows.length) return { ok: false, message: "There are no submitted sessions to lock." };
+  for (const session of rows) {
+    await auditedChange("attendance.lock", "attendance_session", async (tx, actor) => {
+      const [after] = await tx.update(attendanceSessions).set({ status: "locked", lockedAt: new Date(), lockedByUserId: actor.id, revision: session.revision + 1 })
+        .where(eq(attendanceSessions.id, session.id)).returning();
+      return { result: null, entityId: session.id, before: { status: session.status, revision: session.revision },
+        after: { status: after.status, revision: after.revision, lockedAt: after.lockedAt, lockedByUserId: after.lockedByUserId },
+        detail: { from: session.status, to: "locked", note: parsed, groupLock: true } };
+    });
+  }
+  refresh();
+  return succeeded(`${rows.length} submitted session(s) locked.`);
+}
+
+export interface SessionHistoryEvent { id: number; at: string; actor: string; label: string; reason: string | null; note: string | null; changes: StatusChange[]; captured: number | null }
+/** Read-only: newest events for one session the user may open (take or review attendance). */
+export async function attendanceSessionHistoryAction(sessionId: number, before?: number): Promise<{ ok: true; events: SessionHistoryEvent[]; next: number | null } | { ok: false; message: string }> {
+  if (!Number.isInteger(sessionId) || (before !== undefined && !Number.isInteger(before))) return { ok: false, message: "History request is invalid." };
+  const roles = await sessionRoles(sessionId);
+  if ("ok" in roles) return { ok: false, message: roles.message };
+  const rows = await db.select().from(auditEvents).where(and(eq(auditEvents.entity, "attendance_session"), eq(auditEvents.entityId, sessionId), before ? lt(auditEvents.id, before) : undefined))
+    .orderBy(desc(auditEvents.id)).limit(31);
+  const text = (value: unknown) => typeof value === "string" ? value : null;
+  const events = rows.slice(0, 30).map((row) => {
+    const detail = (row.detail ?? {}) as Record<string, unknown>;
+    const after = (row.after ?? {}) as Record<string, unknown>;
+    const changes = Array.isArray(detail.changes) ? (detail.changes as StatusChange[]).filter((change) => change && typeof change.studentCode === "string") : [];
+    return { id: row.id, at: row.at.toISOString(), actor: row.actorDisplayName ?? row.actor, label: sessionActionLabel(row.action, detail.from),
+      reason: text(detail.reason), note: text(detail.note), changes, captured: typeof after.studentCount === "number" ? after.studentCount : null };
+  });
+  return { ok: true, events, next: rows.length > 30 ? rows[29].id : null };
 }
 
 export async function applyAutoScheduleAction(context?: TermWriteContext): Promise<ActionResult> {

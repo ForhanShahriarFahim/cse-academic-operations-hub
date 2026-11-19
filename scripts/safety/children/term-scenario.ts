@@ -120,8 +120,8 @@ async function crossTerm(ids: Record<string, number>) {
     ["removeException", () => grid.removeExceptionAction(ids.exceptionId, null)],
     ["deleteExtraLoadClass", () => academic.deleteExtraLoadClassAction(ids.extraLoadClassId)],
     ["deleteManualTopSheetRow", () => academic.deleteManualTopSheetRowAction(ids.manualSummaryId)],
-    ["saveAttendance", () => academic.saveAttendanceAction(ids.attendanceSessionId, [{ studentId: ids.studentId, status: "excused" }])],
-    ["deleteAttendanceSession", () => academic.deleteAttendanceSessionAction(ids.attendanceSessionId)],
+    ["saveAttendance", () => academic.saveAttendanceAction(ids.attendanceSessionId, [{ studentId: ids.studentId, status: "excused" }], 0)],
+    ["deleteAttendanceSession", () => academic.deleteAttendanceSessionAction(ids.attendanceSessionId, 0)],
   ];
   const results: Record<string, { ok: boolean; message: string; outcome?: unknown; threw?: boolean }> = {};
   for (const [name, attempt] of attempts) {

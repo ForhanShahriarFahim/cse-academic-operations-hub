@@ -22,6 +22,7 @@ const { buildSnapshot } = loadApp<typeof import("../../../src/lib/serialize")>("
 const form = (values: Record<string, unknown>) => {
   const f = new FormData(); for (const [key, value] of Object.entries(values)) f.set(key, String(value)); return f;
 };
+const revisionOf = async (id: number) => (await db.select({ revision: s.attendanceSessions.revision }).from(s.attendanceSessions).where(eq(s.attendanceSessions.id, id)))[0]?.revision ?? 0;
 const ok = (r: ActionResult) => { assert.equal(r.ok, true, r.message); return r; };
 const conflict = (r: ActionResult) => { assert.equal(r.ok, false, r.message); assert.equal(r.outcome?.kind, "conflict", r.message); };
 
@@ -104,7 +105,7 @@ async function main() {
   await db.insert(s.courseEnrollments).values({ termId: token.activeTermId, teachingGroupId: group.id, studentId: late.id, audienceType: "external" });
   ok(await create({ classDate: "2026-07-03", phase: "final" }));
   const newest = (await sessions()).at(-1)!;
-  ok(await actions.saveAttendanceAction(newest.id, [{ studentId: late.id, status: "present" }], token));
+  ok(await actions.saveAttendanceAction(newest.id, [{ studentId: late.id, status: "present" }], await revisionOf(newest.id), token));
   const saved = await records();
   const data = await operations.getAttendanceData(group.id);
   const summary = data.summaries.find((row) => row.studentId === late.id)!;
@@ -116,10 +117,10 @@ async function main() {
   assert.deepEqual(await records(), saved, "reads never backfill older sessions");
   const captured = data.roster.filter((student) => data.sessions.find((row) => row.id === first.id)!.records.some((record) => record.studentId === student.id));
   assert.equal(captured.some((student) => student.id === late.id), false);
-  const crafted = await noWrite(() => actions.saveAttendanceAction(first.id, [{ studentId: captured[0].id, status: "present" }, { studentId: late.id, status: "absent" }], token));
+  const crafted = await noWrite(async () => actions.saveAttendanceAction(first.id, [{ studentId: captured[0].id, status: "present" }, { studentId: late.id, status: "absent" }], await revisionOf(first.id), token));
   assert.equal((crafted as ActionResult).ok, false);
   // Real UI payload shape: only current roster members with captured records.
-  ok(await actions.saveAttendanceAction(first.id, captured.map((student) => ({ studentId: student.id, status: "present" })), token));
+  ok(await actions.saveAttendanceAction(first.id, captured.map((student) => ({ studentId: student.id, status: "present" })), await revisionOf(first.id), token));
   assert.equal((await records()).some((record) => record.sessionId === first.id && record.studentId === late.id), false);
   const removed = captured.at(-1)!;
   const retained = (await records()).filter((record) => record.studentId === removed.id);
@@ -127,7 +128,7 @@ async function main() {
   const afterRemoval = await operations.getAttendanceData(group.id);
   assert.ok(afterRemoval.sessions.find(row => row.id === first.id)?.records.some(row => row.studentId === removed.id && row.fullName === removed.fullName));
   const stillCurrent = captured.filter((student) => student.id !== removed.id);
-  ok(await actions.saveAttendanceAction(first.id, stillCurrent.map((student) => ({ studentId: student.id, status: "late" })), token));
+  ok(await actions.saveAttendanceAction(first.id, stillCurrent.map((student) => ({ studentId: student.id, status: "late" })), await revisionOf(first.id), token));
   assert.equal(afterRemoval.roster.some((row) => row.id === removed.id), false);
   assert.deepEqual((await records()).filter((record) => record.studentId === removed.id), retained);
   assert.deepEqual((await sessions()).filter((row) => initialSessions.some((old) => old.id === row.id)), initialSessions);
@@ -137,7 +138,7 @@ async function main() {
   await db.update(s.portalUsers).set({ status: "active" }).where(eq(s.portalUsers.email, "teacher-a@example.invalid"));
   signInAs("teacher-a@example.invalid");
   ok(await create({ classDate: "2026-07-11" }));
-  ok(await actions.saveAttendanceAction((await sessions()).at(-1)!.id, [{ studentId: late.id, status: "late" }], token));
+  ok(await actions.saveAttendanceAction((await sessions()).at(-1)!.id, [{ studentId: late.id, status: "late" }], await revisionOf((await sessions()).at(-1)!.id), token));
   signInAs("admin@example.invalid");
   for (const fields of [{ phase: "invalid" }, { classDate: "2025-07-01" }, { endTime: "" }, { teacherId: teachers[2].id }]) {
     assert.equal((await noWrite(() => create(fields)) as ActionResult).ok, false);
@@ -152,7 +153,7 @@ async function main() {
     signInAs(email);
     const denied = await noWrite(() => create());
     assert.equal((denied as ActionResult).outcome?.kind, "permission");
-    assert.equal((await noWrite(() => actions.saveAttendanceAction(first.id, [], token)) as ActionResult).outcome?.kind, "permission");
+    assert.equal((await noWrite(async () => actions.saveAttendanceAction(first.id, [], await revisionOf(first.id), token)) as ActionResult).outcome?.kind, "permission");
   }
   signInAs(null);
   assert.equal((await noWrite(() => create()) as ActionResult).outcome?.kind, "permission");
@@ -179,7 +180,7 @@ async function main() {
   })), error => error === restoreFixture);
   assert.deepEqual((await context.captureActiveContext()).writeContext, token);
   assert.equal((await noWrite(() => create({ teachingGroupId: otherGroup.id })) as ActionResult).ok, false);
-  assert.equal((await noWrite(() => actions.saveAttendanceAction(otherSession.id, [], token)) as ActionResult).ok, false);
+  assert.equal((await noWrite(async () => actions.saveAttendanceAction(otherSession.id, [], await revisionOf(otherSession.id), token)) as ActionResult).ok, false);
   ok(await create({ classDate: "2026-07-08" }));
   await db.execute(sql`insert into safe01_fault values (true)`);
   const beforeFailure = await snapshot();

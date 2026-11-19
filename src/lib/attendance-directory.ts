@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { db, databaseReadBatch } from "@/db";
 import { attendanceSessions, courseOfferings, meetingTeachers, meetings, teachingGroupOfferings, teachingGroups, workloadAllocations } from "@/db/schema";
 import { hasCapability, ROLE_CAPABILITIES, type Actor } from "./auth/policy";
@@ -147,7 +147,7 @@ export async function todayAttendanceSessions(termId: number, date: string, grou
   return db.select({ id: attendanceSessions.id, groupId: attendanceSessions.teachingGroupId,
     startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes })
     .from(attendanceSessions).where(and(eq(attendanceSessions.termId, termId),
-      eq(attendanceSessions.classDate, date), inArray(attendanceSessions.teachingGroupId, groupIds)));
+      eq(attendanceSessions.classDate, date), inArray(attendanceSessions.teachingGroupId, groupIds), ne(attendanceSessions.status, "voided")));
 }
 
 export function attendanceSlotKey(date: string, slot: { id: number; startMinutes: number; endMinutes: number }) {

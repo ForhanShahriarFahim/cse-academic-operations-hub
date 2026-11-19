@@ -82,7 +82,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
             .map(({ id, shortCode, fullName }) => ({ id, shortCode, fullName }))}
           roster={source.roster} sessions={source.sessions} summaries={source.summaries} maximum={source.maximum}
           termStart={data.term.startDate} termEnd={data.term.endDate}
-          canManageRosters={source.canManageRosters} canTakeAttendance={source.canTakeAttendance}
+          canManageRosters={source.canManageRosters} canTakeAttendance={source.canTakeAttendance} canReviewAttendance={source.canReviewAttendance} unsubmitted={source.unsubmitted}
           initialSessionId={initialSessionId}
           rollCallHref={source.canManageRosters || source.canTakeAttendance
             ? `/attendance/roster/print?${rosterOutputQuery(selected.id, data.writeContext)}` : undefined} />

@@ -2,14 +2,16 @@
  * Query adapters for the attendance and extra-load modules. Pages consume
  * these serialized views instead of depending on Drizzle table shapes.
  */
-import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
 import { db, databaseReadBatch } from "@/db";
 import {
   academicPolicies,
   attendanceRecords,
   attendanceSessions,
+  auditEvents,
   extraLoadClasses,
   extraLoadManualSummaries,
+  portalUsers,
   students,
 } from "@/db/schema";
 import { getPortalData, type PortalData } from "./data";
@@ -18,6 +20,7 @@ import { can, requireActor } from "./auth";
 import type { Actor } from "./auth/policy";
 import { redirect } from "next/navigation";
 import { summarizeAttendance } from "./attendance";
+import { countsInSummary, isUnsubmitted } from "./attendance-lifecycle";
 import { currentRoster } from "./current-roster";
 import { DEFAULT_ACADEMIC_POLICY, paymentForClasses, type ExtraLoadPolicy } from "./extra-load";
 import { allocationTotals } from "./workload";
@@ -116,17 +119,21 @@ export async function getAttendanceData(selectedGroupId: number, portal?: { data
   const target = { kind: "teaching_group", teachingGroupId: selectedGroupId } as const;
   const canManageRosters = !!candidate && await can(actor, "manage_rosters", target);
   const canTakeAttendance = !!candidate && await can(actor, "take_attendance", target);
-  const selectedGroup = canManageRosters || canTakeAttendance ? candidate : undefined;
+  const canReviewAttendance = !!candidate && await can(actor, "review_attendance", target);
+  const selectedGroup = canManageRosters || canTakeAttendance || canReviewAttendance ? candidate : undefined;
   if (!selectedGroup) {
     await assertTermContext(data.writeContext);
-    return { data, selectedGroup: null, canManageRosters, canTakeAttendance, roster: [], sessions: [], summaries: [], maximum: 0 };
+    return { data, selectedGroup: null, canManageRosters, canTakeAttendance, canReviewAttendance: false, roster: [], sessions: [], summaries: [], maximum: 0, unsubmitted: 0 };
   }
 
   const [policy, roster, sessionRows] = await databaseReadBatch([
     () => getAcademicPolicy(data.term.id),
     () => currentRoster(data.term.id, selectedGroup.id),
     () => db.select({ id: attendanceSessions.id, classDate: attendanceSessions.classDate, phase: attendanceSessions.phase,
-      startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes }).from(attendanceSessions).where(and(
+      startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes, status: attendanceSessions.status, revision: attendanceSessions.revision,
+      submittedAt: attendanceSessions.submittedAt, submittedByUserId: attendanceSessions.submittedByUserId, lockedAt: attendanceSessions.lockedAt,
+      lockedByUserId: attendanceSessions.lockedByUserId, voidedAt: attendanceSessions.voidedAt, voidedByUserId: attendanceSessions.voidedByUserId,
+      voidReason: attendanceSessions.voidReason }).from(attendanceSessions).where(and(
       eq(attendanceSessions.termId, data.term.id),
       eq(attendanceSessions.teachingGroupId, selectedGroup.id),
     )).orderBy(asc(attendanceSessions.classDate), asc(attendanceSessions.id)),
@@ -138,12 +145,27 @@ export async function getAttendanceData(selectedGroupId: number, portal?: { data
       .innerJoin(students, eq(students.id, attendanceRecords.studentId)).where(inArray(attendanceRecords.sessionId, sessionIds))
       .orderBy(students.studentCode, students.id)
     : [];
-  const sessions = sessionRows.map((session) => ({
+  const userIds = [...new Set(sessionRows.flatMap((row) => [row.submittedByUserId, row.lockedByUserId, row.voidedByUserId]).filter((id): id is number => id != null))];
+  const reopenedIds = sessionRows.filter((row) => row.status === "reopened").map((row) => row.id);
+  const [users, reasons] = await databaseReadBatch([
+    () => userIds.length ? db.select({ id: portalUsers.id, displayName: portalUsers.displayName }).from(portalUsers).where(inArray(portalUsers.id, userIds)) : [],
+    () => reopenedIds.length ? db.select({ entityId: auditEvents.entityId, detail: auditEvents.detail }).from(auditEvents).where(and(eq(auditEvents.entity, "attendance_session"),
+      inArray(auditEvents.entityId, reopenedIds), inArray(auditEvents.action, ["attendance.reopen", "attendance.restore"]))).orderBy(desc(auditEvents.id)) : [],
+  ]);
+  const name = (id: number | null) => id == null ? null : users.find((user) => user.id === id)?.displayName ?? "Unknown user";
+  const at = (value: Date | null) => value?.toISOString() ?? null;
+  const sessions = sessionRows.map(({ submittedByUserId, lockedByUserId, voidedByUserId, submittedAt, lockedAt, voidedAt, ...session }) => ({
     ...session,
+    submittedAt: at(submittedAt), submittedBy: name(submittedByUserId), lockedAt: at(lockedAt), lockedBy: name(lockedByUserId),
+    voidedAt: at(voidedAt), voidedBy: name(voidedByUserId),
+    reopenReason: (() => { const detail = reasons.find((row) => row.entityId === session.id)?.detail as { reason?: unknown } | undefined; return typeof detail?.reason === "string" ? detail.reason : null; })(),
     records: recordRows.filter((record) => record.sessionId === session.id).map(({ studentId, status, studentCode, fullName }) => ({ studentId, status, studentCode, fullName })),
   }));
   const maximum = selectedGroup.courseType === "sessional" ? policy.sessionalAttendanceMarks : policy.theoryAttendanceMarks;
-  const summaries = roster.map((student) => summarizeAttendance(student.id, sessions, maximum));
+  // ATT-03A D-4: every non-voided session counts, whatever its state.
+  const counted = sessions.filter((session) => countsInSummary(session.status));
+  const summaries = roster.map((student) => summarizeAttendance(student.id, counted, maximum));
+  const unsubmitted = sessions.filter((session) => isUnsubmitted(session.status)).length;
   await assertTermContext(data.writeContext);
-  return { data, selectedGroup, canManageRosters, canTakeAttendance, roster, sessions, summaries, maximum };
+  return { data, selectedGroup, canManageRosters, canTakeAttendance, canReviewAttendance, roster, sessions, summaries, maximum, unsubmitted };
 }

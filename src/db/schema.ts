@@ -584,6 +584,16 @@ export const attendanceSessions = pgTable(
     endMinutes: integer("end_minutes"),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    // ATT-03A lifecycle (0020). Current actors only; the full history is in audit_events.
+    status: text("status").notNull().default("draft"), // draft | submitted | reopened | locked | voided
+    revision: integer("revision").notNull().default(0),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    submittedByUserId: integer("submitted_by_user_id").references(() => portalUsers.id),
+    lockedAt: timestamp("locked_at", { withTimezone: true }),
+    lockedByUserId: integer("locked_by_user_id").references(() => portalUsers.id),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidedByUserId: integer("voided_by_user_id").references(() => portalUsers.id),
+    voidReason: text("void_reason"),
   },
   (t) => [index("attendance_sessions_group_date_idx").on(t.teachingGroupId, t.classDate)],
 );
