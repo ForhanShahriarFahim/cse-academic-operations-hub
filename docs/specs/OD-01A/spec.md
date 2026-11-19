@@ -1,6 +1,6 @@
 # OD-01A — Understandable, editable and archivable cross-department commitments
 
-[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Proposed · 19 November 2026, Asia/Dhaka
+[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Approved · 19 November 2026, Asia/Dhaka
 
 [Product requirement](../../PRODUCT_REQUIREMENTS.md#od-01--make-cross-department-commitments-understandable-and-maintainable) · [Plan](plan.md) · [Review sketches](mockups/index.html)
 
