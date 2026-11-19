@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**ATT-01 / #8 — proposal ready for owner review, 19 November 2026.** The scoped plan is on `codex/att-01` from local `main` at `dec448e`. Teachers start from today's routine and can open the dated roll-call. The course finder uses department, stream, batch and canonical teaching group. Issue #8 was read on 19 November and is open. **Next:** review and approve or amend D-1–D-4 before implementation. [Specification](specs/ATT-01/spec.md) · [Sole checklist and handoff](specs/ATT-01/plan.md) · [Workflow sketches](specs/ATT-01/mockups/index.html)
+**ATT-01 / #8 — implemented and awaiting delivery acceptance, 19 November 2026.** Approval `c3063a0` covers D-1–D-4 on `codex/att-01`, base `dec448e`. Teachers start from today's routine and can open the dated roll-call. The course finder uses department, stream, batch and canonical teaching group. Both disposable adapters, the isolated Webpack build and compiled Edge review passed. Default Turbopack failed at the CSS worker. Issue #8 was open when read on 19 November. **Next:** owner inspects the synthetic preview and accepts the delivery before local merge. [Specification](specs/ATT-01/spec.md) · [Verification and preview](specs/ATT-01/verification.md) · [Sole checklist and handoff](specs/ATT-01/plan.md)
 
 **GitHub synchronization, 18 November 2026:** Owner-requested push advanced remote `main` from `70c9aa1` to `f840993`. GitHub confirmed ATT-02 #9 and STU-01 #37 closed as completed. CRS-01 #7 remains open for the rest of its scope. The earlier synchronization notes and issue snapshots below are historical.
 

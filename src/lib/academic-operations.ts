@@ -15,7 +15,7 @@ import {
 import { getPortalData, type PortalData } from "./data";
 import { assertTermContext } from "./term-context";
 import { can, requireActor } from "./auth";
-import { hasCapability } from "./auth/policy";
+import type { Actor } from "./auth/policy";
 import { redirect } from "next/navigation";
 import { summarizeAttendance } from "./attendance";
 import { currentRoster } from "./current-roster";
@@ -109,33 +109,27 @@ export async function getExtraLoadData(from?: string, to?: string) {
   return { data, policy, groups, loads, classes, teacherSummaries, manualSummaries };
 }
 
-export async function getAttendanceData(selectedGroupId?: number) {
-  const data = await getPortalData();
-  const actor = await requireActor();
-  const policy = await getAcademicPolicy(data.term.id);
-  const candidates = groupOptions(data);
-  const departmentByCode = new Map(data.departments.map((department) => [department.code, department.id]));
-  const cseId = departmentByCode.get("CSE") ?? null;
-  const courseByCode = new Map(data.courses.map((course) => [course.code, course]));
-  const groups = candidates.filter((group) => {
-    const course = courseByCode.get(group.courseCode);
-    const departmentId = course?.owningDepartmentCode ? departmentByCode.get(course.owningDepartmentCode) ?? null : cseId;
-    return hasCapability(actor, "manage_rosters", departmentId)
-      || actor.teacherId != null && group.teacherIds.includes(actor.teacherId) && hasCapability(actor, "take_attendance", departmentId);
-  });
-  if (groups.length === 0 && !await can(actor, "manage_rosters")) redirect("/forbidden");
-  const selectedGroup = selectedGroupId == null
-    ? groups[0] ?? null
-    : groups.find((group) => group.id === selectedGroupId) ?? null;
-  if (!selectedGroup) { await assertTermContext(data.writeContext); return { data, policy, groups, selectedGroup: null, roster: [], sessions: [], summaries: [] }; }
+export async function getAttendanceData(selectedGroupId: number, portal?: { data: PortalData; actor: Actor }) {
+  const data = portal?.data ?? await getPortalData();
+  const actor = portal?.actor ?? await requireActor();
+  const candidate = groupOptions(data).find(group => group.id === selectedGroupId);
+  const target = { kind: "teaching_group", teachingGroupId: selectedGroupId } as const;
+  const canManageRosters = !!candidate && await can(actor, "manage_rosters", target);
+  const canTakeAttendance = !!candidate && await can(actor, "take_attendance", target);
+  const selectedGroup = canManageRosters || canTakeAttendance ? candidate : undefined;
+  if (!selectedGroup) {
+    await assertTermContext(data.writeContext);
+    return { data, selectedGroup: null, canManageRosters, canTakeAttendance, roster: [], sessions: [], summaries: [], maximum: 0 };
+  }
 
-  const [roster, sessionRows] = await databaseReadBatch([
+  const [policy, roster, sessionRows] = await databaseReadBatch([
+    () => getAcademicPolicy(data.term.id),
     () => currentRoster(data.term.id, selectedGroup.id),
     () => db.select({ id: attendanceSessions.id, classDate: attendanceSessions.classDate, phase: attendanceSessions.phase,
       startMinutes: attendanceSessions.startMinutes, endMinutes: attendanceSessions.endMinutes }).from(attendanceSessions).where(and(
       eq(attendanceSessions.termId, data.term.id),
       eq(attendanceSessions.teachingGroupId, selectedGroup.id),
-    )).orderBy(asc(attendanceSessions.classDate)),
+    )).orderBy(asc(attendanceSessions.classDate), asc(attendanceSessions.id)),
   ]);
   const sessionIds = sessionRows.map((row) => row.id);
   const recordRows = sessionIds.length
@@ -151,5 +145,5 @@ export async function getAttendanceData(selectedGroupId?: number) {
   const maximum = selectedGroup.courseType === "sessional" ? policy.sessionalAttendanceMarks : policy.theoryAttendanceMarks;
   const summaries = roster.map((student) => summarizeAttendance(student.id, sessions, maximum));
   await assertTermContext(data.writeContext);
-  return { data, policy, groups, selectedGroup, roster, sessions, summaries };
+  return { data, selectedGroup, canManageRosters, canTakeAttendance, roster, sessions, summaries, maximum };
 }

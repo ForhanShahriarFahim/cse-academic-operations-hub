@@ -1,6 +1,6 @@
 # ATT-01 — Implementation plan
 
-[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Approved for implementation · 19 November 2026, Asia/Dhaka
+[Issue #8](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/8) · Awaiting delivery acceptance · 19 November 2026, Asia/Dhaka
 
 Branch `codex/att-01` from local `main` at `dec448e`. [Specification and decisions](spec.md) · [Verification](verification.md) · [Workflow sketches](mockups/index.html)
 
@@ -20,10 +20,10 @@ Move the chooser out of the marking component. Keep the existing roster and prin
 
 - [x] T-01 — Inspect issue #8, owner input, data and permissions, and present the bounded specification with an attendance design pass.
 - [x] T-02 — Record and commit owner approval.
-- [ ] T-03 — Implement scoped group projection, cascade and URL validation, including old links and empty states. Covers AC-02–AC-04.
-- [ ] T-04 — Implement routine-based teacher landing and safe group/session entry, retaining roster, print and marking behavior. Covers AC-01 and AC-03–AC-06.
-- [ ] T-05 — Verify final behavior, record evidence and give the owner a runnable synthetic review. Covers AC-01–AC-06.
-- [ ] T-06 — Commit verified delivery, record owner acceptance and merge the bounded delivery into local `main`.
+- [x] T-03 — Implement scoped group projection, cascade and URL validation, including old links and empty states. Covers AC-02–AC-04.
+- [x] T-04 — Implement routine-based teacher landing and safe group/session entry, retaining roster, print and marking behavior. Covers AC-01 and AC-03–AC-06.
+- [x] T-05 — Verify final behavior, record evidence and give the owner a runnable synthetic review. Both adapters, isolated Webpack and compiled Edge passed. Default Turbopack failed at the CSS worker. Covers AC-01–AC-06.
+- [ ] T-06 — Record owner acceptance of the committed delivery and merge the bounded delivery into local `main`.
 
 ## Verification and delivery
 
@@ -31,6 +31,6 @@ Run typecheck, lint, domain tests and the default build with disposable configur
 
 ## Current checkpoint and exact handoff
 
-Implementation is approved on `codex/att-01`. [D-1–D-4 and acceptance criteria](spec.md) · [Sketches](mockups/index.html)
+Approval is recorded at `c3063a0`. The implemented delivery is on `codex/att-01` and ready for owner inspection. [Verification and review command](verification.md) · [Synthetic preview](http://localhost:3151/)
 
-> Implement T-03 and T-04 under the approved decisions. Use the current attendance and STU-01 review fixtures for the neighboring regressions. Present the verified workflow for owner acceptance before local merge.
+> Review both synthetic accounts and the documented Turbopack limitation. On owner acceptance, record the decision and merge the reviewed ATT-01 delivery into local `main`. Issue #8 synchronization follows the next owner-directed delivery boundary. The local sequence points to CAL-01 inspection after acceptance.

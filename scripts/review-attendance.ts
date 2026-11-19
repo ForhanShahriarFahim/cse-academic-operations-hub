@@ -12,10 +12,13 @@ import { withDisposableCluster } from "./safety/pg-cluster";
 import { reviewSession } from "./ux-review";
 import { workbookFixture } from "./verify-student-workbook";
 import { readStudentWorkbook, writeStudentWorkbook } from "../src/lib/student-workbook";
+import { dhakaToday } from "../src/lib/room-lifecycle";
+import { todayIndex } from "../src/lib/teacher-routine-data";
 
 const stu01b = process.argv.includes("--stu-01b");
-const appPort = stu01b ? 3146 : 3134;
-const controlPort = stu01b ? 3147 : 3135;
+const att01 = process.argv.includes("--att-01");
+const appPort = att01 ? 3150 : stu01b ? 3146 : 3134;
+const controlPort = appPort + 1;
 const origin = `http://localhost:${appPort}`;
 const controlOrigin = `http://localhost:${controlPort}`;
 const captures = ".tmp/stu-01b/browser";
@@ -26,7 +29,7 @@ async function main() {
     const target = await cluster.createDatabase("safe01_stu01a_browser");
     const database = postgresDatabase(target, () => cluster.dropDatabase(target));
     const session = reviewSession();
-    const { group, emptyGroup } = await withHandle(database, async handle => {
+    const { group, emptyGroup, matchedSession } = await withHandle(database, async handle => {
       await database.migrate(handle);
       await populateSummerFixture(handle.db);
       await handle.client.query("insert into auth_session(id,expires_at,token,user_id) values('stu01a-review',now()+interval '1 day',$1,'synthetic-auth-user')", [session.token]);
@@ -36,18 +39,40 @@ async function main() {
       const emptyGroup = Number((await handle.client.query<{ id: number }>(
         "insert into teaching_groups(term_id, course_id) select term_id, course_id from teaching_groups where id = $1 returning id", [group],
       )).rows[0].id);
-      return { group, emptyGroup };
+      let matchedSession = 0;
+      if (att01) {
+        const now = new Date();
+        const date = dhakaToday(now);
+        await handle.client.query("update academic_terms set end_date = $1 where status = 'active'", [date]);
+        await handle.client.query("update meetings set day_of_week = $1", [todayIndex(now)]);
+        matchedSession = (await handle.client.query<{ id: number }>(
+          "update attendance_sessions set class_date = $1 where teaching_group_id = $2 returning id", [date, group])).rows[0].id;
+        await handle.client.query(
+          "insert into attendance_sessions(term_id, teaching_group_id, class_date, phase) select term_id, teaching_group_id, class_date, 'final' from attendance_sessions where id = $1",
+          [matchedSession],
+        );
+        await handle.client.query(
+          "insert into auth_user(id,name,email,email_verified,created_at,updated_at) values('att01-teacher','Synthetic Teacher A','teacher-a@example.invalid',true,now(),now())",
+        );
+        await handle.client.query(
+          "insert into auth_session(id,expires_at,token,user_id) values('att01-teacher',now()+interval '1 day',$1,'att01-teacher')",
+          [session.teacherToken],
+        );
+      }
+      return { group, emptyGroup, matchedSession };
     });
     const control = createServer((request, response) => {
-      if (request.url === "/sign-in") {
+      if (request.url === "/sign-in" || (att01 && request.url === "/teacher")) {
+        const teacher = request.url === "/teacher";
         response.writeHead(302, {
-          "Set-Cookie": `better-auth.session_token=${session.cookie}; Path=/; HttpOnly; SameSite=Lax`,
-          Location: `${origin}/attendance?group=${group}`,
+          "Set-Cookie": `better-auth.session_token=${teacher ? session.teacherCookie : session.cookie}; Path=/; HttpOnly; SameSite=Lax`,
+          Location: `${origin}/attendance${att01 ? "" : `?group=${group}`}`,
         }).end();
         return;
       }
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
-        .end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>Student roster synthetic review</h1><a href="/sign-in">Sign in and open Attendance</a>');
+        .end(`<!doctype html><html lang="en"><meta charset="utf-8"><title>Attendance review</title><h1>Synthetic attendance review</h1>
+          <p><a href="/sign-in">Open Attendance as administrator</a></p>${att01 ? '<p><a href="/teacher">Open Attendance as teacher</a></p>' : ""}`);
     });
     await new Promise<void>((resolve, reject) => {
       control.once("error", reject);
@@ -67,7 +92,8 @@ async function main() {
       }
       assert.ok(ready, "Synthetic preview did not start.");
       console.log(`Student roster synthetic review: ${controlOrigin}/sign-in`);
-      if (process.argv.includes("--check")) await checkBrowser(emptyGroup, async () => {
+      if (process.argv.includes("--check") && att01) await checkSelection(group, emptyGroup, matchedSession);
+      if (process.argv.includes("--check") && !att01) await checkBrowser(emptyGroup, async () => {
         await withHandle(database, async handle => {
           await handle.client.query(`with added as (
               insert into students(student_code, full_name)
@@ -86,6 +112,96 @@ async function main() {
       await database.dispose();
     }
   });
+}
+
+async function checkSelection(group: number, emptyGroup: number, matchedSession: number) {
+  const output = ".tmp/att-01/browser";
+  await mkdir(output, { recursive: true });
+  const browser = await chromium.launch({ channel: "msedge" });
+  try {
+    const teacher = await browser.newPage({ viewport: { width: 320, height: 900 } });
+    await teacher.goto(`${controlOrigin}/teacher`);
+    await teacher.getByRole("heading", { name: "My classes", exact: true }).waitFor();
+    const rollCall = teacher.getByRole("link", { name: /Open roll-call for SYN-4101/ });
+    await rollCall.focus();
+    await rollCall.press("Enter");
+    await teacher.getByRole("region", { name: "Take attendance" }).waitFor();
+    await teacher.waitForFunction(() => document.activeElement?.id === "roll-call");
+    await teacher.waitForFunction(() => {
+      const heading = document.getElementById("roll-call-heading")?.getBoundingClientRect();
+      const topBar = document.querySelector("header.sticky")?.getBoundingClientRect();
+      return heading && topBar && heading.top >= topBar.bottom && heading.bottom <= innerHeight;
+    });
+    assert.equal(new URL(teacher.url()).searchParams.get("session"), String(matchedSession));
+    await teacher.getByRole("button", { pressed: true, name: /midterm.*9:00/ }).waitFor();
+    await teacher.getByRole("combobox", { name: "Attendance for Synthetic Visiting Student" }).waitFor();
+    assert.equal(await teacher.getByRole("link", { name: "Manage roster" }).count(), 0);
+    assert.equal(await teacher.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    await teacher.screenshot({ path: `${output}/teacher-roll-call-320.png`, fullPage: true });
+    await teacher.getByRole("link", { name: "Printable roll-call", exact: true }).click();
+    await teacher.getByRole("heading", { name: "Roll-call", exact: true }).waitFor();
+    await teacher.getByText("Synthetic Visiting Student", { exact: true }).waitFor();
+    await teacher.getByRole("link", { name: "Back to attendance", exact: true }).click();
+    await teacher.waitForURL(url => url.pathname === "/attendance" && url.searchParams.get("group") === String(group));
+    await teacher.goto(`${origin}/attendance?group=${emptyGroup}`);
+    await teacher.getByText("This attendance link is unavailable.", { exact: false }).waitFor();
+    assert.equal(await teacher.getByRole("region", { name: "Take attendance" }).count(), 0);
+    await teacher.goto(`${origin}/attendance`);
+    await teacher.getByRole("link", { name: /Open class for SYN-4102/ }).click();
+    await teacher.getByText("Weekly routine slot", { exact: false }).waitFor();
+    assert.equal(await teacher.locator('input[name="classDate"]').inputValue(), "");
+
+    const admin = await browser.newPage();
+    await admin.goto(`${controlOrigin}/sign-in`);
+    await admin.getByRole("heading", { name: "Find a course", exact: true }).waitFor();
+    await admin.getByLabel("Department", { exact: true }).selectOption({ label: "CSE" });
+    await admin.getByLabel("Stream", { exact: true }).selectOption("hsc");
+    await admin.getByLabel("Batch", { exact: true }).selectOption({ label: "HSC-22B · Semester 7" });
+    const merged = admin.getByRole("link", { name: /Open group for SYN-4101.*HSC-22B.*DIP-22B.*EEE-22B/ });
+    await merged.click();
+    await admin.waitForURL(url => url.searchParams.get("group") === String(group));
+    await admin.reload();
+    await admin.getByRole("link", { name: "Change group" }).click();
+    await admin.getByLabel("Stream", { exact: true }).selectOption("diploma");
+    await admin.waitForURL(url => url.searchParams.get("stream") === "diploma" && !url.searchParams.has("group"));
+    const diplomaFinder = admin.url();
+    await merged.click();
+    await admin.waitForURL(url => url.searchParams.get("group") === String(group));
+    await admin.goBack();
+    await merged.waitFor();
+    assert.equal(await admin.getByLabel("Stream", { exact: true }).inputValue(), "diploma");
+    await admin.goForward();
+    await admin.getByRole("link", { name: "Manage roster" }).waitFor();
+    await admin.getByRole("link", { name: "Manage roster" }).click();
+    await admin.getByRole("heading", { name: "Manage roster", exact: true }).waitFor();
+    await admin.getByRole("link", { name: "Back to attendance" }).click();
+    await admin.waitForURL(url => url.pathname === "/attendance" && url.searchParams.get("group") === String(group));
+    await admin.goto(`${origin}/attendance?group=${emptyGroup}&session=${matchedSession}`);
+    await admin.getByText("This attendance session or routine slot is unavailable.", { exact: false }).waitFor();
+    assert.equal(await admin.getByRole("button", { name: "Save", exact: true }).count(), 0);
+    await admin.goto(`${origin}/attendance?group=${group}&session=2147483647`);
+    await admin.getByText("This attendance session or routine slot is unavailable.", { exact: false }).waitFor();
+    assert.equal(await admin.getByRole("button", { name: "Save", exact: true }).count(), 0);
+    await admin.goto(`${origin}/attendance?group=${group}&group=${emptyGroup}`);
+    await admin.getByText("This attendance link is unavailable.", { exact: false }).waitFor();
+    assert.equal(await admin.getByRole("region", { name: "Take attendance" }).count(), 0);
+    await admin.goto(diplomaFinder);
+    await merged.waitFor();
+    await admin.addScriptTag({ path: requireFromRepo.resolve("axe-core/axe.min.js") });
+    for (const width of [1440, 390, 320]) {
+      await admin.setViewportSize({ width, height: 900 });
+      assert.equal(await admin.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      const violations = await admin.evaluate(async () => {
+        const axe = (window as Window & { axe?: { run: (node: Document, options: unknown) => Promise<{ violations: Array<{ id: string }> }> } }).axe!;
+        return (await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] })).violations.map(item => item.id);
+      });
+      assert.deepEqual(violations, [], `Find a course accessibility at ${width}px`);
+      await admin.screenshot({ path: `${output}/course-finder-${width}.png`, fullPage: true });
+    }
+    console.log("ATT-01 Edge checks passed: teacher routine, exact session, unmatched slot, merged cascade, history, refused URLs and responsive layout.");
+  } finally {
+    await browser.close();
+  }
 }
 
 async function checkBrowser(emptyGroup: number, addPrintRoster: () => Promise<void>) {
