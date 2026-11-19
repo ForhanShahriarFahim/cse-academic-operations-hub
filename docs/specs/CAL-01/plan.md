@@ -23,9 +23,9 @@ Branch `codex/cal-01` from local `main` at `a4b0ccb`. [Specification and decisio
 
 - [x] T-01 — Inspect issue #38, sources and current term/date behavior. Present the proposed scope, criteria and sketches.
 - [x] T-02 — Confirm source authority and day swaps. Record and commit the owner's decisions and implementation approval.
-- [ ] T-03 — Implement additive storage, date validation and date lookup, with term-bounds protection, server authorization, revision control and transactional audit. Covers AC-01–AC-05.
-- [ ] T-04 — Implement term workspace entry, screen/lookup, manager editing and history, and authenticated A4. Covers AC-01–AC-06.
-- [ ] T-05 — Verify disposable migrations and recovery, parity, final application checks and compiled review. Record evidence and give the owner a runnable review. Covers AC-01–AC-07.
+- [x] T-03 — Implement additive storage, date validation and date lookup, with term-bounds protection, server authorization, revision control and transactional audit. Covers AC-01–AC-05.
+- [x] T-04 — Implement term workspace entry, screen/lookup, manager editing and history, and authenticated A4. Covers AC-01–AC-06.
+- [x] T-05 — Verify disposable migrations and recovery, parity, final application checks and compiled review. Record evidence and give the owner a runnable review. Covers AC-01–AC-07.
 - [ ] T-06 — Record delivery acceptance and merge the bounded delivery into local `main`. Keep the parent issue open for deferred #38 work.
 
 ## Verification and delivery
@@ -34,6 +34,6 @@ Run typecheck, lint, domain tests and default build with disposable configuratio
 
 ## Current checkpoint and exact handoff
 
-The planning package is ready for review on `codex/cal-01`. Only T-01 is complete. [Inspection and verification record](verification.md)
+T-01–T-05 are complete on `codex/cal-01` and the delivery is ready for owner review. [Verification, owner review command and pending checks](verification.md)
 
-> Resume CAL-01 / #38 on `codex/cal-01`. Read the proposed specification and workflow sketches. Obtain and record the owner's accepted source authority, answer on day swaps and approval or amendments to D-1–D-5. Commit the approved plan before starting T-03. Historical calendars, attendance, frozen public routines and institutional storage are protected by the stated scope. GitHub updates follow the next owner-directed synchronization boundary.
+> Resume CAL-01 / #38 on `codex/cal-01`. Obtain the owner's actual acceptance of the reviewed delivery and any disclosed build limitation. Record it as the T-06 acceptance commit, merge the bounded delivery into local `main`, and confirm that the merged tree matches the accepted branch. Keep #38 open for day swaps, CSV and previous-term copying. Do not migrate the institutional database without an operations decision and a cold backup. GitHub updates follow the next owner-directed synchronization boundary.
