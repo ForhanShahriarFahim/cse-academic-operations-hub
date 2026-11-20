@@ -25,7 +25,7 @@ Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) �
 - [x] T-05 — Extend preparation selection, permissions, preview fingerprint, atomic copies and receipt. Add post-activation reconfirmation on the existing Verify path. Covers AC-03–AC-04.
 - [x] T-06 — Add audited link/removal, live coverage and publication blockers, group deletion protection and duplicate suppression. Extend snapshot format, readers and routine/teacher output. Covers AC-05–AC-06.
 - [x] T-07 — Run focused checks and the final suite. Review and record compiled flows and A4 examples against AC-01–AC-08 in `verification.md`.
-- [ ] T-08 — Commit the verified delivery, present it for owner inspection and record acceptance before merging into local `main`.
+- [x] T-08 — Commit the verified delivery, present it for owner inspection and record acceptance before merging into local `main`. On 20 November 2026 the owner replied "Accept and merge" in the Claude Code session to delivery `9e0e43d`. This authorizes the local merge into `main`. It does not authorize applying `0022` or `0023` to the institutional database.
 
 ## Verification and delivery
 
