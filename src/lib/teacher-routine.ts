@@ -412,7 +412,7 @@ export function projectTeacherRoutine({
         audience: `Department of ${item.counterpartDepartment}`,
         rooms: item.roomCode ?? "Room not recorded",
         coTeachers: [],
-        note: "Other department",
+        note: item.effectiveFrom ? `Other department · ${item.effectiveFrom} through ${item.effectiveTo}` : "Other department",
       })),
   ].sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.start - b.start || a.key.localeCompare(b.key));
 
@@ -445,7 +445,7 @@ export function projectTeacherRoutine({
 }
 
 function externalTime(item: ExternalCommitmentView): string | null {
-  return item.startMinutes != null && item.endMinutes != null ? fmtRangeShort(item.startMinutes, item.endMinutes) : null;
+  return item.startMinutes != null && item.endMinutes != null ? `${fmtRangeShort(item.startMinutes, item.endMinutes)}${item.effectiveFrom ? ` · ${item.effectiveFrom} through ${item.effectiveTo}` : ""}` : null;
 }
 
 /** Comparable description of one class; any change here counts as a changed class. */

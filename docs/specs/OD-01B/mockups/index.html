@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OD-01B review sketches</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #202a25; background: #f5f4ee; font: 1rem/1.5 system-ui, sans-serif; }
+  main { max-width: 65rem; margin: auto; padding: clamp(.75rem, 3vw, 2rem); }
+  h1, h2 { margin: 0 0 .5rem; font-family: Georgia, serif; line-height: 1.2; }
+  h3, p { margin: .45rem 0; }
+  nav, .row { display: flex; flex-wrap: wrap; gap: .6rem 1.15rem; align-items: center; }
+  nav { margin: 1rem 0; }
+  a { color: #175643; text-underline-offset: .2em; }
+  section { margin: 1rem 0; padding: clamp(.8rem, 3vw, 1.4rem); background: #fff; border: 1px solid #c8ccc3; border-radius: .5rem; }
+  .columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  fieldset, .card { min-width: 0; margin: .7rem 0; padding: .8rem; border: 1px solid #c8ccc3; border-radius: .4rem; }
+  legend, label { font-weight: 600; }
+  label.date { display: grid; gap: .25rem; }
+  textarea, input:not([type="checkbox"]):not([type="radio"]) { width: 100%; min-width: 0; font: inherit; padding: .45rem; border: 1px solid #829188; border-radius: .35rem; }
+  input[type="checkbox"], input[type="radio"] { accent-color: #175643; }
+  .check { display: flex; align-items: baseline; gap: .5rem; }
+  button { min-height: 2.75rem; padding: .4rem .9rem; border: 1px solid #175643; border-radius: .35rem; background: #175643; color: #fff; font: inherit; font-weight: 600; }
+  :focus-visible { outline: 3px solid #175643; outline-offset: 4px; }
+  .muted { color: #46584e; font-size: .9rem; }
+  .notice { padding: .55rem .75rem; border-left: .25rem solid #99712b; background: #fff5dc; }
+  .print-row { display: grid; grid-template-columns: 3rem minmax(0, 1fr); border: 1px solid currentColor; }
+  .print-row > * { margin: 0; padding: .4rem .6rem; }
+  .print-row dt { border-right: 1px solid currentColor; font-weight: 700; }
+  @media (max-width: 38rem) { .columns { grid-template-columns: minmax(0, 1fr); } }
+  @media print {
+    @page { size: A4 landscape; margin: 14mm; }
+    body, section { color: #000; background: #fff; }
+    header, section:not(#print) { display: none; }
+    #print { border: 0; padding: 0; margin: 0; font-size: 10pt; }
+  }
+</style>
+<main>
+  <header>
+    <h1>OD-01B review sketches</h1>
+    <p>Example records for reviewing the workflow. Controls illustrate the proposed screens.</p>
+    <nav aria-label="Sketches">
+      <a href="#dates">Effective dates</a>
+      <a href="#carry">Carry-forward</a>
+      <a href="#link">Formal group link</a>
+      <a href="#print">A4 OD row</a>
+    </nav>
+  </header>
+
+  <section id="dates" aria-labelledby="dates-heading">
+    <h2 id="dates-heading">Edit commitment</h2>
+    <p>Electrical Engineering · Room 406 · Tuesday, 10:00–11:15</p>
+    <div class="columns">
+      <fieldset>
+        <legend>Effective dates</legend>
+        <p id="date-info" class="muted">Leave both blank for the whole term. Both dates are inclusive.</p>
+        <div class="columns">
+          <label class="date">From <input type="date" value="2027-02-02" aria-describedby="date-info"></label>
+          <label class="date">Through <input type="date" value="2027-03-02" aria-describedby="date-info"></label>
+        </div>
+      </fieldset>
+      <div class="card">
+        <h3>Impact preview</h3>
+        <p>Blocks room 406 on Tuesdays within 2 Feb–2 Mar.</p>
+        <p>Overlaps CSE 205 on Tuesdays from 9 Feb through 23 Feb.</p>
+        <p class="notice">Saving the changed dates returns this commitment to Pending.</p>
+      </div>
+    </div>
+    <button type="button">Save commitment</button>
+  </section>
+
+  <section id="carry" aria-labelledby="carry-heading">
+    <h2 id="carry-heading">Prepare Summer 2027</h2>
+    <p>Source: Spring 2027 · Destination: Summer 2027 draft</p>
+    <fieldset>
+      <legend>Cross-department commitments</legend>
+      <label class="check"><input type="checkbox" checked> Electrical Engineering · Room 406 · Tuesdays 10:00–11:15</label>
+      <p class="muted">Source dates: 2 Feb–2 Mar. Choose dates for the destination.</p>
+      <div class="columns">
+        <label class="date">Destination from <input type="date" value="2027-06-08"></label>
+        <label class="date">Destination through <input type="date" value="2027-07-06"></label>
+      </div>
+      <p><label class="check"><input type="checkbox"> Civil Engineering · Room 505 · Whole term</label></p>
+    </fieldset>
+    <button type="button">Review preparation</button>
+    <div class="card">
+      <h3>Review before confirming</h3>
+      <p>Room 406 · Tuesdays, 10:00–11:15 · 8 Jun–6 Jul 2027 · <strong>Pending</strong></p>
+      <p class="muted">After activation, an authorized commitment manager can record a fresh confirmation from Electrical Engineering.</p>
+    </div>
+  </section>
+
+  <section id="link" aria-labelledby="link-heading">
+    <h2 id="link-heading">Link to a formal teaching group</h2>
+    <p>Electrical Engineering · Teacher T4 · Room 406 · Tuesday, 10:00–11:15 · 2 Feb–2 Mar 2027</p>
+    <fieldset>
+      <legend>Matching scheduled group</legend>
+      <label class="check"><input type="radio" name="group" checked> Group #84 · CSE 215 · EEE-22B</label>
+      <p class="muted">T4 · Room 406 · Tuesdays, 10:00–11:15 · Whole term</p>
+      <label for="reason">Why are these the same class?</label>
+      <textarea id="reason" rows="2">Confirmed with the Electrical Engineering coordinator.</textarea>
+    </fieldset>
+    <p>Group #84 will represent this class in the routine and teacher agenda. The original commitment remains in the register.</p>
+    <button type="button">Link group #84</button>
+    <div class="notice card">
+      <h3>Needs review</h3>
+      <p>Group #84 moved to 11:30. The original 10:00 commitment is back in planning. Restore the match or remove the link before publication.</p>
+    </div>
+  </section>
+
+  <section id="print" aria-labelledby="print-heading">
+    <h2 id="print-heading">Spring 2027 · Published routine</h2>
+    <p>Tuesday · 10:00–11:15</p>
+    <dl class="print-row">
+      <dt>OD</dt>
+      <dd>Room 406 · Electrical Engineering <strong>(2 Feb–2 Mar 2027)</strong></dd>
+    </dl>
+  </section>
+</main>
+</html>

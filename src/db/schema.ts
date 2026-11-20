@@ -1,5 +1,6 @@
 import {
   pgTable,
+  foreignKey,
   serial,
   integer,
   text,
@@ -420,7 +421,7 @@ export const teachingGroups = pgTable(
     pendingReconciliation: boolean("pending_reconciliation").notNull().default(false),
     notes: text("notes"),
   },
-  (t) => [index("tg_term_idx").on(t.termId)],
+  (t) => [index("tg_term_idx").on(t.termId), uniqueIndex("tg_term_id_uq").on(t.termId, t.id)],
 );
 
 // A teaching group can serve several offerings (merged classes across
@@ -721,8 +722,18 @@ export const externalCommitments = pgTable(
     verificationNote: text("verification_note"),
     revision: integer("revision").notNull().default(1),
     updatedAt: timestamp("updated_at", { withTimezone: true }),
+    effectiveFrom: date("effective_from"),
+    effectiveTo: date("effective_to"),
+    linkedTeachingGroupId: integer("linked_teaching_group_id"),
+    carriedFromTermId: integer("carried_from_term_id").references(() => academicTerms.id),
+    carriedFromCommitmentId: integer("carried_from_commitment_id"),
   },
-  (t) => [index("ec_term_idx").on(t.termId)],
+  (t) => [
+    index("ec_term_idx").on(t.termId),
+    index("ec_linked_group_idx").on(t.termId, t.linkedTeachingGroupId),
+    uniqueIndex("ec_carry_origin_uq").on(t.termId, t.carriedFromCommitmentId),
+    foreignKey({ name: "ec_linked_group_fk", columns: [t.termId, t.linkedTeachingGroupId], foreignColumns: [teachingGroups.termId, teachingGroups.id] }).onDelete("restrict"),
+  ],
 );
 
 // Workload is an explicit allocation record — never computed by summing

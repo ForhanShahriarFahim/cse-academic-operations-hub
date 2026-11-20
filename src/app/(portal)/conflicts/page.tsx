@@ -15,6 +15,7 @@ const TYPE_LABEL: Record<Issue["type"], string> = {
   room_double_booking: "Room double-booking",
   audience_overlap: "Student audience overlap",
   external_teacher_conflict: "Outgoing teaching clash (OD)",
+  external_link_review: "Teaching group link needs review",
   external_room_conflict: "External room reservation clash (OD)",
   break_conflict: "Break violation",
   outside_permitted_window: "Outside permitted window",

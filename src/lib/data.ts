@@ -9,6 +9,7 @@ import { countStatus, type CountStatus } from "./batch-records";
 import type { TermWriteContext } from "./term-context-value";
 import { ActiveTermUnavailable } from "./term-state";
 import type { MaintenanceContext } from "./room-maintenance";
+import { meetingCoversCommitment } from "./commitment-records";
 import { db, databaseReadBatch } from "@/db";
 import {
   batches,
@@ -175,6 +176,7 @@ export interface PortalData {
   batches: BatchView[];
   meetings: MeetingView[];
   externals: ExternalCommitmentView[];
+  coveredCommitmentIds?: number[];
   /** Breaks in the stream patterns, for summaries and snapshot compatibility. Validation uses `timeGrid`. */
   breaks: {
     id: number; name: string; scope: string; stream: string | null;
@@ -331,10 +333,17 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
     rooms: roomRows,
   });
 
-  const externals: ExternalCommitmentView[] = ecRows.map((e) => {
+  const meetingDates = Object.fromEntries(meetingRows.map((m) => [m.id, { effectiveFrom: m.effectiveFrom, effectiveTo: m.effectiveTo }]));
+  const coveredCommitmentIds: number[] = [];
+  const externals: ExternalCommitmentView[] = ecRows.flatMap((e) => {
+    if (e.linkedTeachingGroupId !== null && meetingViews.some((m) => m.teachingGroupId === e.linkedTeachingGroupId
+      && meetingCoversCommitment(e, { ...m, ...meetingDates[m.id] }, { termStart: term.startDate, termEnd: term.endDate }))) {
+      coveredCommitmentIds.push(e.id);
+      return [];
+    }
     const t = e.teacherId ? teacherRows.find((x) => x.id === e.teacherId) : null;
     const r = e.roomId ? roomRows.find((x) => x.id === e.roomId) : null;
-    return {
+    return [{
       id: e.id,
       kind: e.kind,
       completenessLevel: e.completenessLevel,
@@ -354,7 +363,9 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
       source: e.source,
       lastVerifiedAt: e.lastVerifiedAt ? e.lastVerifiedAt.toISOString() : null,
       notes: e.notes,
-    };
+      ...(e.effectiveFrom !== null ? { effectiveFrom: e.effectiveFrom, effectiveTo: e.effectiveTo } : {}),
+      ...(e.linkedTeachingGroupId !== null ? { linkNeedsReview: true as const } : {}),
+    }];
   });
 
   // Coverage tracking against teaching requirements (spec §10.4).
@@ -570,6 +581,7 @@ async function loadPortalDataSnapshot(privateContacts: boolean): Promise<PortalD
     batches: batchViews,
     meetings: meetingViews,
     externals,
+    ...(coveredCommitmentIds.length ? { coveredCommitmentIds } : {}),
     breaks: breakViews,
     timeGrid,
     windows: windowRows.filter((w) => w.termId == null || w.termId === term.id).map((w) => ({

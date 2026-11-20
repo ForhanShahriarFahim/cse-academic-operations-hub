@@ -17,7 +17,7 @@ export default async function NewCommitmentPage({ searchParams }: { searchParams
         <Link href={returnTo} className="text-[13px] underline">← Cross-department commitments</Link>
         <PageHeader context={`Planning records · ${term.name}`} title="Record a commitment" description="Record what is known about a teacher or room committed to another department. It starts as Pending until someone confirms it." />
         <CommitmentForm mode="create" returnTo={returnTo} {...options}
-          initial={{ kind: "", counterpartDepartment: "", teacherId: "", roomId: "", dayOfWeek: "", startTime: "", endTime: "", courseLabel: "", audienceLabel: "", credits: "", notes: "" }} />
+          initial={{ kind: "", counterpartDepartment: "", teacherId: "", roomId: "", dayOfWeek: "", startTime: "", endTime: "", effectiveFrom: "", effectiveTo: "", courseLabel: "", audienceLabel: "", credits: "", notes: "" }} />
       </div>
     </TermWriteProvider>
   );

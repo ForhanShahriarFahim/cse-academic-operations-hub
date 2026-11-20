@@ -79,7 +79,28 @@ test("guided form: field errors keep input; impact preview shows blocks, level a
   await expect(preview).toContainText(/Will block: Room .+ only on Sunday/);
   await expect(preview).toContainText("Completeness C");
   await expect(preview).toContainText(/Clashes in the working draft \([1-9]\d*\)/);
+  const from = page.getByLabel("From", { exact: true });
+  const through = page.getByLabel("Through", { exact: true });
+  const firstDay = await from.getAttribute("min");
+  expect(firstDay).toBeTruthy();
+  const sunday = new Date(`${firstDay}T00:00:00Z`);
+  sunday.setUTCDate(sunday.getUTCDate() + (7 - sunday.getUTCDay()) % 7);
+  const date = sunday.toISOString().slice(0, 10);
+  await from.fill(date);
+  await expect(preview).toContainText("Enter valid effective dates");
+  await through.fill(date);
+  await expect(preview).toContainText(date);
   await review(page, "form-room-preview");
+  await page.getByRole("button", { name: /Record commitment/ }).click();
+  await expect(row(page, "SYN-PREVIEW")).toContainText(date);
+  await page.goto("/routine/official", { waitUntil: "networkidle" });
+  await expect(page.locator(".official-od").filter({ hasText: "SYN-PREVIEW" }).first()).toContainText(date);
+  await page.pdf({ path: path.join(shots, "dated-od-routine.pdf"), preferCSSPageSize: true });
+  await page.goto("/od", { waitUntil: "networkidle" });
+  await row(page, "SYN-PREVIEW").getByText("More ▾").click();
+  await row(page, "SYN-PREVIEW").getByRole("button", { name: "Delete mistaken entry" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete mistaken entry" }).click();
+  await expect(row(page, "SYN-PREVIEW")).toHaveCount(0);
 });
 
 test("lifecycle: create, verify with note, edit returns to Pending, archive, reactivate, history, delete", async ({ context, page }) => {
@@ -99,6 +120,10 @@ test("lifecycle: create, verify with note, edit returns to Pending, archive, rea
   await expect(page.getByRole("status").filter({ hasText: "Commitment recorded as Pending" })).toBeVisible();
   await expect(row(page, dept)).toContainText("B · credits missing");
   await expect(row(page, dept)).toContainText("Pending");
+  await row(page, dept).getByRole("link", { name: "Link teaching group" }).click();
+  await expect(page.getByRole("heading", { name: "Link to a formal teaching group" })).toBeVisible();
+  await review(page, "formal-group-link");
+  await page.getByRole("link", { name: "← Cross-department commitments" }).click();
 
   // Verify needs a note.
   await row(page, dept).getByRole("button", { name: /^Verify/ }).click();
@@ -204,10 +229,48 @@ test("an unresolved note blocks nothing, cannot be verified, and resolves into a
   await expect(row(page, dept)).toHaveCount(0);
 });
 
-test("a teacher cannot open the register, the form or a history page", async ({ context, page }) => {
+test("a teacher cannot open the register, the form, link page or history", async ({ context, page }) => {
   await signIn(context, "teacher");
-  for (const route of ["/od", "/od/new", "/od/1/edit", "/od/1/history"]) {
+  for (const route of ["/od", "/od/new", "/od/1/edit", "/od/1/link", "/od/1/history"]) {
     await page.goto(route, { waitUntil: "networkidle" });
     await expect(page, route).toHaveURL(/\/forbidden/);
   }
+});
+
+test("term preparation previews and records a selected commitment as Pending", async ({ context, page }) => {
+  await signIn(context, "admin");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const term = `Spring ${department()}`;
+  await page.goto("/terms/new");
+  await page.getByLabel("Term name").fill(term);
+  await page.getByLabel("Academic year").fill("2027");
+  await page.getByLabel("Start date", { exact: true }).fill("2027-01-01");
+  await page.getByLabel("End date", { exact: true }).fill("2027-05-01");
+  await page.getByRole("button", { name: "Save draft & set policy" }).click();
+  await expect(page).toHaveURL(/\/terms\/\d+\/setup/);
+  const targetUrl = new URL(page.url()).pathname.replace(/\/setup$/, "");
+  const policyInputs = page.locator('fieldset input[type="number"]');
+  for (let index = 0; index < await policyInputs.count(); index++) await policyInputs.nth(index).fill("1");
+  await page.getByRole("button", { name: "Save policy & review activation" }).click();
+  await expect(page).toHaveURL(/\/activate$/);
+  await page.goto(`${targetUrl}/rollover`);
+  await page.getByLabel("Source term").selectOption({ label: "Summer 2026 · active" });
+  await page.getByRole("button", { name: "Load source placements" }).click();
+  const choices = page.locator("section").filter({ has: page.getByRole("heading", { name: "Cross-department commitments", exact: true }) });
+  await expect(choices).toBeVisible();
+  const commitment = choices.locator('input[type="checkbox"]:enabled').first();
+  await expect(commitment).not.toBeChecked();
+  await commitment.check();
+  const holdReasons = page.locator('input[id^="cohort-"][id$="-reason"]');
+  for (let index = 0; index < await holdReasons.count(); index++) await holdReasons.nth(index).fill("Synthetic cohort hold for review");
+  await page.getByLabel("Reason for preparation").fill("Synthetic review of the carried booking");
+  await page.getByRole("button", { name: "Review preparation" }).click();
+  await expect(page.getByRole("list", { name: "Commitments to carry" })).toContainText("Pending");
+  await review(page, "rollover-commitments");
+  await page.getByLabel(/Type destination identity/).fill(`${term} · 2027`);
+  await page.getByLabel(/I reviewed these decisions/).check();
+  await page.getByRole("button", { name: `Prepare ${term}`, exact: true }).click();
+  // The action revalidates the layout, so the page re-renders as the saved receipt.
+  await expect(page.getByRole("heading", { name: `${term} preparation receipt` })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Carried commitments" })).toContainText("Copied as Pending");
 });

@@ -11,7 +11,7 @@ import { authorize, can, getOptionalActor } from "./auth";
 import { getPortalData } from "./data";
 import {
   FIELD_LABELS, HISTORY_ACTIONS, availableCommands, blocksText, choiceOf, completenessLevel, levelSummary, reviewReasons, scheduleText,
-  type ClashMeeting, type LifecycleCommand,
+  type ClashMeeting, type LifecycleCommand, type LinkMeeting,
 } from "./commitment-records";
 import { DAY_NAMES, fmtTime } from "./time";
 
@@ -28,6 +28,8 @@ export interface CommitmentRow {
   id: number; kind: string; choice: string; lifecycleStatus: string; verificationStatus: string; revision: number;
   counterpartDepartment: string; teacherId: number | null; teacherCode: string | null; teacherName: string | null;
   roomId: number | null; roomCode: string | null; dayOfWeek: number | null; startMinutes: number | null; endMinutes: number | null;
+  effectiveFrom: string | null; effectiveTo: string | null;
+  linkedTeachingGroupId: number | null; linkedCoverage: boolean; carriedFromTermId: number | null; carriedFromCommitmentId: number | null;
   schedule: string | null; courseLabel: string | null; audienceLabel: string | null; credits: string | null; notes: string | null; source: string | null;
   storedLevel: string; derivedLevel: string; levelText: string; blocks: string; reviewReasons: string[];
   lastVerifiedAt: string | null; verificationNote: string | null; archivedAt: string | null; archiveReason: string | null;
@@ -39,13 +41,13 @@ export interface CommitmentRow {
 /** HH:MM for a native time input. */
 const timeValue = (minutes: number | null) => (minutes == null ? "" : `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`);
 
-async function rowsFor(termId: number, where?: ReturnType<typeof eq>): Promise<CommitmentRow[]> {
+async function rowsFor(termId: number, covered: number[]): Promise<CommitmentRow[]> {
   const base = eq(externalCommitments.termId, termId);
   const records = await db.select({ e: externalCommitments, teacherCode: teachers.shortCode, teacherName: teachers.fullName, roomCode: rooms.code })
     .from(externalCommitments)
     .leftJoin(teachers, eq(teachers.id, externalCommitments.teacherId))
     .leftJoin(rooms, eq(rooms.id, externalCommitments.roomId))
-    .where(where ? and(base, where) : base)
+    .where(base)
     .orderBy(asc(externalCommitments.dayOfWeek), asc(externalCommitments.startMinutes), asc(externalCommitments.id));
   const ids = records.map((r) => r.e.id);
   const allocations = ids.length
@@ -60,9 +62,11 @@ async function rowsFor(termId: number, where?: ReturnType<typeof eq>): Promise<C
       id: e.id, kind: e.kind, choice: choiceOf(e.kind)?.short ?? e.kind, lifecycleStatus: e.lifecycleStatus, verificationStatus: e.verificationStatus,
       revision: e.revision, counterpartDepartment: e.counterpartDepartment, teacherId: e.teacherId, teacherCode, teacherName,
       roomId: e.roomId, roomCode, dayOfWeek: e.dayOfWeek, startMinutes: e.startMinutes, endMinutes: e.endMinutes, schedule: scheduleText(e),
+      effectiveFrom: e.effectiveFrom, effectiveTo: e.effectiveTo,
+      linkedTeachingGroupId: e.linkedTeachingGroupId, linkedCoverage: covered.includes(e.id), carriedFromTermId: e.carriedFromTermId, carriedFromCommitmentId: e.carriedFromCommitmentId,
       courseLabel: e.courseLabel, audienceLabel: e.audienceLabel, credits: e.credits, notes: e.notes, source: e.source,
       storedLevel: e.completenessLevel, derivedLevel: derived, levelText: levelSummary(e.completenessLevel, facts),
-      blocks: blocksText(e, { teacher: teacherCode, room: roomCode }), reviewReasons: reviewReasons(e),
+      blocks: covered.includes(e.id) ? "Covered by the formal meeting" : blocksText(e, { teacher: teacherCode, room: roomCode }), reviewReasons: reviewReasons(e),
       lastVerifiedAt: e.lastVerifiedAt?.toISOString() ?? null, verificationNote: e.verificationNote,
       archivedAt: e.archivedAt?.toISOString() ?? null, archiveReason: e.archiveReason,
       workload: allocations.filter((a) => a.id === e.id).map(({ shortCode, units }) => ({ shortCode, units })),
@@ -74,18 +78,22 @@ async function rowsFor(termId: number, where?: ReturnType<typeof eq>): Promise<C
 export interface FormOptions {
   teachers: Array<{ id: number; shortCode: string; fullName: string; homeDepartmentCode: string | null }>;
   rooms: Array<{ id: number; code: string }>;
-  meetings: ClashMeeting[];
+  meetings: Array<ClashMeeting & LinkMeeting>;
+  bounds: { termStart: string; termEnd: string };
 }
 
 /** The register and the form options for the current active term. */
 export async function getCommitmentWorkspace() {
   await authorize(CAPABILITY);
   const data = await getPortalData();
-  const rows = await rowsFor(data.term.id);
+  const rows = await rowsFor(data.term.id, data.coveredCommitmentIds ?? []);
   const options: FormOptions = {
+    bounds: { termStart: data.term.startDate, termEnd: data.term.endDate },
     teachers: data.teachers.filter((t) => t.status !== "inactive").map((t) => ({ id: t.id, shortCode: t.shortCode, fullName: t.fullName, homeDepartmentCode: t.homeDepartmentCode })),
     rooms: data.rooms.filter((r) => r.isActive).map((r) => ({ id: r.id, code: r.code })),
     meetings: data.meetings.map((m) => ({ id: m.id, dayOfWeek: m.dayOfWeek, startMinutes: m.startMinutes, endMinutes: m.endMinutes, courseCode: m.courseCode,
+      teachingGroupId: m.teachingGroupId, deliveryMode: m.deliveryMode, pendingReconciliation: m.pendingReconciliation,
+      ...data.maintenance?.meetingDates[m.id],
       teachers: m.teachers.map((t) => ({ id: t.id, shortCode: t.shortCode })), rooms: m.rooms.map((r) => ({ id: r.id, code: r.code })),
       audience: m.audiences.map((a) => a.batchLabel).join(" + ") || m.externalAudienceLabel || "" })),
   };

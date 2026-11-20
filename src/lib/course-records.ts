@@ -68,9 +68,9 @@ export function snapshotCourseEvidence(value: unknown, id: number, aliases: stri
   let uncertain = !Array.isArray(v.meetings) || typeof v.generatedAt !== "string" || !Number.isFinite(Date.parse(v.generatedAt)) || !Number.isInteger(v.versionNumber) || Number(v.versionNumber) < 1;
   if (v.schemaVersion == null) uncertain ||= typeof v.termName !== "string";
   else {
-    uncertain ||= ![2, 3, 4].includes(Number(v.schemaVersion)) || typeof v.schemaVersion !== "number" || !object(v.term) || !Array.isArray(v.batches) || !Array.isArray(v.breaks) || !Array.isArray(v.issues) || !Array.isArray(v.externalCommitments);
-    if (v.schemaVersion === 3 || v.schemaVersion === 4) uncertain ||= !object(v.metadata) || !Array.isArray(v.metadata.courses);
-    if (v.schemaVersion === 4) uncertain ||= !isTimeGrid(v.timeGrid);
+    uncertain ||= ![2, 3, 4, 5].includes(Number(v.schemaVersion)) || typeof v.schemaVersion !== "number" || !object(v.term) || !Array.isArray(v.batches) || !Array.isArray(v.breaks) || !Array.isArray(v.issues) || !Array.isArray(v.externalCommitments);
+    if (v.schemaVersion === 3 || v.schemaVersion === 4 || v.schemaVersion === 5) uncertain ||= !object(v.metadata) || !Array.isArray(v.metadata.courses);
+    if (v.schemaVersion === 4 || v.schemaVersion === 5) uncertain ||= !isTimeGrid(v.timeGrid);
   }
   let reference = false;
   const inspect = (row: unknown, metadata: boolean) => {

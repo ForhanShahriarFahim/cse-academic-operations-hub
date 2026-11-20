@@ -31,10 +31,11 @@ export default async function EditCommitmentPage({ params, searchParams }: { par
         {archived ? (
           <Notice tone="info">This commitment is archived. Reactivate it from the register before editing.</Notice>
         ) : (
-          <CommitmentForm mode={resolving ? "resolve" : "edit"} id={row.id} revision={row.revision} verified={row.verificationStatus === "verified"} returnTo={returnTo} {...options}
+          <CommitmentForm mode={resolving ? "resolve" : "edit"} id={row.id} revision={row.revision} linkedTeachingGroupId={row.linkedTeachingGroupId} verified={row.verificationStatus === "verified"} returnTo={returnTo} {...options}
             initial={{
               kind, counterpartDepartment: row.counterpartDepartment, teacherId: row.teacherId ? String(row.teacherId) : "", roomId: row.roomId ? String(row.roomId) : "",
               dayOfWeek: row.dayOfWeek != null ? String(row.dayOfWeek) : "", startTime: row.form.startTime, endTime: row.form.endTime,
+              effectiveFrom: row.effectiveFrom ?? "", effectiveTo: row.effectiveTo ?? "",
               courseLabel: row.courseLabel ?? "", audienceLabel: row.audienceLabel ?? "", credits: row.credits ?? "", notes: row.notes ?? "",
             }} />
         )}

@@ -30,6 +30,7 @@ export interface Issue {
     | "room_double_booking"
     | "audience_overlap"
     | "external_teacher_conflict"
+    | "external_link_review"
     | "external_room_conflict"
     | "break_conflict"
     | "outside_permitted_window"
@@ -70,6 +71,10 @@ function refRangesTouch(aStart: number, aEnd: number, bStart: number, bEnd: numb
 
 export function analyzeSchedule(input: EngineInput): Issue[] {
   const issues: Issue[] = [];
+  for (const od of input.externals.filter((row) => row.linkNeedsReview)) {
+    issues.push({ id: `external-link-${od.id}`, type: "external_link_review", severity: "blocker", title: `Review teaching group link for OD #${od.id}`,
+      detail: "The formal meeting no longer covers this commitment. Restore coverage or remove the link.", dayOfWeek: od.dayOfWeek, meetingIds: [], externalId: od.id, href: "/od" });
+  }
   if (input.maintenance) {
     const context = input.maintenance;
     for (const entry of context.entries.filter((e) => !e.cancelled)) {
@@ -192,9 +197,11 @@ export function analyzeSchedule(input: EngineInput): Issue[] {
   for (const m of input.meetings) {
     const streams = meetingStreams(m);
 
-    // External commitments (OD): one overlap rule shared with the OD-01A impact preview.
+    // External commitments and the impact preview share the dated overlap rule.
+    const dates = m.id < 0 ? {} : input.maintenance?.meetingDates[m.id] ?? { effectiveFrom: "invalid", effectiveTo: "invalid" };
+    const datedMeeting = { ...m, ...dates };
     for (const e of input.externals) {
-      for (const clash of commitmentClashes(e, [m])) {
+      for (const clash of commitmentClashes(e, [datedMeeting], input.maintenance)) {
         if (clash.on === "teacher") {
           const t = m.teachers.find((x) => x.id === e.teacherId)!;
           issues.push({

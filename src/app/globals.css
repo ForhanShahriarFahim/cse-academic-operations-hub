@@ -212,6 +212,7 @@ body {
 .official-segment .official-class + .official-class { margin-top: 0; border-top: 0; padding-top: 0; }
 .official-routine tr.official-od th, .official-routine tr.official-od td { height: 4.4mm; font-size: 6.8pt; }
 .official-routine tr.official-od td { font-style: italic; }
+.official-routine tr.official-od-dated td { overflow-wrap: anywhere; }
 .official-routine tr.official-od th { font-weight: 600; }
 
 .official-years { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 4mm; row-gap: 3.5mm; align-content: start; }

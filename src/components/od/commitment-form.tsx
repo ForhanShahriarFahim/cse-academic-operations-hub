@@ -8,31 +8,34 @@ import { useTermActions } from "@/components/term-write-context";
 import { Notice } from "@/components/ui";
 import type { ActionResult } from "@/lib/action-result";
 import {
-  COMMITMENT_CHOICES, blocksText, commitmentClashes, completenessLadder, completenessLevel, usesRoom, usesTeacher,
-  type ClashMeeting, type CommitmentKind,
+  COMMITMENT_CHOICES, blocksText, commitmentClashes, completenessLadder, completenessLevel, meetingCoversCommitment, parseCommitmentDates, usesRoom, usesTeacher,
+  type ClashMeeting, type CommitmentKind, type LinkMeeting,
 } from "@/lib/commitment-records";
 import { DAY_NAMES, fmtRange, parseTimeToMinutes } from "@/lib/time";
 
 export interface CommitmentFormValues {
   kind: CommitmentKind | ""; counterpartDepartment: string; teacherId: string; roomId: string; dayOfWeek: string;
   startTime: string; endTime: string; courseLabel: string; audienceLabel: string; credits: string; notes: string;
+  effectiveFrom: string; effectiveTo: string;
 }
 interface Props {
   mode: "create" | "edit" | "resolve";
   id?: number;
   revision?: number;
+  linkedTeachingGroupId?: number | null;
   verified?: boolean;
   initial: CommitmentFormValues;
   teachers: Array<{ id: number; shortCode: string; fullName: string; homeDepartmentCode: string | null }>;
   rooms: Array<{ id: number; code: string }>;
-  meetings: ClashMeeting[];
+  meetings: Array<ClashMeeting & LinkMeeting>;
+  bounds: { termStart: string; termEnd: string };
   returnTo: string;
 }
 
 const input = "w-full rounded-md border bg-white px-2.5 py-2 text-[13.5px] min-h-[2.75rem]";
 const LEVEL_TONE: Record<string, string> = { A: "border-[var(--color-pine)] text-[var(--color-pine)]", B: "border-[var(--color-moss)] text-[var(--color-pine)]", C: "border-[var(--color-gold)] text-gold-text", D: "border-[var(--color-clay)] text-[var(--color-clay)]" };
 
-export function CommitmentForm({ mode, id, revision, verified, initial, teachers, rooms, meetings, returnTo }: Props) {
+export function CommitmentForm({ mode, id, revision, linkedTeachingGroupId, verified, initial, teachers, rooms, meetings, bounds, returnTo }: Props) {
   const actions = useTermActions();
   const router = useRouter();
   const [values, setValues] = useState(initial);
@@ -57,12 +60,16 @@ export function CommitmentForm({ mode, id, revision, verified, initial, teachers
     const facts = { kind, teacherId, roomId, courseLabel: values.courseLabel.trim() || null, credits: usesTeacher(kind) ? values.credits.trim() || null : null };
     const teacher = teachers.find((t) => t.id === teacherId)?.shortCode ?? null;
     const room = rooms.find((r) => r.id === roomId)?.code ?? null;
+    const { dates, errors } = parseCommitmentDates(structured ? values : {}, subject.dayOfWeek, bounds);
+    const datesInvalid = Object.keys(errors).length > 0;
+    const booking = { ...subject, ...dates };
+    const covered = linkedTeachingGroupId != null && !datesInvalid && meetings.some((meeting) => meeting.teachingGroupId === linkedTeachingGroupId && meetingCoversCommitment(booking, meeting, bounds));
     return {
       blocks: blocksText(subject, { teacher, room }),
-      when: timed ? `${DAY_NAMES[subject.dayOfWeek!]} ${fmtRange(subject.startMinutes!, subject.endMinutes!)}` : null,
-      level: completenessLevel(facts), ladder: completenessLadder(facts), clashes: commitmentClashes(subject, meetings),
+      when: timed ? `${DAY_NAMES[subject.dayOfWeek!]} ${fmtRange(subject.startMinutes!, subject.endMinutes!)}${!datesInvalid && dates.effectiveFrom ? ` · ${dates.effectiveFrom} through ${dates.effectiveTo}` : ""}` : null,
+      level: completenessLevel(facts), ladder: completenessLadder(facts), clashes: datesInvalid || covered ? [] : commitmentClashes(booking, meetings, bounds), datesInvalid, covered,
     };
-  }, [kind, values, teachers, rooms, meetings]);
+  }, [kind, values, teachers, rooms, meetings, bounds, linkedTeachingGroupId]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,7 +94,8 @@ export function CommitmentForm({ mode, id, revision, verified, initial, teachers
     <aside aria-labelledby="od-impact-title" className="rounded-lg border border-[var(--color-line)] bg-wash p-4">
       <h2 id="od-impact-title" className="font-display text-[16px] font-semibold">Impact preview</h2>
       <div aria-live="polite" className="mt-2 space-y-2 text-[13px] leading-relaxed">
-        <p><span className="font-semibold">Will block: </span>{impact.blocks}{impact.when && !impact.blocks.startsWith("Nothing") ? ` on ${impact.when}` : ""}.</p>
+        {impact.covered ? <p>The formal teaching group covers this booking.</p> : <p><span className="font-semibold">Will block: </span>{impact.blocks}{impact.when && !impact.blocks.startsWith("Nothing") ? ` on ${impact.when}` : ""}.</p>}
+        {linkedTeachingGroupId != null && !impact.covered && !impact.datesInvalid && <p>The teaching group link will need review before publication.</p>}
         <div>
           <p className="font-semibold">Completeness <span className={`ml-1 inline-block rounded-full border px-2 text-[11.5px] ${LEVEL_TONE[impact.level]}`}>{impact.level}</span></p>
           <ul className="mt-1 space-y-0.5" aria-label="Facts that set the level">
@@ -106,7 +114,7 @@ export function CommitmentForm({ mode, id, revision, verified, initial, teachers
             <ul className="mt-1 list-disc pl-5">
               {impact.clashes.map((c) => <li key={`${c.on}-${c.meetingId}`}>{c.meeting.courseCode}{c.meeting.audience ? ` · ${c.meeting.audience}` : ""} · {fmtRange(c.meeting.startMinutes, c.meeting.endMinutes)} · {c.on === "teacher" ? `teacher ${c.code}` : `room ${c.code}`}</li>)}
             </ul>
-          ) : <p className="text-muted">None found.</p>}
+          ) : <p className="text-muted">{impact.datesInvalid ? "Enter valid effective dates to check for clashes." : "None found."}</p>}
           {impact.clashes.length ? <p className="mt-1 text-[12px] text-muted">Saving is allowed. The clash then appears in the routine&apos;s conflict list as a blocker.</p> : null}
         </div>
       </div>
@@ -119,7 +127,7 @@ export function CommitmentForm({ mode, id, revision, verified, initial, teachers
     <form onSubmit={submit} noValidate aria-label="Commitment details" className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:gap-x-6">
       {revision != null ? <input type="hidden" name="revision" value={revision} /> : null}
       <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-1">
-        {mode === "edit" && verified ? <Notice tone="warn">This commitment is verified. Changing what is committed, the teacher, the room, the day or the time returns it to Pending until it is confirmed again.</Notice> : null}
+        {mode === "edit" && verified ? <Notice tone="warn">This commitment is verified. Changing what is committed, the teacher, the room, the day, the time or the effective dates returns it to Pending.</Notice> : null}
         {mode === "resolve" ? <Notice tone="info">Choose what this note turned out to be and enter the facts. The original note text is kept in the notes and in history. The result starts as Pending.</Notice> : null}
         {result && !result.ok ? (
           <div ref={summary} tabIndex={-1}>
@@ -193,6 +201,17 @@ export function CommitmentForm({ mode, id, revision, verified, initial, teachers
                   <input id="od-endTime" name="endTime" type="time" value={values.endTime} onChange={set("endTime")} className={`${input} font-mono ${border("endTime")}`} {...describe("endTime")} />
                   {errorText("endTime")}
                 </div>
+                <fieldset className="sm:col-span-2">
+                  <legend className={label}>Effective dates</legend>
+                  <p id="od-date-help" className="mb-2 text-xs text-muted">Leave both blank for the whole term. Both dates are inclusive.</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {([['effectiveFrom', 'From'], ['effectiveTo', 'Through']] as const).map(([field, title]) => <div key={field} className="min-w-0">
+                      <label htmlFor={`od-${field}`} className={label}>{title}</label>
+                      <input id={`od-${field}`} name={field} type="date" min={bounds.termStart} max={bounds.termEnd} value={values[field]} onChange={set(field)} className={`${input} ${border(field)}`} aria-describedby="od-date-help" {...describe(field)} />
+                      {errorText(field)}
+                    </div>)}
+                  </div>
+                </fieldset>
               </div>
             ) : null}
             <div>

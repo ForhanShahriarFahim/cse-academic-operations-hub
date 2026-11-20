@@ -36,7 +36,12 @@ async function main() {
   await db.insert(s.permittedWindows).values([{termId:source.id,stream:"HSC",dayOfWeek:0,startMinutes:480,endMinutes:540},{termId:source.id,stream:"HSC",batchId:bs[0].id,dayOfWeek:1,startMinutes:480,endMinutes:540},{termId:null,stream:"HSC",dayOfWeek:6,startMinutes:480,endMinutes:540}]);
   const choices:RolloverChoice[] = bs.slice(0,4).map((b,i) => ({batchId:b.id,disposition:(["progress","repeat","hold","graduate"] as const)[i],carryCount:true,reason:i > 1 ? "Synthetic cohort planning decision" : "",graduateConfirmed:i === 3}));
   const t = await target();
-  const values = {sourceId:source.id,targetId:t.id,choices:JSON.stringify(choices),cloneGrid:"on",reason:"Synthetic atomic preparation",command:"preview"};
+  const [sourceCommitment] = await db.insert(s.externalCommitments).values({ termId: source.id, kind: "unresolved_note", counterpartDepartment: "Synthetic History", notes: "Ask the receiving department", verificationStatus: "pending" }).returning();
+  const [teacher] = await db.select().from(s.teachers).where(eq(s.teachers.status, "active")).limit(1);
+  const [bounded] = await db.insert(s.externalCommitments).values({ termId: source.id, kind: "teaching", teacherId: teacher.id, counterpartDepartment: "Synthetic Applied Science",
+    dayOfWeek: 0, startMinutes: 660, endMinutes: 720, effectiveFrom: "2026-10-03", effectiveTo: "2026-10-10", verificationStatus: "verified", lastVerifiedAt: new Date(), verificationNote: "Original confirmation" }).returning();
+  const commitments = JSON.stringify([{ id: sourceCommitment.id, effectiveFrom: "", effectiveTo: "" }, { id: bounded.id, effectiveFrom: "2027-01-02", effectiveTo: "2027-01-09" }]);
+  const values = {sourceId:source.id,targetId:t.id,choices:JSON.stringify(choices),commitments,cloneGrid:"on",reason:"Synthetic atomic preparation",command:"preview"};
   const sourceHash = await selectFingerprint(rawClient,`select * from batch_term_placements where term_id=${source.id}`);
   const snapshotHash = await selectFingerprint(rawClient,"select * from schedule_versions");
   signInAs(null); assert.equal((await call(values)).outcome?.kind,"permission");
@@ -86,6 +91,16 @@ async function main() {
   assert.equal((await db.select().from(s.batches).where(eq(s.batches.id,bs[3].id)))[0].status,"active");
   await setAuditInsertFault(handle,false);
   const saved = await call(confirm);okay(saved);assert.ok(saved.receiptId);
+  const copies = await db.select().from(s.externalCommitments).where(eq(s.externalCommitments.termId, t.id));
+  const copied = copies.find((record) => record.carriedFromCommitmentId === sourceCommitment.id)!;
+  const copiedBounded = copies.find((record) => record.carriedFromCommitmentId === bounded.id)!;
+  assert.deepEqual([copiedBounded.verificationStatus, copiedBounded.lastVerifiedAt, copiedBounded.verificationNote, copiedBounded.effectiveFrom, copiedBounded.effectiveTo], ["pending", null, null, "2027-01-02", "2027-01-09"]);
+  assert.deepEqual([copied.verificationStatus, copied.lastVerifiedAt, copied.verificationNote, copied.notes, copied.carriedFromTermId, copied.carriedFromCommitmentId],
+    ["pending", null, null, sourceCommitment.notes, source.id, sourceCommitment.id]);
+  assert.deepEqual((await db.select().from(s.externalCommitments).where(eq(s.externalCommitments.id, sourceCommitment.id)))[0], sourceCommitment);
+  assert.equal((await data.getRolloverWorkspace(t.id))?.receipt?.summary.commitments?.[0].destinationId, copied.id);
+  assert.equal((await db.select().from(s.auditEvents).where(eq(s.auditEvents.action, "external.carry"))).filter((event) => event.entityId === copied.id).length, 1);
+  lines.push("Term preparation carries selected commitments as Pending, preserves their source and records one audit event and receipt mapping in the same transaction.");
   const placed = await db.select().from(s.batchTermPlacements).where(eq(s.batchTermPlacements.termId,t.id));
   assert.equal(placed.length,2);assert.equal(placed.find(p => p.batchId === bs[0].id)?.semester,3);assert.equal(placed.find(p => p.batchId === bs[0].id)?.studentCount,0);assert.equal(placed.find(p => p.batchId === bs[1].id)?.semester,3);assert.equal(placed.find(p => p.batchId === bs[1].id)?.studentCount,13);
   assert.ok(placed.every(p => p.countOrigin === "rollover" && p.countVerifiedAt == null && p.countVerifiedBy == null && !p.countSource?.includes("PRIVATE-SENTINEL")));
@@ -104,11 +119,15 @@ async function main() {
   const workspace = await data.getRolloverWorkspace(t.id,source.id);assert.ok(workspace?.receipt);
   const activate = await termData.activationEvidence(t.id);assert.ok(activate?.target.ready);
   okay(await termActions.activateTermAction(null,form({termId:t.id,revision:activate!.target.term.revision,generation:activate!.context.generation,previousActiveId:activate!.active?.term.id ?? "",fingerprint:activate!.fingerprint,reason:"Synthetic separate activation",acknowledge:"on"})));
+  const od = loadApp<typeof import("../../../src/lib/commitment-actions")>("src/lib/commitment-actions.ts");
+  const context = loadApp<typeof import("../../../src/lib/term-context")>("src/lib/term-context.ts");
+  const token = (await context.captureActiveContext()).writeContext;
+  assert.equal((await od.verifyExternalAction(copiedBounded.id, form({ revision: 1, note: "Reconfirmed after activation" }), token)).ok, true);
   assert.deepEqual(await selectFingerprint(rawClient,`select * from batch_term_placements where term_id=${source.id}`),changedSource);
   lines.push("Production raw actions prove anonymous/viewer/wrong-department denial, duplicate/missing decisions, policy/used-draft gates, nonempty target-grid preservation, foreign source-grid reference refusal, all-term graduation blockers, source-count/context stale results, injected audit rollback, all dispositions, verified-zero estimate reset, private source exclusion, cloned IDs/scopes/held exception exclusion, receipt replay refusal and separate SET-01A activation with preserved source placements/publications.");
   // An all-held plan has no placements, yet still receives one durable receipt.
   const t2 = await target(), available = choices.filter(c => c.batchId !== bs[3].id).map(c => ({...c,disposition:"hold",reason:"Synthetic destination hold"}));
-  const holdValues = {...values,targetId:t2.id,cloneGrid:"off",choices:JSON.stringify(available)};
+  const holdValues = {...values,targetId:t2.id,commitments:"[]",cloneGrid:"off",choices:JSON.stringify(available)};
   const holdReview = await call(holdValues);okay(holdReview);
   const same = {...holdValues,command:"commit",fingerprint:holdReview.review!.fingerprint,confirmation:`${t2.name} · ${t2.academicYear}`,acknowledge:"on"};
   const concurrent = await Promise.all([call(same),call(same)]);assert.equal(concurrent.filter(r => r.ok).length,1);

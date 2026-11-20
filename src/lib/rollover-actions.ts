@@ -12,7 +12,7 @@ export interface RolloverResult extends ActionResult { review?: RolloverReview; 
 export async function prepareRolloverAction(_previous: RolloverResult | null, form: FormData): Promise<RolloverResult> {
   const initial = await actionActor("manage_terms"); if ("ok" in initial) return initial;
   if (!(form instanceof FormData)) return invalid("Submit a valid preparation form.");
-  const keys = ["sourceId","targetId","choices","cloneGrid","reason","command","fingerprint","confirmation","acknowledge"];
+  const keys = ["sourceId","targetId","choices","commitments","cloneGrid","reason","command","fingerprint","confirmation","acknowledge"];
   const raw: Record<string,string> = {};
   for (const [key,value] of form.entries()) {
     if (key.startsWith("$ACTION_")) continue;
@@ -29,8 +29,12 @@ export async function prepareRolloverAction(_previous: RolloverResult | null, fo
       const resource = {kind:"department" as const,departmentId:scope};
       const actor = await actionActor("manage_terms",resource); if ("ok" in actor) return actor;
       const batchActor = await actionActor("manage_batches",resource); if ("ok" in batchActor) return batchActor;
+      if (plan.commitments?.length) {
+        const commitmentActor = await actionActor("manage_external_commitments");
+        if ("ok" in commitmentActor) return commitmentActor;
+      }
       if (raw.command === "commit") await lockRolloverRows(tx,plan);
-      const evidence = await rolloverEvidence(tx,plan);
+      const evidence = await rolloverEvidence(tx,plan,raw.command === "commit");
       if (raw.command === "preview") return {...succeeded("Review ready. No records have been changed."),review:evidence.review};
       if (raw.fingerprint !== evidence.review.fingerprint) return {...stale("The preparation evidence changed. Your decisions are kept; review the latest values and confirm again."),review:evidence.review};
       if (raw.confirmation !== `${evidence.target.name} · ${evidence.target.academicYear}` || raw.acknowledge !== "on") return invalid("Type the destination identity and acknowledge the preparation effect.",{confirmation:["Enter the exact destination identity shown in the review."],acknowledge:["Acknowledge the reviewed one-time preparation."]});

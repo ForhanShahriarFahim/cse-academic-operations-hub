@@ -2,7 +2,7 @@
 import { createHash } from "node:crypto";
 import { and, count, eq, inArray } from "drizzle-orm";
 import type { db } from "@/db";
-import { academicTerms, attendanceSessions, auditEvents, batches, batchTermPlacements, courseEnrollments, courseOfferings, courses, departments, extraLoadClasses, meetingTeachers, meetings, teachers, teachingGroupOfferings, teachingGroups, teachingRequirements, workloadAllocations } from "@/db/schema";
+import { academicTerms, attendanceSessions, auditEvents, batches, batchTermPlacements, courseEnrollments, courseOfferings, courses, departments, externalCommitments, extraLoadClasses, meetingTeachers, meetings, teachers, teachingGroupOfferings, teachingGroups, teachingRequirements, workloadAllocations } from "@/db/schema";
 import { hasCapability, type Actor } from "./auth/policy";
 import { conflicted, denied, invalid, stale, succeeded, type ActionResult } from "./action-result";
 import { WORKLOAD_ADVISORY_UNITS } from "./constants";
@@ -195,6 +195,8 @@ export async function changeClassGroupInTransaction(tx: ClassGroupTx, actor: Act
 
   if (command === "remove") {
     const group = current!;
+    const [linked] = await tx.select({ id: externalCommitments.id }).from(externalCommitments).where(and(eq(externalCommitments.termId, term.id), eq(externalCommitments.linkedTeachingGroupId, group.id))).limit(1);
+    if (linked) return conflicted("Remove the cross-department commitment link before deleting this class group.", [{ severity: "blocker", title: "Commitment is linked", detail: `Review commitment #${linked.id} in the commitments register.` }]);
     if (groupUsed(group.usage)) return conflicted("This class group cannot be removed.", [{ severity: "blocker", title: "Already in use", detail: `It has ${usageText(group.usage)}. A class group can be removed only before it is used.` }]);
     if (raw.confirmation !== group.course.code) return invalid("Type the course code to confirm removal.", { confirmation: [`Type ${group.course.code} exactly.`] });
     if (!reason) return invalid("Enter a reason for removing.", reasonError);

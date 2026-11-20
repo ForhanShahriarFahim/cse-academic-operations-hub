@@ -11,6 +11,7 @@ import type { TimeGrid } from "./time-grid";
 import { roomFit } from "./room-records";
 import type { MaintenanceContext } from "./room-maintenance";
 import { maintenanceOverlap } from "./room-maintenance";
+import { blocksRoom, blocksTeacher, commitmentDateLabel, commitmentOccursWith } from "./commitment-records";
 
 /** Everything about a teaching group needed to place a new class, without a time or staff. */
 export type GroupTemplate = Omit<MeetingView, "id" | "dayOfWeek" | "startMinutes" | "endMinutes" | "teachers" | "rooms">;
@@ -98,14 +99,18 @@ export type Availability =
 function busyWith(meetings: MeetingView[], day: number, start: number, end: number, exceptId: number, uses: (m: MeetingView) => boolean) {
   return meetings.find((m) => m.id !== exceptId && m.dayOfWeek === day && overlaps(m.startMinutes, m.endMinutes, start, end) && uses(m));
 }
+function externalAt(context: EngineContext, day: number, start: number, end: number, meetingId: number, uses: (e: ExternalCommitmentView) => boolean) {
+  const dates = meetingId < 0 ? {} : context.maintenance?.meetingDates[meetingId] ?? { effectiveFrom: "invalid", effectiveTo: "invalid" };
+  return context.externals.find((e) => uses(e) && e.dayOfWeek === day && e.startMinutes != null && e.endMinutes != null
+    && overlaps(e.startMinutes, e.endMinutes, start, end) && commitmentOccursWith(e, dates, day, context.maintenance));
+}
 const audienceText = (m: MeetingView) => m.audiences.map((a) => `${a.stream === "HSC" ? "HSC" : "DIP"}-${a.batchLabel}`).join(" + ");
 
 export function teacherAvailability(teacherId: number, day: number, start: number, end: number, context: EngineContext, exceptId: number): Availability {
   const clash = busyWith(context.meetings, day, start, end, exceptId, (m) => m.teachers.some((t) => t.id === teacherId));
   if (clash) return { state: "busy", detail: `${clash.courseCode} · ${audienceText(clash)}` };
-  const external = context.externals.find((e) => e.teacherId === teacherId && e.dayOfWeek === day
-    && e.startMinutes != null && e.endMinutes != null && overlaps(e.startMinutes, e.endMinutes, start, end));
-  if (external) return { state: "external", detail: `${external.counterpartDepartment} · ${fmtRange(external.startMinutes!, external.endMinutes!)}` };
+  const external = externalAt(context, day, start, end, exceptId, (e) => e.teacherId === teacherId && blocksTeacher(e));
+  if (external) return { state: "external", detail: [external.counterpartDepartment, fmtRange(external.startMinutes!, external.endMinutes!), commitmentDateLabel(external)].filter(Boolean).join(" · ") };
   return { state: "free" };
 }
 
@@ -122,9 +127,8 @@ export function roomAvailability(
   }
   const clash = busyWith(context.meetings, day, start, end, exceptId, (m) => m.rooms.some((r) => r.id === room.id));
   if (clash) return { state: "busy", detail: `${clash.courseCode} · ${audienceText(clash)}` };
-  const external = context.externals.find((e) => ["room_reservation", "combined"].includes(e.kind) && e.roomId === room.id && e.dayOfWeek === day
-    && e.startMinutes != null && e.endMinutes != null && overlaps(e.startMinutes, e.endMinutes, start, end));
-  if (external) return { state: "external", detail: `${external.counterpartDepartment} booking · ${fmtRange(external.startMinutes!, external.endMinutes!)}` };
+  const external = externalAt(context, day, start, end, exceptId, (e) => e.roomId === room.id && blocksRoom(e));
+  if (external) return { state: "external", detail: [`${external.counterpartDepartment} booking`, fmtRange(external.startMinutes!, external.endMinutes!), commitmentDateLabel(external)].filter(Boolean).join(" · ") };
   if (room.capacity == null) {
     return audienceSize == null ? { state: "free", note: "Seats not recorded" } : { state: "check", detail: `Seats not recorded; class of ${audienceSize}` };
   }

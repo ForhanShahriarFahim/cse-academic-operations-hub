@@ -21,6 +21,7 @@ import { OUTSIDE_ACTIVE_TERM, isInActiveTerm } from "./term-scope";
 import { lockRooms, roomAssignmentGuard } from "./room-transaction";
 import { assertActiveRooms, retainAssignedRooms } from "./room-lifecycle-transaction";
 import { assertMaintenanceClear } from "./room-maintenance-transaction";
+import { readCoveredCommitmentIds } from "./commitment-link-evidence";
 import {
   changedFields, completenessLevel, parseCommitmentInput, parseReason, planningFactsChanged, usesRoom, type CommitmentFacts,
 } from "./commitment-records";
@@ -68,13 +69,13 @@ async function assertTeacher(tx: Tx, teacherId: number | null) {
 }
 
 /** Lock, check and retain the room; maintenance applies to room-blocking uses only. */
-async function assertRoom(tx: Tx, actor: Parameters<typeof retainAssignedRooms>[1], facts: Pick<CommitmentFacts, "kind" | "roomId" | "dayOfWeek" | "startMinutes" | "endMinutes">, label: string, checkMaintenance: boolean) {
+async function assertRoom(tx: Tx, actor: Parameters<typeof retainAssignedRooms>[1], facts: Pick<CommitmentFacts, "kind" | "roomId" | "dayOfWeek" | "startMinutes" | "endMinutes" | "effectiveFrom" | "effectiveTo">, label: string, checkMaintenance: boolean) {
   if (facts.roomId == null) return;
   await lockRooms(tx, [facts.roomId]);
   await assertActiveRooms(tx, [facts.roomId]);
   if (checkMaintenance && usesRoom(facts.kind)) {
     const term = await getActiveTerm();
-    await assertMaintenanceClear(tx, [facts.roomId], { termStart: term.startDate, termEnd: term.endDate }, facts);
+    await assertMaintenanceClear(tx, [facts.roomId], { termStart: term.startDate, termEnd: term.endDate, effectiveFrom: facts.effectiveFrom, effectiveTo: facts.effectiveTo }, facts);
   }
   await retainAssignedRooms(tx, actor, [facts.roomId], label);
 }
@@ -83,6 +84,7 @@ const stored = (facts: CommitmentFacts) => ({
   kind: facts.kind, counterpartDepartment: facts.counterpartDepartment, teacherId: facts.teacherId, roomId: facts.roomId,
   dayOfWeek: facts.dayOfWeek, startMinutes: facts.startMinutes, endMinutes: facts.endMinutes, courseLabel: facts.courseLabel,
   audienceLabel: facts.audienceLabel, credits: facts.credits, notes: facts.notes, completenessLevel: completenessLevel(facts),
+  effectiveFrom: facts.effectiveFrom, effectiveTo: facts.effectiveTo,
 });
 
 // ---------------------------------------------------------------------------
@@ -97,13 +99,13 @@ async function createInTerm(raw: FormData): Promise<ActionResult> {
   if (denied) return denied;
   const formData = formOf(raw);
   if (!formData) return invalid("Submit a valid commitment form.");
-  const parsed = parseCommitmentInput(fieldsOf(formData));
+  const term = await getActiveTerm();
+  const parsed = parseCommitmentInput(fieldsOf(formData), { termStart: term.startDate, termEnd: term.endDate });
   if (!parsed.ok) return invalid(parsed.message, parsed.errors);
   const facts = parsed.value;
-  const term = await getActiveTerm();
   return guarded(() => auditedChange("external.create", "external_commitment", async (tx, actor) => {
     await assertTeacher(tx, facts.teacherId);
-    if (facts.roomId != null) { await lockRooms(tx, [facts.roomId]); await assertActiveRooms(tx, [facts.roomId]); if (usesRoom(facts.kind)) await assertMaintenanceClear(tx, [facts.roomId], { termStart: term.startDate, termEnd: term.endDate }, facts); }
+    if (facts.roomId != null) { await lockRooms(tx, [facts.roomId]); await assertActiveRooms(tx, [facts.roomId]); if (usesRoom(facts.kind)) await assertMaintenanceClear(tx, [facts.roomId], { termStart: term.startDate, termEnd: term.endDate, effectiveFrom: facts.effectiveFrom, effectiveTo: facts.effectiveTo }, facts); }
     const [row] = await tx.insert(externalCommitments).values({
       termId: term.id, ...stored(facts), verificationStatus: "pending", source: "Manual entry", updatedAt: new Date(),
     }).returning();
@@ -126,7 +128,8 @@ async function editInTerm(id: number, raw: FormData): Promise<ActionResult> {
   const formData = formOf(raw);
   if (!Number.isSafeInteger(id) || id < 1 || !formData) return invalid("Submit a valid commitment form.");
   if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
-  const parsed = parseCommitmentInput(fieldsOf(formData));
+  const term = await getActiveTerm();
+  const parsed = parseCommitmentInput(fieldsOf(formData), { termStart: term.startDate, termEnd: term.endDate });
   if (!parsed.ok) return invalid(parsed.message, parsed.errors);
   const revision = revisionOf(formData);
   const next = parsed.value;
@@ -187,6 +190,10 @@ async function transition(command: Command, id: number, raw: FormData): Promise<
     if (command === "verify") {
       if (before.lifecycleStatus !== "active" || before.verificationStatus === "verified") throw new Refused(stale(CHANGED, "changed"));
       if (before.kind === "unresolved_note") throw new Refused(invalid("An unresolved note cannot be verified. Resolve it into a structured commitment first."));
+      if (before.carriedFromTermId !== null) {
+        await assertTeacher(tx, before.teacherId);
+        await assertRoom(tx, actor, { ...before, kind: before.kind as CommitmentFacts["kind"] }, `OD #${id}`, true);
+      }
       set = { verificationStatus: "verified", lastVerifiedAt: now, verificationNote: text };
       message = "Commitment verified.";
     } else if (command === "return") {
@@ -227,4 +234,38 @@ export async function archiveExternalAction(id: number, formData: FormData, cont
 }
 export async function reactivateExternalAction(id: number, formData: FormData, context?: TermWriteContext): Promise<ActionResult> {
   return withActiveTermContext(() => transition("reactivate", id, formData), context ?? formData);
+}
+
+export async function setExternalLinkAction(id: number, raw: FormData, context?: TermWriteContext): Promise<ActionResult> {
+  return withActiveTermContext(() => setLinkInTerm(id, raw), context ?? raw, "exclusive");
+}
+
+async function setLinkInTerm(id: number, raw: FormData): Promise<ActionResult> {
+  const denied = await guardAction("manage_external_commitments");
+  if (denied) return denied;
+  if (!Number.isSafeInteger(id) || id < 1 || !(raw instanceof FormData)) return invalid("Submit a valid link request.");
+  if (!await isInActiveTerm("external_commitment", id)) return { ...OUTSIDE_ACTIVE_TERM };
+  const reason = parseReason(raw.get("reason"));
+  const value = raw.get("groupId");
+  if (!reason) return invalid("Enter a reason of 1–300 characters.", { reason: ["Enter a reason of 1–300 characters."] });
+  if (typeof value !== "string" || (value !== "" && !/^[1-9]\d{0,8}$/.test(value))) return invalid("Choose an eligible teaching group.");
+  const groupId = value === "" ? null : Number(value);
+
+  return guarded(() => auditedChange(groupId === null ? "external.unlink" : "external.link", "external_commitment", async (tx) => {
+    const before = await lockedRow(tx, id, revisionOf(raw));
+    if (groupId === null) {
+      if (before.linkedTeachingGroupId === null) throw new Refused(stale(CHANGED, "changed"));
+    } else {
+      if (before.lifecycleStatus !== "active" || before.linkedTeachingGroupId !== null) throw new Refused(stale(CHANGED, "changed"));
+      const [allocation] = await tx.select({ id: workloadAllocations.id }).from(workloadAllocations).where(eq(workloadAllocations.externalCommitmentId, id)).limit(1);
+      if (allocation) throw new Refused(invalid("This commitment counts toward workload. Resolve that allocation before linking."));
+      const term = await getActiveTerm();
+      const covered = await readCoveredCommitmentIds(tx, [{ ...before, linkedTeachingGroupId: groupId, termStart: term.startDate, termEnd: term.endDate }]);
+      if (!covered.has(id)) throw new Refused(stale("That teaching group no longer covers this commitment. Reload the current matches and review again."));
+    }
+    const [after] = await tx.update(externalCommitments).set({ linkedTeachingGroupId: groupId, revision: before.revision + 1, updatedAt: new Date() }).where(eq(externalCommitments.id, id)).returning();
+    refresh();
+    return { result: succeeded(groupId === null ? "Teaching group link removed." : "Commitment linked to the formal teaching group.", { entityId: id }), entityId: id, before, after,
+      detail: { reason, changed: ["linkedTeachingGroupId"], groupId: groupId ?? before.linkedTeachingGroupId } };
+  }));
 }

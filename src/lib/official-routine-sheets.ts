@@ -26,6 +26,7 @@ export interface SheetTable {
   rows: SheetRow[];
   /** Other departments' bookings per slot; only on a day's last table part. */
   od: string[][] | null;
+  datedOD?: boolean;
   /** A later part of a day too tall for one sheet. */
   continued: boolean;
   /** Width of one period column, for the height estimate. */
@@ -150,7 +151,9 @@ export function dayTable(day: RoutineDayProjection): SheetTable {
   const entries = day.groups.flatMap((group, groupIndex) => group.rows.map((row) => ({ row, group, isHost: groupIndex === 0 && host.slots.length > 0 })));
   entries.sort((a, b) => b.row.batch.sortOrder - a.row.batch.sortOrder || a.row.batch.label.localeCompare(b.row.batch.label));
   // Classes outside the day's periods for batches on those periods go in an extra last column.
-  const otherTimes = entries.some(({ row, isHost }) => isHost && !row.unplanned && row.offGrid.length > 0);
+  const outsideSlots = day.externals.filter((item) => item.effectiveFrom && item.startMinutes != null && item.endMinutes != null
+    && !slots.some((slot) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end)));
+  const otherTimes = outsideSlots.length > 0 || entries.some(({ row, isHost }) => isHost && !row.unplanned && row.offGrid.length > 0);
   if (otherTimes) slotLabels.push("Other times");
   const slotWidth = (SHEET_MM.contentWidth - SHEET_MM.dayColumn - SHEET_MM.batchColumn - SHEET_MM.breakColumn * breaks.length) / slotLabels.length;
   const empty: SheetCell = { kind: "classes", span: 1, classes: [] };
@@ -181,12 +184,18 @@ export function dayTable(day: RoutineDayProjection): SheetTable {
     return { batchLabel: row.batch.label, cells, height: Math.max(SHEET_MM.rowMin, tallest + SHEET_MM.cellPadding) };
   });
 
-  const od = host && host.slots.length ? host.slots.map((slot) => day.externals
-    .filter((item) => item.startMinutes != null && item.endMinutes != null && overlaps(item.startMinutes, item.endMinutes, slot.start, slot.end))
-    .map((item) => `${item.roomCode ?? item.teacherShortCode ?? "?"} (${item.counterpartDepartment})`)) : null;
-  if (od && otherTimes) od.push([]);
+  const label = (item: RoutineDayProjection["externals"][number]) => {
+    const date = item.effectiveFrom === item.effectiveTo ? item.effectiveFrom : `${item.effectiveFrom}–${item.effectiveTo}`;
+    return `${item.roomCode ?? item.teacherShortCode ?? "?"} (${item.counterpartDepartment})${item.effectiveFrom ? ` · ${date}` : ""}`;
+  };
+  const od = host?.slots.length || day.externals.some((item) => item.effectiveFrom) ? slots.map((slot, index) => day.externals
+    .filter((item) => item.startMinutes != null && item.endMinutes != null && overlaps(item.startMinutes, item.endMinutes, slot.start, slot.end)
+      && (item.effectiveFrom ? index === slots.findIndex((candidate) => overlaps(item.startMinutes!, item.endMinutes!, candidate.start, candidate.end)) : !!host?.slots.length))
+    .map(label)) : null;
+  if (od && otherTimes) od.push(outsideSlots.map((item) => `${fmtRangeShort(item.startMinutes!, item.endMinutes!)} · ${label(item)}`));
 
-  const table: SheetTable = { dayOfWeek: day.dayOfWeek, slots: slotLabels, breaks, rows, od, continued: false, slotWidth, height: 0 };
+  const table: SheetTable = { dayOfWeek: day.dayOfWeek, slots: slotLabels, breaks, rows, od, continued: false, slotWidth, height: 0,
+    ...(day.externals.some((item) => item.effectiveFrom) ? { datedOD: true } : {}) };
   table.height = tableHeight(table);
   return table;
 }
@@ -196,13 +205,14 @@ function headHeight(table: SheetTable) {
   return table.breaks.length ? Math.max(labels, SHEET_MM.breakHead) : labels;
 }
 
-function odHeight(od: string[][] | null) {
-  if (!od) return 0;
-  return Math.max(SHEET_MM.odMin, Math.max(0, ...od.map((entries) => entries.length)) * SHEET_MM.smallLine + 1.4);
+function odHeight(table: SheetTable) {
+  if (!table.od) return 0;
+  const lines = table.od.map((entries) => table.datedOD ? entries.reduce((count, entry) => count + textLines(entry, table.slotWidth), 0) : entries.length);
+  return Math.max(SHEET_MM.odMin, Math.max(0, ...lines) * SHEET_MM.smallLine + 1.4);
 }
 
 function tableHeight(table: SheetTable) {
-  return headHeight(table) + table.rows.reduce((sum, row) => sum + row.height, 0) + odHeight(table.od) + 0.6;
+  return headHeight(table) + table.rows.reduce((sum, row) => sum + row.height, 0) + odHeight(table) + 0.6;
 }
 
 /** Splits a table taller than a sheet into parts that fit, repeating its header. */
@@ -221,7 +231,7 @@ function fitTable(table: SheetTable): SheetTable[] {
   };
   table.rows.forEach((row, index) => {
     const isLast = index === table.rows.length - 1;
-    const need = row.height + (isLast ? odHeight(table.od) : 0);
+    const need = row.height + (isLast ? odHeight(table) : 0);
     if (rows.length && used + need > SHEET_MM.capacity) flush(false);
     rows.push(row);
     used += row.height;

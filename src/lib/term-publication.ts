@@ -1,6 +1,7 @@
 import type { PublicationSnapshotV3 } from "./serialize";
 import type { RoutineSource } from "./routine-projection";
 import { legacyTimeGrid } from "./time-grid-legacy";
+import { civilDay } from "./room-maintenance";
 
 type Shape = ((value: unknown) => boolean) | { [key: string]: Shape } | readonly [Shape];
 const str = (v: unknown) => typeof v === "string";
@@ -30,7 +31,7 @@ const metadata = {
 const grid = { patterns:[{ id:num, name:str, periods:[{start:num,end:num}] as const,
   breaks:[{name:str,start:num,end:num,blocksClasses:bool}] as const, updatedAt:ns }] as const,
   dayPlans:[{id:num,stream,batchId:nn,dayOfWeek:num,patternId:nn,reason:ns,updatedAt:ns}] as const };
-const snapshotShape = { schemaVersion:(v:unknown)=>v===3||v===4, generatedAt:str,
+const snapshotShape = { schemaVersion:(v:unknown)=>v===3||v===4||v===5, generatedAt:str,
   term:{id:num,name:str,academicYear:num,effectiveFrom:ns}, versionNumber:num, meetings:[meeting] as const,
   batches:[{id:num,stream,label:str,semester:nn,studentCount:nn,sortOrder:num,countStatus:confidence}] as const,
   breaks:[{id:num,name:str,scope:str,stream:ns,dayOfWeek:nn,startMinutes:num,endMinutes:num}] as const,
@@ -49,7 +50,13 @@ export function frozenPublication(value: unknown, termId: number, versionNumber:
   try {
     const snapshot = project(snapshotShape, value) as PublicationSnapshotV3;
     if (snapshot.term.id !== termId || snapshot.versionNumber !== versionNumber || !Number.isFinite(Date.parse(snapshot.generatedAt))) return null;
-    if (snapshot.schemaVersion === 4) snapshot.timeGrid = project(grid,(value as Record<string,unknown>).timeGrid) as NonNullable<PublicationSnapshotV3["timeGrid"]>;
+    if (snapshot.schemaVersion >= 4) snapshot.timeGrid = project(grid,(value as Record<string,unknown>).timeGrid) as NonNullable<PublicationSnapshotV3["timeGrid"]>;
+    if (snapshot.schemaVersion === 5) {
+      const date = nullable((v) => civilDay(v) !== null);
+      snapshot.externalCommitments = project([{ ...external, effectiveFrom: date, effectiveTo: date }], (value as Record<string,unknown>).externalCommitments) as PublicationSnapshotV3["externalCommitments"];
+      if (snapshot.externalCommitments.some((row) => (row.effectiveFrom === null) !== (row.effectiveTo === null)
+        || (row.effectiveFrom != null && row.effectiveTo != null && row.effectiveFrom > row.effectiveTo))) return null;
+    }
     snapshot.metadata.teachers = snapshot.metadata.teachers.map(t=>({...t,phone:null,email:null}));
     snapshot.metadata.classRepresentatives = snapshot.metadata.classRepresentatives.map(t=>({...t,phone:null}));
     snapshot.metadata.queryContacts = snapshot.metadata.queryContacts.map(t=>({...t,phone:"",email:null}));

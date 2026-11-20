@@ -130,6 +130,9 @@ export function RoutineGrid(props: GridProps) {
             <th scope="row" className="sticky left-0 z-[1] border-r border-[var(--color-line-soft)] bg-wash px-3 py-2 text-left align-top font-normal">
               <span className="block text-[13px] font-semibold text-[var(--color-clay)]">Other departments</span>
               <span className="text-[12px] text-muted">Bookings</span>
+              {props.externals.filter((e) => e.effectiveFrom && e.startMinutes != null && e.endMinutes != null
+                && !slots.some((slot) => e.startMinutes! < slot.end && e.endMinutes! > slot.start))
+                .map((e) => <Booking key={e.id} booking={e} related={props.related.externalIds.has(e.id)} />)}
             </th>
             {slots.map((slot, index) => (
               <Fragment key={slot.start}>
@@ -204,6 +207,7 @@ function Booking({ booking: e, related }: { booking: ExternalCommitmentView; rel
       <span className="font-mono font-semibold text-[var(--color-clay)]">{e.counterpartDepartment}</span>{" "}
       <span className="font-mono">{e.kind === "room_reservation" ? e.roomCode ?? "Room" : e.teacherShortCode ?? "Teacher"}</span>
       <span className="block text-muted">{fmtRange(e.startMinutes!, e.endMinutes!)}{e.verificationStatus !== "verified" ? " · not confirmed" : ""}</span>
+      {e.effectiveFrom && <span className="block text-muted">{e.effectiveFrom} through {e.effectiveTo}</span>}
       {related ? <span className="block font-semibold text-gold-text">Same teacher or room</span> : null}
     </div>
   );

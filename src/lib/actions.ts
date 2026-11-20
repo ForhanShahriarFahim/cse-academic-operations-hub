@@ -430,13 +430,13 @@ const PUBLICATION_PAGE_STALE = "The version list on this page is out of date. No
  * current latest version, including a missing value, publishes nothing.
  */
 export async function publishAction(changeSummary: string, context?: TermWriteContext, expectedLatestVersionId?: number | null): Promise<ActionResult> {
-  return withTermContext(() => publishActionInTerm(changeSummary, expectedLatestVersionId), context);
+  return withTermContext(() => publishActionInTerm(changeSummary, expectedLatestVersionId), context, "exclusive");
 }
 async function publishActionInTerm(changeSummary: string, expectedLatestVersionId: unknown): Promise<ActionResult> {
   const actor = await actionActor("approve_publication");
   if ("ok" in actor) return actor;
   // BUG-25: publications of one term run one at a time. Lock order: term context
-  // (share, already held) -> this lock -> room rows. Only publishers take this
+  // (exclusive, already held to preserve OD link coverage) -> this lock -> room rows. Only publishers take this
   // lock, and they take it before any draft read, so a waiting publisher sees
   // the winner's committed version. It is released when the transaction ends.
   const activeTerm = await requireActiveTerm();

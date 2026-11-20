@@ -6,7 +6,7 @@ import { lockRooms, RoomAssignmentChanged, type RoomTransaction } from "./room-t
 import { assertMaintenanceClear } from "./room-maintenance-transaction";
 import { physicalOD } from "./room-maintenance";
 
-export async function checkPublicationMaintenance(tx: RoomTransaction, candidate: Pick<PortalData, "term" | "meetings" | "externals" | "maintenance">) {
+export async function checkPublicationMaintenance(tx: RoomTransaction, candidate: Pick<PortalData, "term" | "meetings" | "externals" | "maintenance" | "coveredCommitmentIds">) {
   const readOD = () => tx.select().from(externalCommitments).where(and(eq(externalCommitments.termId, candidate.term.id), eq(externalCommitments.lifecycleStatus, "active"))).orderBy(externalCommitments.id);
   const beforeOD = await readOD();
   const ids = [...new Set([...candidate.meetings.flatMap((m) => m.rooms.map((r) => r.id)), ...candidate.externals.flatMap((e) => e.roomId != null && e.kind !== "teaching" ? [e.roomId] : []), ...beforeOD.flatMap((e) => e.roomId != null && e.kind !== "teaching" ? [e.roomId] : [])])];
@@ -16,6 +16,7 @@ export async function checkPublicationMaintenance(tx: RoomTransaction, candidate
   const ods = await readOD();
   if (ods.some((e) => e.roomId != null && e.kind !== "teaching" && !ids.includes(e.roomId))) throw new RoomAssignmentChanged(["Room use changed during publication. Refresh and review again"]);
   const bounds = { termStart: term.startDate, termEnd: term.endDate };
+  const covered = new Set(candidate.coveredCommitmentIds);
   const meetingIds = candidate.meetings.map((m) => m.id);
   const rows = meetingIds.length ? await tx.select().from(meetings).where(inArray(meetings.id, meetingIds)) : [];
   for (const meeting of candidate.meetings) {
@@ -24,8 +25,8 @@ export async function checkPublicationMaintenance(tx: RoomTransaction, candidate
     // Validate the exact candidate being frozen, using verified corresponding bounds.
     await assertMaintenanceClear(tx, meeting.rooms.map((r) => r.id), { ...bounds, ...original }, meeting);
   }
-  for (const e of ods.filter((e) => e.roomId != null && e.kind !== "teaching")) await assertMaintenanceClear(tx, [e.roomId!], bounds, physicalOD(e.kind) ? e : { dayOfWeek: null, startMinutes: null, endMinutes: null });
+  for (const e of ods.filter((e) => e.roomId != null && e.kind !== "teaching" && !covered.has(e.id))) await assertMaintenanceClear(tx, [e.roomId!], { ...bounds, effectiveFrom: e.effectiveFrom, effectiveTo: e.effectiveTo }, physicalOD(e.kind) ? e : { dayOfWeek: null, startMinutes: null, endMinutes: null });
   // The frozen projection may include a just-deleted/changed OD; validate it as well.
-  for (const e of candidate.externals.filter((e) => e.roomId != null && e.kind !== "teaching")) await assertMaintenanceClear(tx, [e.roomId!], bounds, physicalOD(e.kind) ? e : { dayOfWeek: null, startMinutes: null, endMinutes: null });
+  for (const e of candidate.externals.filter((e) => e.roomId != null && e.kind !== "teaching")) await assertMaintenanceClear(tx, [e.roomId!], { ...bounds, effectiveFrom: e.effectiveFrom, effectiveTo: e.effectiveTo }, physicalOD(e.kind) ? e : { dayOfWeek: null, startMinutes: null, endMinutes: null });
   return ids.length ? (await tx.select({ id: roomUnavailability.id, revision: roomUnavailability.revision, cancelled: roomUnavailability.cancelled }).from(roomUnavailability).where(and(inArray(roomUnavailability.roomId, ids))).orderBy(roomUnavailability.id)) : [];
 }
