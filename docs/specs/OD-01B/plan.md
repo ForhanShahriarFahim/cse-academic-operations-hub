@@ -24,7 +24,7 @@ Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) �
 - [x] T-04 — Add date fields and occurrence rules across commitment actions, preview, calendar-free weekly planning and maintenance/lifecycle checks. Extend history and register. Covers AC-01–AC-02.
 - [x] T-05 — Extend preparation selection, permissions, preview fingerprint, atomic copies and receipt. Add post-activation reconfirmation on the existing Verify path. Covers AC-03–AC-04.
 - [x] T-06 — Add audited link/removal, live coverage and publication blockers, group deletion protection and duplicate suppression. Extend snapshot format, readers and routine/teacher output. Covers AC-05–AC-06.
-- [ ] T-07 — Run focused checks and the final suite. Review and record compiled flows and A4 examples against AC-01–AC-08 in `verification.md`.
+- [x] T-07 — Run focused checks and the final suite. Review and record compiled flows and A4 examples against AC-01–AC-08 in `verification.md`.
 - [ ] T-08 — Commit the verified delivery, present it for owner inspection and record acceptance before merging into local `main`.
 
 ## Verification and delivery
@@ -33,4 +33,4 @@ Run typecheck, lint, `test:domain`, full `test:safety` with `SAFE01_PG_BIN`, and
 
 ## Current checkpoint and exact handoff
 
-- **20 November — approved implementation under verification.** Approval `9edda51` covers proposal `2fb9aa6`. T-03–T-06 are implemented. Finish T-07 against the [verification record](verification.md) before presenting for owner inspection.
+- **20 November — delivered for owner inspection.** T-07 passed: typecheck, lint, domain tests, all 62 safety groups on both adapters, the default build, and the compiled Edge commitments flows, A4 print and schema-4 historical publication ([verification](verification.md)). Two test-only corrections are recorded there. Next (T-08): the owner inspects `/od`, term preparation and the routine print, then accepts. After acceptance, record it and merge `codex/od-01b` into local `main`. `0022`/`0023` stay unapplied to institutional data.

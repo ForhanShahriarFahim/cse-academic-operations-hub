@@ -270,6 +270,7 @@ test("term preparation previews and records a selected commitment as Pending", a
   await page.getByLabel(/Type destination identity/).fill(`${term} · 2027`);
   await page.getByLabel(/I reviewed these decisions/).check();
   await page.getByRole("button", { name: `Prepare ${term}`, exact: true }).click();
-  await page.getByRole("link", { name: "View saved preparation receipt" }).click();
+  // The action revalidates the layout, so the page re-renders as the saved receipt.
+  await expect(page.getByRole("heading", { name: `${term} preparation receipt` })).toBeVisible();
   await expect(page.getByRole("list", { name: "Carried commitments" })).toContainText("Copied as Pending");
 });

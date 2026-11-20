@@ -41,6 +41,7 @@ const ADDED_AFTER_BUG29 = new Set([
   "attendance_sessions.submitted_at", "attendance_sessions.locked_at", "attendance_sessions.voided_at", // 0020 (ATT-03A)
   "academic_policy_versions.effective_from", "academic_policy_versions.proposed_at", "academic_policy_versions.decided_at", // 0021 (SET-01B)
   "external_commitments.archived_at", "external_commitments.updated_at", // 0022 (OD-01A)
+  "external_commitments.effective_from", "external_commitments.effective_to", // 0023 (OD-01B)
 ]);
 const JOURNAL_LENGTH = (JSON.parse(readFileSync(path.join(MIGRATIONS_FOLDER, "meta", "_journal.json"), "utf8")) as { entries: unknown[] }).entries.length;
 
