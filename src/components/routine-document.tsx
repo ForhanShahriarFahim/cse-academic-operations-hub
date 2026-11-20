@@ -146,7 +146,9 @@ function GroupTable({ group, day, showLabel, withBookings }: {
             {slots.map((slot, index) => (
               <Fragment key={slot.start}>
                 <td className="px-1.5 py-1.5 align-top">
-                  {day.externals.filter((item) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end)).map((item) => <ExternalChip key={item.id} item={item} />)}
+                  {day.externals.filter((item) => overlaps(item.startMinutes!, item.endMinutes!, slot.start, slot.end)
+                    && (!item.effectiveFrom || index === slots.findIndex((candidate) => overlaps(item.startMinutes!, item.endMinutes!, candidate.start, candidate.end))))
+                    .map((item) => <ExternalChip key={item.id} item={item} />)}
                 </td>
                 {breaksAfter(index).map((item) => <td key={item.id} className="break-column w-[30px]" />)}
               </Fragment>
@@ -179,6 +181,7 @@ function RoutineMeeting({ item, slot }: { item: ProjectedMeeting; slot?: Project
 function ExternalChip({ item }: { item: RoutineProjection["days"][number]["externals"][number] }) {
   return <div className="mb-1 rounded border border-[var(--color-clay)]/25 bg-white/70 px-1.5 py-1 text-[9px] last:mb-0">
     <b className="font-mono text-[var(--color-clay)]">{item.counterpartDepartment}</b> — {item.kind === "room_reservation" ? `room ${item.roomCode ?? "?"}` : item.teacherShortCode ?? item.roomCode ?? "details pending"}
+    {item.effectiveFrom && <span className="block">{item.effectiveFrom} through {item.effectiveTo}</span>}
     <span className="block font-mono text-[8px] text-muted">{fmtRange(item.startMinutes!, item.endMinutes!)}</span>
   </div>;
 }

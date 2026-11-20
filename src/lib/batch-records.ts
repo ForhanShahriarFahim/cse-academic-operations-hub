@@ -38,12 +38,12 @@ export function snapshotBatchEvidence(value: unknown, id: number, aliases: Array
   if (value == null) return "clear";
   if (typeof value !== "object" || Array.isArray(value)) return "uncertain";
   const v = value as Record<string, unknown>;
-  if (v.schemaVersion != null && ![2,3,4].includes(v.schemaVersion as number)) return "uncertain";
+  if (v.schemaVersion != null && ![2,3,4,5].includes(v.schemaVersion as number)) return "uncertain";
   if (!Array.isArray(v.meetings) || typeof v.generatedAt !== "string" || !Number.isFinite(Date.parse(v.generatedAt)) || !Number.isInteger(v.versionNumber) || Number(v.versionNumber)<1) return "uncertain";
   if(v.schemaVersion==null){if(typeof v.termName!=="string")return "uncertain";}
   else if(!v.term||typeof v.term!=="object"||!Array.isArray(v.batches)||!Array.isArray(v.breaks)||!Array.isArray(v.issues)||!Array.isArray(v.externalCommitments))return "uncertain";
-  if((v.schemaVersion===3||v.schemaVersion===4)&&(!v.metadata||typeof v.metadata!=="object"))return "uncertain";
-  if(v.schemaVersion===4&&!isTimeGrid(v.timeGrid))return "uncertain";
+  if((v.schemaVersion===3||v.schemaVersion===4||v.schemaVersion===5)&&(!v.metadata||typeof v.metadata!=="object"))return "uncertain";
+  if((v.schemaVersion===4||v.schemaVersion===5)&&!isTimeGrid(v.timeGrid))return "uncertain";
   let uncertain = false;
   const ref = (item: unknown, audience = false) => {
     if (!item || typeof item !== "object") { uncertain = true; return false; }

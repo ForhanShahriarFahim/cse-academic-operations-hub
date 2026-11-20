@@ -197,6 +197,7 @@ export default async function TeacherDetailPage({ params, searchParams }: { para
                   <strong>{e.counterpartDepartment}</strong>
                   {e.courseLabel ? ` — ${e.courseLabel}` : ""}
                   {e.dayOfWeek != null ? ` · ${DAY_NAMES[e.dayOfWeek]} ${fmtRange(e.startMinutes!, e.endMinutes!)}` : ""} ·{" "}
+                  {e.effectiveFrom && <span>{e.effectiveFrom} through {e.effectiveTo} · </span>}
                   <Badge tone={e.verificationStatus === "verified" ? "pine" : "clay"}>{e.verificationStatus}</Badge>
                 </p>
               ))}

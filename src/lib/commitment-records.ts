@@ -3,6 +3,10 @@
  * Pure: safe in the browser (impact preview) and in the domain test harness.
  */
 import { DAY_NAMES, fmtRange, overlaps, parseTimeToMinutes } from "./time";
+import { civilDay, dateBounds, firstWeekday, type DateBounds } from "./room-maintenance";
+
+export interface CommitmentDates { effectiveFrom: string | null; effectiveTo: string | null }
+type TermBounds = Pick<DateBounds, "termStart" | "termEnd">;
 
 export type CommitmentKind = "teaching" | "room_reservation" | "combined" | "unresolved_note";
 export type CompletenessLevel = "A" | "B" | "C" | "D";
@@ -27,7 +31,7 @@ const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 const LINE_CONTROL = /[\u0000-\u001f\u007f]/;
 
 /** Facts a commitment states. Unknown facts are null, never zero or invented. */
-export interface CommitmentFacts {
+export interface CommitmentFacts extends CommitmentDates {
   kind: CommitmentKind;
   counterpartDepartment: string;
   teacherId: number | null;
@@ -63,7 +67,24 @@ function optionalId(raw: unknown): number | null | undefined {
  * Validate one form submission for its D-2 choice. Only the facts that apply to
  * the choice are kept; the rest are stored as null so nothing is fabricated.
  */
-export function parseCommitmentInput(raw: Record<string, unknown>): ParseResult {
+export function parseCommitmentDates(raw: { effectiveFrom?: unknown; effectiveTo?: unknown }, day: number | null, bounds?: TermBounds) {
+  const effectiveFrom = text(raw.effectiveFrom) || null;
+  const effectiveTo = text(raw.effectiveTo) || null;
+  const dates = { effectiveFrom, effectiveTo };
+  const errors: Record<string, string[]> = {};
+  if (effectiveFrom === null && effectiveTo === null) return { dates, errors };
+  const start = civilDay(effectiveFrom), end = civilDay(effectiveTo);
+  const term = bounds && dateBounds(bounds);
+  if (start === null) errors.effectiveFrom = ["Enter a valid start date."];
+  else if (bounds && (!term || start < term.start || start > term.end)) errors.effectiveFrom = ["Choose a start date within the term."];
+  if (end === null) errors.effectiveTo = ["Enter a valid end date."];
+  else if (bounds && (!term || end < term.start || end > term.end)) errors.effectiveTo = ["Choose an end date within the term."];
+  else if (start !== null && end < start) errors.effectiveTo = ["Choose an end date on or after the start date."];
+  else if (start !== null && day !== null && firstWeekday(start, end, [day]) === null) errors.effectiveTo = ["Include at least one occurrence of the selected weekday."];
+  return { dates, errors };
+}
+
+export function parseCommitmentInput(raw: Record<string, unknown>, bounds?: TermBounds): ParseResult {
   const errors: Record<string, string[]> = {};
   const add = (field: string, message: string) => { (errors[field] ??= []).push(message); };
   const kind = raw.kind;
@@ -119,13 +140,15 @@ export function parseCommitmentInput(raw: Record<string, unknown>): ParseResult 
       else credits = value || null;
     }
   }
+  const { dates, errors: dateErrors } = parseCommitmentDates(kind === "unresolved_note" ? {} : raw, dayOfWeek, bounds);
+  Object.assign(errors, dateErrors);
   const fields = Object.keys(errors);
   if (fields.length) return { ok: false, message: fields.length === 1 ? errors[fields[0]][0] : "Check the highlighted fields.", errors };
   return {
     ok: true,
     value: {
       kind, counterpartDepartment: department, teacherId, roomId, dayOfWeek, startMinutes, endMinutes,
-      courseLabel, audienceLabel, credits: kind === "room_reservation" ? null : credits, notes,
+      courseLabel, audienceLabel, credits: kind === "room_reservation" ? null : credits, notes, ...dates,
     },
   };
 }
@@ -162,13 +185,13 @@ export function levelSummary(level: string, facts: LevelFacts): string {
 }
 
 /** Choice, teacher, room, day and time: changing any of these returns a verified record to Pending. */
-export const PLANNING_FIELDS = ["kind", "teacherId", "roomId", "dayOfWeek", "startMinutes", "endMinutes"] as const;
-type PlanningFacts = { [K in typeof PLANNING_FIELDS[number]]: K extends "kind" ? string : number | null };
+export const PLANNING_FIELDS = ["kind", "teacherId", "roomId", "dayOfWeek", "startMinutes", "endMinutes", "effectiveFrom", "effectiveTo"] as const;
+type PlanningFacts = { kind: string } & Pick<CommitmentFacts, "teacherId" | "roomId" | "dayOfWeek" | "startMinutes" | "endMinutes"> & Partial<CommitmentDates>;
 export function planningFactsChanged(before: PlanningFacts, after: PlanningFacts): boolean {
   return PLANNING_FIELDS.some((field) => (before[field] ?? null) !== (after[field] ?? null));
 }
 
-export const EDITABLE_FIELDS = ["kind", "counterpartDepartment", "teacherId", "roomId", "dayOfWeek", "startMinutes", "endMinutes", "courseLabel", "audienceLabel", "credits", "notes"] as const;
+export const EDITABLE_FIELDS = ["kind", "counterpartDepartment", "teacherId", "roomId", "dayOfWeek", "startMinutes", "endMinutes", "effectiveFrom", "effectiveTo", "courseLabel", "audienceLabel", "credits", "notes"] as const;
 const normal = (value: unknown) => (value == null ? null : typeof value === "number" ? value : String(value));
 /** Field names whose stored values differ, for the audit detail and history (credits compared numerically). */
 export function changedFields(before: Record<string, unknown>, after: Record<string, unknown>): string[] {
@@ -194,7 +217,7 @@ export function reviewReasons(row: { kind: string; teacherId: number | null; roo
 interface BlockSubject { kind: string; teacherId: number | null; roomId: number | null; dayOfWeek: number | null; startMinutes: number | null; endMinutes: number | null }
 export const blocksTeacher = (e: BlockSubject) => usesTeacher(e.kind) && e.teacherId != null;
 export const blocksRoom = (e: BlockSubject) => usesRoom(e.kind) && e.roomId != null;
-const timed = (e: BlockSubject): e is BlockSubject & { dayOfWeek: number; startMinutes: number; endMinutes: number } =>
+const timed = <T extends BlockSubject>(e: T): e is T & { dayOfWeek: number; startMinutes: number; endMinutes: number } =>
   e.dayOfWeek != null && e.startMinutes != null && e.endMinutes != null;
 
 /** D-1 "Blocks" column: the planning effect in words. */
@@ -206,7 +229,7 @@ export function blocksText(e: BlockSubject, names: { teacher?: string | null; ro
   return parts.length === 2 ? `${parts[0]} and ${parts[1]}` : `${parts[0].charAt(0).toUpperCase()}${parts[0].slice(1)} only`;
 }
 
-export interface ClashMeeting {
+export interface ClashMeeting extends Partial<CommitmentDates> {
   id: number; dayOfWeek: number; startMinutes: number; endMinutes: number; courseCode: string;
   teachers: Array<{ id: number; shortCode: string; fullName?: string }>; rooms: Array<{ id: number; code: string }>; audience?: string;
 }
@@ -217,19 +240,45 @@ export interface CommitmentClash { meetingId: number; on: "teacher" | "room"; co
  * a teacher blocker for teaching/combined records with a teacher, a room blocker
  * for room/combined records with a room, on the same day with overlapping minutes.
  */
-export function commitmentClashes(e: BlockSubject, meetings: readonly ClashMeeting[]): CommitmentClash[] {
+export function commitmentOccursWith(commitment: Partial<CommitmentDates>, meeting: Partial<CommitmentDates>, weekday: number, bounds?: TermBounds) {
+  if (!bounds || (commitment.effectiveFrom == null && commitment.effectiveTo == null)) return true;
+  const external = dateBounds({ ...bounds, ...commitment }), formal = dateBounds({ ...bounds, ...meeting });
+  return !external || !formal || firstWeekday(Math.max(external.start, formal.start), Math.min(external.end, formal.end), [weekday]) !== null;
+}
+
+export function commitmentClashes(e: BlockSubject & Partial<CommitmentDates>, meetings: readonly ClashMeeting[], bounds?: TermBounds): CommitmentClash[] {
   if (!timed(e)) return [];
   const clashes: CommitmentClash[] = [];
   for (const m of meetings) {
     if (m.dayOfWeek !== e.dayOfWeek || !overlaps(m.startMinutes, m.endMinutes, e.startMinutes, e.endMinutes)) continue;
+    if (!commitmentOccursWith(e, m, m.dayOfWeek, bounds)) continue;
     if (blocksTeacher(e)) { const t = m.teachers.find((x) => x.id === e.teacherId); if (t) clashes.push({ meetingId: m.id, on: "teacher", code: t.shortCode, meeting: m }); }
     if (blocksRoom(e)) { const r = m.rooms.find((x) => x.id === e.roomId); if (r) clashes.push({ meetingId: m.id, on: "room", code: r.code, meeting: m }); }
   }
   return clashes;
 }
 
-export const scheduleText = (e: { dayOfWeek: number | null; startMinutes: number | null; endMinutes: number | null }) =>
-  e.dayOfWeek != null && e.startMinutes != null && e.endMinutes != null ? `${DAY_NAMES[e.dayOfWeek]?.slice(0, 3) ?? "?"} ${fmtRange(e.startMinutes, e.endMinutes)}` : null;
+export const commitmentDateLabel = (dates: Partial<CommitmentDates>) => dates.effectiveFrom && dates.effectiveTo
+  ? (dates.effectiveFrom === dates.effectiveTo ? dates.effectiveFrom : `${dates.effectiveFrom}–${dates.effectiveTo}`) : null;
+
+export const scheduleText = (e: Pick<BlockSubject, "dayOfWeek" | "startMinutes" | "endMinutes"> & Partial<CommitmentDates>) =>
+  e.dayOfWeek != null && e.startMinutes != null && e.endMinutes != null ?
+    [`${DAY_NAMES[e.dayOfWeek]?.slice(0, 3) ?? "?"} ${fmtRange(e.startMinutes, e.endMinutes)}`, commitmentDateLabel(e)].filter(Boolean).join(" · ") : null;
+
+export interface LinkMeeting extends Partial<CommitmentDates> {
+  teachingGroupId: number; deliveryMode: string; pendingReconciliation: boolean; dayOfWeek: number;
+  startMinutes: number; endMinutes: number; teachers: readonly { id: number }[]; rooms: readonly { id: number }[];
+}
+
+export function meetingCoversCommitment(commitment: BlockSubject & Partial<CommitmentDates>, meeting: LinkMeeting, bounds: TermBounds) {
+  if (!timed(commitment) || !blocksTeacher(commitment) || (usesRoom(commitment.kind) && !blocksRoom(commitment)) || meeting.deliveryMode !== "fixed" || meeting.pendingReconciliation) return false;
+  if (meeting.dayOfWeek !== commitment.dayOfWeek || meeting.startMinutes !== commitment.startMinutes || meeting.endMinutes !== commitment.endMinutes) return false;
+  if (!meeting.teachers.some((teacher) => teacher.id === commitment.teacherId) || (blocksRoom(commitment) && !meeting.rooms.some((room) => room.id === commitment.roomId))) return false;
+  const booking = dateBounds({ ...bounds, ...commitment }), formal = dateBounds({ ...bounds, ...meeting });
+  if (!booking || !formal) return false;
+  const first = firstWeekday(booking.start, booking.end, [commitment.dayOfWeek]);
+  return first !== null && formal.start <= first && formal.end >= first + 7 * Math.floor((booking.end - first) / 7);
+}
 
 // ---------------------------------------------------------------------------
 // D-4 lifecycle availability
@@ -318,9 +367,14 @@ export const HISTORY_ACTIONS: Record<string, string> = {
   "external.archive": "Archived",
   "external.reactivate": "Reactivated",
   "external.delete": "Deleted",
+  "external.carry": "Carried from a previous term",
+  "external.link": "Linked to a teaching group",
+  "external.unlink": "Teaching group link removed",
 };
 export const FIELD_LABELS: Record<string, string> = {
   kind: "What is committed", counterpartDepartment: "Department", teacherId: "Teacher", roomId: "Room", dayOfWeek: "Day",
   startMinutes: "Start", endMinutes: "End", courseLabel: "Course", audienceLabel: "Audience", credits: "Credits", notes: "Notes",
+  effectiveFrom: "Effective from", effectiveTo: "Effective through",
   verificationStatus: "Verification", completenessLevel: "Completeness",
+  linkedTeachingGroupId: "Teaching group",
 };

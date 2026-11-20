@@ -48,12 +48,12 @@ export function snapshotRoomEvidence(snapshot: unknown, roomId: number, aliases:
   if (snapshot == null) return "clear"; // Unpopulated draft version.
   if (!object(snapshot) || !Array.isArray(snapshot.meetings)) return "uncertain";
   const version = snapshot.schemaVersion;
-  if (version != null && ![2, 3, 4].includes(version as number)) return "uncertain";
+  if (version != null && ![2, 3, 4, 5].includes(version as number)) return "uncertain";
   if (typeof snapshot.generatedAt !== "string" || !Number.isInteger(snapshot.versionNumber) || (snapshot.versionNumber as number) < 1) return "uncertain";
   if (version == null && (typeof snapshot.termName !== "string" || !(snapshot.effectiveFrom === null || typeof snapshot.effectiveFrom === "string"))) return "uncertain";
   if (version != null && (!object(snapshot.term) || !Array.isArray(snapshot.batches) || !Array.isArray(snapshot.breaks) || !Array.isArray(snapshot.issues) || !Array.isArray(snapshot.externalCommitments))) return "uncertain";
-  if ((version === 3 || version === 4) && !object(snapshot.metadata)) return "uncertain";
-  if (version === 4 && !isTimeGrid(snapshot.timeGrid)) return "uncertain";
+  if ((version === 3 || version === 4 || version === 5) && !object(snapshot.metadata)) return "uncertain";
+  if ((version === 4 || version === 5) && !isTimeGrid(snapshot.timeGrid)) return "uncertain";
   const codes = new Set(aliases.map(canonicalRoomCode));
   const reference = (id: unknown, code: unknown) => id === roomId || (typeof code === "string" && codes.has(canonicalRoomCode(code)));
   let uncertain = false;

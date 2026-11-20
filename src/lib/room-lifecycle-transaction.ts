@@ -5,6 +5,7 @@ import type { Actor } from "./auth/policy";
 import { conflicted, invalid, stale, succeeded } from "./action-result";
 import { groupEvidence, lockRooms, RoomAssignmentChanged, type RoomReader, type RoomResult, type RoomTransaction } from "./room-transaction";
 import { deletionReasons, dhakaToday, futureOccurrence, futureOD, lifecycleCommand, snapshotRoomEvidence } from "./room-lifecycle";
+import { readCoveredCommitmentIds } from "./commitment-link-evidence";
 import { DAY_NAMES, fmtRange } from "./time";
 
 export interface RoomLifecycleEvidence {
@@ -32,11 +33,15 @@ export async function readRoomLifecycleEvidence(reader: RoomReader, room: { id: 
       detail: `${audience.get(row.groupId)?.audience ?? "Audience unknown"} · ${rows.filter((r) => r.id === id).map((r) => r.role).join(", ")} · ${DAY_NAMES[row.dayOfWeek] ?? "Invalid day"} ${fmtRange(row.startMinutes, row.endMinutes)} · term ${row.termStart ?? "?"}–${row.termEnd ?? "?"} · effective ${row.effectiveFrom ?? "term start"}–${row.effectiveTo ?? "term end"} · ${future.kind === "future" ? `First blocking date ${future.firstDate}` : future.reason}` });
   }
   const externals = await reader.select({ id: externalCommitments.id, termName: academicTerms.name, termStart: academicTerms.startDate, termEnd: academicTerms.endDate,
+    termId: externalCommitments.termId,
+    effectiveFrom: externalCommitments.effectiveFrom, effectiveTo: externalCommitments.effectiveTo,
+    teacherId: externalCommitments.teacherId, roomId: externalCommitments.roomId, linkedTeachingGroupId: externalCommitments.linkedTeachingGroupId,
     kind: externalCommitments.kind, counterpart: externalCommitments.counterpartDepartment, course: externalCommitments.courseLabel,
     dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes, lifecycleStatus: externalCommitments.lifecycleStatus })
     .from(externalCommitments).leftJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId)).where(eq(externalCommitments.roomId, room.id)).orderBy(externalCommitments.id);
   // OD-01A: an archived commitment no longer blocks deactivation; permanent deletion still counts it (totals).
-  for (const row of externals.filter((e) => e.lifecycleStatus !== "archived")) {
+  const covered = await readCoveredCommitmentIds(reader, externals);
+  for (const row of externals.filter((e) => e.lifecycleStatus !== "archived" && !covered.has(e.id))) {
     const future = futureOD(row, today);
     if (future.kind !== "past") blocking.push({ key: `e${row.id}`, title: `OD #${row.id} · ${row.termName ?? "Missing term"} · ${row.counterpart} · ${row.course ?? row.kind}`,
       detail: `${row.dayOfWeek == null ? "Day unknown" : DAY_NAMES[row.dayOfWeek] ?? "Invalid day"} · ${row.startMinutes != null && row.endMinutes != null ? fmtRange(row.startMinutes, row.endMinutes) : "Time unknown"} · term ${row.termStart ?? "?"}–${row.termEnd ?? "?"} · ${future.kind === "future" ? `First blocking date ${future.firstDate}` : future.reason}`, href: "/od" });

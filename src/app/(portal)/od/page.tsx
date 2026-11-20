@@ -42,6 +42,17 @@ function Review({ row }: { row: CommitmentRow }) {
 const dash = <span className="text-muted" aria-label="Not applicable or not known">—</span>;
 const title = (row: CommitmentRow) => `${row.counterpartDepartment}${row.teacherCode ? ` · ${row.teacherCode}` : ""}${row.roomCode ? ` · ${row.roomCode}` : ""}${row.schedule ? ` · ${row.schedule}` : ""}`;
 
+function LinkAndSource({ row, returnTo }: { row: CommitmentRow; returnTo: string }) {
+  const linked = row.linkedTeachingGroupId !== null;
+  const eligible = row.lifecycleStatus === "active" && (row.kind === "teaching" || row.kind === "combined");
+  return <div className="mt-1 space-y-1 text-xs">
+    {(linked || eligible) && <Link className="underline" href={`/od/${row.id}/link?return=${encodeURIComponent(returnTo)}`}>
+      {linked ? `Group #${row.linkedTeachingGroupId}${row.lifecycleStatus === "active" && !row.linkedCoverage ? " · Needs review" : ""}` : "Link teaching group"}
+    </Link>}
+    {row.carriedFromTermId !== null && <p className="text-muted">Carried from term #{row.carriedFromTermId}, commitment #{row.carriedFromCommitmentId}</p>}
+  </div>;
+}
+
 export default async function CommitmentsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireCommitmentManager("/od");
   const params = await searchParams;
@@ -119,7 +130,7 @@ export default async function CommitmentsPage({ searchParams }: { searchParams: 
                           <td className="min-w-[8rem] px-2.5 py-2 text-[12px]">{row.lifecycleStatus === "archived" ? <span className="text-muted">Nothing — archived</span> : row.blocks}</td>
                           <td className="px-2.5 py-2"><Level row={row} /></td>
                           <td className="px-2.5 py-2"><Verification row={row} />{row.archiveReason ? <span className="mt-1 block max-w-[12rem] text-[11.5px] text-muted">{row.archiveReason}</span> : null}</td>
-                          <td className="whitespace-nowrap px-2.5 py-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} /></td>
+                          <td className="px-2.5 py-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} /><LinkAndSource row={row} returnTo={returnTo} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -139,7 +150,7 @@ export default async function CommitmentsPage({ searchParams }: { searchParams: 
                       <dt className="text-muted">Status</dt><dd className="flex flex-wrap gap-1"><Level row={row} /> <Verification row={row} /></dd>
                     </dl>
                     <Review row={row} />
-                    <div className="mt-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} layout="m" /></div>
+                    <div className="mt-2"><CommitmentRowActions row={actionRow(row)} returnTo={returnTo} layout="m" /><LinkAndSource row={row} returnTo={returnTo} /></div>
                   </li>
                 ))}
               </ul>

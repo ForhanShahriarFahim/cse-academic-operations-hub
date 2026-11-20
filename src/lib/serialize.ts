@@ -62,6 +62,9 @@ export interface MeetingView {
 }
 
 export interface ExternalCommitmentView {
+  effectiveFrom?: string | null;
+  effectiveTo?: string | null;
+  linkNeedsReview?: true;
   id: number;
   kind: string;
   completenessLevel: string;
@@ -187,7 +190,7 @@ export interface PublicationRoutineMetadata {
  * and are drawn with the legacy layout.
  */
 export interface PublicationSnapshotV3 extends Omit<PublicationSnapshotV2, "schemaVersion"> {
-  schemaVersion: 3 | 4;
+  schemaVersion: 3 | 4 | 5;
   metadata: PublicationRoutineMetadata;
   timeGrid?: TimeGrid;
 }
@@ -216,7 +219,7 @@ export function buildSnapshot(input: {
   generatedAt?: string;
 }): PublicationSnapshotV3 {
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     timeGrid: input.timeGrid,
     generatedAt: input.generatedAt ?? new Date().toISOString(),
     term: { ...input.term },
@@ -224,7 +227,8 @@ export function buildSnapshot(input: {
     meetings: input.meetings,
     batches: input.batches.map(({id,stream,label,semester,studentCount,sortOrder,countStatus})=>({id,stream,label,semester,studentCount,sortOrder,...(countStatus?{countStatus}:{})})),
     breaks: input.breaks,
-    externalCommitments: input.externals.filter((item) => item.verificationStatus === "verified"),
+    externalCommitments: input.externals.filter((item) => item.verificationStatus === "verified" && !item.linkNeedsReview)
+      .map(({ linkNeedsReview: _, ...item }) => ({ ...item, effectiveFrom: item.effectiveFrom ?? null, effectiveTo: item.effectiveTo ?? null, source: null, notes: null })),
     issues: input.issues,
     metadata: input.metadata,
   };
@@ -241,7 +245,7 @@ export function normalizePublicationSnapshot(
   if (!objectValue(value)) return null;
 
   if (
-    (value.schemaVersion === 3 || (value.schemaVersion === 4 && isTimeGrid(value.timeGrid)))
+    (value.schemaVersion === 3 || ((value.schemaVersion === 4 || value.schemaVersion === 5) && isTimeGrid(value.timeGrid)))
     && typeof value.generatedAt === "string"
     && typeof value.versionNumber === "number"
     && objectValue(value.term)

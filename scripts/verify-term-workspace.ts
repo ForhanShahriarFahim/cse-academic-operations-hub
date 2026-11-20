@@ -26,4 +26,16 @@ assert.ok(parsed);assert.equal(JSON.stringify(parsed).includes("PRIVATE_"),false
 assert.equal(frozenRoutineSource(parsed,null).termName,"Frozen Summer");
 const legacy3=frozenPublication({...snapshot,schemaVersion:3,timeGrid:undefined},1,2);assert.ok(legacy3);assert.equal(legacy3.schemaVersion,3);assert.ok(frozenRoutineSource(legacy3,null).timeGrid.patterns.length>0,"schema 3 uses only its frozen breaks and the known legacy layout");
 for(const bad of [null,{...snapshot,schemaVersion:2},{...snapshot,term:{...snapshot.term,id:2}},{...snapshot,versionNumber:3},{...snapshot,timeGrid:null},{...snapshot,metadata:{...snapshot.metadata,teachers:[{}]}}])assert.equal(frozenPublication(bad,1,2),null);
+const booking = { id: 1, kind: "room_reservation", completenessLevel: "C", counterpartDepartment: "Synthetic OD", teacherId: null,
+  teacherShortCode: null, teacherName: null, roomId: 1, roomCode: "SYN-406", courseLabel: null, audienceLabel: null,
+  dayOfWeek: 0, startMinutes: 600, endMinutes: 660, credits: null, verificationStatus: "verified", source: "PRIVATE_SOURCE",
+  lastVerifiedAt: null, notes: "PRIVATE_NOTES", effectiveFrom: "2026-08-01", effectiveTo: "2026-08-15", carriedFromTermId: 4 };
+const v5 = frozenPublication({ ...snapshot, externalCommitments: [booking] }, 1, 2)!;
+assert.ok(v5);
+assert.equal(frozenRoutineSource(v5, null).externals[0].effectiveTo, "2026-08-15");
+assert.equal(JSON.stringify(v5).includes("PRIVATE_"), false);
+assert.equal(Object.hasOwn(v5.externalCommitments[0], "carriedFromTermId"), false);
+assert.equal(frozenPublication({ ...snapshot, externalCommitments: [{ ...booking, effectiveTo: null }] }, 1, 2), null);
+const v4 = frozenPublication({ ...snapshot, schemaVersion: 4, externalCommitments: [booking] }, 1, 2)!;
+assert.equal(frozenRoutineSource(v4, null).externals[0].effectiveFrom, undefined);
 console.log("SET-01A domain: dates, identity, numeric/blank policy boundaries, strict contexts, frozen projection, redaction and malformed snapshot refusal passed.");

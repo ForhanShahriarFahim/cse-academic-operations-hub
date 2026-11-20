@@ -6,7 +6,7 @@ Read [WORKFLOW.md](WORKFLOW.md) for delivery/Git rules, [ROADMAP.md](ROADMAP.md)
 
 ## Current work
 
-**OD-01B / #13 — proposal ready for owner review on `codex/od-01b` on 20 November.** The owner selected this slice after OD-01A. D-1–D-5 propose effective dates, selected carry-forward as Pending, reconfirmation after activation and links to existing formal teaching groups. **Next:** the owner approves or amends D-1–D-5 before implementation. [Specification](specs/OD-01B/spec.md) · [Review sketches](specs/OD-01B/mockups/index.html) · [Exact handoff](specs/OD-01B/plan.md#current-checkpoint-and-exact-handoff)
+**OD-01B / #13 — approved and under verification on `codex/od-01b` on 20 November.** Approval `9edda51` covers effective dates, selected carry-forward as Pending, reconfirmation after activation and links to existing formal teaching groups. [Specification](specs/OD-01B/spec.md) · [Review sketches](specs/OD-01B/mockups/index.html) · [Exact handoff](specs/OD-01B/plan.md#current-checkpoint-and-exact-handoff)
 
 **OD-01A / #13 — accepted and merged locally on 20 November at `2888811`.** Acceptance `353d1aa` covers delivery `cc0a1e2`. It delivers the "Cross-department commitments" rename, a guided form with an impact preview, a derived completeness level, the edit/verify/return/resolve/archive/reactivate actions, archived records leaving planning, per-record history and migration `0022`. Typecheck, lint, domain tests, the default build, all 60 safety groups on both adapters and the commitments Edge flows passed. `0022` is not yet applied to the institutional database. #13 stays open for OD-01B. [Verification](specs/OD-01A/verification.md) · [Merge receipt](specs/OD-01A/plan.md#current-checkpoint-and-exact-handoff)
 

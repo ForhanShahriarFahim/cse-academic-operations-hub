@@ -9,6 +9,7 @@ import { positiveInteger } from "./room-records";
 import { snapshotRoomEvidence } from "./room-lifecycle";
 import { maintenanceOverlap, normalizedMaintenance, overlappingMaintenance, physicalOD, type DateBounds, type MaintenanceValues } from "./room-maintenance";
 import { DAY_NAMES, fmtRange } from "./time";
+import { readCoveredCommitmentIds } from "./commitment-link-evidence";
 
 export interface MaintenanceImpactItem { key: string; kind: "meeting" | "physicalOD" | "uncertainOD" | "publication"; label: string; detail: string; href: string }
 export interface MaintenanceImpact {
@@ -26,6 +27,8 @@ export async function readMaintenanceImpact(reader: RoomReader, room: { id: numb
     .innerJoin(academicTerms, eq(academicTerms.id, teachingGroups.termId)).innerJoin(courses, eq(courses.id, teachingGroups.courseId))
     .where(and(eq(meetingRooms.roomId, room.id), eq(meetings.status, "active"))).orderBy(meetings.id, meetingRooms.id);
   const ods = await reader.select({ id: externalCommitments.id, kind: externalCommitments.kind, dayOfWeek: externalCommitments.dayOfWeek, startMinutes: externalCommitments.startMinutes, endMinutes: externalCommitments.endMinutes,
+    effectiveFrom: externalCommitments.effectiveFrom, effectiveTo: externalCommitments.effectiveTo,
+    teacherId: externalCommitments.teacherId, roomId: externalCommitments.roomId, linkedTeachingGroupId: externalCommitments.linkedTeachingGroupId, lifecycleStatus: externalCommitments.lifecycleStatus,
     termId: academicTerms.id, termName: academicTerms.name, termStart: academicTerms.startDate, termEnd: academicTerms.endDate, course: externalCommitments.courseLabel, counterpart: externalCommitments.counterpartDepartment, verification: externalCommitments.verificationStatus })
     .from(externalCommitments).innerJoin(academicTerms, eq(academicTerms.id, externalCommitments.termId)).where(and(eq(externalCommitments.roomId, room.id), eq(externalCommitments.lifecycleStatus, "active"))).orderBy(externalCommitments.id);
   const versions = await reader.select({ id: scheduleVersions.id, termId: scheduleVersions.termId, number: scheduleVersions.versionNumber, snapshot: scheduleVersions.snapshot, effectiveFrom: scheduleVersions.effectiveFrom,
@@ -39,8 +42,9 @@ export async function readMaintenanceImpact(reader: RoomReader, room: { id: numb
     const overlap = maintenanceOverlap(values, ref);
     if (overlap.kind !== "clear") items.push({ key: `m${ref.id}`, kind: "meeting", label: `Class #${ref.id} · ${ref.termName} · ${ref.courseCode}`, detail: `${DAY_NAMES[ref.dayOfWeek]} ${fmtRange(ref.startMinutes, ref.endMinutes)} · ${refs.filter((r) => r.id === ref.id).map((r) => r.role).join(", ")} · ${overlap.kind === "overlap" ? `First overlap ${overlap.firstDate}; ${overlap.occurrences} occurrence(s)` : overlap.reason}`, href: "/routine" });
   }
+  const covered = await readCoveredCommitmentIds(reader, ods);
   for (const od of ods) {
-    if (od.kind === "teaching") continue;
+    if (od.kind === "teaching" || covered.has(od.id)) continue;
     const overlap = maintenanceOverlap(values, { ...od, ...(!physicalOD(od.kind) ? { dayOfWeek: null, startMinutes: null, endMinutes: null } : {}) });
     if (overlap.kind !== "clear") items.push({ key: `e${od.id}`, kind: physicalOD(od.kind) && overlap.kind === "overlap" ? "physicalOD" : "uncertainOD", label: `OD #${od.id} · ${od.termName} · ${od.counterpart} · ${od.course ?? od.kind}`, detail: overlap.kind === "overlap" ? `First overlap ${overlap.firstDate}; ${overlap.occurrences} occurrence(s) · ${od.verification}` : overlap.reason, href: "/od" });
   }
@@ -55,7 +59,7 @@ export async function readMaintenanceImpact(reader: RoomReader, room: { id: numb
   const impact: MaintenanceImpact = { items, totals: { meeting: 0, physicalOD: 0, uncertainOD: 0, publication: 0 }, overlapping: entries.filter((e) => e.id !== excludeId && overlappingMaintenance(values, e)).map((e) => e.id) };
   for (const item of items) impact.totals[item.kind]++;
   // Bind raw date/use evidence too, including newly changed uncertainty, not just display summaries.
-  return { impact, evidence: { refs, ods, versions: currentVersions, entries } };
+  return { impact, evidence: { refs, ods, covered: [...covered], versions: currentVersions, entries } };
 }
 export async function saveMaintenanceInTransaction(tx: RoomTransaction, actor: Actor, raw: Record<string, unknown>): Promise<MaintenanceResult> {
   const roomId = positiveInteger(raw.roomId), revision = positiveInteger(raw.revision);

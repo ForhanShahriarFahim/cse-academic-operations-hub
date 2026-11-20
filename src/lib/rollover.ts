@@ -4,10 +4,13 @@ import { validatePattern, type PatternInput } from "./time-grid";
 
 export type Disposition = "progress" | "repeat" | "hold" | "graduate";
 export interface RolloverChoice { batchId: number; disposition: Disposition; carryCount: boolean; reason: string; graduateConfirmed: boolean }
-export interface RolloverPlan { sourceId: number; targetId: number; cloneGrid: boolean; reason: string; choices: RolloverChoice[] }
+export interface CarryChoice { id: number; effectiveFrom: string; effectiveTo: string }
+export interface CarryCandidate { id: number; label: string; bounded: boolean; canDate: boolean; exclusion: string | null }
+export interface CarryReview { sourceId: number; destinationId?: number; label: string; effectiveFrom: string | null; effectiveTo: string | null }
+export interface RolloverPlan { sourceId: number; targetId: number; cloneGrid: boolean; reason: string; choices: RolloverChoice[]; commitments?: CarryChoice[] }
 export interface RolloverCohort { id: number; label: string; stream: string; status: string; semester: number; studentCount: number | null; confidence: string }
 export interface RolloverDecision extends RolloverCohort { disposition: Disposition; destinationSemester: number | null; destinationCount: number | null; reason: string }
-export interface RolloverReview { fingerprint: string; source: string; target: string; targetIdentity?: string; decisions: RolloverDecision[]; grid: { patterns: number; plans: number; windows: number; excludedExceptions: number; legacyWindows: number }; warnings: string[] }
+export interface RolloverReview { fingerprint: string; source: string; target: string; targetIdentity?: string; decisions: RolloverDecision[]; commitments?: CarryReview[]; grid: { patterns: number; plans: number; windows: number; excludedExceptions: number; legacyWindows: number }; warnings: string[] }
 export const positiveId = (v: unknown): v is number => typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 export const eligibleCohort = (b: RolloverCohort) => b.status === "active" && ["HSC", "DIPLOMA"].includes(b.stream) && Number.isInteger(b.semester) && b.semester >= 1 && b.semester <= 8;
 export const validCount = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 2147483647;
@@ -33,7 +36,14 @@ export function parseRolloverPlan(raw: Record<string, string>): RolloverPlan {
     if (r.disposition === "graduate" && !r.graduateConfirmed) throw new Error("Explicitly confirm each graduation decision.");
     return { batchId: r.batchId, disposition: r.disposition as Disposition, carryCount: r.carryCount, reason: r.reason.trim(), graduateConfirmed: r.graduateConfirmed };
   }).sort((a, b) => a.batchId - b.batchId);
-  return { sourceId, targetId, cloneGrid: raw.cloneGrid === "on", reason: raw.reason.trim(), choices };
+  const result = { sourceId, targetId, cloneGrid: raw.cloneGrid === "on", reason: raw.reason.trim(), choices };
+  if (raw.commitments === undefined) return result;
+  if (raw.commitments.length > 200000) throw new Error("Submit a bounded commitment selection.");
+  let selected: unknown;
+  try { selected = JSON.parse(raw.commitments); } catch { throw new Error("Submit a valid commitment selection."); }
+  if (!Array.isArray(selected) || selected.some((row) => !row || !positiveId(row.id) || typeof row.effectiveFrom !== "string" || typeof row.effectiveTo !== "string" || row.effectiveFrom.length > 10 || row.effectiveTo.length > 10)) throw new Error("Check the selected commitments and their dates.");
+  if (new Set(selected.map((row) => row.id)).size !== selected.length) throw new Error("Select each commitment only once.");
+  return selected.length ? { ...result, commitments: selected.map(({ id, effectiveFrom, effectiveTo }) => ({ id, effectiveFrom, effectiveTo })) } : result;
 }
 
 export function rolloverDecisions(cohorts: RolloverCohort[], choices: RolloverChoice[]): RolloverDecision[] {

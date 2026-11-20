@@ -73,8 +73,8 @@ async function main() {
     assert.fail(`Publication race did not observe ${what}`);
   };
   const waitingOnAdvisory = "select count(*) from pg_stat_activity where datname=current_database() and wait_event_type='Lock' and wait_event='advisory'";
-  // A publisher that waits on an advisory lock held by another session which is itself held at the barrier.
-  const waitingOnPublisher = `select count(*) from pg_stat_activity a where a.datname=current_database() and a.wait_event='advisory' and exists (select 1 from pg_stat_activity o where o.pid = any(pg_blocking_pids(a.pid)) and o.wait_event='advisory')`;
+  // The second request waits for the term-context lock held by the publisher paused at the advisory barrier.
+  const waitingOnPublisher = `select count(*) from pg_stat_activity a where a.datname=current_database() and a.wait_event_type='Lock' and exists (select 1 from pg_stat_activity o where o.pid = any(pg_blocking_pids(a.pid)) and o.wait_event='advisory')`;
   async function barrier<T>(event: string, work: () => Promise<T>) {
     await control!.query(`select pg_advisory_lock(${BARRIER})`);
     await pool!.query(`create or replace function bug25_barrier() returns trigger language plpgsql as $$begin perform pg_advisory_xact_lock(${BARRIER});return new;end$$;create trigger bug25_barrier before ${event} on schedule_versions for each row execute function bug25_barrier()`);

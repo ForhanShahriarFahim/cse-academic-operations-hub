@@ -136,6 +136,36 @@ async function main() {
   ok(await actions.deleteExternalAction(noteId, token));
   lines.push("Reactivate returns an archived record as Pending; a resolved note keeps its original text; each success writes exactly one named audit event and refusals write none; history lists them newest first with reasons and notes; delete of a mistaken entry still works.");
 
+  const { civilDate, civilDay, firstWeekday } = loadApp<typeof import("../../../src/lib/room-maintenance")>("src/lib/room-maintenance.ts");
+  const linkable = portal.meetings.find((m) => m.deliveryMode === "fixed" && !m.pendingReconciliation && m.teachers.length)!;
+  assert.ok(linkable);
+  const date = civilDate(firstWeekday(civilDay(portal.term.startDate)!, civilDay(portal.term.endDate)!, [linkable.dayOfWeek])!);
+  const dated = { kind: "teaching", counterpartDepartment: "Synthetic cross-department class", teacherId: linkable.teachers[0].id,
+    dayOfWeek: linkable.dayOfWeek, startTime: hhmm(linkable.startMinutes), endTime: hhmm(linkable.endMinutes), effectiveFrom: date, effectiveTo: date };
+  assert.equal(kind(await noWrite(() => od.createExternalAction(form({ ...dated, effectiveTo: "" }), token))), "validation");
+  const datedId = (ok(await od.createExternalAction(form(dated), token)).outcome as { entityId: number }).entityId;
+  assert.deepEqual([(await row(datedId)).effectiveFrom, (await row(datedId)).effectiveTo], [date, date]);
+  const link = { groupId: linkable.teachingGroupId, revision: 1, reason: "Confirmed same class with counterpart" };
+  signInAs(TEACHER);
+  assert.equal(kind(await noWrite(() => od.setExternalLinkAction(datedId, form(link), token))), "permission");
+  signInAs(ADMIN);
+  assert.equal(kind(await noWrite(() => od.setExternalLinkAction(datedId, form({ ...link, groupId: 999999 }), token))), "stale");
+  ok(await od.setExternalLinkAction(datedId, form(link), token));
+  assert.ok((await data.getPortalData()).coveredCommitmentIds?.includes(datedId));
+  assert.ok(!(await data.getPortalData()).externals.some((e) => e.id === datedId));
+  await db.update(s.meetings).set({ effectiveFrom: civilDate(civilDay(date)! + 1) }).where(eq(s.meetings.id, linkable.id));
+  const drifted = await data.getPortalData();
+  assert.equal(drifted.externals.find((e) => e.id === datedId)?.linkNeedsReview, true);
+  assert.ok(analyzeSchedule({ meetings: drifted.meetings, externals: drifted.externals, breaks: [], windows: [], maintenance: drifted.maintenance }).some((issue) => issue.type === "external_link_review"));
+  const latest = drifted.versions.reduce<number | null>((id, version) => Math.max(id ?? 0, version.id), null);
+  const blocked = await actions.publishAction("Synthetic coverage drift", token, latest);
+  assert.equal(blocked.ok, false);
+  assert.ok(blocked.issues?.some((issue) => "type" in issue && issue.type === "external_link_review"));
+  ok(await od.setExternalLinkAction(datedId, form({ groupId: "", revision: 2, reason: "Meeting schedule changed" }), token));
+  assert.equal((await row(datedId)).linkedTeachingGroupId, null);
+  assert.equal((await reads.getCommitmentHistory(datedId))?.events[0].label, "Teaching group link removed");
+  lines.push("Dated input is validated and saved. Linking suppresses the duplicate, a loss of coverage restores it and raises a blocker, and audited unlink clears the relationship. Unauthorized and mismatched link requests write nothing.");
+
   report({ lines });
 }
 

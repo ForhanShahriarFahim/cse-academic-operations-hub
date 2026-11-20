@@ -2,7 +2,7 @@
 
 [Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Approved · 20 November 2026, Asia/Dhaka
 
-Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) · [Review sketches](mockups/index.html)
+Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) · [Review sketches](mockups/index.html) · [Verification](verification.md)
 
 ## Inspection and proposed approach
 
@@ -20,10 +20,10 @@ Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) �
 
 - [x] T-01 — Inspect OD-01A, the planner, formal groups, rollover, maintenance and publication consumers. Draft the specification, plan and responsive review sketches.
 - [x] T-02 — Record and commit the owner's approval of D-1–D-5.
-- [ ] T-03 — Add and verify forward-only migration `0023`, with term-scoped link integrity and carry provenance. Covers AC-07.
-- [ ] T-04 — Add date fields and occurrence rules across commitment actions, preview, calendar-free weekly planning and maintenance/lifecycle checks. Extend history and register. Covers AC-01–AC-02.
-- [ ] T-05 — Extend preparation selection, permissions, preview fingerprint, atomic copies and receipt. Add post-activation reconfirmation on the existing Verify path. Covers AC-03–AC-04.
-- [ ] T-06 — Add audited link/removal, live coverage and publication blockers, group deletion protection and duplicate suppression. Extend snapshot format, readers and routine/teacher output. Covers AC-05–AC-06.
+- [x] T-03 — Add and verify forward-only migration `0023`, with term-scoped link integrity and carry provenance. Covers AC-07.
+- [x] T-04 — Add date fields and occurrence rules across commitment actions, preview, calendar-free weekly planning and maintenance/lifecycle checks. Extend history and register. Covers AC-01–AC-02.
+- [x] T-05 — Extend preparation selection, permissions, preview fingerprint, atomic copies and receipt. Add post-activation reconfirmation on the existing Verify path. Covers AC-03–AC-04.
+- [x] T-06 — Add audited link/removal, live coverage and publication blockers, group deletion protection and duplicate suppression. Extend snapshot format, readers and routine/teacher output. Covers AC-05–AC-06.
 - [ ] T-07 — Run focused checks and the final suite. Review and record compiled flows and A4 examples against AC-01–AC-08 in `verification.md`.
 - [ ] T-08 — Commit the verified delivery, present it for owner inspection and record acceptance before merging into local `main`.
 
@@ -33,4 +33,4 @@ Run typecheck, lint, `test:domain`, full `test:safety` with `SAFE01_PG_BIN`, and
 
 ## Current checkpoint and exact handoff
 
-- **20 November — D-1–D-5 approved unchanged.** Start T-03 on `codex/od-01b` from `c65e410`. Proposal `2fb9aa6` is the approved baseline.
+- **20 November — approved implementation under verification.** Approval `9edda51` covers proposal `2fb9aa6`. T-03–T-06 are implemented. Finish T-07 against the [verification record](verification.md) before presenting for owner inspection.

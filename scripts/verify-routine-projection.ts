@@ -194,7 +194,7 @@ const snapshot = buildSnapshot({
   timeGrid: source.timeGrid,
   generatedAt: "2026-09-23T00:00:00.000Z",
 });
-assert.equal(snapshot.schemaVersion, 4);
+assert.equal(snapshot.schemaVersion, 5);
 assert.deepEqual(snapshot.timeGrid, source.timeGrid);
 assert.equal(snapshot.externalCommitments.length, 1);
 assert.equal(snapshot.issues.length, 1);

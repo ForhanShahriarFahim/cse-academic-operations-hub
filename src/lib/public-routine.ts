@@ -7,11 +7,12 @@ import type { RoutineSource } from "./routine-projection";
 import type { PublicationSnapshotV3, PublicationRoutineMetadata } from "./serialize";
 import { isTimeGrid } from "./time-grid";
 import { legacyTimeGrid } from "./time-grid-legacy";
+import { frozenPublication } from "./term-publication";
 
 export function isPublishedSnapshot(value: unknown): value is PublicationSnapshotV3 {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
-  return (item.schemaVersion === 3 || (item.schemaVersion === 4 && isTimeGrid(item.timeGrid))) && typeof item.generatedAt === "string"
+  return (item.schemaVersion === 3 || ((item.schemaVersion === 4 || item.schemaVersion === 5) && isTimeGrid(item.timeGrid))) && typeof item.generatedAt === "string"
     && typeof item.versionNumber === "number" && Array.isArray(item.meetings)
     && Array.isArray(item.batches) && Array.isArray(item.breaks)
     && Array.isArray(item.externalCommitments) && Array.isArray(item.issues)
@@ -34,12 +35,13 @@ export async function getPublicRoutineData(): Promise<{ source: RoutineSource; m
   if (state.kind === "ambiguous") throw new ActiveTermUnavailable(state.kind);
   if (state.kind === "none") return null;
   const term = state.term;
-  const [version] = await db.select({ snapshot: scheduleVersions.snapshot, publishedAt: scheduleVersions.publishedAt })
+  const [version] = await db.select({ snapshot: scheduleVersions.snapshot, publishedAt: scheduleVersions.publishedAt, versionNumber: scheduleVersions.versionNumber })
     .from(scheduleVersions).where(and(eq(scheduleVersions.termId, term.id), eq(scheduleVersions.state, "published")))
     .orderBy(desc(scheduleVersions.versionNumber)).limit(1);
   await assertTermContext({ activeTermId: term.id, generation });
   if (!version || !isPublishedSnapshot(version.snapshot)) return null;
-  const snapshot = version.snapshot;
+  const snapshot = version.snapshot.schemaVersion === 5 ? frozenPublication(version.snapshot, term.id, version.versionNumber) : version.snapshot;
+  if (!snapshot) return null;
   return {
     source: {
       kind: "published",

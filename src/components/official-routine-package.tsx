@@ -169,7 +169,7 @@ function DayTable({ table }: { table: SheetTable }) {
           );
         })}
         {table.od && (
-          <tr className="official-od">
+          <tr className={table.datedOD ? "official-od official-od-dated" : "official-od"}>
             {table.rows.length === 0 && dayCell}
             <th scope="row">OD</th>
             {table.od.map((entries, index) => (

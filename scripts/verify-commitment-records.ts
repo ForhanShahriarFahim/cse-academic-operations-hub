@@ -1,10 +1,12 @@
 /** OD-01A database-free commitment rules (AC-01–AC-04): validation, level, impact parity, lifecycle and register. */
 import assert from "node:assert/strict";
 import { analyzeSchedule } from "../src/lib/conflicts";
+import { teacherAvailability } from "../src/lib/routine-workbench";
+import { EMPTY_GRID } from "../src/lib/time-grid";
 import type { ExternalCommitmentView, MeetingView } from "../src/lib/serialize";
 import {
   availableCommands, blocksText, changedFields, commitmentClashes, completenessLevel, filterRegister, levelSummary,
-  parseCommitmentInput, parseReason, parseRegisterFilters, planningFactsChanged, registerCounts, registerQuery, reviewReasons,
+  parseCommitmentDates, parseCommitmentInput, parseReason, parseRegisterFilters, planningFactsChanged, registerCounts, registerQuery, reviewReasons,
   type CommitmentFacts,
 } from "../src/lib/commitment-records";
 
@@ -80,6 +82,27 @@ records.forEach((record, index) => {
   assert.deepEqual(preview, engine, `record ${index + 1}`);
 });
 assert.deepEqual(commitmentClashes(teaching, meetings).map((c) => c.meetingId), [1, 3], "touching ends do not clash; one shared minute does");
+
+const bounds = { termStart: "2027-01-01", termEnd: "2027-02-28" };
+const dates = { effectiveFrom: "2027-01-03", effectiveTo: "2027-01-10" }; // Sunday
+const bounded = { ...teaching, ...dates };
+assert.deepEqual(parseCommitmentDates(dates, 1, bounds).errors, {});
+assert.ok(parseCommitmentDates({ effectiveFrom: dates.effectiveFrom }, 1, bounds).errors.effectiveTo);
+assert.ok(parseCommitmentDates({ ...dates, effectiveFrom: "2026-12-27" }, 1, bounds).errors.effectiveFrom);
+assert.ok(parseCommitmentDates({ effectiveFrom: "2027-01-04", effectiveTo: "2027-01-09" }, 1, bounds).errors.effectiveTo);
+const record = { ...view(100, bounded), ...dates };
+const repeats = [meeting(10, 690, 765), meeting(11, 690, 765), meeting(12, 690, 765)];
+const datesByMeeting = {
+  10: { effectiveFrom: "2027-01-10", effectiveTo: "2027-01-17" },
+  11: { effectiveFrom: "2027-01-11", effectiveTo: null },
+  12: { effectiveFrom: "2027-01-04", effectiveTo: "2027-01-09" },
+};
+const schedule = { meetings: repeats, externals: [record], breaks: [], windows: [], grid: EMPTY_GRID, maintenance: { ...bounds, meetingDates: datesByMeeting, entries: [] } };
+assert.deepEqual(commitmentClashes(bounded, repeats.map((m) => ({ ...m, ...datesByMeeting[m.id as keyof typeof datesByMeeting] })), bounds).map((clash) => clash.meetingId), [10]);
+assert.deepEqual(analyzeSchedule(schedule).filter((issue) => issue.type === "external_teacher_conflict").flatMap((issue) => issue.meetingIds), [10]);
+assert.equal(teacherAvailability(teacher.id, 1, 690, 765, { ...schedule, meetings: [] }, 10).state, "external");
+assert.equal(teacherAvailability(teacher.id, 1, 690, 765, { ...schedule, meetings: [] }, 11).state, "free");
+assert.equal(planningFactsChanged(teaching, bounded), true);
 
 // D-4: planning facts and lifecycle availability.
 const relabelled: CommitmentFacts = { ...teaching, courseLabel: "X" };
