@@ -1,6 +1,6 @@
 # OD-01B — Effective dates, carry-forward and formal teaching groups
 
-[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Proposed · 20 November 2026, Asia/Dhaka
+[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Approved · 20 November 2026, Asia/Dhaka
 
 [Product requirement](../../PRODUCT_REQUIREMENTS.md#od-01--make-cross-department-commitments-understandable-and-maintainable) · [Plan](plan.md) · [Review sketches](mockups/index.html)
 

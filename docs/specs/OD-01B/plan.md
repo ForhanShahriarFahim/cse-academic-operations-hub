@@ -1,6 +1,6 @@
 # OD-01B — Implementation plan
 
-[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Proposed · 20 November 2026, Asia/Dhaka
+[Issue #13](https://github.com/ForhanShahriarFahim/cse-academic-operations-hub/issues/13) · Approved · 20 November 2026, Asia/Dhaka
 
 Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) · [Review sketches](mockups/index.html)
 
@@ -14,12 +14,12 @@ Branch `codex/od-01b` from local `main` at `c65e410`. [Specification](spec.md) �
 ## Approval record
 
 - The owner's “Go for the next” on 20 November started OD-01B inspection and specification following the recommendation for this slice.
-- Owner authorization to implement D-1–D-5 is pending. Record the owner's decision and commit the approved plan before feature changes.
+- The owner replied “Approved.” on 20 November to the request to approve D-1–D-5 in proposal `2fb9aa6`. This authorizes implementation and verification of those decisions unchanged.
 
 ## Tasks
 
 - [x] T-01 — Inspect OD-01A, the planner, formal groups, rollover, maintenance and publication consumers. Draft the specification, plan and responsive review sketches.
-- [ ] T-02 — Record and commit the owner's approval or amendments to D-1–D-5.
+- [x] T-02 — Record and commit the owner's approval of D-1–D-5.
 - [ ] T-03 — Add and verify forward-only migration `0023`, with term-scoped link integrity and carry provenance. Covers AC-07.
 - [ ] T-04 — Add date fields and occurrence rules across commitment actions, preview, calendar-free weekly planning and maintenance/lifecycle checks. Extend history and register. Covers AC-01–AC-02.
 - [ ] T-05 — Extend preparation selection, permissions, preview fingerprint, atomic copies and receipt. Add post-activation reconfirmation on the existing Verify path. Covers AC-03–AC-04.
@@ -33,4 +33,4 @@ Run typecheck, lint, `test:domain`, full `test:safety` with `SAFE01_PG_BIN`, and
 
 ## Current checkpoint and exact handoff
 
-- **20 November — proposal ready for review.** T-01 is complete on `codex/od-01b` from `c65e410`. The owner reviews D-1–D-5 and the sketches, especially reconfirmation authority and link behavior. After explicit approval, record and commit T-02, then start T-03. No feature code or institutional data has changed.
+- **20 November — D-1–D-5 approved unchanged.** Start T-03 on `codex/od-01b` from `c65e410`. Proposal `2fb9aa6` is the approved baseline.
